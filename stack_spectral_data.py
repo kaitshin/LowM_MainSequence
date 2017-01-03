@@ -57,7 +57,7 @@ def get_name_index_matches(*args, **kwargs):
     namematch = kwargs['namematch']
     instr     = kwargs['instr']
     index = np.array([x for x in range(len(NAME0)) if namematch in NAME0[x] and
-                      inst_str0[x] in inst_dict[instr]])
+                      inst_str0[x] in inst_dict[instr]])         ##### add in stellar mass check??????
     return index
 #enddef
 
@@ -430,6 +430,47 @@ def plot_MMT_Ha():
 #enddef
 
 
+def plot_Keck_Ha_setup(plot_type, bin_num):
+    """
+    plot_type can be 'binning' or 'all'
+    bin_num must be >= 3
+    """
+    
+    # plot dimension setup
+    if plot_type == 'binning':
+        m = (bin_num-1)/3 + 1
+        n = 3
+        # match_index0 = get_name_index_matches(namematch=filt, instr=instr)
+    else:
+        m = 3
+        n = 2
+    #endif  
+
+    # index_list will be irrelevant if plot_type=='binning'
+    index_0 = get_name_index_matches(namematch='Ha-NB816',instr='Keck')
+    index_1 = get_name_index_matches(namematch='Ha-NB921',instr='Keck')
+    index_2 = get_name_index_matches(namematch='Ha-NB973',instr='Keck')
+    index_list = [index_0]*n+[index_1]*n+[index_2]*n
+
+    xmin_list = np.array([4861,6563]*m)-60
+    xmax_list = np.array([4861,6563]*m)+60
+    label_list=[r'H$\beta$',r'H$\alpha$']*m
+    # subtitle_list will be irrelevant if plot_type=='binning'
+    subtitle_list = ['NB816']*n+['NB921']*n+['NB973']*n 
+    
+    f, axarr = plt.subplots(m, n)
+    f.set_size_inches(8, 11)
+
+    ax_list = []
+    for i in range(m):
+        for j in range(n):
+            ax_list.append(axarr[i, j])
+    #endfor
+
+    return f, axarr, index_list, ax_list, xmin_list, xmax_list, label_list, subtitle_list
+#enddef    
+
+
 #----plot_Keck_Ha------------------------------------------------------------#
 # o Calls get_name_index_matches in order to get the indexes at which
 #   there is the particular name match and instrument and then creates a
@@ -456,7 +497,7 @@ def plot_MMT_Ha():
 # o At the end of all the iterations, the plot is saved and closed.
 # o The fluxes are also output to a separate .txt file.
 #----------------------------------------------------------------------------#
-def plot_Keck_Ha():
+def plot_Keck_Ha(plot_type, bin_num, line, filt, instr, bin_type):
     tablenames  = []
     tablefluxes = []
     nii6548fluxes = []
@@ -468,34 +509,65 @@ def plot_Keck_Ha():
     medianlist = []
     pos_amplitudelist = []
     neg_amplitudelist = []
-    index_0 = get_name_index_matches(namematch='Ha-NB816',instr='Keck')
-    index_1 = get_name_index_matches(namematch='Ha-NB921',instr='Keck')
-    index_2 = get_name_index_matches(namematch='Ha-NB973',instr='Keck')
-    index_list = [index_0]*2+[index_1]*2+[index_2]*2
-    xmin_list = np.array([4861,6563]*3)-60
-    xmax_list = np.array([4861,6563]*3)+60
-    label_list=[r'H$\beta$',r'H$\alpha$']*3
+    
+    f, axarr, index_list, ax_list, xmin_list, xmax_list, label_list, subtitle_list = plot_Keck_Ha_setup(plot_type, bin_num)
 
-    subtitle_list = ['NB816']*2+['NB921']*2+['NB973']*2
-    f, axarr = plt.subplots(3, 2)
-    f.set_size_inches(8, 11)
-    ax_list = [axarr[0,0],axarr[0,1],axarr[1,0],
-               axarr[1,1],axarr[2,0],axarr[2,1]]
+    ## ***
+    if plot_type == 'binning':
+        match_index0 = get_name_index_matches(namematch=filt,instr=instr)
+        if 'beta' in line:
+            input_norm = HB_Y0[match_index0]
+        elif 'alpha' in line:
+            input_norm = HA_Y0[match_index0]
+        #endif  
+
+        good_index = [x for x in range(len(input_norm)) if input_norm[x]!=-99.99999 
+                      and input_norm[x]!=-1 and input_norm[x]!=0]
+        match_index = match_index0[good_index]
+
+
+        if bin_type == 'stlr_mass':
+            good_arr = stlr_mass[match_index] # previously good_stlr
+        #endif
+
+        matching_list = []
+        perc_list = []
+        for i in np.arange(bin_num)+1:
+            temp_perc = np.percentile(good_arr, 100*i/bin_num)
+            perc_list.append(temp_perc)
+            
+            if i == 1: 
+                print i
+                match = [x for x in range(len(good_arr)) if good_arr[x] <= temp_perc]
+            elif i != bin_num:
+                print i
+                match = [x for x in range(len(good_arr)) if good_arr[x] > perc_list[i-2] and good_arr[x] <= temp_perc]
+            else:
+                print i
+                match = [x for x in range(len(good_arr)) if good_arr[x] > perc_list[i-2]]
+            matching_list.append(match_index[match])
+        #endfor
+
+        index_list = matching_list
+    #endif ***
+
     num=0
     for (match_index0,ax,xmin0,xmax0,label,subtitle) in zip(index_list,ax_list,
                                                             xmin_list,xmax_list,
                                                             label_list, 
                                                             subtitle_list):
-        if 'beta' in label:
-            input_norm = HB_Y0[match_index0]
-        elif 'alpha' in label:
-            input_norm = HA_Y0[match_index0]
-        #endif
+        if plot_type != 'binning':
+            if 'beta' in label:
+                input_norm = HB_Y0[match_index0]
+            elif 'alpha' in label:
+                input_norm = HA_Y0[match_index0]
+            #endif
 
-        good_index = [x for x in range(len(input_norm)) if
-                      input_norm[x]!=-99.99999 and input_norm[x]!=-1
-                      and input_norm[x]!=0]
-        match_index = match_index0[good_index]
+            good_index = [x for x in range(len(input_norm)) if
+                          input_norm[x]!=-99.99999 and input_norm[x]!=-1
+                          and input_norm[x]!=0]
+            match_index = match_index0[good_index]
+        #endif
         
         AP_match = correct_instr_AP(AP[match_index], inst_str0[match_index], 'Keck')
         AP_match = np.array(AP_match, dtype=np.float32)
@@ -674,6 +746,10 @@ zspec = asc.read('Catalogs/nb_ia_zspec.txt',guess=False,
 slit_str0 = np.array(zspec['slit_str0'])
 inst_str0 = np.array(zspec['inst_str0'])
 
+fout  = asc.read('FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast.fout',
+                 guess=False,Reader=asc.NoHeader)
+stlr_mass = np.array(fout['col7'])
+
 data_dict = create_ordered_AP_arrays.create_ordered_AP_arrays()
 AP = data_dict['AP']
 HA_Y0 = data_dict['HA_Y0']
@@ -693,7 +769,7 @@ NAXIS1 = grid_hdr['NAXIS1']
 x0 = np.arange(CRVAL1, CDELT1*NAXIS1+CRVAL1, CDELT1)
 
 print '### plotting MMT_Ha'
-plot_MMT_Ha()
+#plot_MMT_Ha()
 grid.close()
 
 print '### looking at the Keck grid'
@@ -709,9 +785,9 @@ NAXIS1 = grid_hdr['NAXIS1']
 x0 = np.arange(CRVAL1, CDELT1*NAXIS1+CRVAL1, CDELT1)
 
 print '### plotting Keck_Ha'
-plot_Keck_Ha()
+plot_Keck_Ha('all', -1, 'n/a', 'n/a', 'n/a', 'n/a')
 grid.close()
-nbia.close()
 
+nbia.close()
 print '### done'
 #endmain
