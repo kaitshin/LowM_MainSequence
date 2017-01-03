@@ -57,7 +57,7 @@ def get_name_index_matches(*args, **kwargs):
     namematch = kwargs['namematch']
     instr     = kwargs['instr']
     index = np.array([x for x in range(len(NAME0)) if namematch in NAME0[x] and
-                      inst_str0[x] in inst_dict[instr]])         ##### add in stellar mass check??????
+                      inst_str0[x] in inst_dict[instr]])
     return index
 #enddef
 
@@ -711,7 +711,7 @@ x0 = np.arange(CRVAL1, CDELT1*NAXIS1+CRVAL1, CDELT1)
 print '### plotting Keck_Ha'
 plot_Keck_Ha()
 grid.close()
-
 nbia.close()
+
 print '### done'
 #endmain
