@@ -1,7 +1,6 @@
 """
 NAME:
     stack_spectral_data.py
-    (previously stack_spectral_MMT_data.py, stack_spectral_Keck_data.py)
 
 PURPOSE:
     This code creates a PDF file with 15 subplots, filter-emission line
@@ -14,11 +13,6 @@ INPUTS:
     'Spectra/spectral_MMT_grid_data.txt'
     'Spectra/spectral_MMT_grid.fits'
 
-CALLING SEQUENCE:
-    main body -> create_ordered_AP_arrays, 
-                 plot_MMT_Ha / plot_Keck_Ha -> get_name_index_matches, 
-                                correct_instr_AP, get_best_fit -> func (etc)
-
 OUTPUTS:
     'Spectra/Ha_MMT_stacked_ew.txt'
     'Spectra/Ha_MMT_stacked_fluxes.txt'
@@ -26,23 +20,11 @@ OUTPUTS:
     'Spectra/Ha_Keck_stacked_ew.txt'
     'Spectra/Ha_Keck_stacked_fluxes.txt'
     'Spectra/Ha_Keck_stacked.pdf'
-
-REVISION HISTORY:
-    Created by Kaitlyn Shin 25 July 2016
-    Revised by Kaitlyn Shin 04 August 2016
-    o Added NII fluxes to the tables and fit the lines on the plots
-    Revised by Kaitlyn Shin 09 October 2016
-    o Added HG/HB stellar absorption
-    o Re-calculated EW values
-    o Refactored creating the ordered AP arrays into a separate code
 """
 
 import numpy as np, matplotlib.pyplot as plt, sys, math
-sys.path.append('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/codes')
-import stack_data
-reload(stack_data)
-import create_ordered_AP_arrays
-reload(create_ordered_AP_arrays)
+from sdf_stack_data import stack_data
+from create_ordered_AP_arrays import create_ordered_AP_arrays
 from astropy.io import fits as pyfits, ascii as asc
 from scipy.interpolate import interp1d
 import scipy.optimize as optimization
@@ -57,7 +39,7 @@ def get_name_index_matches(*args, **kwargs):
     namematch = kwargs['namematch']
     instr     = kwargs['instr']
     index = np.array([x for x in range(len(NAME0)) if namematch in NAME0[x] and
-                      inst_str0[x] in inst_dict[instr]])         ##### add in stellar mass check??????
+                      inst_str0[x] in inst_dict[instr]])
     return index
 #enddef
 
@@ -206,7 +188,7 @@ def get_best_fit3(xval, yval, label):
 #   plotted.
 # o Except for NB973 Halpha, the graph is 'de-redshifted' in order to have
 #   the spectral line appear in the subplot. The values to plot are called
-#   from stack_data.stack_data
+#   from sdf_stack_data.stack_data
 # o get_best_fit is called to obtain the best-fit spectra, overlay the
 #   best fit, and then calculate the flux
 # o Additionally, a line is plotted at the value at which the emission line
@@ -276,7 +258,7 @@ def plot_MMT_Ha():
         try:
             label += ' ('+str(len(input_index))+')'
             print label, subtitle
-            xval, yval = stack_data.stack_data(grid_ndarr, gridz, input_index,
+            xval, yval = stack_data(grid_ndarr, gridz, input_index,
                                                x0, xmin0, xmax0, subtitle)
             ax.plot(xval, yval/1E-17, zorder=2)
             
@@ -484,7 +466,7 @@ def plot_Keck_Ha_setup(plot_type, bin_num):
 #   plotted.
 # o Except for NB973 Halpha, the graph is 'de-redshifted' in order to have
 #   the spectral line appear in the subplot. The values to plot are called
-#   from stack_data.stack_data
+#   from sdf_stack_data.stack_data
 # o get_best_fit is called to obtain the best-fit spectra, overlay the
 #   best fit, and then calculate the flux
 # o Additionally, a line is plotted at the value at which the emission line
@@ -577,7 +559,7 @@ def plot_Keck_Ha(plot_type, bin_num, line, filt, instr, bin_type):
         try:
             label += ' ('+str(len(input_index))+')'
             print label, subtitle
-            xval, yval = stack_data.stack_data(grid_ndarr, gridz, input_index,
+            xval, yval = stack_data(grid_ndarr, gridz, input_index,
                                                x0, xmin0, xmax0, subtitle)
             o1 = get_best_fit(xval, yval, label)
             if not (subtitle=='NB816' and num%2==0):
@@ -750,7 +732,7 @@ fout  = asc.read('FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast.fout',
                  guess=False,Reader=asc.NoHeader)
 stlr_mass = np.array(fout['col7'])
 
-data_dict = create_ordered_AP_arrays.create_ordered_AP_arrays()
+data_dict = create_ordered_AP_arrays()
 AP = data_dict['AP']
 HA_Y0 = data_dict['HA_Y0']
 HB_Y0 = data_dict['HB_Y0']
@@ -787,7 +769,6 @@ x0 = np.arange(CRVAL1, CDELT1*NAXIS1+CRVAL1, CDELT1)
 print '### plotting Keck_Ha'
 plot_Keck_Ha('all', -1, 'n/a', 'n/a', 'n/a', 'n/a')
 grid.close()
-
 nbia.close()
 print '### done'
 #endmain
