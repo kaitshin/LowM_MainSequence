@@ -10,11 +10,11 @@ PURPOSE:
 import numpy as np, math
 import scipy.optimize as optimization
 
-#----find_nearest------------------------------------------------------------#
-# o Uses np.searchsorted to find the array index closest to the input
-#   numerical value
-#----------------------------------------------------------------------------#
 def find_nearest(array,value):
+    '''
+    Uses np.searchsorted to find the array index closest to the input
+    numerical value
+    '''
     idx = np.searchsorted(array, value, side="left")
     if idx > 0 and (idx == len(array) or math.fabs(value - array[idx-1]) < math.fabs(value - array[idx])):
         return idx-1
@@ -23,11 +23,11 @@ def find_nearest(array,value):
 #enddef
 
 
-#----get_baseline_median-----------------------------------------------------#
-# o Returns the median of the baseline of the spectrum, masking out the
-#   emission peaks
-#----------------------------------------------------------------------------#
 def get_baseline_median(xval, yval, label):
+    '''
+    Returns the median of the baseline of the spectrum, masking out the
+    emission peaks
+    '''
     if 'gamma' in label:
         peak_l = find_nearest(xval, 4341-5)
         peak_r = find_nearest(xval, 4341+5)
@@ -59,30 +59,30 @@ def get_baseline_median(xval, yval, label):
 #enddef
 
 
-#----func--------------------------------------------------------------------#
-# o Is the passed-in model function for optimization.curve_fit
-#----------------------------------------------------------------------------#
 def func(x, a, b, c, d):
+    '''
+    Is the passed-in model function for optimization.curve_fit
+    '''
     u = (x-b)/c
     return a * np.exp(-0.5*u*u) + d
 #enddef
 
 
-#----func3-------------------------------------------------------------------#
-# o Is the passed-in model function for optimization.curve_fit
-#----------------------------------------------------------------------------#
 def func3(x, a1, b1, c1, a2, b2, c2, d):
+    '''
+    Is the passed-in model function for optimization.curve_fit
+    '''
     u = (x-b1)/c1
     v = (x-b2)/c2
     return a1*np.exp(-0.5*u*u) + a2*np.exp(-0.5*v*v) + d
 #enddef
 
 
-#----get_best_fit------------------------------------------------------------#
-# o Uses scipy.optimize.curve_fit() to obtain the best fit of the spectra
-#   which is then returned
-#----------------------------------------------------------------------------#
 def get_best_fit(xval, yval, label):
+    '''
+    Uses scipy.optimize.curve_fit() to obtain the best fit of the spectra
+    which is then returned
+    '''
     med0 = get_baseline_median(xval, yval, label)
     err = np.repeat(1.0e-18, len(xval))
     p0 = [np.max(yval)-med0, xval[np.argmax(yval)], 1.10, med0]
@@ -92,13 +92,15 @@ def get_best_fit(xval, yval, label):
 #enddef
 
 
-#----get_best_fit2-----------------------------------------------------------#
-# o Uses scipy.optimize.curve_fit() to obtain the best fit of the spectra
-#   which is then returned
-# o NII 6548 (6548.1 A)
-# o NII 6583 (6583.6 A)
-#----------------------------------------------------------------------------#
 def get_best_fit2(xval, yval, peakxval, label):
+    '''
+    Uses scipy.optimize.curve_fit() to obtain the best fit of the spectra
+    which is then returned
+
+    NII 6548 (6548.1 A)
+
+    NII 6583 (6583.6 A)
+    '''
     med0 = np.median(yval)
     err = np.repeat(1.0e-18, len(xval))
     p0 = [yval[find_nearest(xval, peakxval)], peakxval, 1.10, med0]
@@ -108,12 +110,13 @@ def get_best_fit2(xval, yval, peakxval, label):
 #enddef
 
 
-#----get_best_fit3-----------------------------------------------------------#
-# o Uses scipy.optimize.curve_fit() to obtain the best fit of the spectra
-#   which is then returned
-# o Hg and Hb absorption spectra
-#----------------------------------------------------------------------------#
 def get_best_fit3(xval, yval, label):
+    '''
+    Uses scipy.optimize.curve_fit() to obtain the best fit of the spectra
+    which is then returned
+
+    Hg and Hb absorption spectra
+    '''
     med0 = get_baseline_median(xval, yval, label)
     err = np.repeat(1.0e-18, len(xval))
     p0 = [np.max(yval)-med0, xval[np.argmax(yval)], 1.10,
