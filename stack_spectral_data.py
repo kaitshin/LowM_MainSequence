@@ -22,12 +22,12 @@ OUTPUTS:
     'Spectra/Ha_Keck_stacked.pdf'
 """
 
-import numpy as np, matplotlib.pyplot as plt, sys, math
+import numpy as np, matplotlib.pyplot as plt, sys
+from analysis.sdf_spectra_fit import find_nearest, get_best_fit, get_best_fit2, get_best_fit3
 from sdf_stack_data import stack_data
 from create_ordered_AP_arrays import create_ordered_AP_arrays
 from astropy.io import fits as pyfits, ascii as asc
 from scipy.interpolate import interp1d
-import scipy.optimize as optimization
 from astropy.table import Table
 
 
@@ -61,118 +61,7 @@ def correct_instr_AP(indexed_AP, indexed_inst_str0, instr):
 #enddef
 
 
-#----find_nearest------------------------------------------------------------#
-# o Uses np.searchsorted to find the array index closest to the input
-#   numerical value
-#----------------------------------------------------------------------------#
-def find_nearest(array,value):
-    idx = np.searchsorted(array, value, side="left")
-    if idx > 0 and (idx == len(array) or math.fabs(value - array[idx-1]) < math.fabs(value - array[idx])):
-        return idx-1
-    else:
-        return idx
-#enddef
 
-
-#----get_baseline_median-----------------------------------------------------#
-# o Returns the median of the baseline of the spectrum, masking out the
-#   emission peaks
-#----------------------------------------------------------------------------#
-def get_baseline_median(xval, yval, label):
-    if 'gamma' in label:
-        peak_l = find_nearest(xval, 4341-5)
-        peak_r = find_nearest(xval, 4341+5)
-
-        temparr = np.concatenate([yval[:peak_l], yval[peak_r:]], axis=0)
-        return np.median(temparr)
-    if 'beta' in label:
-        peak_l = find_nearest(xval, 4861-5)
-        peak_r = find_nearest(xval, 4861+5)
-
-        temparr = np.concatenate([yval[:peak_l], yval[peak_r:]], axis=0)
-        return np.median(temparr)
-    if 'alpha' in label:
-        nii_1l = find_nearest(xval, 6548.1-3)
-        nii_1r = find_nearest(xval, 6548.1+3)
-
-        peak_l = find_nearest(xval, 6563-5)
-        peak_r = find_nearest(xval, 6563+5)
-
-        nii_2l = find_nearest(xval, 6583.6-3)
-        nii_2r = find_nearest(xval, 6583.6+3)
-
-        temparr = np.concatenate([yval[:nii_1l], yval[nii_1r:peak_l],
-                                  yval[peak_r:nii_2l], yval[nii_2r:]], axis=0)
-        return np.median(temparr)
-    else:
-        print 'error!'
-        return 0
-#enddef
-
-
-#----func--------------------------------------------------------------------#
-# o Is the passed-in model function for optimization.curve_fit
-#----------------------------------------------------------------------------#
-def func(x, a, b, c, d):
-    u = (x-b)/c
-    return a * np.exp(-0.5*u*u) + d
-#enddef
-
-
-#----func3-------------------------------------------------------------------#
-# o Is the passed-in model function for optimization.curve_fit
-#----------------------------------------------------------------------------#
-def func3(x, a1, b1, c1, a2, b2, c2, d):
-    u = (x-b1)/c1
-    v = (x-b2)/c2
-    return a1*np.exp(-0.5*u*u) + a2*np.exp(-0.5*v*v) + d
-#enddef
-
-
-#----get_best_fit------------------------------------------------------------#
-# o Uses scipy.optimize.curve_fit() to obtain the best fit of the spectra
-#   which is then returned
-#----------------------------------------------------------------------------#
-def get_best_fit(xval, yval, label):
-    med0 = get_baseline_median(xval, yval, label)
-    err = np.repeat(1.0e-18, len(xval))
-    p0 = [np.max(yval)-med0, xval[np.argmax(yval)], 1.10, med0]
-
-    o1,o2 = optimization.curve_fit(func, xval, yval, p0, err)
-    return o1
-#enddef
-
-
-#----get_best_fit2-----------------------------------------------------------#
-# o Uses scipy.optimize.curve_fit() to obtain the best fit of the spectra
-#   which is then returned
-# o NII 6548 (6548.1 A)
-# o NII 6583 (6583.6 A)
-#----------------------------------------------------------------------------#
-def get_best_fit2(xval, yval, peakxval, label):
-    med0 = np.median(yval)
-    err = np.repeat(1.0e-18, len(xval))
-    p0 = [yval[find_nearest(xval, peakxval)], peakxval, 1.10, med0]
-
-    o1,o2 = optimization.curve_fit(func, xval, yval, p0, err)
-    return o1
-#enddef
-
-
-#----get_best_fit3-----------------------------------------------------------#
-# o Uses scipy.optimize.curve_fit() to obtain the best fit of the spectra
-#   which is then returned
-# o Hg and Hb absorption spectra
-#----------------------------------------------------------------------------#
-def get_best_fit3(xval, yval, label):
-    med0 = get_baseline_median(xval, yval, label)
-    err = np.repeat(1.0e-18, len(xval))
-    p0 = [np.max(yval)-med0, xval[np.argmax(yval)], 1.10,
-          -0.05*(np.max(yval)-med0), xval[np.argmax(yval)], 2.20, med0]
-
-    o1,o2 = optimization.curve_fit(func3, xval, yval, p0, err)
-    return o1
-#enddef
 
 
 #----plot_MMT_Ha-------------------------------------------------------------#
@@ -396,7 +285,7 @@ def plot_MMT_Ha():
     plt.setp([a.minorticks_on() for a in f.axes[:]])
     f.subplots_adjust(wspace=0.2)
     f.subplots_adjust(hspace=0.2)
-    plt.savefig('Spectra/Ha_MMT_stacked.pdf')
+    plt.savefig('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Spectra/Ha_MMT_stacked.pdf')
     plt.close()
 
     #writing the table
@@ -408,7 +297,7 @@ def plot_MMT_Ha():
     #writing the EW table
     table0 = Table([tablenames,ewlist,ewposlist,ewneglist,ewchecklist,medianlist,pos_amplitudelist,neg_amplitudelist], 
         names=['type','EW','EW_corr','EW_abs','ew check','median','pos_amplitude','neg_amplitude'])
-    asc.write(table0, 'Spectra/Ha_MMT_stacked_ew.txt', format='fixed_width', delimiter=' ')  
+    asc.write(table0, '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Spectra/Ha_MMT_stacked_ew.txt', format='fixed_width', delimiter=' ')  
 #enddef
 
 
@@ -684,18 +573,18 @@ def plot_Keck_Ha(plot_type, bin_num, line, filt, instr, bin_type):
     plt.setp([a.minorticks_on() for a in f.axes[:]])
     f.subplots_adjust(wspace=0.2)
     f.subplots_adjust(hspace=0.2)
-    plt.savefig('Spectra/Ha_Keck_stacked.pdf')
+    plt.savefig('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Spectra/Ha_Keck_stacked.pdf')
     plt.close()
 
     #writing the table
     table = Table([tablenames,tablefluxes,nii6548fluxes,nii6583fluxes],
                   names=['type','flux','NII6548 flux','NII6583 flux'])
-    asc.write(table, 'Spectra/Ha_Keck_stacked_fluxes.txt', format='fixed_width', delimiter=' ')
+    asc.write(table, '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Spectra/Ha_Keck_stacked_fluxes.txt', format='fixed_width', delimiter=' ')
 
     #writing the EW table
     table0 = Table([tablenames,ewlist,ewposlist,ewneglist,ewchecklist,medianlist,pos_amplitudelist,neg_amplitudelist], 
         names=['type','EW','EW_corr','EW_abs','ew check','median','pos_amplitude','neg_amplitude'])
-    asc.write(table0, 'Spectra/Ha_Keck_stacked_ew.txt', format='fixed_width', delimiter=' ')  
+    asc.write(table0, '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Spectra/Ha_Keck_stacked_ew.txt', format='fixed_width', delimiter=' ')  
 #enddef
 
 
@@ -719,16 +608,16 @@ inst_dict['Keck'] = ['merged,','Keck,','Keck,Keck,','Keck,FOCAS,',
                      'Keck,FOCAS,FOCAS,','Keck,Keck,FOCAS,']
 tol = 3 #in angstroms, used for NII emission flux calculations
 
-nbia = pyfits.open('Catalogs/python_outputs/nbia_all_nsource.fits')
+nbia = pyfits.open('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Catalogs/python_outputs/nbia_all_nsource.fits')
 nbiadata = nbia[1].data
 NAME0 = nbiadata['source_name']
 
-zspec = asc.read('Catalogs/nb_ia_zspec.txt',guess=False,
+zspec = asc.read('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Catalogs/nb_ia_zspec.txt',guess=False,
                  Reader=asc.CommentedHeader)
 slit_str0 = np.array(zspec['slit_str0'])
 inst_str0 = np.array(zspec['inst_str0'])
 
-fout  = asc.read('FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast.fout',
+fout  = asc.read('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast.fout',
                  guess=False,Reader=asc.NoHeader)
 stlr_mass = np.array(fout['col7'])
 
@@ -739,10 +628,10 @@ HB_Y0 = data_dict['HB_Y0']
 HG_Y0 = data_dict['HG_Y0']
 
 print '### looking at the MMT grid'
-griddata = asc.read('Spectra/spectral_MMT_grid_data.txt',guess=False)
+griddata = asc.read('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Spectra/spectral_MMT_grid_data.txt',guess=False)
 gridz  = np.array(griddata['ZSPEC'])
 gridap = np.array(griddata['AP'])
-grid   = pyfits.open('Spectra/spectral_MMT_grid.fits')
+grid   = pyfits.open('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Spectra/spectral_MMT_grid.fits')
 grid_ndarr = grid[0].data
 grid_hdr   = grid[0].header
 CRVAL1 = grid_hdr['CRVAL1']
@@ -755,10 +644,10 @@ print '### plotting MMT_Ha'
 grid.close()
 
 print '### looking at the Keck grid'
-griddata = asc.read('Spectra/spectral_Keck_grid_data.txt',guess=False)
+griddata = asc.read('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Spectra/spectral_Keck_grid_data.txt',guess=False)
 gridz  = np.array(griddata['ZSPEC'])
 gridap = np.array(griddata['AP'])
-grid   = pyfits.open('Spectra/spectral_Keck_grid.fits')
+grid   = pyfits.open('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Spectra/spectral_Keck_grid.fits')
 grid_ndarr = grid[0].data
 grid_hdr   = grid[0].header
 CRVAL1 = grid_hdr['CRVAL1']

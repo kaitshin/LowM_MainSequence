@@ -264,39 +264,39 @@ def create_ordered_AP_arrays():
     Using the AP order, then creates HA, HB, HG_Y0 arrays by calling get_Y0
     '''
 
-    zspec = asc.read('Catalogs/nb_ia_zspec.txt',guess=False,
+    zspec = asc.read('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Catalogs/nb_ia_zspec.txt',guess=False,
                      Reader=asc.CommentedHeader)
     slit_str0 = np.array(zspec['slit_str0'])
 
-    MMTall = pyfits.open('Main_Sequence/Catalogs/MMT/MMTS_all_line_fit.fits')
+    MMTall = pyfits.open('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Main_Sequence/Catalogs/MMT/MMTS_all_line_fit.fits')
     MMTalldata = MMTall[1].data
     MMTallAP = MMTalldata['AP']
     MMTallHAY0 = MMTalldata['HA_Y0']
     MMTallHBY0 = MMTalldata['HB_Y0']
     MMTallHGY0 = MMTalldata['HG_Y0']
 
-    MMTsingle = pyfits.open('Main_Sequence/Catalogs/MMT/MMT_single_line_fit.fits')
+    MMTsingle = pyfits.open('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Main_Sequence/Catalogs/MMT/MMT_single_line_fit.fits')
     MMTsingledata = MMTsingle[1].data
     MMTsingleAP = MMTsingledata['AP']
     MMTsingleHAY0 = MMTsingledata['HA_Y0']
     MMTsingleHBY0 = MMTsingledata['HB_Y0']
     MMTsingleHGY0 = MMTsingledata['HG_Y0']
 
-    DEIMOS = pyfits.open('Main_Sequence/Catalogs/Keck/DEIMOS_single_line_fit.fits')
+    DEIMOS = pyfits.open('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Main_Sequence/Catalogs/Keck/DEIMOS_single_line_fit.fits')
     DEIMOSdata = DEIMOS[1].data
     DEIMOSAP = DEIMOSdata['AP']
     DEIMOSHAY0 = DEIMOSdata['HA_Y0']
     DEIMOSHBY0 = DEIMOSdata['HB_Y0']
     DEIMOSHGY0 = DEIMOSdata['HG_Y0']
 
-    DEIMOS00=pyfits.open('Main_Sequence/Catalogs/Keck/DEIMOS_00_all_line_fit.fits')
+    DEIMOS00=pyfits.open('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Main_Sequence/Catalogs/Keck/DEIMOS_00_all_line_fit.fits')
     DEIMOS00data = DEIMOS00[1].data
     DEIMOS00AP = DEIMOS00data['AP']
     DEIMOS00HAY0 = DEIMOS00data['HA_Y0']
     DEIMOS00HBY0 = DEIMOS00data['HB_Y0']
     DEIMOS00HGY0 = DEIMOS00data['HG_Y0']
 
-    merged = pyfits.open('Main_Sequence/Catalogs/merged/MMT_Keck_line_fit.fits')
+    merged = pyfits.open('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Main_Sequence/Catalogs/merged/MMT_Keck_line_fit.fits')
     mergeddata = merged[1].data
     mergedAP = mergeddata['AP']
     mergedHAY0 = mergeddata['HA_Y0']
