@@ -22,12 +22,11 @@ OUTPUTS:
     'Spectra/Ha_Keck_stacked.pdf'
 """
 
-import numpy as np, matplotlib.pyplot as plt, sys
+import numpy as np, matplotlib.pyplot as plt
 from analysis.sdf_spectra_fit import find_nearest, get_best_fit, get_best_fit2, get_best_fit3
-from sdf_stack_data import stack_data
+from analysis.sdf_stack_data import stack_data
 from create_ordered_AP_arrays import create_ordered_AP_arrays
 from astropy.io import fits as pyfits, ascii as asc
-from scipy.interpolate import interp1d
 from astropy.table import Table
 
 
@@ -59,9 +58,6 @@ def correct_instr_AP(indexed_AP, indexed_inst_str0, instr):
     #endfor
     return indexed_AP
 #enddef
-
-
-
 
 
 #----plot_MMT_Ha-------------------------------------------------------------#
@@ -148,7 +144,7 @@ def plot_MMT_Ha():
             label += ' ('+str(len(input_index))+')'
             print label, subtitle
             xval, yval = stack_data(grid_ndarr, gridz, input_index,
-                                               x0, xmin0, xmax0, subtitle)
+                x0, xmin0, xmax0, subtitle)
             ax.plot(xval, yval/1E-17, zorder=2)
             
             # calculating flux for NII emissions
@@ -285,19 +281,19 @@ def plot_MMT_Ha():
     plt.setp([a.minorticks_on() for a in f.axes[:]])
     f.subplots_adjust(wspace=0.2)
     f.subplots_adjust(hspace=0.2)
-    plt.savefig('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Spectra/Ha_MMT_stacked.pdf')
+    plt.savefig(full_path+'Spectra/Ha_MMT_stacked.pdf')
     plt.close()
 
     #writing the table
     table = Table([tablenames,tablefluxes,nii6548fluxes,nii6583fluxes],
                   names=['type','flux','NII6548 flux','NII6583 flux'])
-    asc.write(table, 'Spectra/Ha_MMT_stacked_fluxes.txt',
+    asc.write(table, full_path+'Spectra/Ha_MMT_stacked_fluxes.txt',
               format='fixed_width', delimiter=' ')  
 
     #writing the EW table
     table0 = Table([tablenames,ewlist,ewposlist,ewneglist,ewchecklist,medianlist,pos_amplitudelist,neg_amplitudelist], 
         names=['type','EW','EW_corr','EW_abs','ew check','median','pos_amplitude','neg_amplitude'])
-    asc.write(table0, '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Spectra/Ha_MMT_stacked_ew.txt', format='fixed_width', delimiter=' ')  
+    asc.write(table0, full_path+'Spectra/Ha_MMT_stacked_ew.txt', format='fixed_width', delimiter=' ')  
 #enddef
 
 
@@ -573,18 +569,18 @@ def plot_Keck_Ha(plot_type, bin_num, line, filt, instr, bin_type):
     plt.setp([a.minorticks_on() for a in f.axes[:]])
     f.subplots_adjust(wspace=0.2)
     f.subplots_adjust(hspace=0.2)
-    plt.savefig('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Spectra/Ha_Keck_stacked.pdf')
+    plt.savefig(full_path+'Spectra/Ha_Keck_stacked.pdf')
     plt.close()
 
     #writing the table
     table = Table([tablenames,tablefluxes,nii6548fluxes,nii6583fluxes],
                   names=['type','flux','NII6548 flux','NII6583 flux'])
-    asc.write(table, '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Spectra/Ha_Keck_stacked_fluxes.txt', format='fixed_width', delimiter=' ')
+    asc.write(table, full_path+'Spectra/Ha_Keck_stacked_fluxes.txt', format='fixed_width', delimiter=' ')
 
     #writing the EW table
     table0 = Table([tablenames,ewlist,ewposlist,ewneglist,ewchecklist,medianlist,pos_amplitudelist,neg_amplitudelist], 
         names=['type','EW','EW_corr','EW_abs','ew check','median','pos_amplitude','neg_amplitude'])
-    asc.write(table0, '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Spectra/Ha_Keck_stacked_ew.txt', format='fixed_width', delimiter=' ')  
+    asc.write(table0, full_path+'Spectra/Ha_Keck_stacked_ew.txt', format='fixed_width', delimiter=' ')  
 #enddef
 
 
@@ -599,6 +595,7 @@ def plot_Keck_Ha(plot_type, bin_num, line, filt, instr, bin_type):
 # o Then calls plot_*_Ha.
 # o Done for both MMT and Keck data.
 #----------------------------------------------------------------------------#
+full_path = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
 good_NB921_Halpha = ['S.245','S.278','S.291','S.306','S.308','S.333','S.334',
                      'S.350','S.364','A.134','D.076','D.099','D.123','D.125',
                      'D.127','D.135','D.140','D.215','D.237','D.298']
@@ -608,16 +605,16 @@ inst_dict['Keck'] = ['merged,','Keck,','Keck,Keck,','Keck,FOCAS,',
                      'Keck,FOCAS,FOCAS,','Keck,Keck,FOCAS,']
 tol = 3 #in angstroms, used for NII emission flux calculations
 
-nbia = pyfits.open('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Catalogs/python_outputs/nbia_all_nsource.fits')
+nbia = pyfits.open(full_path+'Catalogs/python_outputs/nbia_all_nsource.fits')
 nbiadata = nbia[1].data
 NAME0 = nbiadata['source_name']
 
-zspec = asc.read('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Catalogs/nb_ia_zspec.txt',guess=False,
+zspec = asc.read(full_path+'Catalogs/nb_ia_zspec.txt',guess=False,
                  Reader=asc.CommentedHeader)
 slit_str0 = np.array(zspec['slit_str0'])
 inst_str0 = np.array(zspec['inst_str0'])
 
-fout  = asc.read('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast.fout',
+fout  = asc.read(full_path+'FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast.fout',
                  guess=False,Reader=asc.NoHeader)
 stlr_mass = np.array(fout['col7'])
 
@@ -628,10 +625,10 @@ HB_Y0 = data_dict['HB_Y0']
 HG_Y0 = data_dict['HG_Y0']
 
 print '### looking at the MMT grid'
-griddata = asc.read('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Spectra/spectral_MMT_grid_data.txt',guess=False)
+griddata = asc.read(full_path+'Spectra/spectral_MMT_grid_data.txt',guess=False)
 gridz  = np.array(griddata['ZSPEC'])
 gridap = np.array(griddata['AP'])
-grid   = pyfits.open('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Spectra/spectral_MMT_grid.fits')
+grid   = pyfits.open(full_path+'Spectra/spectral_MMT_grid.fits')
 grid_ndarr = grid[0].data
 grid_hdr   = grid[0].header
 CRVAL1 = grid_hdr['CRVAL1']
@@ -640,14 +637,13 @@ NAXIS1 = grid_hdr['NAXIS1']
 x0 = np.arange(CRVAL1, CDELT1*NAXIS1+CRVAL1, CDELT1)
 
 print '### plotting MMT_Ha'
-#plot_MMT_Ha()
+plot_MMT_Ha()
 grid.close()
-
 print '### looking at the Keck grid'
-griddata = asc.read('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Spectra/spectral_Keck_grid_data.txt',guess=False)
+griddata = asc.read(full_path+'Spectra/spectral_Keck_grid_data.txt',guess=False)
 gridz  = np.array(griddata['ZSPEC'])
 gridap = np.array(griddata['AP'])
-grid   = pyfits.open('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Spectra/spectral_Keck_grid.fits')
+grid   = pyfits.open(full_path+'Spectra/spectral_Keck_grid.fits')
 grid_ndarr = grid[0].data
 grid_hdr   = grid[0].header
 CRVAL1 = grid_hdr['CRVAL1']
