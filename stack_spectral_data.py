@@ -25,6 +25,8 @@ OUTPUTS:
 import numpy as np, matplotlib.pyplot as plt
 from analysis.sdf_spectra_fit import find_nearest, get_best_fit, get_best_fit2, get_best_fit3
 from analysis.sdf_stack_data import stack_data
+import plotting.hg_hb_ha_plotting as MMT_plotting
+import plotting.general_plotting as general_plotting
 from create_ordered_AP_arrays import create_ordered_AP_arrays
 from astropy.io import fits as pyfits, ascii as asc
 from astropy.table import Table
@@ -275,12 +277,7 @@ def plot_MMT_Ha():
         #endif
         num+=1
     #endfor
-    f.suptitle(r'MMT detections of H$\alpha$ emitters', size=15)
-    plt.setp([a.get_xticklabels() for a in f.axes[:]], size='6')
-    plt.setp([a.get_yticklabels() for a in f.axes[:]], size='6')
-    plt.setp([a.minorticks_on() for a in f.axes[:]])
-    f.subplots_adjust(wspace=0.2)
-    f.subplots_adjust(hspace=0.2)
+    f = general_plotting.final_plot_setup(f, r'MMT detections of H$\alpha$ emitters')
     plt.savefig(full_path+'Spectra/Ha_MMT_stacked.pdf')
     plt.close()
 
@@ -298,10 +295,10 @@ def plot_MMT_Ha():
 
 
 def plot_Keck_Ha_setup(plot_type, bin_num):
-    """
+    '''
     plot_type can be 'binning' or 'all'
     bin_num must be >= 3
-    """
+    '''
     
     # plot dimension setup
     if plot_type == 'binning':
@@ -563,12 +560,7 @@ def plot_Keck_Ha(plot_type, bin_num, line, filt, instr, bin_type):
         #endif
         num+=1
     #endfor
-    f.suptitle(r'Keck detections of H$\alpha$ emitters', size=15)
-    plt.setp([a.get_xticklabels() for a in f.axes[:]], size='6')
-    plt.setp([a.get_yticklabels() for a in f.axes[:]], size='6')
-    plt.setp([a.minorticks_on() for a in f.axes[:]])
-    f.subplots_adjust(wspace=0.2)
-    f.subplots_adjust(hspace=0.2)
+    f = general_plotting.final_plot_setup(f, r'Keck detections of H$\alpha$ emitters')
     plt.savefig(full_path+'Spectra/Ha_Keck_stacked.pdf')
     plt.close()
 
@@ -652,7 +644,7 @@ NAXIS1 = grid_hdr['NAXIS1']
 x0 = np.arange(CRVAL1, CDELT1*NAXIS1+CRVAL1, CDELT1)
 
 print '### plotting Keck_Ha'
-plot_Keck_Ha('all', -1, 'n/a', 'n/a', 'n/a', 'n/a')
+# plot_Keck_Ha('all', -1, 'n/a', 'n/a', 'n/a', 'n/a')
 grid.close()
 nbia.close()
 print '### done'
