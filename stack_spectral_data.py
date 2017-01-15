@@ -30,11 +30,11 @@ from astropy.io import fits as pyfits, ascii as asc
 from astropy.table import Table
 
 
-#----get_name_index_matches--------------------------------------------------#
-# o Returns the indexes from which the kwargs name is in the ordered NAME0
-#   array and the kwargs instr is in the ordered inst_dict dict.
-#----------------------------------------------------------------------------#
 def get_name_index_matches(*args, **kwargs):
+    '''
+    Returns the indexes from which the kwargs name is in the ordered NAME0
+    array and the kwargs instr is in the ordered inst_dict dict.
+    '''
     namematch = kwargs['namematch']
     instr     = kwargs['instr']
     index = np.array([x for x in range(len(NAME0)) if namematch in NAME0[x] and
@@ -43,11 +43,11 @@ def get_name_index_matches(*args, **kwargs):
 #enddef
 
 
-#----correct_instr_AP--------------------------------------------------------#
-# o Returns the indexed AP_match array based on the 'match_index' from
-#   plot_MMT/Keck_Ha
-#----------------------------------------------------------------------------#
 def correct_instr_AP(indexed_AP, indexed_inst_str0, instr):
+    '''
+    Returns the indexed AP_match array based on the 'match_index' from
+    plot_MMT/Keck_Ha
+    '''
     for ii in range(len(indexed_inst_str0)):
         if indexed_inst_str0[ii]=='merged,':
             if instr=='MMT':
