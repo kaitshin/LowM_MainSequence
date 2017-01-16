@@ -6,6 +6,7 @@ PURPOSE:
     This code creates a PDF file with 15 subplots, filter-emission line
     row-major order, to show all the MMT and Keck spectral data stacked and
     plotted in a 'de-redshifted' frame.
+    Specific to SDF data.
 
 INPUTS:
     'Catalogs/python_outputs/nbia_all_nsource.fits'
@@ -30,19 +31,6 @@ import plotting.general_plotting as general_plotting
 from create_ordered_AP_arrays import create_ordered_AP_arrays
 from astropy.io import fits as pyfits, ascii as asc
 from astropy.table import Table
-
-
-def get_name_index_matches(*args, **kwargs):
-    '''
-    Returns the indexes from which the kwargs name is in the ordered NAME0
-    array and the kwargs instr is in the ordered inst_dict dict.
-    '''
-    namematch = kwargs['namematch']
-    instr     = kwargs['instr']
-    index = np.array([x for x in range(len(NAME0)) if namematch in NAME0[x] and
-                      inst_str0[x] in inst_dict[instr]])
-    return index
-#enddef
 
 
 def correct_instr_AP(indexed_AP, indexed_inst_str0, instr):
@@ -89,33 +77,22 @@ def correct_instr_AP(indexed_AP, indexed_inst_str0, instr):
 # o The fluxes are also output to a separate .txt file.
 #----------------------------------------------------------------------------#
 def plot_MMT_Ha():
-    tablenames  = []
-    tablefluxes = []
-    nii6548fluxes = []
-    nii6583fluxes = []
-    ewlist = []
-    ewposlist = []
-    ewneglist = []
-    ewchecklist = []
-    medianlist = []
-    pos_amplitudelist = []
-    neg_amplitudelist = []
-    index_0 = get_name_index_matches(namematch='Ha-NB704',instr='MMT')
-    index_1 = get_name_index_matches(namematch='Ha-NB711',instr='MMT')
-    index_2 = get_name_index_matches(namematch='Ha-NB816',instr='MMT')
-    index_3 = get_name_index_matches(namematch='Ha-NB921',instr='MMT')
-    index_4 = get_name_index_matches(namematch='Ha-NB973',instr='MMT')
-    index_list = [index_0]*3+[index_1]*3+[index_2]*3+[index_3]*3+[index_4]*3
+    table_arrays = general_plotting.initialize_table_arrays()
+    (tablenames, tablefluxes, nii6548fluxes, nii6583fluxes, ewlist, 
+        ewposlist , ewneglist, ewchecklist, medianlist, pos_amplitudelist, 
+        neg_amplitudelist) = table_arrays
+    index_list = general_plotting.get_index_list(NAME0, inst_str0, inst_dict, 'MMT')
     xmin_list = np.array([4341,4861,6563]*5)-60
     xmax_list = np.array([4341,4861,6563]*5)+60
     label_list=[r'H$\gamma$',r'H$\beta$',r'H$\alpha$']*5
-
     subtitle_list = ['NB704']*3+['NB711']*3+['NB816']*3+['NB921']*3+['NB973']*3
+    
     f, axarr = plt.subplots(5, 3)
     f.set_size_inches(8, 11)
     ax_list = [axarr[0,0],axarr[0,1],axarr[0,2],axarr[1,0],axarr[1,1],
                axarr[1,2],axarr[2,0],axarr[2,1],axarr[2,2],axarr[3,0],
                axarr[3,1],axarr[3,2],axarr[4,0],axarr[4,1],axarr[4,2]]
+    
     num=0
     for (match_index0,ax,xmin0,xmax0,label,subtitle) in zip(index_list,ax_list,
                                                             xmin_list,xmax_list,
@@ -147,7 +124,6 @@ def plot_MMT_Ha():
             print label, subtitle
             xval, yval = stack_data(grid_ndarr, gridz, input_index,
                 x0, xmin0, xmax0, subtitle)
-            ax.plot(xval, yval/1E-17, zorder=2)
             
             # calculating flux for NII emissions
             zs = np.array(gridz[input_index])
@@ -163,6 +139,9 @@ def plot_MMT_Ha():
             zs = np.average(zs[good_z])
             dlambda = (x0[1]-x0[0])/(1+zs)
 
+            ax, flux, flux2, flux3, pos_flux, o1, o2, o3 = MMT_plotting.subplots_plotting(
+                ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, tol)
+
             ew_emission = 0
             ew_absorption = 0
             ew_check = 0
@@ -170,51 +149,15 @@ def plot_MMT_Ha():
             pos_amplitude = 0
             neg_amplitude = 0
             if 'alpha' in label:
-                o1 = get_best_fit(xval, yval, label)
-                ax.plot(xval, (o1[3]+o1[0]*np.exp(-0.5*((xval-o1[1])/o1[2])**2))/1E-17,
-                        'r--', zorder=3)
-
-                flux = np.sum(dlambda * (o1[0]*np.exp(-0.5*((xval-o1[1])/o1[2])**2)))
-                pos_flux = flux
-
                 ew = flux/o1[3]
                 ew_emission = ew
                 ew_check = ew
                 median = o1[3]
                 pos_amplitude = o1[0]
                 neg_amplitude = 0
-                if subtitle=='NB973':
-                    flux2 = 0
-                    flux3 = 0
-                else:
-                    peak_idx2_left  = find_nearest(xval, 6548.1-tol)
-                    peak_idx2_right = find_nearest(xval, 6548.1+tol)
-                    xval2=xval[peak_idx2_left:peak_idx2_right]
-                    yval2=yval[peak_idx2_left:peak_idx2_right]
-                    o2 = get_best_fit2(xval2, yval2, 6548.1, label)
-                    flux2 = np.sum(dlambda * (o2[0]*np.exp(-0.5*((xval2-o2[1])/o2[2])**2)))
-                    ax.plot(xval2, (o2[3]+o2[0]*np.exp(-0.5*((xval2-o2[1])/o2[2])**2))/1E-17, 'g,', zorder=3)
-                    
-                    peak_idx3_left  = find_nearest(xval, 6583.6-tol)
-                    peak_idx3_right = find_nearest(xval, 6583.6+tol)
-                    xval3=xval[peak_idx3_left:peak_idx3_right]
-                    yval3=yval[peak_idx3_left:peak_idx3_right]
-                    o3 = get_best_fit2(xval3, yval3, 6583.6, label)
-                    flux3 = np.sum(dlambda * (o3[0]*np.exp(-0.5*((xval3-o3[1])/o3[2])**2)))
-                    ax.plot(xval3, (o3[3]+o3[0]*np.exp(-0.5*((xval3-o3[1])/o3[2])**2))/1E-17, 'g,', zorder=3)
             else:
-                o1 = get_best_fit3(xval, yval, label)
                 pos0 = o1[6]+o1[0]*np.exp(-0.5*((xval-o1[1])/o1[2])**2)
                 neg0 = o1[3]*np.exp(-0.5*((xval-o1[4])/o1[5])**2)
-                func0 = pos0 + neg0
-                ax.plot(xval, func0/1E-17, 'r--', zorder=3)
-
-                idx_small = np.where(np.absolute(xval - o1[1]) <= 2.5*o1[2])[0]
-                
-                pos_flux = np.sum(dlambda * (pos0[idx_small] - o1[6]))
-                flux = np.sum(dlambda * (func0[idx_small] - o1[6]))
-                flux2 = 0
-                flux3 = 0
 
                 ew = flux/o1[6]
                 median = o1[6]
@@ -227,6 +170,7 @@ def plot_MMT_Ha():
                     ew_emission = ew
                     ew_check = ew
                 else:
+                    idx_small = np.where(np.absolute(xval - o1[1]) <= 2.5*o1[2])[0]
                     pos_corr = np.sum(dlambda * (pos0[idx_small] - o1[6]))
                     ew_emission = pos_corr / o1[6]
                     neg_corr = np.sum(dlambda * neg0[idx_small])
@@ -234,8 +178,6 @@ def plot_MMT_Ha():
                     ew_check = ew_emission + ew_absorption
             #endif
             
-            ax.set_xlim(xmin0, xmax0)
-            ax.set_ylim(ymin=0)
         except ValueError:
             print 'ValueError: none exist'
         #endtry
@@ -258,6 +200,8 @@ def plot_MMT_Ha():
             ax = MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, num, pos_flux, flux)
         elif not pos_flux and not flux:
             ax = MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, num)
+        else:
+            print 'something\'s not right...'
         #endif
 
         num+=1
@@ -626,6 +570,7 @@ x0 = np.arange(CRVAL1, CDELT1*NAXIS1+CRVAL1, CDELT1)
 print '### plotting MMT_Ha'
 plot_MMT_Ha()
 grid.close()
+
 print '### looking at the Keck grid'
 griddata = asc.read(full_path+'Spectra/spectral_Keck_grid_data.txt',guess=False)
 gridz  = np.array(griddata['ZSPEC'])
@@ -641,6 +586,7 @@ x0 = np.arange(CRVAL1, CDELT1*NAXIS1+CRVAL1, CDELT1)
 print '### plotting Keck_Ha'
 # plot_Keck_Ha('all', -1, 'n/a', 'n/a', 'n/a', 'n/a')
 grid.close()
+
 nbia.close()
 print '### done'
 #endmain
