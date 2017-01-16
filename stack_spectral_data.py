@@ -28,7 +28,7 @@ from analysis.sdf_spectra_fit import find_nearest, get_best_fit, get_best_fit2, 
 from analysis.sdf_stack_data import stack_data
 import plotting.hg_hb_ha_plotting as MMT_plotting
 import plotting.general_plotting as general_plotting
-import writing_tables.hg_hb_ha_tables as MMT_twriting
+import writing_tables.general_tables as general_twriting
 from create_ordered_AP_arrays import create_ordered_AP_arrays
 from astropy.io import fits as pyfits, ascii as asc
 from astropy.table import Table
@@ -83,10 +83,8 @@ def plot_MMT_Ha():
         ewposlist , ewneglist, ewchecklist, medianlist, pos_amplitudelist, 
         neg_amplitudelist) = table_arrays
     index_list = general_plotting.get_index_list(NAME0, inst_str0, inst_dict, 'MMT')
-    xmin_list = np.array([4341,4861,6563]*5)-60
-    xmax_list = np.array([4341,4861,6563]*5)+60
-    label_list=[r'H$\gamma$',r'H$\beta$',r'H$\alpha$']*5
-    subtitle_list = ['NB704']*3+['NB711']*3+['NB816']*3+['NB921']*3+['NB973']*3
+    (xmin_list, xmax_list, label_list, 
+        subtitle_list) = general_plotting.get_iter_lists('MMT')
     
     f, axarr = plt.subplots(5, 3)
     f.set_size_inches(8, 11)
@@ -183,7 +181,7 @@ def plot_MMT_Ha():
             print 'ValueError: none exist'
         #endtry
         
-        table_arrays = MMT_twriting.table_arr_appends(num, table_arrays, label, subtitle, flux, flux2, flux3, ew, ew_emission, ew_absorption, ew_check, median, pos_amplitude, neg_amplitude)
+        table_arrays = general_twriting.table_arr_appends(num, table_arrays, label, subtitle, flux, flux2, flux3, ew, ew_emission, ew_absorption, ew_check, median, pos_amplitude, neg_amplitude, 'MMT')
         
         if pos_flux and flux:
             ax = MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, num, pos_flux, flux)
@@ -212,48 +210,7 @@ def plot_MMT_Ha():
 #enddef
 
 
-def plot_Keck_Ha_setup(plot_type, bin_num):
-    '''
-    plot_type can be 'binning' or 'all'
-    bin_num must be >= 3
-    '''
-    
-    # plot dimension setup
-    if plot_type == 'binning':
-        m = (bin_num-1)/3 + 1
-        n = 3
-        # match_index0 = get_name_index_matches(namematch=filt, instr=instr)
-    else:
-        m = 3
-        n = 2
-    #endif  
-
-    # index_list will be irrelevant if plot_type=='binning'
-    index_0 = get_name_index_matches(namematch='Ha-NB816',instr='Keck')
-    index_1 = get_name_index_matches(namematch='Ha-NB921',instr='Keck')
-    index_2 = get_name_index_matches(namematch='Ha-NB973',instr='Keck')
-    index_list = [index_0]*n+[index_1]*n+[index_2]*n
-
-    xmin_list = np.array([4861,6563]*m)-60
-    xmax_list = np.array([4861,6563]*m)+60
-    label_list=[r'H$\beta$',r'H$\alpha$']*m
-    # subtitle_list will be irrelevant if plot_type=='binning'
-    subtitle_list = ['NB816']*n+['NB921']*n+['NB973']*n 
-    
-    f, axarr = plt.subplots(m, n)
-    f.set_size_inches(8, 11)
-
-    ax_list = []
-    for i in range(m):
-        for j in range(n):
-            ax_list.append(axarr[i, j])
-    #endfor
-
-    return f, axarr, index_list, ax_list, xmin_list, xmax_list, label_list, subtitle_list
-#enddef    
-
-
-def plot_Keck_Ha(plot_type, bin_num, line, filt, instr, bin_type):
+def plot_Keck_Ha():
     '''
     Calls get_name_index_matches in order to get the indexes at which
     there is the particular name match and instrument and then creates a
@@ -290,76 +247,34 @@ def plot_Keck_Ha(plot_type, bin_num, line, filt, instr, bin_type):
 
     The fluxes are also output to a separate .txt file.
     '''
-    tablenames  = []
-    tablefluxes = []
-    nii6548fluxes = []
-    nii6583fluxes = []
-    ewlist = []
-    ewposlist = []
-    ewneglist = []
-    ewchecklist = []
-    medianlist = []
-    pos_amplitudelist = []
-    neg_amplitudelist = []
+    table_arrays = ([], [], [], [], [], [], [], [], [], [], [])
+    (tablenames, tablefluxes, nii6548fluxes, nii6583fluxes, ewlist, 
+        ewposlist , ewneglist, ewchecklist, medianlist, pos_amplitudelist, 
+        neg_amplitudelist) = table_arrays
+    index_list = general_plotting.get_index_list(NAME0, inst_str0, inst_dict, 'Keck')
+    (xmin_list, xmax_list, label_list, 
+        subtitle_list) = general_plotting.get_iter_lists('Keck')
     
-    f, axarr, index_list, ax_list, xmin_list, xmax_list, label_list, subtitle_list = plot_Keck_Ha_setup(plot_type, bin_num)
-
-    ## ***
-    if plot_type == 'binning':
-        match_index0 = get_name_index_matches(namematch=filt,instr=instr)
-        if 'beta' in line:
-            input_norm = HB_Y0[match_index0]
-        elif 'alpha' in line:
-            input_norm = HA_Y0[match_index0]
-        #endif  
-
-        good_index = [x for x in range(len(input_norm)) if input_norm[x]!=-99.99999 
-                      and input_norm[x]!=-1 and input_norm[x]!=0]
-        match_index = match_index0[good_index]
-
-
-        if bin_type == 'stlr_mass':
-            good_arr = stlr_mass[match_index] # previously good_stlr
-        #endif
-
-        matching_list = []
-        perc_list = []
-        for i in np.arange(bin_num)+1:
-            temp_perc = np.percentile(good_arr, 100*i/bin_num)
-            perc_list.append(temp_perc)
-            
-            if i == 1: 
-                print i
-                match = [x for x in range(len(good_arr)) if good_arr[x] <= temp_perc]
-            elif i != bin_num:
-                print i
-                match = [x for x in range(len(good_arr)) if good_arr[x] > perc_list[i-2] and good_arr[x] <= temp_perc]
-            else:
-                print i
-                match = [x for x in range(len(good_arr)) if good_arr[x] > perc_list[i-2]]
-            matching_list.append(match_index[match])
-        #endfor
-
-        index_list = matching_list
-    #endif ***
+    f, axarr = plt.subplots(3, 2)
+    f.set_size_inches(8, 11)
+    ax_list = [axarr[0,0],axarr[0,1],axarr[1,0],
+               axarr[1,1],axarr[2,0],axarr[2,1]]
 
     num=0
     for (match_index0,ax,xmin0,xmax0,label,subtitle) in zip(index_list,ax_list,
                                                             xmin_list,xmax_list,
                                                             label_list, 
                                                             subtitle_list):
-        if plot_type != 'binning':
-            if 'beta' in label:
-                input_norm = HB_Y0[match_index0]
-            elif 'alpha' in label:
-                input_norm = HA_Y0[match_index0]
-            #endif
-
-            good_index = [x for x in range(len(input_norm)) if
-                          input_norm[x]!=-99.99999 and input_norm[x]!=-1
-                          and input_norm[x]!=0]
-            match_index = match_index0[good_index]
+        if 'beta' in label:
+            input_norm = HB_Y0[match_index0]
+        elif 'alpha' in label:
+            input_norm = HA_Y0[match_index0]
         #endif
+
+        good_index = [x for x in range(len(input_norm)) if
+                      input_norm[x]!=-99.99999 and input_norm[x]!=-1
+                      and input_norm[x]!=0]
+        match_index = match_index0[good_index]
         
         AP_match = correct_instr_AP(AP[match_index], inst_str0[match_index], 'Keck')
         AP_match = np.array(AP_match, dtype=np.float32)
@@ -370,7 +285,7 @@ def plot_Keck_Ha(plot_type, bin_num, line, filt, instr, bin_type):
             label += ' ('+str(len(input_index))+')'
             print label, subtitle
             xval, yval = stack_data(grid_ndarr, gridz, input_index,
-                                               x0, xmin0, xmax0, subtitle)
+                x0, xmin0, xmax0, subtitle)
             o1 = get_best_fit(xval, yval, label)
             if not (subtitle=='NB816' and num%2==0):
                 ax.plot(xval, yval/1E-17, zorder=2)
@@ -388,12 +303,8 @@ def plot_Keck_Ha(plot_type, bin_num, line, filt, instr, bin_type):
             zs = np.average(zs[good_z])
             dlambda = (x0[1]-x0[0])/(1+zs)
 
-            ew_emission = 0
-            ew_absorption = 0
-            ew_check = 0
-            median = 0
-            pos_amplitude = 0
-            neg_amplitude = 0
+            (flux, flux2, flux3, ew, ew_emission, ew_absorption, ew_check, 
+                median, pos_amplitude, neg_amplitude) = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
             if 'alpha' in label:
                 ax.plot(xval, (o1[3]+o1[0]*np.exp(-0.5*((xval-o1[1])/o1[2])**2))/1E-17, 'r--', zorder=3)
                 flux = np.sum(dlambda * (o1[0]*np.exp(-0.5*((xval-o1[1])/o1[2])**2)))
@@ -438,7 +349,6 @@ def plot_Keck_Ha(plot_type, bin_num, line, filt, instr, bin_type):
                 median = o1[6]
                 pos_amplitude = o1[0]
                 neg_amplitude = o1[3]
-
                 if (neg_amplitude > 0): 
                     neg_amplitude = 0
                     ew = pos_flux/o1[6]
@@ -450,6 +360,7 @@ def plot_Keck_Ha(plot_type, bin_num, line, filt, instr, bin_type):
                     neg_corr = np.sum(dlambda * neg0[idx_small])
                     ew_absorption = neg_corr / o1[6]
                     ew_check = ew_emission + ew_absorption
+                #endif
             #endif
 
             ax.set_xlim(xmin0, xmax0)
@@ -458,23 +369,14 @@ def plot_Keck_Ha(plot_type, bin_num, line, filt, instr, bin_type):
             print 'ValueError: none exist'
         #endtry
 
+        table_arrays = general_twriting.table_arr_appends(num, table_arrays, label, subtitle, flux, flux2, flux3, ew, ew_emission, ew_absorption, ew_check, median, pos_amplitude, neg_amplitude, 'Keck')
+
         ax.text(0.03,0.97,label,transform=ax.transAxes,fontsize=7,ha='left',
                 va='top')
 
         if not (subtitle=='NB816' and num%2==0):
             ax.text(0.97,0.97,'flux_before='+'{:.4e}'.format((pos_flux))+
                 '\nflux='+'{:.4e}'.format((flux)),transform=ax.transAxes,fontsize=7,ha='right',va='top')
-            tablenames.append(label+'_'+subtitle)
-            tablefluxes.append(flux)
-            nii6548fluxes.append(flux2)
-            nii6583fluxes.append(flux3)
-            ewlist.append(ew)
-            ewposlist.append(ew_emission)
-            ewneglist.append(ew_absorption)
-            ewchecklist.append(ew_check)
-            medianlist.append(median)
-            pos_amplitudelist.append(pos_amplitude)
-            neg_amplitudelist.append(neg_amplitude)
         if num%2==0:
             ax.set_title(subtitle,fontsize=8,loc='left')
         elif num%2==1:
@@ -500,7 +402,7 @@ def plot_Keck_Ha(plot_type, bin_num, line, filt, instr, bin_type):
     #writing the EW table
     table0 = Table([tablenames,ewlist,ewposlist,ewneglist,ewchecklist,medianlist,pos_amplitudelist,neg_amplitudelist], 
         names=['type','EW','EW_corr','EW_abs','ew check','median','pos_amplitude','neg_amplitude'])
-    asc.write(table0, full_path+'Spectra/Ha_Keck_stacked_ew.txt', format='fixed_width', delimiter=' ')  
+    asc.write(table0, full_path+'Spectra/Ha_Keck_stacked_ew.txt', format='fixed_width', delimiter=' ')
 #enddef
 
 
@@ -573,7 +475,7 @@ NAXIS1 = grid_hdr['NAXIS1']
 x0 = np.arange(CRVAL1, CDELT1*NAXIS1+CRVAL1, CDELT1)
 
 print '### plotting Keck_Ha'
-# plot_Keck_Ha('all', -1, 'n/a', 'n/a', 'n/a', 'n/a')
+plot_Keck_Ha()
 grid.close()
 
 nbia.close()
