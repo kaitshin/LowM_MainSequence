@@ -240,12 +240,7 @@ def plot_MMT_Ha():
             print 'ValueError: none exist'
         #endtry
         
-        ax.text(0.03,0.97,label,transform=ax.transAxes,fontsize=7,ha='left',
-                va='top')
-        
         if not (subtitle=='NB973' and num%3==2):
-            ax.text(0.97,0.97,'flux_before='+'{:.4e}'.format((pos_flux))+
-                '\nflux='+'{:.4e}'.format((flux)),transform=ax.transAxes,fontsize=7,ha='right',va='top')
             tablenames.append(label+'_'+subtitle)
             tablefluxes.append(flux)
             nii6548fluxes.append(flux2)
@@ -257,24 +252,14 @@ def plot_MMT_Ha():
             medianlist.append(median)
             pos_amplitudelist.append(pos_amplitude)
             neg_amplitudelist.append(neg_amplitude)
-        if num%3==0:
-            ax.set_title(subtitle,fontsize=8,loc='left')
-        elif num%3==2 and subtitle!='NB973':
-            ymaxval = max(ax.get_ylim())
-            plt.setp([a.set_ylim(ymax=ymaxval) for a in ax_list[num-2:num]])
-            ax_list[num-2].plot([4341,4341],[0,ymaxval],'k',alpha=0.7,zorder=1)
-            ax_list[num-2].plot([4363,4363],[0,ymaxval],'k:',alpha=0.4,zorder=1)
-            ax_list[num-1].plot([4861,4861],[0,ymaxval],'k',alpha=0.7,zorder=1)
-            ax_list[num].plot([6563,6563], [0,ymaxval],'k',alpha=0.7,zorder=1)
-            ax_list[num].plot([6548,6548],[0,ymaxval], 'k:',alpha=0.4,zorder=1)
-            ax_list[num].plot([6583,6583],[0,ymaxval], 'k:',alpha=0.4,zorder=1)
-        elif subtitle=='NB973' and num%3==1:
-            ymaxval = max(ax.get_ylim())
-            plt.setp([a.set_ylim(ymax=ymaxval) for a in ax_list[num-1:num]])
-            ax_list[num-1].plot([4341,4341],[0,ymaxval],'k',alpha=0.7,zorder=1)
-            ax_list[num-1].plot([4363,4363],[0,ymaxval],'k:',alpha=0.4,zorder=1)
-            ax_list[num].plot([4861,4861],[0,ymaxval],'k',alpha=0.7,zorder=1)
         #endif
+        
+        if pos_flux and flux:
+            ax = MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, num, pos_flux, flux)
+        elif not pos_flux and not flux:
+            ax = MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, num)
+        #endif
+
         num+=1
     #endfor
     f = general_plotting.final_plot_setup(f, r'MMT detections of H$\alpha$ emitters')
@@ -335,33 +320,43 @@ def plot_Keck_Ha_setup(plot_type, bin_num):
 #enddef    
 
 
-#----plot_Keck_Ha------------------------------------------------------------#
-# o Calls get_name_index_matches in order to get the indexes at which
-#   there is the particular name match and instrument and then creates a
-#   master index list.
-# o Creates a pdf (8"x11") with 3x2 subplots for different lines and filter
-#   combinations.
-# o Then, the code iterates through every subplot in row-major filter-line
-#   order. Using only the 'good' indexes, finds 'match_index'. With those
-#   indexes of AP and inst_str0, calls AP_match.
-# o For NB921 Halpha, does a cross-match to ensure no 'invalid' point is
-#   plotted.
-# o Except for NB973 Halpha, the graph is 'de-redshifted' in order to have
-#   the spectral line appear in the subplot. The values to plot are called
-#   from sdf_stack_data.stack_data
-# o get_best_fit is called to obtain the best-fit spectra, overlay the
-#   best fit, and then calculate the flux
-# o Additionally, a line is plotted at the value at which the emission line
-#   should theoretically be (based on which emission line it is).
-# o The yscale is fixed for each filter type (usually the yscale values of
-#   the Halpha subplot).
-# o Minor ticks are set on, lines and filters are labeled, and with the
-#   line label is another label for the number of stacked sources that were
-#   used to produce the emission graph.
-# o At the end of all the iterations, the plot is saved and closed.
-# o The fluxes are also output to a separate .txt file.
-#----------------------------------------------------------------------------#
 def plot_Keck_Ha(plot_type, bin_num, line, filt, instr, bin_type):
+    '''
+    Calls get_name_index_matches in order to get the indexes at which
+    there is the particular name match and instrument and then creates a
+    master index list.
+    
+    Creates a pdf (8"x11") with 3x2 subplots for different lines and filter
+    combinations.
+
+    Then, the code iterates through every subplot in row-major filter-line
+    order. Using only the 'good' indexes, finds 'match_index'. With those
+    indexes of AP and inst_str0, calls AP_match.
+
+    For NB921 Halpha, does a cross-match to ensure no 'invalid' point is
+    plotted.
+
+    Except for NB973 Halpha, the graph is 'de-redshifted' in order to have
+    the spectral line appear in the subplot. The values to plot are called
+    from sdf_stack_data.stack_data
+
+    get_best_fit is called to obtain the best-fit spectra, overlay the
+    best fit, and then calculate the flux
+
+    Additionally, a line is plotted at the value at which the emission line
+    should theoretically be (based on which emission line it is).
+
+    The yscale is fixed for each filter type (usually the yscale values of
+    the Halpha subplot).
+
+    Minor ticks are set on, lines and filters are labeled, and with the
+    line label is another label for the number of stacked sources that were
+    used to produce the emission graph.
+
+    At the end of all the iterations, the plot is saved and closed.
+
+    The fluxes are also output to a separate .txt file.
+    '''
     tablenames  = []
     tablefluxes = []
     nii6548fluxes = []
