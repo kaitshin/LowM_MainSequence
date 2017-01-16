@@ -10,12 +10,6 @@ PURPOSE:
 
 import numpy as np
 
-def initialize_table_arrays():
-    '''
-    '''
-
-    return ([], [], [], [], [], [], [], [], [], [], [])
-
 def get_name_index_matches(NAME0, inst_str0, inst_dict, *args, **kwargs):
     '''
     Returns the indexes from which the kwargs name is in the ordered NAME0

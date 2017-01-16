@@ -28,6 +28,7 @@ from analysis.sdf_spectra_fit import find_nearest, get_best_fit, get_best_fit2, 
 from analysis.sdf_stack_data import stack_data
 import plotting.hg_hb_ha_plotting as MMT_plotting
 import plotting.general_plotting as general_plotting
+import writing_tables.hg_hb_ha_tables as MMT_twriting
 from create_ordered_AP_arrays import create_ordered_AP_arrays
 from astropy.io import fits as pyfits, ascii as asc
 from astropy.table import Table
@@ -77,7 +78,7 @@ def correct_instr_AP(indexed_AP, indexed_inst_str0, instr):
 # o The fluxes are also output to a separate .txt file.
 #----------------------------------------------------------------------------#
 def plot_MMT_Ha():
-    table_arrays = general_plotting.initialize_table_arrays()
+    table_arrays = ([], [], [], [], [], [], [], [], [], [], [])
     (tablenames, tablefluxes, nii6548fluxes, nii6583fluxes, ewlist, 
         ewposlist , ewneglist, ewchecklist, medianlist, pos_amplitudelist, 
         neg_amplitudelist) = table_arrays
@@ -182,19 +183,7 @@ def plot_MMT_Ha():
             print 'ValueError: none exist'
         #endtry
         
-        if not (subtitle=='NB973' and num%3==2):
-            tablenames.append(label+'_'+subtitle)
-            tablefluxes.append(flux)
-            nii6548fluxes.append(flux2)
-            nii6583fluxes.append(flux3)
-            ewlist.append(ew)
-            ewposlist.append(ew_emission)
-            ewneglist.append(ew_absorption)
-            ewchecklist.append(ew_check)
-            medianlist.append(median)
-            pos_amplitudelist.append(pos_amplitude)
-            neg_amplitudelist.append(neg_amplitude)
-        #endif
+        table_arrays = MMT_twriting.table_arr_appends(num, table_arrays, label, subtitle, flux, flux2, flux3, ew, ew_emission, ew_absorption, ew_check, median, pos_amplitude, neg_amplitude)
         
         if pos_flux and flux:
             ax = MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, num, pos_flux, flux)
