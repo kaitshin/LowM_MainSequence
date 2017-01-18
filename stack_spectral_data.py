@@ -27,6 +27,7 @@ import numpy as np, matplotlib.pyplot as plt
 from analysis.sdf_spectra_fit import find_nearest, get_best_fit, get_best_fit2, get_best_fit3
 from analysis.sdf_stack_data import stack_data
 import plotting.hg_hb_ha_plotting as MMT_plotting
+import plotting.hb_ha_plotting as Keck_plotting
 import plotting.general_plotting as general_plotting
 import writing_tables.general_tables as general_twriting
 from create_ordered_AP_arrays import create_ordered_AP_arrays
@@ -361,6 +362,8 @@ def plot_Keck_Ha():
                     ew_absorption = neg_corr / o1[6]
                     ew_check = ew_emission + ew_absorption
                 #endif
+            else:
+                pos_flux = None #temporary fix until more refactoring done 160117
             #endif
 
             ax.set_xlim(xmin0, xmax0)
@@ -371,23 +374,14 @@ def plot_Keck_Ha():
 
         table_arrays = general_twriting.table_arr_appends(num, table_arrays, label, subtitle, flux, flux2, flux3, ew, ew_emission, ew_absorption, ew_check, median, pos_amplitude, neg_amplitude, 'Keck')
 
-        ax.text(0.03,0.97,label,transform=ax.transAxes,fontsize=7,ha='left',
-                va='top')
-
-        if not (subtitle=='NB816' and num%2==0):
-            ax.text(0.97,0.97,'flux_before='+'{:.4e}'.format((pos_flux))+
-                '\nflux='+'{:.4e}'.format((flux)),transform=ax.transAxes,fontsize=7,ha='right',va='top')
-        if num%2==0:
-            ax.set_title(subtitle,fontsize=8,loc='left')
-        elif num%2==1:
-            ymaxval = max(ax.get_ylim())
-            plt.setp([a.set_ylim(ymax=ymaxval) for a in ax_list[num-1:num]])
-            if subtitle != 'NB816':
-                ax_list[num-1].plot([4861,4861],[0,ymaxval],'k',alpha=0.7,zorder=1)
-            ax_list[num].plot([6563,6563], [0,ymaxval],'k',alpha=0.7,zorder=1)
-            ax_list[num].plot([6548,6548],[0,ymaxval], 'k:',alpha=0.4,zorder=1)
-            ax_list[num].plot([6583,6583],[0,ymaxval], 'k:',alpha=0.4,zorder=1)
+        if pos_flux and flux:
+            ax = Keck_plotting.subplots_setup(ax, ax_list, label, subtitle, num, pos_flux, flux)
+        elif not pos_flux and not flux:
+            ax = Keck_plotting.subplots_setup(ax, ax_list, label, subtitle, num)
+        else:
+            print 'something\'s not right...'
         #endif
+        
         num+=1
     #endfor
     f = general_plotting.final_plot_setup(f, r'Keck detections of H$\alpha$ emitters')
