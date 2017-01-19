@@ -304,7 +304,7 @@ def plot_Keck_Ha():
             ax, flux, flux2, flux3, pos_flux, o1, o2, o3 = Keck_plotting.subplots_plotting(
                 ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, tol, num)
 
-            ew = 0
+            ew = 0 ##
             ew_emission = 0
             ew_absorption = 0
             ew_check = 0
@@ -340,13 +340,13 @@ def plot_Keck_Ha():
                     neg_corr = np.sum(dlambda * neg0[idx_small])
                     ew_absorption = neg_corr / o1[6]
                     ew_check = ew_emission + ew_absorption
-                #endif
-            #endif
+            #endif ## maybe have this all be in Keck_twriting ?
 
         except ValueError:
             print 'ValueError: none exist'
         #endtry
 
+        ## and move below to right after Keck_twriting, within the try statement?
         table_arrays = general_twriting.table_arr_appends(num, table_arrays, label, subtitle, flux, flux2, flux3, ew, ew_emission, ew_absorption, ew_check, median, pos_amplitude, neg_amplitude, 'Keck')
 
         if pos_flux and flux:
@@ -354,7 +354,7 @@ def plot_Keck_Ha():
         elif not pos_flux and not flux:
             ax = Keck_plotting.subplots_setup(ax, ax_list, label, subtitle, num)
         else:
-            print 'something\'s not right...'
+            print '>>>something\'s not right...'
         #endif
         
         num+=1

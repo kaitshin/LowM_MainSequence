@@ -86,8 +86,6 @@ def subplots_plotting(ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, to
         flux = np.sum(dlambda * (func0[idx_small] - o1[6]))
         flux2 = 0
         flux3 = 0
-    else:
-        print 'something\'s not right'
     #endif
 
     ax.set_xlim(xmin0, xmax0)
