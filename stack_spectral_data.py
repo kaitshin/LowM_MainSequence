@@ -52,33 +52,43 @@ def correct_instr_AP(indexed_AP, indexed_inst_str0, instr):
 #enddef
 
 
-#----plot_MMT_Ha-------------------------------------------------------------#
-# o Calls get_name_index_matches in order to get the indexes at which
-#   there is the particular name match and instrument and then creates a
-#   master index list.
-# o Creates a pdf (8"x11") with 5x3 subplots for different lines and filter
-#   combinations.
-# o Then, the code iterates through every subplot in row-major filter-line
-#   order. Using only the 'good' indexes, finds 'match_index'. With those
-#   indexes of AP and inst_str0, calls AP_match.
-# o For NB921 Halpha, does a cross-match to ensure no 'invalid' point is
-#   plotted.
-# o Except for NB973 Halpha, the graph is 'de-redshifted' in order to have
-#   the spectral line appear in the subplot. The values to plot are called
-#   from sdf_stack_data.stack_data
-# o get_best_fit is called to obtain the best-fit spectra, overlay the
-#   best fit, and then calculate the flux
-# o Additionally, a line is plotted at the value at which the emission line
-#   should theoretically be (based on which emission line it is).
-# o The yscale is fixed for each filter type (usually the yscale values of
-#   the Halpha subplot).
-# o Minor ticks are set on, lines and filters are labeled, and with the
-#   line label is another label for the number of stacked sources that were
-#   used to produce the emission graph.
-# o At the end of all the iterations, the plot is saved and closed.
-# o The fluxes are also output to a separate .txt file.
-#----------------------------------------------------------------------------#
 def plot_MMT_Ha():
+    '''
+    Calls get_name_index_matches in order to get the indexes at which
+    there is the particular name match and instrument and then creates a
+    master index list.
+
+    Creates a pdf (8"x11") with 5x3 subplots for different lines and filter
+    combinations.
+
+    Then, the code iterates through every subplot in row-major filter-line
+    order. Using only the 'good' indexes, finds 'match_index'. With those
+    indexes of AP and inst_str0, calls AP_match.
+
+    For NB921 Halpha, does a cross-match to ensure no 'invalid' point is
+    plotted.
+
+    Except for NB973 Halpha, the graph is 'de-redshifted' in order to have
+    the spectral line appear in the subplot. The values to plot are called
+    from sdf_stack_data.stack_data
+
+    get_best_fit is called to obtain the best-fit spectra, overlay the
+    best fit, and then calculate the flux
+
+    Additionally, a line is plotted at the value at which the emission line
+    should theoretically be (based on which emission line it is).
+
+    The yscale is fixed for each filter type (usually the yscale values of
+    the Halpha subplot).
+
+    Minor ticks are set on, lines and filters are labeled, and with the
+    line label is another label for the number of stacked sources that were
+    used to produce the emission graph.
+
+    At the end of all the iterations, the plot is saved and closed.
+    
+    The fluxes are also output to a separate .txt file.
+    '''
     table_arrays = ([], [], [], [], [], [], [], [], [], [], [])
     (tablenames, tablefluxes, nii6548fluxes, nii6583fluxes, ewlist, 
         ewposlist , ewneglist, ewchecklist, medianlist, pos_amplitudelist, 
