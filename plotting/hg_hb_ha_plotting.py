@@ -9,6 +9,7 @@ PURPOSE:
 
 from analysis.sdf_spectra_fit import find_nearest, get_best_fit, get_best_fit2, get_best_fit3
 import numpy as np
+
 def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0):
     '''
     Sets up the subplots for Hg/Hb/Ha. Adds emission lines for each subplot

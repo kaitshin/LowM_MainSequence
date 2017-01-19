@@ -24,12 +24,11 @@ OUTPUTS:
 """
 
 import numpy as np, matplotlib.pyplot as plt
-from analysis.sdf_spectra_fit import find_nearest, get_best_fit, get_best_fit2, get_best_fit3
-from analysis.sdf_stack_data import stack_data
 import plotting.hg_hb_ha_plotting as MMT_plotting
 import plotting.hb_ha_plotting as Keck_plotting
 import plotting.general_plotting as general_plotting
 import writing_tables.general_tables as general_twriting
+from analysis.sdf_stack_data import stack_data
 from create_ordered_AP_arrays import create_ordered_AP_arrays
 from astropy.io import fits as pyfits, ascii as asc
 from astropy.table import Table
@@ -54,10 +53,6 @@ def correct_instr_AP(indexed_AP, indexed_inst_str0, instr):
 
 def plot_MMT_Ha():
     '''
-    Calls get_name_index_matches in order to get the indexes at which
-    there is the particular name match and instrument and then creates a
-    master index list.
-
     Creates a pdf (8"x11") with 5x3 subplots for different lines and filter
     combinations.
 
@@ -223,10 +218,6 @@ def plot_MMT_Ha():
 
 def plot_Keck_Ha():
     '''
-    Calls get_name_index_matches in order to get the indexes at which
-    there is the particular name match and instrument and then creates a
-    master index list.
-    
     Creates a pdf (8"x11") with 3x2 subplots for different lines and filter
     combinations.
 
@@ -297,10 +288,6 @@ def plot_Keck_Ha():
             print label, subtitle
             xval, yval = stack_data(grid_ndarr, gridz, input_index,
                 x0, xmin0, xmax0, subtitle)
-            o1 = get_best_fit(xval, yval, label)
-            if not (subtitle=='NB816' and num%2==0):
-                ax.plot(xval, yval/1E-17, zorder=2)
-            #endif
 
             # calculating flux for NII emissions
             zs = np.array(gridz[input_index])
@@ -314,52 +301,34 @@ def plot_Keck_Ha():
             zs = np.average(zs[good_z])
             dlambda = (x0[1]-x0[0])/(1+zs)
 
-            (flux, flux2, flux3, ew, ew_emission, ew_absorption, ew_check, 
-                median, pos_amplitude, neg_amplitude) = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+            ax, flux, flux2, flux3, pos_flux, o1, o2, o3 = Keck_plotting.subplots_plotting(
+                ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, tol, num)
+
+            ew = 0
+            ew_emission = 0
+            ew_absorption = 0
+            ew_check = 0
+            median = 0
+            pos_amplitude = 0
+            neg_amplitude = 0
             if 'alpha' in label:
-                ax.plot(xval, (o1[3]+o1[0]*np.exp(-0.5*((xval-o1[1])/o1[2])**2))/1E-17, 'r--', zorder=3)
-                flux = np.sum(dlambda * (o1[0]*np.exp(-0.5*((xval-o1[1])/o1[2])**2)))
-                pos_flux = flux
                 ew = flux/o1[3]
+                ew_emission = ew
+                ew_check = ew
                 median = o1[3]
                 pos_amplitude = o1[0]
                 neg_amplitude = 0
-                ew_emission = ew
-                ew_check = ew
-                
-                peak_idx2_left  = find_nearest(xval, 6548.1-tol)
-                peak_idx2_right = find_nearest(xval, 6548.1+tol)
-                xval2=xval[peak_idx2_left:peak_idx2_right]
-                yval2=yval[peak_idx2_left:peak_idx2_right]
-                o2 = get_best_fit2(xval2, yval2, 6548.1, label)
-                flux2 = np.sum(dlambda * (o2[0]*np.exp(-0.5*((xval2-o2[1])/o2[2])**2)))
-                ax.plot(xval2, (o2[3]+o2[0]*np.exp(-0.5*((xval2-o2[1])/o2[2])**2))/1E-17, 'g,', zorder=3)
-
-                peak_idx3_left = find_nearest(xval, 6583.6-tol)
-                peak_idx3_right = find_nearest(xval, 6583.6+tol)
-                xval3=xval[peak_idx3_left:peak_idx3_right]
-                yval3=yval[peak_idx3_left:peak_idx3_right]
-                o3 = get_best_fit2(xval3, yval3, 6583.6, label)
-                flux3 = np.sum(dlambda * (o3[0]*np.exp(-0.5*((xval3-o3[1])/o3[2])**2)))
-                ax.plot(xval3, (o3[3]+o3[0]*np.exp(-0.5*((xval3-o3[1])/o3[2])**2))/1E-17, 'g,', zorder=3)
             elif 'beta' in label and subtitle!='NB816':
-                o1 = get_best_fit3(xval, yval, label)
                 pos0 = o1[6]+o1[0]*np.exp(-0.5*((xval-o1[1])/o1[2])**2)
                 neg0 = o1[3]*np.exp(-0.5*((xval-o1[4])/o1[5])**2)
-                func0 = pos0 + neg0
-                ax.plot(xval, func0/1E-17, 'r--', zorder=3)
 
                 idx_small = np.where(np.absolute(xval - o1[1]) <= 2.5*o1[2])[0]
-
-                pos_flux = np.sum(dlambda * (pos0[idx_small] - o1[6]))
-                flux = np.sum(dlambda * (func0[idx_small] - o1[6]))
-                flux2 = 0
-                flux3 = 0
 
                 ew = flux/o1[6]
                 median = o1[6]
                 pos_amplitude = o1[0]
                 neg_amplitude = o1[3]
+
                 if (neg_amplitude > 0): 
                     neg_amplitude = 0
                     ew = pos_flux/o1[6]
@@ -372,12 +341,8 @@ def plot_Keck_Ha():
                     ew_absorption = neg_corr / o1[6]
                     ew_check = ew_emission + ew_absorption
                 #endif
-            else:
-                pos_flux = None #temporary fix until more refactoring done 160117
             #endif
 
-            ax.set_xlim(xmin0, xmax0)
-            ax.set_ylim(ymin=0)
         except ValueError:
             print 'ValueError: none exist'
         #endtry
