@@ -1,6 +1,6 @@
 """
 NAME:
-    sdf_spectra_fit.py
+    balmer_fit.py
 
 PURPOSE:
     Provides a module where fitting functions can be called from 
