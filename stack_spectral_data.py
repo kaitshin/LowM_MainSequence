@@ -28,6 +28,7 @@ import plotting.hg_hb_ha_plotting as MMT_plotting
 import plotting.hb_ha_plotting as Keck_plotting
 import plotting.general_plotting as general_plotting
 import writing_tables.general_tables as general_twriting
+import writing_tables.hb_ha_tables as Keck_twriting
 from analysis.sdf_stack_data import stack_data
 from create_ordered_AP_arrays import create_ordered_AP_arrays
 from astropy.io import fits as pyfits, ascii as asc
@@ -304,50 +305,16 @@ def plot_Keck_Ha():
             ax, flux, flux2, flux3, pos_flux, o1, o2, o3 = Keck_plotting.subplots_plotting(
                 ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, tol, num)
 
-            ew = 0 ##
-            ew_emission = 0
-            ew_absorption = 0
-            ew_check = 0
-            median = 0
-            pos_amplitude = 0
-            neg_amplitude = 0
-            if 'alpha' in label:
-                ew = flux/o1[3]
-                ew_emission = ew
-                ew_check = ew
-                median = o1[3]
-                pos_amplitude = o1[0]
-                neg_amplitude = 0
-            elif 'beta' in label and subtitle!='NB816':
-                pos0 = o1[6]+o1[0]*np.exp(-0.5*((xval-o1[1])/o1[2])**2)
-                neg0 = o1[3]*np.exp(-0.5*((xval-o1[4])/o1[5])**2)
-
-                idx_small = np.where(np.absolute(xval - o1[1]) <= 2.5*o1[2])[0]
-
-                ew = flux/o1[6]
-                median = o1[6]
-                pos_amplitude = o1[0]
-                neg_amplitude = o1[3]
-
-                if (neg_amplitude > 0): 
-                    neg_amplitude = 0
-                    ew = pos_flux/o1[6]
-                    ew_emission = ew
-                    ew_check = ew
-                else:
-                    pos_corr = np.sum(dlambda * (pos0[idx_small] - o1[6]))
-                    ew_emission = pos_corr / o1[6]
-                    neg_corr = np.sum(dlambda * neg0[idx_small])
-                    ew_absorption = neg_corr / o1[6]
-                    ew_check = ew_emission + ew_absorption
-            #endif ## maybe have this all be in Keck_twriting ?
+            (ew, ew_emission, ew_absorption, ew_check, median, pos_amplitude, 
+            	neg_amplitude) = Keck_twriting.Hb_Ha_tables(label, subtitle, flux, 
+            	o1, xval, pos_flux, dlambda)
+            table_arrays = general_twriting.table_arr_appends(num, table_arrays, label, 
+            	subtitle, flux, flux2, flux3, ew, ew_emission, ew_absorption, ew_check, 
+            	median, pos_amplitude, neg_amplitude, 'Keck')
 
         except ValueError:
             print 'ValueError: none exist'
         #endtry
-
-        ## and move below to right after Keck_twriting, within the try statement?
-        table_arrays = general_twriting.table_arr_appends(num, table_arrays, label, subtitle, flux, flux2, flux3, ew, ew_emission, ew_absorption, ew_check, median, pos_amplitude, neg_amplitude, 'Keck')
 
         if pos_flux and flux:
             ax = Keck_plotting.subplots_setup(ax, ax_list, label, subtitle, num, pos_flux, flux)
