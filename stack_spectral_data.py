@@ -165,7 +165,7 @@ def plot_MMT_Ha():
         elif not pos_flux and not flux:
             ax = MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, num)
         else:
-            print 'something\'s not right...'
+            print '>>>something\'s not right...'
         #endif
 
         num+=1
@@ -174,16 +174,22 @@ def plot_MMT_Ha():
     plt.savefig(full_path+'Spectra/Ha_MMT_stacked.pdf')
     plt.close()
 
-    #writing the table
-    table = Table([tablenames,tablefluxes,nii6548fluxes,nii6583fluxes],
-                  names=['type','flux','NII6548 flux','NII6583 flux'])
-    asc.write(table, full_path+'Spectra/Ha_MMT_stacked_fluxes.txt',
-              format='fixed_width', delimiter=' ')  
+    #writing the spectra table
+    table0 = Table([xval, yval/1E-17], names=['xval','yval/1E-17'])
+    asc.write(table0, full_path+'Spectra/Ha_MMT_spectra_vals.txt',
+        format='fixed_width', delimiter=' ')
+
+    #writing the flux table
+    table1 = Table([tablenames,tablefluxes,nii6548fluxes,nii6583fluxes],
+        names=['type','flux','NII6548 flux','NII6583 flux'])
+    asc.write(table1, full_path+'Spectra/Ha_MMT_stacked_fluxes.txt',
+        format='fixed_width', delimiter=' ')  
 
     #writing the EW table
-    table0 = Table([tablenames,ewlist,ewposlist,ewneglist,ewchecklist,medianlist,pos_amplitudelist,neg_amplitudelist], 
+    table2 = Table([tablenames,ewlist,ewposlist,ewneglist,ewchecklist,medianlist,pos_amplitudelist,neg_amplitudelist],
         names=['type','EW','EW_corr','EW_abs','ew check','median','pos_amplitude','neg_amplitude'])
-    asc.write(table0, full_path+'Spectra/Ha_MMT_stacked_ew.txt', format='fixed_width', delimiter=' ')  
+    asc.write(table2, full_path+'Spectra/Ha_MMT_stacked_ew.txt',
+        format='fixed_width', delimiter=' ')  
 #enddef
 
 
@@ -300,15 +306,22 @@ def plot_Keck_Ha():
     plt.savefig(full_path+'Spectra/Ha_Keck_stacked.pdf')
     plt.close()
 
-    #writing the table
-    table = Table([tablenames,tablefluxes,nii6548fluxes,nii6583fluxes],
-                  names=['type','flux','NII6548 flux','NII6583 flux'])
-    asc.write(table, full_path+'Spectra/Ha_Keck_stacked_fluxes.txt', format='fixed_width', delimiter=' ')
+    #writing the spectra table
+    table0 = Table([xval, yval/1E-17], names=['xval','yval/1E-17'])
+    asc.write(table0, full_path+'Spectra/Ha_MMT_spectra_vals.txt',
+        format='fixed_width', delimiter=' ')
+
+    #writing the flux table
+    table1 = Table([tablenames,tablefluxes,nii6548fluxes,nii6583fluxes],
+        names=['type','flux','NII6548 flux','NII6583 flux'])
+    asc.write(table1, full_path+'Spectra/Ha_Keck_stacked_fluxes.txt', 
+        format='fixed_width', delimiter=' ')
 
     #writing the EW table
-    table0 = Table([tablenames,ewlist,ewposlist,ewneglist,ewchecklist,medianlist,pos_amplitudelist,neg_amplitudelist], 
+    table2 = Table([tablenames,ewlist,ewposlist,ewneglist,ewchecklist,medianlist,pos_amplitudelist,neg_amplitudelist], 
         names=['type','EW','EW_corr','EW_abs','ew check','median','pos_amplitude','neg_amplitude'])
-    asc.write(table0, full_path+'Spectra/Ha_Keck_stacked_ew.txt', format='fixed_width', delimiter=' ')
+    asc.write(table2, full_path+'Spectra/Ha_Keck_stacked_ew.txt', 
+        format='fixed_width', delimiter=' ')
 #enddef
 
 
