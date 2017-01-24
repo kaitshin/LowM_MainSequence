@@ -104,12 +104,16 @@ def plot_MMT_Ha():
                                                             xmin_list,xmax_list,
                                                             label_list, 
                                                             subtitle_list):
+        shortlabel = ''
         if 'gamma' in label:
             input_norm = HG_Y0[match_index0]
+            shortlabel = 'Hg'
         elif 'beta' in label:
             input_norm = HB_Y0[match_index0]
+            shortlabel = 'Hb'
         elif 'alpha' in label:
             input_norm = HA_Y0[match_index0]
+            shortlabel = 'Ha'
         #endif
 
         good_index = [x for x in range(len(input_norm)) if
@@ -156,6 +160,10 @@ def plot_MMT_Ha():
             	subtitle, flux, flux2, flux3, ew, ew_emission, ew_absorption, ew_check, 
             	median, pos_amplitude, neg_amplitude, 'MMT')
             
+            #writing the spectra table
+            table0 = Table([xval, yval/1E-17], names=['xval','yval/1E-17'])
+            asc.write(table0, full_path+'Spectra/Ha_MMT_spectra_vals/'+shortlabel+'_'+subtitle+'.txt',
+                format='fixed_width', delimiter=' ')
         except ValueError:
             print 'ValueError: none exist'
         #endtry
@@ -173,11 +181,6 @@ def plot_MMT_Ha():
     f = general_plotting.final_plot_setup(f, r'MMT detections of H$\alpha$ emitters')
     plt.savefig(full_path+'Spectra/Ha_MMT_stacked.pdf')
     plt.close()
-
-    #writing the spectra table
-    table0 = Table([xval, yval/1E-17], names=['xval','yval/1E-17'])
-    asc.write(table0, full_path+'Spectra/Ha_MMT_spectra_vals.txt',
-        format='fixed_width', delimiter=' ')
 
     #writing the flux table
     table1 = Table([tablenames,tablefluxes,nii6548fluxes,nii6583fluxes],
@@ -244,10 +247,13 @@ def plot_Keck_Ha():
                                                             xmin_list,xmax_list,
                                                             label_list, 
                                                             subtitle_list):
+        shortlabel = ''
         if 'beta' in label:
             input_norm = HB_Y0[match_index0]
+            shortlabel = 'Hb'
         elif 'alpha' in label:
             input_norm = HA_Y0[match_index0]
+            shortlabel = 'Ha'
         #endif
 
         good_index = [x for x in range(len(input_norm)) if
@@ -288,6 +294,11 @@ def plot_Keck_Ha():
             	subtitle, flux, flux2, flux3, ew, ew_emission, ew_absorption, ew_check, 
             	median, pos_amplitude, neg_amplitude, 'Keck')
 
+            #writing the spectra table
+            if not (subtitle=='NB816' and num%2==0):
+                table0 = Table([xval, yval/1E-17], names=['xval','yval/1E-17'])
+                asc.write(table0, full_path+'Spectra/Ha_Keck_spectra_vals/'+shortlabel+'_'+subtitle+'.txt',
+                    format='fixed_width', delimiter=' ')
         except ValueError:
             print 'ValueError: none exist'
         #endtry
@@ -305,11 +316,6 @@ def plot_Keck_Ha():
     f = general_plotting.final_plot_setup(f, r'Keck detections of H$\alpha$ emitters')
     plt.savefig(full_path+'Spectra/Ha_Keck_stacked.pdf')
     plt.close()
-
-    #writing the spectra table
-    table0 = Table([xval, yval/1E-17], names=['xval','yval/1E-17'])
-    asc.write(table0, full_path+'Spectra/Ha_MMT_spectra_vals.txt',
-        format='fixed_width', delimiter=' ')
 
     #writing the flux table
     table1 = Table([tablenames,tablefluxes,nii6548fluxes,nii6583fluxes],
