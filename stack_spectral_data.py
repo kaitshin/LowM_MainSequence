@@ -100,6 +100,7 @@ def plot_MMT_Ha():
                axarr[3,1],axarr[3,2],axarr[4,0],axarr[4,1],axarr[4,2]]
     
     num=0
+    # this for-loop stacks by filter
     for (match_index0,ax,xmin0,xmax0,label,subtitle) in zip(index_list,ax_list,
                                                             xmin_list,xmax_list,
                                                             label_list, 
@@ -133,7 +134,7 @@ def plot_MMT_Ha():
             label += ' ('+str(len(input_index))+')'
             print label, subtitle
             xval, yval = stack_data(grid_ndarr, gridz, input_index,
-                x0, xmin0, xmax0, subtitle)
+                x0, xmin0, xmax0, ff=subtitle)
             
             # calculating flux for NII emissions
             zs = np.array(gridz[input_index])
@@ -270,7 +271,7 @@ def plot_Keck_Ha():
             label += ' ('+str(len(input_index))+')'
             print label, subtitle
             xval, yval = stack_data(grid_ndarr, gridz, input_index,
-                x0, xmin0, xmax0, subtitle)
+                x0, xmin0, xmax0, ff=subtitle)
 
             # calculating flux for NII emissions
             zs = np.array(gridz[input_index])
@@ -345,43 +346,42 @@ def plot_Keck_Ha():
 full_path = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
 good_NB921_Halpha = ['S.245','S.278','S.291','S.306','S.308','S.333','S.334',
                      'S.350','S.364','A.134','D.076','D.099','D.123','D.125',
-                     'D.127','D.135','D.140','D.215','D.237','D.298']
-inst_dict = {}
+                     'D.127','D.135','D.140','D.215','D.237','D.298'] ##used
+inst_dict = {} ##used
 inst_dict['MMT'] = ['MMT,FOCAS,','MMT,','merged,','MMT,Keck,']
 inst_dict['Keck'] = ['merged,','Keck,','Keck,Keck,','Keck,FOCAS,',
                      'Keck,FOCAS,FOCAS,','Keck,Keck,FOCAS,']
-tol = 3 #in angstroms, used for NII emission flux calculations
+tol = 3 #in angstroms, used for NII emission flux calculations ##used
 
 nbia = pyfits.open(full_path+'Catalogs/python_outputs/nbia_all_nsource.fits')
 nbiadata = nbia[1].data
-NAME0 = nbiadata['source_name']
+NAME0 = nbiadata['source_name'] ##used
 
 zspec = asc.read(full_path+'Catalogs/nb_ia_zspec.txt',guess=False,
                  Reader=asc.CommentedHeader)
-slit_str0 = np.array(zspec['slit_str0'])
-inst_str0 = np.array(zspec['inst_str0'])
+inst_str0 = np.array(zspec['inst_str0']) ##used
 
 fout  = asc.read(full_path+'FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast.fout',
                  guess=False,Reader=asc.NoHeader)
-stlr_mass = np.array(fout['col7'])
+stlr_mass = np.array(fout['col7']) ##used
 
-data_dict = create_ordered_AP_arrays()
-AP = data_dict['AP']
-HA_Y0 = data_dict['HA_Y0']
-HB_Y0 = data_dict['HB_Y0']
-HG_Y0 = data_dict['HG_Y0']
+data_dict = create_ordered_AP_arrays() ##make this used instead??
+AP = data_dict['AP'] ##used
+HA_Y0 = data_dict['HA_Y0'] ##used
+HB_Y0 = data_dict['HB_Y0'] ##used
+HG_Y0 = data_dict['HG_Y0'] ##used
 
 print '### looking at the MMT grid'
 griddata = asc.read(full_path+'Spectra/spectral_MMT_grid_data.txt',guess=False)
-gridz  = np.array(griddata['ZSPEC'])
-gridap = np.array(griddata['AP'])
+gridz  = np.array(griddata['ZSPEC']) ##used
+gridap = np.array(griddata['AP']) ##used
 grid   = pyfits.open(full_path+'Spectra/spectral_MMT_grid.fits')
-grid_ndarr = grid[0].data
+grid_ndarr = grid[0].data ##used
 grid_hdr   = grid[0].header
 CRVAL1 = grid_hdr['CRVAL1']
 CDELT1 = grid_hdr['CDELT1']
 NAXIS1 = grid_hdr['NAXIS1']
-x0 = np.arange(CRVAL1, CDELT1*NAXIS1+CRVAL1, CDELT1)
+x0 = np.arange(CRVAL1, CDELT1*NAXIS1+CRVAL1, CDELT1) ##used
 
 print '### plotting MMT_Ha'
 plot_MMT_Ha()
@@ -389,15 +389,15 @@ grid.close()
 
 print '### looking at the Keck grid'
 griddata = asc.read(full_path+'Spectra/spectral_Keck_grid_data.txt',guess=False)
-gridz  = np.array(griddata['ZSPEC'])
-gridap = np.array(griddata['AP'])
+gridz  = np.array(griddata['ZSPEC']) ##used
+gridap = np.array(griddata['AP']) ##used
 grid   = pyfits.open(full_path+'Spectra/spectral_Keck_grid.fits')
-grid_ndarr = grid[0].data
+grid_ndarr = grid[0].data ##used
 grid_hdr   = grid[0].header
 CRVAL1 = grid_hdr['CRVAL1']
 CDELT1 = grid_hdr['CDELT1']
 NAXIS1 = grid_hdr['NAXIS1']
-x0 = np.arange(CRVAL1, CDELT1*NAXIS1+CRVAL1, CDELT1)
+x0 = np.arange(CRVAL1, CDELT1*NAXIS1+CRVAL1, CDELT1) ##used
 
 print '### plotting Keck_Ha'
 plot_Keck_Ha()

@@ -9,6 +9,10 @@ PURPOSE:
 
 def table_arr_appends(num, table_arrays, label, subtitle, flux, flux2, flux3, ew, ew_emission, ew_absorption, ew_check, median, pos_amplitude, neg_amplitude, instr):
     '''
+    Appends all the passed in values to the respective arrays in table_arrays
+    based on which instr keyword is passed in.
+
+    table_arrays is then returned
     '''
     (tablenames, tablefluxes, nii6548fluxes, nii6583fluxes, ewlist, 
         ewposlist , ewneglist, ewchecklist, medianlist, pos_amplitudelist, 

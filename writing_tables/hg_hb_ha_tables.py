@@ -11,6 +11,11 @@ import numpy as np
 
 def Hg_Hb_Ha_tables(label, flux, o1, xval, pos_flux, dlambda):
     '''
+    Computes ew, ew_emission, ew_absorption, ew_check, median, 
+    pos_amplitude, and neg_amplitude values based on the passed-in
+    values. 
+
+    Those values are then returned. MMT specific
     '''
     ew_emission = 0
     ew_absorption = 0
