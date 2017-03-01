@@ -51,6 +51,13 @@ def correct_instr_AP(indexed_AP, indexed_inst_str0, instr):
     return indexed_AP
 #enddef
 
+def write_spectral_table(instr, grid_ndarr, gridz, input_index, x0, subtitle, full_path, shortlabel):
+    xval, yval = stack_data(grid_ndarr, gridz, input_index, x0, 3700, 6700, ff=subtitle)
+    table0 = Table([xval, yval/1E-17], names=['xval','yval/1E-17'])
+    asc.write(table0, full_path+'Spectra/Ha_'+instr+'_spectra_vals/'+shortlabel+'_'+subtitle+'.txt',
+        format='fixed_width', delimiter=' ')
+#enddef
+
 
 def plot_MMT_Ha():
     '''
@@ -162,9 +169,8 @@ def plot_MMT_Ha():
             	median, pos_amplitude, neg_amplitude, 'MMT')
             
             #writing the spectra table
-            table0 = Table([xval, yval/1E-17], names=['xval','yval/1E-17'])
-            asc.write(table0, full_path+'Spectra/Ha_MMT_spectra_vals/'+shortlabel+'_'+subtitle+'.txt',
-                format='fixed_width', delimiter=' ')
+            write_spectral_table('MMT', grid_ndarr, gridz, input_index, x0, 
+                subtitle, full_path, shortlabel)
         except ValueError:
             print 'ValueError: none exist'
         #endtry
@@ -297,9 +303,8 @@ def plot_Keck_Ha():
 
             #writing the spectra table
             if not (subtitle=='NB816' and num%2==0):
-                table0 = Table([xval, yval/1E-17], names=['xval','yval/1E-17'])
-                asc.write(table0, full_path+'Spectra/Ha_Keck_spectra_vals/'+shortlabel+'_'+subtitle+'.txt',
-                    format='fixed_width', delimiter=' ')
+                write_spectral_table('Keck', grid_ndarr, gridz, input_index, x0, 
+                    subtitle, full_path, shortlabel)
         except ValueError:
             print 'ValueError: none exist'
         #endtry

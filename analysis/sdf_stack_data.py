@@ -34,16 +34,8 @@ def stack_data(ndarr, zspec, index, x0, xmin, xmax, ff='', stlr_mass=-1):
         elif ff=='NB973':
             good_z = np.where(plot_zspec < 0.6)[0]
         #endif
-        plot_grid = plot_grid[good_z]
-        plot_zspec = plot_zspec[good_z]
-
-
+        return stack(plot_grid, plot_zspec, good_z, x0, xmin, xmax)
     # this is stacking data in stlrmass
-    # if stlr_mass!=-1:
-    #     good_stlrmass = []
-    #     if stlr_mass=='perc20':
-    #         good_stlrmass = np.where()
-
-
-    return stack(plot_grid, plot_zspec, x0, xmin, xmax)
+    else:
+        return stack(ndarr, zspec, index, x0, xmin, xmax)
 #enddef

@@ -15,7 +15,10 @@ OUTPUTS:
 
 import numpy as np
 from scipy.interpolate import interp1d
-def stack(ndarr, zspec, x0, xmin, xmax):
+def stack(ndarr, zspec, index, x0, xmin, xmax):
+    ndarr = ndarr[index]
+    zspec = zspec[index]
+    
     x_rest   = np.arange(xmin, xmax, 0.1)
     new_grid = np.ndarray(shape=(len(ndarr), len(x_rest)))
     
