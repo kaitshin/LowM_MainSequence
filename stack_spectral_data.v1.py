@@ -23,7 +23,7 @@ OUTPUTS:
     'Spectra/Ha_Keck_stacked.pdf'
 """
 
-import numpy as np, numpy.ma as ma, matplotlib.pyplot as plt
+import numpy as np, matplotlib.pyplot as plt
 import plotting.hg_hb_ha_plotting as MMT_plotting
 import plotting.hb_ha_plotting as Keck_plotting
 import plotting.general_plotting as general_plotting
@@ -108,19 +108,27 @@ def plot_MMT_Ha():
     
     num=0
     # this for-loop stacks by filter
-    for (match_index,ax,xmin0,xmax0,label,subtitle) in zip(index_list,ax_list,
+    for (match_index0,ax,xmin0,xmax0,label,subtitle) in zip(index_list,ax_list,
                                                             xmin_list,xmax_list,
                                                             label_list, 
                                                             subtitle_list):
         shortlabel = ''
         if 'gamma' in label:
-        	shortlabel = 'Hg'
+            input_norm = HG_Y0[match_index0]
+            shortlabel = 'Hg'
         elif 'beta' in label:
+            input_norm = HB_Y0[match_index0]
             shortlabel = 'Hb'
         elif 'alpha' in label:
+            input_norm = HA_Y0[match_index0]
             shortlabel = 'Ha'
         #endif
 
+        good_index = [x for x in range(len(input_norm)) if
+                      input_norm[x]!=-99.99999 and input_norm[x]!=-1
+                      and input_norm[x]!=0]
+        match_index = match_index0[good_index]
+        
         AP_match = correct_instr_AP(AP[match_index], inst_str0[match_index], 'MMT')
         if subtitle=='NB921' and 'alpha' in label:
             good_AP_match = np.array([x for x in range(len(AP_match)) if
@@ -242,17 +250,24 @@ def plot_Keck_Ha():
                axarr[1,1],axarr[2,0],axarr[2,1]]
 
     num=0
-    for (match_index,ax,xmin0,xmax0,label,subtitle) in zip(index_list,ax_list,
+    for (match_index0,ax,xmin0,xmax0,label,subtitle) in zip(index_list,ax_list,
                                                             xmin_list,xmax_list,
                                                             label_list, 
                                                             subtitle_list):
         shortlabel = ''
         if 'beta' in label:
+            input_norm = HB_Y0[match_index0]
             shortlabel = 'Hb'
         elif 'alpha' in label:
+            input_norm = HA_Y0[match_index0]
             shortlabel = 'Ha'
         #endif
 
+        good_index = [x for x in range(len(input_norm)) if
+                      input_norm[x]!=-99.99999 and input_norm[x]!=-1
+                      and input_norm[x]!=0]
+        match_index = match_index0[good_index]
+        
         AP_match = correct_instr_AP(AP[match_index], inst_str0[match_index], 'Keck')
         AP_match = np.array(AP_match, dtype=np.float32)
         
@@ -372,11 +387,6 @@ CRVAL1 = grid_hdr['CRVAL1']
 CDELT1 = grid_hdr['CDELT1']
 NAXIS1 = grid_hdr['NAXIS1']
 x0 = np.arange(CRVAL1, CDELT1*NAXIS1+CRVAL1, CDELT1) ##used
-ndarr_zeros = np.where(grid_ndarr == 0)
-mask_ndarr = np.zeros_like(grid_ndarr)
-mask_ndarr[0][ndarr_zeros[0]] = 1
-mask_ndarr[1][ndarr_zeros[1]] = 1
-grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 
 print '### plotting MMT_Ha'
 plot_MMT_Ha()
@@ -393,11 +403,6 @@ CRVAL1 = grid_hdr['CRVAL1']
 CDELT1 = grid_hdr['CDELT1']
 NAXIS1 = grid_hdr['NAXIS1']
 x0 = np.arange(CRVAL1, CDELT1*NAXIS1+CRVAL1, CDELT1) ##used
-ndarr_zeros = np.where(grid_ndarr == 0)
-mask_ndarr = np.zeros_like(grid_ndarr)
-mask_ndarr[0][ndarr_zeros[0]] = 1
-mask_ndarr[1][ndarr_zeros[1]] = 1
-grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 
 print '### plotting Keck_Ha'
 plot_Keck_Ha()

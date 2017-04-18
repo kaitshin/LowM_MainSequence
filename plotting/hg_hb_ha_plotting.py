@@ -15,6 +15,7 @@ def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0):
     Sets up the subplots for Hg/Hb/Ha. Adds emission lines for each subplot
     and sets the ylimits for each row. Also adds flux labels to each subplot.
     '''
+    ax = ax_list[num]
     ax.text(0.03,0.97,label,transform=ax.transAxes,fontsize=7,ha='left',
             va='top')
     
