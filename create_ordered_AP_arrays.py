@@ -255,7 +255,7 @@ def get_Y0(all_AP, detect_AP, all_HA_Y0, detect_HA_Y0, all_HB_Y0,
 #enddef
 
 
-def create_ordered_AP_arrays():
+def create_ordered_AP_arrays(AP_only=False):
     '''
     Reads relevant inputs, combining all of the input data into one ordered
     array for AP by calling make_AP_arr_MMT, make_AP_arr_DEIMOS,
@@ -311,6 +311,16 @@ def create_ordered_AP_arrays():
     AP2 = make_AP_arr_merged(AP1, slit_str0)
     AP  = make_AP_arr_FOCAS(AP2, slit_str0)
     print '### done creating ordered AP arr'
+
+    if (AP_only == True):
+        MMTall.close()
+        MMTsingle.close()
+        DEIMOS.close()
+        DEIMOS00.close()
+        merged.close()
+
+        return {'AP': AP}
+    #endif 
 
     print '### creating ordered HA,HB,HG_Y0 arr'
     HA_Y0 = np.array([-99.99999]*len(AP))

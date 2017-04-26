@@ -13,11 +13,11 @@ OUTPUTS:
     Returns (x_rest, plot_grid_avg)
 """
 
-import numpy as np
+import numpy as np, numpy.ma as ma
 from scipy.interpolate import interp1d
-def stack(ndarr, zspec, index, x0, xmin, xmax):
-    ndarr = ndarr[index]
-    zspec = zspec[index]
+def stack(ndarr_in, zspec_in, index, x0, xmin, xmax):
+    ndarr = ndarr_in[index]
+    zspec = zspec_in[index]
     
     x_rest   = np.arange(xmin, xmax, 0.1)
     new_grid = np.ndarray(shape=(len(ndarr), len(x_rest)))
@@ -40,8 +40,7 @@ def stack(ndarr, zspec, index, x0, xmin, xmax):
     #endfor
 
     #taking the average, column by column
-    print np.nansum(new_grid, axis=1)
     plot_grid_avg = np.nanmean(new_grid, axis=0)
 
-    return x_rest, plot_grid_avg
+    return x_rest, plot_grid_avg, len(index)
 #enddef

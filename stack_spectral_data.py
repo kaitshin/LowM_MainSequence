@@ -52,7 +52,7 @@ def correct_instr_AP(indexed_AP, indexed_inst_str0, instr):
 #enddef
 
 def write_spectral_table(instr, grid_ndarr, gridz, input_index, x0, subtitle, full_path, shortlabel):
-    xval, yval = stack_data(grid_ndarr, gridz, input_index, x0, 3700, 6700, ff=subtitle)
+    xval, yval, len_input_index = stack_data(grid_ndarr, gridz, input_index, x0, 3700, 6700, ff=subtitle)
     table0 = Table([xval, yval/1E-17], names=['xval','yval/1E-17'])
     asc.write(table0, full_path+'Spectra/Ha_'+instr+'_spectra_vals/'+shortlabel+'_'+subtitle+'.txt',
         format='fixed_width', delimiter=' ')
@@ -130,10 +130,10 @@ def plot_MMT_Ha():
         input_index = np.array([x for x in range(len(gridap)) if gridap[x] in
                                 AP_match],dtype=np.int32)
         try:
-            label += ' ('+str(len(input_index))+')'
             print label, subtitle
-            xval, yval = stack_data(grid_ndarr, gridz, input_index,
+            xval, yval, len_input_index = stack_data(grid_ndarr, gridz, input_index,
                 x0, xmin0, xmax0, ff=subtitle)
+            label += ' ('+str(len_input_index)+')'
             
             # calculating flux for NII emissions
             zs = np.array(gridz[input_index])
@@ -355,11 +355,8 @@ fout  = asc.read(full_path+'FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_f
                  guess=False,Reader=asc.NoHeader)
 stlr_mass = np.array(fout['col7']) ##used
 
-data_dict = create_ordered_AP_arrays() ##make this used instead??
+data_dict = create_ordered_AP_arrays(AP_only = True)
 AP = data_dict['AP'] ##used
-HA_Y0 = data_dict['HA_Y0'] ##used
-HB_Y0 = data_dict['HB_Y0'] ##used
-HG_Y0 = data_dict['HG_Y0'] ##used
 
 print '### looking at the MMT grid'
 griddata = asc.read(full_path+'Spectra/spectral_MMT_grid_data.txt',guess=False)
@@ -372,10 +369,13 @@ CRVAL1 = grid_hdr['CRVAL1']
 CDELT1 = grid_hdr['CDELT1']
 NAXIS1 = grid_hdr['NAXIS1']
 x0 = np.arange(CRVAL1, CDELT1*NAXIS1+CRVAL1, CDELT1) ##used
+# mask spectra that doesn't exist or lacks coverage in certain areas
 ndarr_zeros = np.where(grid_ndarr == 0)
 mask_ndarr = np.zeros_like(grid_ndarr)
-mask_ndarr[0][ndarr_zeros[0]] = 1
-mask_ndarr[1][ndarr_zeros[1]] = 1
+mask_ndarr[ndarr_zeros] = 1
+# mask spectra with unreliable redshift
+bad_zspec = [x for x in range(len(gridz)) if gridz[x] > 9 or gridz[x] < 0]
+mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 
 print '### plotting MMT_Ha'
@@ -393,14 +393,17 @@ CRVAL1 = grid_hdr['CRVAL1']
 CDELT1 = grid_hdr['CDELT1']
 NAXIS1 = grid_hdr['NAXIS1']
 x0 = np.arange(CRVAL1, CDELT1*NAXIS1+CRVAL1, CDELT1) ##used
+# mask spectra that doesn't exist or lacks coverage in certain areas
 ndarr_zeros = np.where(grid_ndarr == 0)
 mask_ndarr = np.zeros_like(grid_ndarr)
-mask_ndarr[0][ndarr_zeros[0]] = 1
-mask_ndarr[1][ndarr_zeros[1]] = 1
+mask_ndarr[ndarr_zeros] = 1
+# mask spectra with unreliable redshift
+bad_zspec = [x for x in range(len(gridz)) if gridz[x] > 9 or gridz[x] < 0]
+mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 
 print '### plotting Keck_Ha'
-plot_Keck_Ha()
+# plot_Keck_Ha()
 grid.close()
 
 nbia.close()
