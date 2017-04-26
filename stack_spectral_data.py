@@ -259,10 +259,10 @@ def plot_Keck_Ha():
         input_index = np.array([x for x in range(len(gridap)) if gridap[x] in
                                 AP_match and gridz[x] != 0],dtype=np.int32)
         try:
-            label += ' ('+str(len(input_index))+')'
             print label, subtitle
-            xval, yval = stack_data(grid_ndarr, gridz, input_index,
+            xval, yval, len_input_index = stack_data(grid_ndarr, gridz, input_index,
                 x0, xmin0, xmax0, ff=subtitle)
+            label += ' ('+str(len_input_index)+')'
 
             # calculating flux for NII emissions
             zs = np.array(gridz[input_index])
@@ -379,7 +379,7 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 
 print '### plotting MMT_Ha'
-plot_MMT_Ha()
+# plot_MMT_Ha()
 grid.close()
 
 print '### looking at the Keck grid'
@@ -403,7 +403,7 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 
 print '### plotting Keck_Ha'
-# plot_Keck_Ha()
+plot_Keck_Ha()
 grid.close()
 
 nbia.close()
