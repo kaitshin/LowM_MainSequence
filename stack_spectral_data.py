@@ -52,11 +52,24 @@ def correct_instr_AP(indexed_AP, indexed_inst_str0, instr):
 #enddef
 
 def write_spectral_table(instr, grid_ndarr, gridz, input_index, x0, subtitle, full_path, shortlabel):
+    '''
+    TODO(document)
+    '''
     xval, yval, len_input_index = stack_data(grid_ndarr, gridz, input_index, x0, 3700, 6700, ff=subtitle)
     table0 = Table([xval, yval/1E-17], names=['xval','yval/1E-17'])
     asc.write(table0, full_path+'Spectra/Ha_'+instr+'_spectra_vals/'+shortlabel+'_'+subtitle+'.txt',
         format='fixed_width', delimiter=' ')
 #enddef
+
+def make_ax_list(axarr, rownum, colnum):
+    '''
+    TODO(document)
+    '''
+    ax_list = []
+    for n in range(rownum):
+        for m in range(colnum):
+            ax_list.append(axarr[n,m])
+    return ax_list
 
 
 def plot_MMT_Ha():
@@ -102,9 +115,7 @@ def plot_MMT_Ha():
     
     f, axarr = plt.subplots(5, 3)
     f.set_size_inches(8, 11)
-    ax_list = [axarr[0,0],axarr[0,1],axarr[0,2],axarr[1,0],axarr[1,1],
-               axarr[1,2],axarr[2,0],axarr[2,1],axarr[2,2],axarr[3,0],
-               axarr[3,1],axarr[3,2],axarr[4,0],axarr[4,1],axarr[4,2]]
+    ax_list = make_ax_list(axarr, 5, 3)
     
     num=0
     # this for-loop stacks by filter
@@ -238,8 +249,7 @@ def plot_Keck_Ha():
     
     f, axarr = plt.subplots(3, 2)
     f.set_size_inches(8, 11)
-    ax_list = [axarr[0,0],axarr[0,1],axarr[1,0],
-               axarr[1,1],axarr[2,0],axarr[2,1]]
+    ax_list = make_ax_list(axarr, 3, 2)
 
     num=0
     for (match_index,ax,xmin0,xmax0,label,subtitle) in zip(index_list,ax_list,
@@ -379,7 +389,7 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 
 print '### plotting MMT_Ha'
-# plot_MMT_Ha()
+plot_MMT_Ha()
 grid.close()
 
 print '### looking at the Keck grid'
