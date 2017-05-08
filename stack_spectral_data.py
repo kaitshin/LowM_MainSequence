@@ -31,9 +31,10 @@ import writing_tables.hg_hb_ha_tables as MMT_twriting
 import writing_tables.hb_ha_tables as Keck_twriting
 import writing_tables.general_tables as general_twriting
 from analysis.sdf_stack_data import stack_data
-from create_ordered_AP_arrays import create_ordered_AP_arrays
 from astropy.io import fits as pyfits, ascii as asc
 from astropy.table import Table
+from create_ordered_AP_arrays import create_ordered_AP_arrays
+from matplotlib.backends.backend_pdf import PdfPages
 
 def correct_instr_AP(indexed_AP, indexed_inst_str0, instr):
     '''
@@ -53,7 +54,9 @@ def correct_instr_AP(indexed_AP, indexed_inst_str0, instr):
 
 def write_spectral_table(instr, grid_ndarr, gridz, input_index, x0, subtitle, full_path, shortlabel):
     '''
-    TODO(document)
+    Writes a table of spectra for the entire wavelength range of each stacked 
+    galaxy data set. The resulting ASCII files are saved in a folder in 'Spectra/'
+    depending on instrument of detection.
     '''
     xval, yval, len_input_index = stack_data(grid_ndarr, gridz, input_index, x0, 3700, 6700, ff=subtitle)
     table0 = Table([xval, yval/1E-17], names=['xval','yval/1E-17'])
@@ -63,7 +66,8 @@ def write_spectral_table(instr, grid_ndarr, gridz, input_index, x0, subtitle, fu
 
 def make_ax_list(axarr, rownum, colnum):
     '''
-    TODO(document)
+    Generates and returns a row-major ordered axis array list from the input 
+    axarr
     '''
     ax_list = []
     for n in range(rownum):
@@ -203,6 +207,79 @@ def plot_MMT_Ha():
         names=['type','EW','EW_corr','EW_abs','ew check','median','pos_amplitude','neg_amplitude'])
     asc.write(table2, full_path+'Spectra/Ha_MMT_stacked_ew.txt',
         format='fixed_width', delimiter=' ')  
+#enddef
+
+
+def plot_MMT_Ha_stlrmass():
+    '''
+    TODO(document)
+    TODO(implement flexible stellar mass bin-readings)
+        (nothing from the command line -- default into 5 bins by percentile)
+        (number n from the command line -- make n bins by percentile)
+        (file name from the command line -- flag to read the stellar mass bins from that ASCII file)
+    TODO(get rid of assumption that there's only one page)
+    TODO(add in the flux/EW/full spectra ASCII table writing code?)
+    '''
+    table_arrays = ([], [], [], [], [], [], [], [], [], [], [])
+    (tablenames, tablefluxes, nii6548fluxes, nii6583fluxes, ewlist, 
+        ewposlist , ewneglist, ewchecklist, medianlist, pos_amplitudelist, 
+        neg_amplitudelist) = table_arrays
+    index_list = general_plotting.get_index_list2(nan_stlr_mass, inst_str0, inst_dict, 'MMT')
+    (xmin_list, xmax_list, label_list, 
+        subtitle_list) = general_plotting.get_iter_lists('MMT')
+
+    pp = PdfPages(full_path+'Spectra/StackedStellarMass/MMT/all_20percbins.pdf')
+
+    f, axarr = plt.subplots(5, 3)
+    f.set_size_inches(8, 11)
+    ax_list = make_ax_list(axarr, 5, 3)
+
+    num=0
+    # this for-loop stacks by stlr mass
+    for (match_index,ax,xmin0,xmax0,label) in zip(index_list,ax_list,xmin_list,xmax_list,label_list):
+        shortlabel = ''
+        if 'gamma' in label:
+            shortlabel = 'Hg'
+        elif 'beta' in label:
+            shortlabel = 'Hb'
+        elif 'alpha' in label:
+            shortlabel = 'Ha'
+        #endif
+
+        AP_match = correct_instr_AP(AP[match_index], inst_str0[match_index], 'MMT')
+        input_index = np.array([x for x in range(len(gridap)) if gridap[x] in
+                                AP_match],dtype=np.int32)
+        try:
+            subtitle='stlrmass '+str(min(stlr_mass[match_index]))+'-'+str(max(stlr_mass[match_index]))
+            print label, subtitle
+            xval, yval, len_input_index = stack_data(grid_ndarr, gridz, input_index,
+                                                     x0, xmin0, xmax0)
+            label += ' ('+str(len_input_index)+')'
+
+            # calculating flux for NII emissions
+            dlambda = xval[1] - xval[0]
+
+            ax, flux, flux2, flux3, pos_flux, o1, o2, o3 = MMT_plotting.subplots_plotting(
+                ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, tol)
+
+        except ValueError:
+            print 'ValueError: none exist'
+        #endtry
+
+        if pos_flux and flux:
+            ax = MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, num, pos_flux, flux)
+        elif not pos_flux and not flux:
+            ax = MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, num)
+        else:
+            print '>>>something\'s not right...'
+        #endif
+
+        num+=1
+    #endfor
+    f = general_plotting.final_plot_setup(f, r'MMT detections of H$\alpha$ emitters')
+    pp.savefig()
+    plt.close()
+    pp.close()
 #enddef
 
 
@@ -364,6 +441,8 @@ inst_str0 = np.array(zspec['inst_str0']) ##used
 fout  = asc.read(full_path+'FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast.fout',
                  guess=False,Reader=asc.NoHeader)
 stlr_mass = np.array(fout['col7']) ##used
+nan_stlr_mass = np.copy(stlr_mass)
+nan_stlr_mass[nan_stlr_mass < 0] = np.nan
 
 data_dict = create_ordered_AP_arrays(AP_only = True)
 AP = data_dict['AP'] ##used
@@ -390,6 +469,7 @@ grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 
 print '### plotting MMT_Ha'
 plot_MMT_Ha()
+plot_MMT_Ha_stlrmass()
 grid.close()
 
 print '### looking at the Keck grid'

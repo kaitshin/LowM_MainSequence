@@ -60,36 +60,35 @@ def get_index_list2(stlr_mass, inst_str0, inst_dict, instr):
     based on instr keyword
 
     Considers by-stellarmass. For now, goes in 20% percentile bins.
+    TODO(generalize?)
     '''
     good_stlr_mass = np.array([x for x in stlr_mass if x > 0])
 
+    # 20% percentile bins
+    perc20 = np.percentile(good_stlr_mass, 20)
+    index_0 = np.array([x for x in range(len(stlr_mass)) 
+        if (stlr_mass[x]>0 and stlr_mass[x]<=perc20) 
+        and inst_str0[x] in inst_dict[instr]])
+    perc40 = np.percentile(good_stlr_mass, 40)
+    index_1 = np.array([x for x in range(len(stlr_mass)) 
+        if (stlr_mass[x]>perc20 and stlr_mass[x]<=perc40) 
+        and inst_str0[x] in inst_dict[instr]])
+    perc60 = np.percentile(good_stlr_mass, 60)
+    index_2 = np.array([x for x in range(len(stlr_mass)) 
+        if (stlr_mass[x]>perc40 and stlr_mass[x]<=perc60) 
+        and inst_str0[x] in inst_dict[instr]])
+    perc80 = np.percentile(good_stlr_mass, 80)
+    index_3 = np.array([x for x in range(len(stlr_mass)) 
+        if (stlr_mass[x]>perc60 and stlr_mass[x]<=perc80) 
+        and inst_str0[x] in inst_dict[instr]])
+    perc100 = np.percentile(good_stlr_mass, 100)        
+    index_4 = np.array([x for x in range(len(stlr_mass)) 
+        if (stlr_mass[x]>perc80 and stlr_mass[x]<=perc100) 
+        and inst_str0[x] in inst_dict[instr]])
     if instr=='MMT':
-        perc20 = np.percentile(good_stlr_mass, 20)
-        index_0 = np.array([x for x in range(len(stlr_mass)) 
-            if (stlr_mass[x]>0 and stlr_mass[x]<=perc20) 
-            and inst_str0[x] in inst_dict[instr]])
-        perc40 = np.percentile(good_stlr_mass, 40)
-        index_1 = np.array([x for x in range(len(stlr_mass)) 
-            if (stlr_mass[x]>perc20 and stlr_mass[x]<=perc40) 
-            and inst_str0[x] in inst_dict[instr]])
-        perc60 = np.percentile(good_stlr_mass, 60)
-        index_2 = np.array([x for x in range(len(stlr_mass)) 
-            if (stlr_mass[x]>perc40 and stlr_mass[x]<=perc60) 
-            and inst_str0[x] in inst_dict[instr]])
-        perc80 = np.percentile(good_stlr_mass, 80)
-        index_3 = np.array([x for x in range(len(stlr_mass)) 
-            if (stlr_mass[x]>perc60 and stlr_mass[x]<=perc80) 
-            and inst_str0[x] in inst_dict[instr]])
-        perc100 = np.percentile(good_stlr_mass, 100)        
-        index_4 = np.array([x for x in range(len(stlr_mass)) 
-            if (stlr_mass[x]>perc80 and stlr_mass[x]<=perc100) 
-            and inst_str0[x] in inst_dict[instr]])
         return [index_0]*3+[index_1]*3+[index_2]*3+[index_3]*3+[index_4]*3
-    # elif instr=='Keck':
-    #     return 0
-    else:
-        print 'error'
-        return 0
+    if instr=='Keck':
+        return [index_0]*2+[index_1]*2+[index_2]*2+[index_3]*2+[index_4]*2
 #enddef
 
 def get_iter_lists(instr, stlr=False):
