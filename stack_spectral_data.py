@@ -74,9 +74,10 @@ def make_ax_list(axarr, rownum, colnum):
         for m in range(colnum):
             ax_list.append(axarr[n,m])
     return ax_list
+#enddef
 
 
-def plot_MMT_Ha():
+def plot_MMT_Ha(index_list=[], pp=None, title=''):
     '''
     Creates a pdf (8"x11") with 5x3 subplots for different lines and filter
     combinations.
@@ -113,7 +114,8 @@ def plot_MMT_Ha():
     (tablenames, tablefluxes, nii6548fluxes, nii6583fluxes, ewlist, 
         ewposlist , ewneglist, ewchecklist, medianlist, pos_amplitudelist, 
         neg_amplitudelist) = table_arrays
-    index_list = general_plotting.get_index_list(NAME0, inst_str0, inst_dict, 'MMT')
+    if index_list == []:
+        index_list = general_plotting.get_index_list(NAME0, inst_str0, inst_dict, 'MMT')
     (xmin_list, xmax_list, label_list, 
         subtitle_list) = general_plotting.get_iter_lists('MMT')
     
@@ -144,6 +146,12 @@ def plot_MMT_Ha():
         #endif
         input_index = np.array([x for x in range(len(gridap)) if gridap[x] in
                                 AP_match],dtype=np.int32)
+        if len(input_index) < 2: 
+            MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, num)
+            num += 1 
+            continue
+        #endif
+
         try:
             print label, subtitle
             xval, yval, len_input_index = stack_data(grid_ndarr, gridz, input_index,
@@ -192,9 +200,16 @@ def plot_MMT_Ha():
 
         num+=1
     #endfor
-    f = general_plotting.final_plot_setup(f, r'MMT detections of H$\alpha$ emitters')
-    plt.savefig(full_path+'Spectra/Ha_MMT_stacked.pdf')
+    if title=='':
+        f = general_plotting.final_plot_setup(f, r'MMT detections of H$\alpha$ emitters')
+    else:
+        f = general_plotting.final_plot_setup(f, title)
+    if pp == None:
+        plt.savefig(full_path+'Spectra/Ha_MMT_stacked.pdf')
+    else:
+        pp.savefig()
     plt.close()
+    if pp != None: return pp
 
     #writing the flux table
     table1 = Table([tablenames,tablefluxes,nii6548fluxes,nii6583fluxes],
@@ -214,6 +229,7 @@ def plot_MMT_Ha_stlrmass():
     '''
     TODO(document)
     TODO(implement flexible stellar mass bin-readings)
+    TODO(implement flexible file-naming)
         (nothing from the command line -- default into 5 bins by percentile)
         (number n from the command line -- make n bins by percentile)
         (file name from the command line -- flag to read the stellar mass bins from that ASCII file)
@@ -224,7 +240,7 @@ def plot_MMT_Ha_stlrmass():
     (tablenames, tablefluxes, nii6548fluxes, nii6583fluxes, ewlist, 
         ewposlist , ewneglist, ewchecklist, medianlist, pos_amplitudelist, 
         neg_amplitudelist) = table_arrays
-    index_list = general_plotting.get_index_list2(nan_stlr_mass, inst_str0, inst_dict, 'MMT')
+    index_list = general_plotting.get_index_list2(stlr_mass, inst_str0, inst_dict, 'MMT')
     (xmin_list, xmax_list, label_list, 
         subtitle_list) = general_plotting.get_iter_lists('MMT')
 
@@ -279,6 +295,39 @@ def plot_MMT_Ha_stlrmass():
     f = general_plotting.final_plot_setup(f, r'MMT detections of H$\alpha$ emitters')
     pp.savefig()
     plt.close()
+    pp.close()
+#enddef
+
+
+def plot_MMT_Ha_stlrmass_z():
+    '''
+    TODO(document)
+    TODO(generalize stellar mass binning functionality?)
+    TODO(implement flexible file-naming)
+    '''
+    stlrmass_index_list = general_plotting.get_index_list2(stlr_mass, inst_str0, inst_dict, 'MMT')
+    pp = PdfPages(full_path+'Spectra/StackedStellarMassZ/MMT/20_40_percbins.pdf')
+    num=0
+    n = 2 # how many redshifts we want to take into account
+    for stlrmassindex0 in stlrmass_index_list[:n*3]:
+        if num%3 != 0:
+            num += 1
+            continue
+        #endif
+        
+        title='stlrmass: '+str(min(stlr_mass[stlrmassindex0]))+'-'+str(max(stlr_mass[stlrmassindex0]))
+        print '>>>', title
+
+        # get one stlrmass bin per page
+        temp_index_list = general_plotting.get_index_list(NAME0, inst_str0, inst_dict, 'MMT')
+        index_list = []
+        for index0 in temp_index_list:
+            templist = [x for x in index0 if x in stlrmassindex0]
+            index_list.append(templist)
+        #endfor
+        pp = plot_MMT_Ha(index_list, pp, title)
+        num += 1
+    #endfor
     pp.close()
 #enddef
 
@@ -468,8 +517,9 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 
 print '### plotting MMT_Ha'
-plot_MMT_Ha()
-plot_MMT_Ha_stlrmass()
+# plot_MMT_Ha()
+# plot_MMT_Ha_stlrmass()
+plot_MMT_Ha_stlrmass_z()
 grid.close()
 
 print '### looking at the Keck grid'
@@ -493,7 +543,7 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 
 print '### plotting Keck_Ha'
-plot_Keck_Ha()
+# plot_Keck_Ha()
 grid.close()
 
 nbia.close()
