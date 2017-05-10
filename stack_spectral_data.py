@@ -135,6 +135,7 @@ def plot_MMT_Ha(index_list=[], pp=None, title=''):
                                 AP_match],dtype=np.int32)
         if len(input_index) < 2: 
             MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, num)
+            print 'Not enough sources to stack (less than two)'
             num += 1 
             continue
         #endif
@@ -289,11 +290,13 @@ def plot_MMT_Ha_stlrmass_z():
     TODO(document)
     TODO(generalize stellar mass binning functionality?)
     TODO(implement flexible file-naming)
+    TODO(fix table-writing functionality so files aren't overwritten)
+    TODO(fix table-writing functionality so files from redshift binning aren't overwritten)
     '''
     stlrmass_index_list = general_plotting.get_index_list2(stlr_mass, inst_str0, inst_dict, 'MMT')
     pp = PdfPages(full_path+'Spectra/StackedStellarMassZ/MMT/20_40_percbins.pdf')
     num=0
-    n = 2 # how many redshifts we want to take into account
+    n = 2 # how many redshifts we want to take into account (max 5, TODO(generalize this?))
     for stlrmassindex0 in stlrmass_index_list[:n*3]:
         if num%3 != 0:
             num += 1
@@ -316,7 +319,7 @@ def plot_MMT_Ha_stlrmass_z():
     pp.close()
 #enddef
 
-def plot_Keck_Ha():
+def plot_Keck_Ha(index_list=[], pp=None, title=''):
     '''
     Creates a pdf (8"x11") with 3x2 subplots for different lines and filter
     combinations.
@@ -353,7 +356,8 @@ def plot_Keck_Ha():
     (tablenames, tablefluxes, nii6548fluxes, nii6583fluxes, ewlist, 
         ewposlist , ewneglist, ewchecklist, medianlist, pos_amplitudelist, 
         neg_amplitudelist) = table_arrays
-    index_list = general_plotting.get_index_list(NAME0, inst_str0, inst_dict, 'Keck')
+    if index_list == []:
+        index_list = general_plotting.get_index_list(NAME0, inst_str0, inst_dict, 'Keck')
     (xmin_list, xmax_list, label_list, 
         subtitle_list) = general_plotting.get_iter_lists('Keck')
     
@@ -380,6 +384,7 @@ def plot_Keck_Ha():
                                 AP_match and gridz[x] != 0],dtype=np.int32)
         if len(input_index) < 2: 
             Keck_plotting.subplots_setup(ax, ax_list, label, subtitle, num)
+            print 'Not enough sources to stack (less than two)'
             num += 1 
             continue
         #endif
@@ -418,6 +423,8 @@ def plot_Keck_Ha():
                     subtitle, full_path, shortlabel)
         except ValueError:
             print 'ValueError: none exist'
+        except RuntimeError:
+            print 'Error - curve_fit failed'
         #endtry
 
         if pos_flux and flux:
@@ -430,9 +437,16 @@ def plot_Keck_Ha():
         
         num+=1
     #endfor
-    f = general_plotting.final_plot_setup(f, r'Keck detections of H$\alpha$ emitters')
-    plt.savefig(full_path+'Spectra/Ha_Keck_stacked.pdf')
+    if title=='':
+        f = general_plotting.final_plot_setup(f, r'Keck detections of H$\alpha$ emitters')
+    else:
+        f = general_plotting.final_plot_setup(f, title)
+    if pp == None:
+        plt.savefig(full_path+'Spectra/Ha_Keck_stacked.pdf')
+    else:
+        pp.savefig()
     plt.close()
+    if pp != None: return pp
 
     #writing the flux table
     table1 = Table([tablenames,tablefluxes,nii6548fluxes,nii6583fluxes],
@@ -517,6 +531,39 @@ def plot_Keck_Ha_stlrmass():
     f = general_plotting.final_plot_setup(f, r'Keck detections of H$\alpha$ emitters')
     pp.savefig()
     plt.close()
+    pp.close()
+#enddef
+
+def plot_Keck_Ha_stlrmass_z():
+    '''
+    TODO(document)
+    TODO(generalize stellar mass binning functionality?)
+    TODO(implement flexible file-naming)
+    TODO(fix table-writing functionality so files from redshift binning aren't overwritten)
+    '''
+    stlrmass_index_list = general_plotting.get_index_list2(stlr_mass, inst_str0, inst_dict, 'Keck')
+    pp = PdfPages(full_path+'Spectra/StackedStellarMassZ/Keck/20_40_percbins.pdf')
+    num=0
+    n = 5 # how many redshifts we want to take into account (max 5, TODO(generalize this?))
+    for stlrmassindex0 in stlrmass_index_list[:n*2]:
+        if num%2 != 0:
+            num += 1
+            continue
+        #endif
+        
+        title='stlrmass: '+str(min(stlr_mass[stlrmassindex0]))+'-'+str(max(stlr_mass[stlrmassindex0]))
+        print '>>>', title
+
+        # get one stlrmass bin per page
+        temp_index_list = general_plotting.get_index_list(NAME0, inst_str0, inst_dict, 'Keck')
+        index_list = []
+        for index0 in temp_index_list:
+            templist = [x for x in index0 if x in stlrmassindex0]
+            index_list.append(templist)
+        #endfor
+        pp = plot_Keck_Ha(index_list, pp, title)
+        num += 1
+    #endfor
     pp.close()
 #enddef
 
@@ -608,6 +655,7 @@ grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 print '### plotting Keck_Ha'
 plot_Keck_Ha()
 plot_Keck_Ha_stlrmass()
+plot_Keck_Ha_stlrmass_z()
 grid.close()
 
 nbia.close()

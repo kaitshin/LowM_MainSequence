@@ -22,7 +22,6 @@ def stack(ndarr_in, zspec_in, index, x0, xmin, xmax):
     x_rest   = np.arange(xmin, xmax, 0.1)
     new_grid = np.ndarray(shape=(len(ndarr), len(x_rest)))
     
-    print xmin, xmax
     print '### zspec:', min(x for x in zspec if x > 0), max(x for x in zspec if x < 9)
     #deshifting to rest-frame wavelength
     for row_num in range(len(ndarr)):
