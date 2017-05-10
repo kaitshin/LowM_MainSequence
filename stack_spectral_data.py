@@ -64,18 +64,6 @@ def write_spectral_table(instr, grid_ndarr, gridz, input_index, x0, subtitle, fu
         format='fixed_width', delimiter=' ')
 #enddef
 
-def make_ax_list(axarr, rownum, colnum):
-    '''
-    Generates and returns a row-major ordered axis array list from the input 
-    axarr
-    '''
-    ax_list = []
-    for n in range(rownum):
-        for m in range(colnum):
-            ax_list.append(axarr[n,m])
-    return ax_list
-#enddef
-
 
 def plot_MMT_Ha(index_list=[], pp=None, title=''):
     '''
@@ -121,7 +109,7 @@ def plot_MMT_Ha(index_list=[], pp=None, title=''):
     
     f, axarr = plt.subplots(5, 3)
     f.set_size_inches(8, 11)
-    ax_list = make_ax_list(axarr, 5, 3)
+    ax_list = np.ndarray.flatten(axarr)
     
     num=0
     # this for-loop stacks by filter
@@ -248,7 +236,7 @@ def plot_MMT_Ha_stlrmass():
 
     f, axarr = plt.subplots(5, 3)
     f.set_size_inches(8, 11)
-    ax_list = make_ax_list(axarr, 5, 3)
+    ax_list = np.ndarray.flatten(axarr)
 
     num=0
     # this for-loop stacks by stlr mass
@@ -375,7 +363,7 @@ def plot_Keck_Ha():
     
     f, axarr = plt.subplots(3, 2)
     f.set_size_inches(8, 11)
-    ax_list = make_ax_list(axarr, 3, 2)
+    ax_list = np.ndarray.flatten(axarr)
 
     num=0
     for (match_index,ax,xmin0,xmax0,label,subtitle) in zip(index_list,ax_list,
@@ -517,8 +505,8 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 
 print '### plotting MMT_Ha'
-# plot_MMT_Ha()
-# plot_MMT_Ha_stlrmass()
+plot_MMT_Ha()
+plot_MMT_Ha_stlrmass()
 plot_MMT_Ha_stlrmass_z()
 grid.close()
 
@@ -543,7 +531,7 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 
 print '### plotting Keck_Ha'
-# plot_Keck_Ha()
+plot_Keck_Ha()
 grid.close()
 
 nbia.close()
