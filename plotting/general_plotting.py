@@ -102,19 +102,19 @@ def get_iter_lists(instr, stlr=False):
         xmin_list = np.array([4341,4861,6563]*5)-60
         xmax_list = np.array([4341,4861,6563]*5)+60
         label_list=[r'H$\gamma$',r'H$\beta$',r'H$\alpha$']*5
-        if stlr==False:
-            subtitle_list = ['NB704']*3+['NB711']*3+['NB816']*3+['NB921']*3+['NB973']*3
-        else: #stlr==True:
-            subtitle_list = ['perc20']*3+['perc40']*3+['perc60']*3+['perc80']*3+['perc100']*3
+        subtitle_list = ['NB704']*3+['NB711']*3+['NB816']*3+['NB921']*3+['NB973']*3
         return (xmin_list, xmax_list, label_list, subtitle_list)
     elif instr=='Keck':
-        xmin_list = np.array([4861,6563]*3)-60
-        xmax_list = np.array([4861,6563]*3)+60
-        label_list=[r'H$\beta$',r'H$\alpha$']*3
         if stlr==False:
+            xmin_list = np.array([4861,6563]*3)-60
+            xmax_list = np.array([4861,6563]*3)+60
+            label_list=[r'H$\beta$',r'H$\alpha$']*3
             subtitle_list = ['NB816']*2+['NB921']*2+['NB973']*2
-        # else: #stlr==True:
-        #     return 0
+        else: #stlr==True
+            xmin_list = np.array([4861,6563]*5)-60
+            xmax_list = np.array([4861,6563]*5)+60
+            label_list=[r'H$\beta$',r'H$\alpha$']*5
+            subtitle_list = []
         return (xmin_list, xmax_list, label_list, subtitle_list)
     else:
         print 'error'

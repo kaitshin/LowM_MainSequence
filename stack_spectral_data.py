@@ -64,7 +64,6 @@ def write_spectral_table(instr, grid_ndarr, gridz, input_index, x0, subtitle, fu
         format='fixed_width', delimiter=' ')
 #enddef
 
-
 def plot_MMT_Ha(index_list=[], pp=None, title=''):
     '''
     Creates a pdf (8"x11") with 5x3 subplots for different lines and filter
@@ -212,7 +211,6 @@ def plot_MMT_Ha(index_list=[], pp=None, title=''):
         format='fixed_width', delimiter=' ')  
 #enddef
 
-
 def plot_MMT_Ha_stlrmass():
     '''
     TODO(document)
@@ -222,7 +220,7 @@ def plot_MMT_Ha_stlrmass():
         (number n from the command line -- make n bins by percentile)
         (file name from the command line -- flag to read the stellar mass bins from that ASCII file)
     TODO(get rid of assumption that there's only one page)
-    TODO(add in the flux/EW/full spectra ASCII table writing code?)
+    TODO(add in the flux/EW/full spectra ASCII table writing code)
     '''
     table_arrays = ([], [], [], [], [], [], [], [], [], [], [])
     (tablenames, tablefluxes, nii6548fluxes, nii6583fluxes, ewlist, 
@@ -286,7 +284,6 @@ def plot_MMT_Ha_stlrmass():
     pp.close()
 #enddef
 
-
 def plot_MMT_Ha_stlrmass_z():
     '''
     TODO(document)
@@ -318,7 +315,6 @@ def plot_MMT_Ha_stlrmass_z():
     #endfor
     pp.close()
 #enddef
-
 
 def plot_Keck_Ha():
     '''
@@ -382,6 +378,12 @@ def plot_Keck_Ha():
         
         input_index = np.array([x for x in range(len(gridap)) if gridap[x] in
                                 AP_match and gridz[x] != 0],dtype=np.int32)
+        if len(input_index) < 2: 
+            Keck_plotting.subplots_setup(ax, ax_list, label, subtitle, num)
+            num += 1 
+            continue
+        #endif
+
         try:
             print label, subtitle
             xval, yval, len_input_index = stack_data(grid_ndarr, gridz, input_index,
@@ -443,6 +445,79 @@ def plot_Keck_Ha():
         names=['type','EW','EW_corr','EW_abs','ew check','median','pos_amplitude','neg_amplitude'])
     asc.write(table2, full_path+'Spectra/Ha_Keck_stacked_ew.txt', 
         format='fixed_width', delimiter=' ')
+#enddef
+
+def plot_Keck_Ha_stlrmass():
+    '''
+    TODO(document)
+    TODO(implement flexible stellar mass bin-readings)
+    TODO(implement flexible file-naming)
+        (nothing from the command line -- default into 5 bins by percentile)
+        (number n from the command line -- make n bins by percentile)
+        (file name from the command line -- flag to read the stellar mass bins from that ASCII file)
+    TODO(get rid of assumption that there's only one page)
+    TODO(add in the flux/EW/full spectra ASCII table writing code)
+    '''
+    table_arrays = ([], [], [], [], [], [], [], [], [], [], [])
+    (tablenames, tablefluxes, nii6548fluxes, nii6583fluxes, ewlist, 
+        ewposlist , ewneglist, ewchecklist, medianlist, pos_amplitudelist, 
+        neg_amplitudelist) = table_arrays
+    index_list = general_plotting.get_index_list2(nan_stlr_mass, inst_str0, inst_dict, 'Keck')
+    (xmin_list, xmax_list, label_list, 
+        subtitle_list) = general_plotting.get_iter_lists('Keck', stlr=True)
+
+    pp = PdfPages(full_path+'Spectra/StackedStellarMass/Keck/all_20percbins.pdf')
+
+    f, axarr = plt.subplots(5, 2)
+    f.set_size_inches(8, 11)
+    ax_list = np.ndarray.flatten(axarr)
+
+    num=0
+    # this for-loop stacks by stlr mass
+    for (match_index,ax,xmin0,xmax0,label) in zip(index_list,ax_list,xmin_list,xmax_list,label_list):
+        shortlabel = ''
+        if 'beta' in label:
+            shortlabel = 'Hb'
+        elif 'alpha' in label:
+            shortlabel = 'Ha'
+        #endif
+
+        AP_match = correct_instr_AP(AP[match_index], inst_str0[match_index], 'Keck')
+        AP_match = np.array([x for x in AP_match if x != 'INVALID_KECK'], dtype=np.float32)
+        
+        input_index = np.array([x for x in range(len(gridap)) if gridap[x] in
+                                AP_match],dtype=np.int32)
+        try:
+            subtitle='stlrmass '+str(min(stlr_mass[match_index]))+'-'+str(max(stlr_mass[match_index]))
+            print label, subtitle
+            xval, yval, len_input_index = stack_data(grid_ndarr, gridz, input_index,
+                                                     x0, xmin0, xmax0)
+            label += ' ('+str(len_input_index)+')'
+
+            # calculating flux for NII emissions
+            dlambda = xval[1] - xval[0]
+
+            ax, flux, flux2, flux3, pos_flux, o1, o2, o3 = Keck_plotting.subplots_plotting(
+                ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, tol, num)
+
+        except ValueError:
+            print 'ValueError: none exist'
+        #endtry
+
+        if pos_flux and flux:
+            ax = Keck_plotting.subplots_setup(ax, ax_list, label, subtitle, num, pos_flux, flux)
+        elif not pos_flux and not flux:
+            ax = Keck_plotting.subplots_setup(ax, ax_list, label, subtitle, num)
+        else:
+            print '>>>something\'s not right...'
+        #endif
+
+        num+=1
+    #endfor
+    f = general_plotting.final_plot_setup(f, r'Keck detections of H$\alpha$ emitters')
+    pp.savefig()
+    plt.close()
+    pp.close()
 #enddef
 
 
@@ -532,6 +607,7 @@ grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 
 print '### plotting Keck_Ha'
 plot_Keck_Ha()
+plot_Keck_Ha_stlrmass()
 grid.close()
 
 nbia.close()
