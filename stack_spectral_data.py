@@ -313,6 +313,7 @@ def plot_MMT_Ha_stlrmass_z():
             templist = [x for x in index0 if x in stlrmassindex0]
             index_list.append(templist)
         #endfor
+
         pp = plot_MMT_Ha(index_list, pp, title)
         num += 1
     #endfor
@@ -542,7 +543,7 @@ def plot_Keck_Ha_stlrmass_z():
     TODO(fix table-writing functionality so files from redshift binning aren't overwritten)
     '''
     stlrmass_index_list = general_plotting.get_index_list2(stlr_mass, inst_str0, inst_dict, 'Keck')
-    pp = PdfPages(full_path+'Spectra/StackedStellarMassZ/Keck/20_40_percbins.pdf')
+    pp = PdfPages(full_path+'Spectra/StackedStellarMassZ/Keck/20_40_60_80_100_percbins.pdf')
     num=0
     n = 5 # how many redshifts we want to take into account (max 5, TODO(generalize this?))
     for stlrmassindex0 in stlrmass_index_list[:n*2]:
@@ -561,6 +562,7 @@ def plot_Keck_Ha_stlrmass_z():
             templist = [x for x in index0 if x in stlrmassindex0]
             index_list.append(templist)
         #endfor
+
         pp = plot_Keck_Ha(index_list, pp, title)
         num += 1
     #endfor
@@ -627,9 +629,9 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 
 print '### plotting MMT_Ha'
-plot_MMT_Ha()
 plot_MMT_Ha_stlrmass()
 plot_MMT_Ha_stlrmass_z()
+plot_MMT_Ha()
 grid.close()
 
 print '### looking at the Keck grid'
@@ -653,9 +655,9 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 
 print '### plotting Keck_Ha'
-plot_Keck_Ha()
 plot_Keck_Ha_stlrmass()
 plot_Keck_Ha_stlrmass_z()
+plot_Keck_Ha()
 grid.close()
 
 nbia.close()

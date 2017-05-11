@@ -18,14 +18,16 @@ def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0):
     ax.text(0.03,0.97,label,transform=ax.transAxes,fontsize=7,ha='left',
         va='top')
     
-    if not (subtitle=='NB816' and num%2==0):
-        ax.text(0.97,0.97,'flux_before='+'{:.4e}'.format((pos_flux))+
-            '\nflux='+'{:.4e}'.format((flux)),transform=ax.transAxes,fontsize=7,ha='right',va='top')
     if num%2==0:
         ax.set_title(subtitle,fontsize=8,loc='left')
+        if subtitle != 'NB816':
+            ax.text(0.97,0.97,'flux='+'{:.4e}'.format((pos_flux))+
+                    '\nflux_corr='+'{:.4e}'.format((flux)),transform=ax.transAxes,fontsize=7,ha='right',va='top')
     elif num%2==1:
         ymaxval = max(ax.get_ylim())
         [a.set_ylim(ymax=ymaxval) for a in ax_list[num-1:num]]
+        ax.text(0.97,0.97,'flux='+'{:.4e}'.format((pos_flux)),
+                transform=ax.transAxes,fontsize=7,ha='right',va='top')
         if subtitle != 'NB816':
             ax_list[num-1].plot([4861,4861],[0,ymaxval],'k',alpha=0.7,zorder=1)
         ax_list[num].plot([6563,6563], [0,ymaxval],'k',alpha=0.7,zorder=1)
@@ -83,7 +85,7 @@ def subplots_plotting(ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, to
         idx_small = np.where(np.absolute(xval - o1[1]) <= 2.5*o1[2])[0]
 
         pos_flux = np.sum(dlambda * (pos0[idx_small] - o1[6]))
-        flux = np.sum(dlambda * (func0[idx_small] - o1[6]))
+        flux = np.sum(dlambda * (pos0[idx_small] - o1[6] - neg0[idx_small]))
         flux2 = 0
         flux3 = 0
     #endif
