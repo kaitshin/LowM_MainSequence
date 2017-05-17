@@ -52,19 +52,28 @@ def correct_instr_AP(indexed_AP, indexed_inst_str0, instr):
     return indexed_AP
 #enddef
 
-def write_spectral_table(instr, grid_ndarr, gridz, input_index, x0, subtitle, full_path, shortlabel):
+def write_spectral_table(instr, grid_ndarr, gridz, input_index, x0, name, full_path, shortlabel, bintype):
     '''
     Writes a table of spectra for the entire wavelength range of each stacked 
-    galaxy data set. The resulting ASCII files are saved in a folder in 'Spectra/'
-    depending on instrument of detection.
+    galaxy data set. The resulting ASCII files are saved in a folder in 'Composite_Spectra/'
+    depending on binning type (redshift, stlrmass, stlrmass+z) and instrument of detection
+    (MMT, Keck).
+
+    The 'name' is either:
+    	o The filter (if bintype='Redshift')
+    	o The stellar mass range (if bintype='StellarMass')
+    	o The stellar mass range + filter (if bintype='StellarMassZ')
     '''
-    xval, yval, len_input_index = stack_data(grid_ndarr, gridz, input_index, x0, 3700, 6700, ff=subtitle)
+    if bintype=='Redshift':
+    	xval, yval, len_input_index = stack_data(grid_ndarr, gridz, input_index, x0, 3700, 6700, ff=name)
+    else:
+    	xval, yval, len_input_index = stack_data(grid_ndarr, gridz, input_index, x0, 3700, 6700)
     table0 = Table([xval, yval/1E-17], names=['xval','yval/1E-17'])
-    asc.write(table0, full_path+'Spectra/Ha_'+instr+'_spectra_vals/'+shortlabel+'_'+subtitle+'.txt',
+    asc.write(table0, full_path+'Composite_Spectra/'+bintype+'/'+instr+'_spectra_vals/'+name+'.txt',
         format='fixed_width', delimiter=' ')
 #enddef
 
-def plot_MMT_Ha(index_list=[], pp=None, title=''):
+def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift'):
     '''
     Creates a pdf (8"x11") with 5x3 subplots for different lines and filter
     combinations.
@@ -172,8 +181,14 @@ def plot_MMT_Ha(index_list=[], pp=None, title=''):
             	median, pos_amplitude, neg_amplitude, 'MMT')
             
             #writing the spectra table
-            write_spectral_table('MMT', grid_ndarr, gridz, input_index, x0, 
-                subtitle, full_path, shortlabel)
+            if (num%3==0):
+                if bintype=='Redshift':
+                    write_spectral_table('MMT', grid_ndarr, gridz, input_index, x0, 
+                        subtitle, full_path, shortlabel, bintype)
+                elif bintype=='StellarMassZ':
+                    write_spectral_table('MMT', grid_ndarr, gridz, input_index, x0, 
+                        title[10:]+'_'+subtitle, full_path, shortlabel, bintype)
+
         except ValueError:
             print 'ValueError: none exist'
         #endtry
@@ -193,7 +208,7 @@ def plot_MMT_Ha(index_list=[], pp=None, title=''):
     else:
         f = general_plotting.final_plot_setup(f, title)
     if pp == None:
-        plt.savefig(full_path+'Spectra/Ha_MMT_stacked.pdf')
+        plt.savefig(full_path+'Composite_Spectra/Redshift/MMT_stacked_spectra.pdf')
     else:
         pp.savefig()
     plt.close()
@@ -202,13 +217,13 @@ def plot_MMT_Ha(index_list=[], pp=None, title=''):
     #writing the flux table
     table1 = Table([tablenames,tablefluxes,nii6548fluxes,nii6583fluxes],
         names=['type','flux','NII6548 flux','NII6583 flux'])
-    asc.write(table1, full_path+'Spectra/Ha_MMT_stacked_fluxes.txt',
+    asc.write(table1, full_path+'Composite_Spectra/Redshift/MMT_stacked_fluxes.txt',
         format='fixed_width', delimiter=' ')  
 
     #writing the EW table
     table2 = Table([tablenames,ewlist,ewposlist,ewneglist,ewchecklist,medianlist,pos_amplitudelist,neg_amplitudelist],
         names=['type','EW','EW_corr','EW_abs','ew check','median','pos_amplitude','neg_amplitude'])
-    asc.write(table2, full_path+'Spectra/Ha_MMT_stacked_ew.txt',
+    asc.write(table2, full_path+'Composite_Spectra/Redshift/MMT_stacked_ew.txt',
         format='fixed_width', delimiter=' ')  
 #enddef
 
@@ -231,7 +246,7 @@ def plot_MMT_Ha_stlrmass():
     (xmin_list, xmax_list, label_list, 
         subtitle_list) = general_plotting.get_iter_lists('MMT')
 
-    pp = PdfPages(full_path+'Spectra/StackedStellarMass/MMT/all_20percbins.pdf')
+    pp = PdfPages(full_path+'Composite_Spectra/StellarMass/MMT_all_20percbins.pdf')
 
     f, axarr = plt.subplots(5, 3)
     f.set_size_inches(8, 11)
@@ -253,7 +268,7 @@ def plot_MMT_Ha_stlrmass():
         input_index = np.array([x for x in range(len(gridap)) if gridap[x] in
                                 AP_match],dtype=np.int32)
         try:
-            subtitle='stlrmass '+str(min(stlr_mass[match_index]))+'-'+str(max(stlr_mass[match_index]))
+            subtitle='stlrmass: '+str(min(stlr_mass[match_index]))+'-'+str(max(stlr_mass[match_index]))
             print label, subtitle
             xval, yval, len_input_index = stack_data(grid_ndarr, gridz, input_index,
                                                      x0, xmin0, xmax0)
@@ -264,6 +279,10 @@ def plot_MMT_Ha_stlrmass():
 
             ax, flux, flux2, flux3, pos_flux, o1, o2, o3 = MMT_plotting.subplots_plotting(
                 ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, tol)
+
+            if (num%3==0):
+                write_spectral_table('MMT', grid_ndarr, gridz, input_index, x0, 
+                    subtitle[10:], full_path, shortlabel, 'StellarMass')
 
         except ValueError:
             print 'ValueError: none exist'
@@ -290,11 +309,9 @@ def plot_MMT_Ha_stlrmass_z():
     TODO(document)
     TODO(generalize stellar mass binning functionality?)
     TODO(implement flexible file-naming)
-    TODO(fix table-writing functionality so files aren't overwritten)
-    TODO(fix table-writing functionality so files from redshift binning aren't overwritten)
     '''
     stlrmass_index_list = general_plotting.get_index_list2(stlr_mass, inst_str0, inst_dict, 'MMT')
-    pp = PdfPages(full_path+'Spectra/StackedStellarMassZ/MMT/20_40_percbins.pdf')
+    pp = PdfPages(full_path+'Composite_Spectra/StellarMassZ/MMT_20_40_percbins.pdf')
     num=0
     n = 2 # how many redshifts we want to take into account (max 5, TODO(generalize this?))
     for stlrmassindex0 in stlrmass_index_list[:n*3]:
@@ -314,13 +331,13 @@ def plot_MMT_Ha_stlrmass_z():
             index_list.append(templist)
         #endfor
 
-        pp = plot_MMT_Ha(index_list, pp, title)
+        pp = plot_MMT_Ha(index_list, pp, title, 'StellarMassZ')
         num += 1
     #endfor
     pp.close()
 #enddef
 
-def plot_Keck_Ha(index_list=[], pp=None, title=''):
+def plot_Keck_Ha(index_list=[], pp=None, title='', bintype='Redshift'):
     '''
     Creates a pdf (8"x11") with 3x2 subplots for different lines and filter
     combinations.
@@ -419,9 +436,13 @@ def plot_Keck_Ha(index_list=[], pp=None, title=''):
             	median, pos_amplitude, neg_amplitude, 'Keck')
 
             #writing the spectra table
-            if not (subtitle=='NB816' and num%2==0):
-                write_spectral_table('Keck', grid_ndarr, gridz, input_index, x0, 
-                    subtitle, full_path, shortlabel)
+            if (num%2==1):
+                if bintype=='Redshift':
+                    write_spectral_table('Keck', grid_ndarr, gridz, input_index, x0, 
+                        subtitle, full_path, shortlabel, bintype)
+                elif bintype=='StellarMassZ':
+                    write_spectral_table('Keck', grid_ndarr, gridz, input_index, x0, 
+                        title[10:]+'_'+subtitle, full_path, shortlabel, bintype)
         except ValueError:
             print 'ValueError: none exist'
         except RuntimeError:
@@ -443,7 +464,7 @@ def plot_Keck_Ha(index_list=[], pp=None, title=''):
     else:
         f = general_plotting.final_plot_setup(f, title)
     if pp == None:
-        plt.savefig(full_path+'Spectra/Ha_Keck_stacked.pdf')
+        plt.savefig(full_path+'Composite_Spectra/Redshift/Keck_stacked_spectra.pdf')
     else:
         pp.savefig()
     plt.close()
@@ -452,13 +473,13 @@ def plot_Keck_Ha(index_list=[], pp=None, title=''):
     #writing the flux table
     table1 = Table([tablenames,tablefluxes,nii6548fluxes,nii6583fluxes],
         names=['type','flux','NII6548 flux','NII6583 flux'])
-    asc.write(table1, full_path+'Spectra/Ha_Keck_stacked_fluxes.txt', 
+    asc.write(table1, full_path+'Composite_Spectra/Redshift/Keck_stacked_fluxes.txt', 
         format='fixed_width', delimiter=' ')
 
     #writing the EW table
     table2 = Table([tablenames,ewlist,ewposlist,ewneglist,ewchecklist,medianlist,pos_amplitudelist,neg_amplitudelist], 
         names=['type','EW','EW_corr','EW_abs','ew check','median','pos_amplitude','neg_amplitude'])
-    asc.write(table2, full_path+'Spectra/Ha_Keck_stacked_ew.txt', 
+    asc.write(table2, full_path+'Composite_Spectra/Redshift/Keck_stacked_ew.txt', 
         format='fixed_width', delimiter=' ')
 #enddef
 
@@ -481,7 +502,7 @@ def plot_Keck_Ha_stlrmass():
     (xmin_list, xmax_list, label_list, 
         subtitle_list) = general_plotting.get_iter_lists('Keck', stlr=True)
 
-    pp = PdfPages(full_path+'Spectra/StackedStellarMass/Keck/all_20percbins.pdf')
+    pp = PdfPages(full_path+'Composite_Spectra/StellarMass/Keck_all_20percbins.pdf')
 
     f, axarr = plt.subplots(5, 2)
     f.set_size_inches(8, 11)
@@ -503,7 +524,7 @@ def plot_Keck_Ha_stlrmass():
         input_index = np.array([x for x in range(len(gridap)) if gridap[x] in
                                 AP_match],dtype=np.int32)
         try:
-            subtitle='stlrmass '+str(min(stlr_mass[match_index]))+'-'+str(max(stlr_mass[match_index]))
+            subtitle='stlrmass: '+str(min(stlr_mass[match_index]))+'-'+str(max(stlr_mass[match_index]))
             print label, subtitle
             xval, yval, len_input_index = stack_data(grid_ndarr, gridz, input_index,
                                                      x0, xmin0, xmax0)
@@ -514,6 +535,10 @@ def plot_Keck_Ha_stlrmass():
 
             ax, flux, flux2, flux3, pos_flux, o1, o2, o3 = Keck_plotting.subplots_plotting(
                 ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, tol, num)
+
+            if (num%2==1):
+                write_spectral_table('Keck', grid_ndarr, gridz, input_index, x0, 
+                        subtitle[10:], full_path, shortlabel, 'StellarMass')
 
         except ValueError:
             print 'ValueError: none exist'
@@ -540,10 +565,9 @@ def plot_Keck_Ha_stlrmass_z():
     TODO(document)
     TODO(generalize stellar mass binning functionality?)
     TODO(implement flexible file-naming)
-    TODO(fix table-writing functionality so files from redshift binning aren't overwritten)
     '''
     stlrmass_index_list = general_plotting.get_index_list2(stlr_mass, inst_str0, inst_dict, 'Keck')
-    pp = PdfPages(full_path+'Spectra/StackedStellarMassZ/Keck/20_40_60_80_100_percbins.pdf')
+    pp = PdfPages(full_path+'Composite_Spectra/StellarMassZ/Keck_20_40_60_80_100_percbins.pdf')
     num=0
     n = 5 # how many redshifts we want to take into account (max 5, TODO(generalize this?))
     for stlrmassindex0 in stlrmass_index_list[:n*2]:
@@ -563,7 +587,7 @@ def plot_Keck_Ha_stlrmass_z():
             index_list.append(templist)
         #endfor
 
-        pp = plot_Keck_Ha(index_list, pp, title)
+        pp = plot_Keck_Ha(index_list, pp, title, 'StellarMassZ')
         num += 1
     #endfor
     pp.close()
@@ -629,9 +653,9 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 
 print '### plotting MMT_Ha'
+plot_MMT_Ha()
 plot_MMT_Ha_stlrmass()
 plot_MMT_Ha_stlrmass_z()
-plot_MMT_Ha()
 grid.close()
 
 print '### looking at the Keck grid'
@@ -655,9 +679,9 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 
 print '### plotting Keck_Ha'
+plot_Keck_Ha()
 plot_Keck_Ha_stlrmass()
 plot_Keck_Ha_stlrmass_z()
-plot_Keck_Ha()
 grid.close()
 
 nbia.close()
