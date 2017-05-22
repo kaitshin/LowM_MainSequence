@@ -16,7 +16,7 @@ OUTPUTS:
 import numpy as np
 from scipy.interpolate import interp1d
 from stack_data import stack
-def stack_data(ndarr, zspec, index, x0, xmin, xmax, ff='', stlr_mass=-1):   
+def stack_data(ndarr, zspec, index, x0, xmin, xmax, ff='', instr='', AP_rows=[]):   
     '''
     '''
     plot_grid = ndarr[index]
@@ -34,7 +34,13 @@ def stack_data(ndarr, zspec, index, x0, xmin, xmax, ff='', stlr_mass=-1):
         elif ff=='NB973':
             good_z = np.where(plot_zspec < 0.6)[0]
         #endif
-        return stack(plot_grid, plot_zspec, good_z, x0, xmin, xmax)
+
+        if instr=='MMT':
+            # to help mask MMT NB921 Halpha sources
+            return stack(ndarr, zspec, index[good_z], x0, xmin, xmax, ff=ff, AP_rows=AP_rows)
+        else:
+            return stack(plot_grid, plot_zspec, good_z, x0, xmin, xmax)
+        #endif
     # this is stacking data in stlrmass
     else:
         return stack(ndarr, zspec, index, x0, xmin, xmax)

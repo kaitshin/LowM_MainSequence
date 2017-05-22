@@ -135,11 +135,6 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift'):
         #endif
 
         AP_match = correct_instr_AP(AP[match_index], inst_str0[match_index], 'MMT')
-        if subtitle=='NB921' and 'alpha' in label:
-            good_AP_match = np.array([x for x in range(len(AP_match)) if
-                                      AP_match[x] in good_NB921_Halpha])
-            AP_match = AP_match[good_AP_match]
-        #endif
         input_index = np.array([x for x in range(len(gridap)) if gridap[x] in
                                 AP_match],dtype=np.int32)
         if len(input_index) < 2: 
@@ -152,8 +147,13 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift'):
         try:
             print label, subtitle
             xval, yval, len_input_index = stack_data(grid_ndarr, gridz, input_index,
-                x0, xmin0, xmax0, ff=subtitle)
-            label += ' ('+str(len_input_index)+')'
+                x0, xmin0, xmax0, ff=subtitle, instr='MMT', AP_rows=halpha_maskarr)
+            # xval, yval, len_input_index = stack_data(grid_ndarr, gridz, input_index,
+            #     x0, xmin0, xmax0, ff=subtitle)
+            if shortlabel=='Ha':
+                label += ' ('+str(len_input_index[0]-len_input_index[1])+')'
+            else:
+                label += ' ('+str(len_input_index[0])+')'
             
             # calculating flux for NII emissions
             zs = np.array(gridz[input_index])
@@ -272,7 +272,7 @@ def plot_MMT_Ha_stlrmass():
             print label, subtitle
             xval, yval, len_input_index = stack_data(grid_ndarr, gridz, input_index,
                                                      x0, xmin0, xmax0)
-            label += ' ('+str(len_input_index)+')'
+            label += ' ('+str(len_input_index[0])+')'
 
             # calculating flux for NII emissions
             dlambda = xval[1] - xval[0]
@@ -411,7 +411,7 @@ def plot_Keck_Ha(index_list=[], pp=None, title='', bintype='Redshift'):
             print label, subtitle
             xval, yval, len_input_index = stack_data(grid_ndarr, gridz, input_index,
                 x0, xmin0, xmax0, ff=subtitle)
-            label += ' ('+str(len_input_index)+')'
+            label += ' ('+str(len_input_index[0])+')'
 
             # calculating flux for NII emissions
             zs = np.array(gridz[input_index])
@@ -459,27 +459,44 @@ def plot_Keck_Ha(index_list=[], pp=None, title='', bintype='Redshift'):
         
         num+=1
     #endfor
+
     if title=='':
         f = general_plotting.final_plot_setup(f, r'Keck detections of H$\alpha$ emitters')
+
+        #writing the flux table
+        table1 = Table([tablenames,tablefluxes,nii6548fluxes,nii6583fluxes],
+            names=['type','flux','NII6548 flux','NII6583 flux'])
+        asc.write(table1, full_path+'Composite_Spectra/Redshift/Keck_stacked_fluxes.txt', 
+            format='fixed_width', delimiter=' ')
+
+        #writing the EW table
+        table2 = Table([tablenames,ewlist,ewposlist,ewneglist,ewchecklist,medianlist,pos_amplitudelist,neg_amplitudelist], 
+            names=['type','EW','EW_corr','EW_abs','ew check','median','pos_amplitude','neg_amplitude'])
+        asc.write(table2, full_path+'Composite_Spectra/Redshift/Keck_stacked_ew.txt', 
+            format='fixed_width', delimiter=' ')
     else:
         f = general_plotting.final_plot_setup(f, title)
+    #endif
+
     if pp == None:
         plt.savefig(full_path+'Composite_Spectra/Redshift/Keck_stacked_spectra.pdf')
     else:
         pp.savefig()
+    #endif
     plt.close()
+
     if pp != None: return pp
 
     #writing the flux table
     table1 = Table([tablenames,tablefluxes,nii6548fluxes,nii6583fluxes],
         names=['type','flux','NII6548 flux','NII6583 flux'])
-    asc.write(table1, full_path+'Composite_Spectra/Redshift/Keck_stacked_fluxes.txt', 
+    asc.write(table1, full_path+'Composite_Spectra/'+bintype+'/Keck_stacked_fluxes.txt', 
         format='fixed_width', delimiter=' ')
 
     #writing the EW table
     table2 = Table([tablenames,ewlist,ewposlist,ewneglist,ewchecklist,medianlist,pos_amplitudelist,neg_amplitudelist], 
         names=['type','EW','EW_corr','EW_abs','ew check','median','pos_amplitude','neg_amplitude'])
-    asc.write(table2, full_path+'Composite_Spectra/Redshift/Keck_stacked_ew.txt', 
+    asc.write(table2, full_path+'Composite_Spectra/'+bintype+'/Keck_stacked_ew.txt',
         format='fixed_width', delimiter=' ')
 #enddef
 
@@ -528,7 +545,7 @@ def plot_Keck_Ha_stlrmass():
             print label, subtitle
             xval, yval, len_input_index = stack_data(grid_ndarr, gridz, input_index,
                                                      x0, xmin0, xmax0)
-            label += ' ('+str(len_input_index)+')'
+            label += ' ('+str(len_input_index[0])+')'
 
             # calculating flux for NII emissions
             dlambda = xval[1] - xval[0]
@@ -651,6 +668,8 @@ mask_ndarr[ndarr_zeros] = 1
 bad_zspec = [x for x in range(len(gridz)) if gridz[x] > 9 or gridz[x] < 0]
 mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
+
+halpha_maskarr = np.array([x for x in range(len(gridap)) if gridap[x] not in good_NB921_Halpha]) 
 
 print '### plotting MMT_Ha'
 plot_MMT_Ha()
