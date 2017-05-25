@@ -148,8 +148,7 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift'):
             print label, subtitle
             xval, yval, len_input_index = stack_data(grid_ndarr, gridz, input_index,
                 x0, xmin0, xmax0, ff=subtitle, instr='MMT', AP_rows=halpha_maskarr)
-            # xval, yval, len_input_index = stack_data(grid_ndarr, gridz, input_index,
-            #     x0, xmin0, xmax0, ff=subtitle)
+
             if shortlabel=='Ha':
                 label += ' ('+str(len_input_index[0]-len_input_index[1])+')'
             else:
@@ -169,7 +168,7 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift'):
             zs = np.average(zs[good_z])
             dlambda = (x0[1]-x0[0])/(1+zs)
 
-            ax, flux, flux2, flux3, pos_flux, o1, o2, o3 = MMT_plotting.subplots_plotting(
+            ax, flux, flux2, flux3, pos_flux, o1 = MMT_plotting.subplots_plotting(
                 ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, tol)
 
             (ew, ew_emission, ew_absorption, ew_check, median, pos_amplitude, 
@@ -277,7 +276,7 @@ def plot_MMT_Ha_stlrmass():
             # calculating flux for NII emissions
             dlambda = xval[1] - xval[0]
 
-            ax, flux, flux2, flux3, pos_flux, o1, o2, o3 = MMT_plotting.subplots_plotting(
+            ax, flux, flux2, flux3, pos_flux, o1 = MMT_plotting.subplots_plotting(
                 ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, tol)
 
             if (num%3==0):
@@ -425,7 +424,7 @@ def plot_Keck_Ha(index_list=[], pp=None, title='', bintype='Redshift'):
             zs = np.average(zs[good_z])
             dlambda = (x0[1]-x0[0])/(1+zs)
 
-            ax, flux, flux2, flux3, pos_flux, o1, o2, o3 = Keck_plotting.subplots_plotting(
+            ax, flux, flux2, flux3, pos_flux, o1 = Keck_plotting.subplots_plotting(
                 ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, tol, num)
 
             (ew, ew_emission, ew_absorption, ew_check, median, pos_amplitude, 
@@ -550,7 +549,7 @@ def plot_Keck_Ha_stlrmass():
             # calculating flux for NII emissions
             dlambda = xval[1] - xval[0]
 
-            ax, flux, flux2, flux3, pos_flux, o1, o2, o3 = Keck_plotting.subplots_plotting(
+            ax, flux, flux2, flux3, pos_flux, o1 = Keck_plotting.subplots_plotting(
                 ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, tol, num)
 
             if (num%2==1):

@@ -107,5 +107,5 @@ def subplots_plotting(ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, to
     ax.set_xlim(xmin0, xmax0)
     ax.set_ylim(ymin=0)
     
-    return ax, flux, flux2, flux3, pos_flux, o1, o2, o3
+    return ax, flux, flux2, flux3, pos_flux, o1
 #enddef
