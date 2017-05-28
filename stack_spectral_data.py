@@ -114,12 +114,6 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift'):
         index_list = general_plotting.get_index_list(NAME0, inst_str0, inst_dict, 'MMT')
     (xmin_list, xmax_list, label_list, 
         subtitle_list) = general_plotting.get_iter_lists('MMT')
-
-    index_list00 = [index_list[0], index_list[3], index_list[6], index_list[9], index_list[12]]
-    subtitle_list00 = [subtitle_list[0], subtitle_list[3], subtitle_list[6], subtitle_list[9], subtitle_list[12]]
-    xmin_list00 = xmin_list[:3]
-    xmax_list00 = xmax_list[:3]
-    label_list00 = label_list[:3]
     
     f, axarr = plt.subplots(5, 3)
     f.set_size_inches(8, 11)
@@ -127,16 +121,7 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift'):
     
     subplot_index=0
     # this for-loop stacks by filter
-    for (match_index, subtitle) in zip(index_list00, subtitle_list00):
-        # shortlabel = ''
-        # if 'gamma' in label:
-        # 	shortlabel = 'Hg'
-        # elif 'beta' in label:
-        #     shortlabel = 'Hb'
-        # elif 'alpha' in label:
-        #     shortlabel = 'Ha'
-        # #endif
-
+    for (match_index, subtitle) in zip(index_list, subtitle_list):
         AP_match = correct_instr_AP(AP[match_index], inst_str0[match_index], 'MMT')
         input_index = np.array([x for x in range(len(gridap)) if gridap[x] in
                                 AP_match],dtype=np.int32)
@@ -152,10 +137,13 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift'):
             xval, yval, len_input_index = stack_data(grid_ndarr, gridz, input_index,
                 x0, 3700, 6700, ff=subtitle, instr='MMT', AP_rows=halpha_maskarr)
 
-            # if shortlabel=='Ha':
-            #     label += ' ('+str(len_input_index[0]-len_input_index[1])+')'
-            # else:
-            #     label += ' ('+str(len_input_index[0])+')'
+            # #writing the spectra table
+            table0 = Table([xval, yval/1E-17], names=['xval','yval/1E-17'])
+            if bintype=='Redshift':
+                spectra_file_path = full_path+'Composite_Spectra/'+bintype+'/MMT_spectra_vals/'+subtitle+'.txt'
+            elif bintype=='StellarMassZ':
+                spectra_file_path = full_path+'Composite_Spectra/'+bintype+'/MMT_spectra_vals/'+title[10:]+'_'+subtitle+'.txt'
+            asc.write(table0, spectra_file_path, format='fixed_width', delimiter=' ')
             
             # calculating flux for NII emissions
             zs = np.array(gridz[input_index])
@@ -174,14 +162,15 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift'):
             pos_flux_list = []
             flux_list = []
             for i in range(3):
-                xmin0 = xmin_list00[i]
-                xmax0 = xmax_list00[i]
+                xmin0 = xmin_list[i]
+                xmax0 = xmax_list[i]
                 ax = ax_list[subplot_index+i]
-                label = label_list00[i]
+                label = label_list[i]
                 ax, flux, flux2, flux3, pos_flux, o1 = MMT_plotting.subplots_plotting(
                     ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, tol)
                 pos_flux_list.append(pos_flux)
                 flux_list.append(flux)
+            #endfor
 
             # (ew, ew_emission, ew_absorption, ew_check, median, pos_amplitude, 
             # 	neg_amplitude) = MMT_twriting.Hg_Hb_Ha_tables(label, flux, 
@@ -190,24 +179,15 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift'):
             # table_arrays = general_twriting.table_arr_appends(num, table_arrays, label, 
             # 	subtitle, flux, flux2, flux3, ew, ew_emission, ew_absorption, ew_check, 
             # 	median, pos_amplitude, neg_amplitude, 'MMT')
-            
-            # #writing the spectra table
-            table0 = Table([xval, yval/1E-17], names=['xval','yval/1E-17'])
-            if bintype=='Redshift':
-                spectra_file_path = full_path+'Composite_Spectra/'+bintype+'/MMT_spectra_vals/'+subtitle+'.txt'
-            elif bintype=='StellarMassZ':
-                spectra_file_path = full_path+'Composite_Spectra/'+bintype+'/MMT_spectra_vals/'+title[10:]+'_'+subtitle+'.txt'
-            asc.write(table0, spectra_file_path, format='fixed_width', delimiter=' ')
-
         except ValueError:
             print 'ValueError: none exist'
         #endtry
         
         for i in range(3):
             if subplot_index==11:
-                label = label_list00[i] + ' ('+str(len_input_index[0]-len_input_index[1])+')'
+                label = label_list[i] + ' ('+str(len_input_index[0]-len_input_index[1])+')'
             else:
-                label = label_list00[i] + ' ('+str(len_input_index[0])+')'
+                label = label_list[i] + ' ('+str(len_input_index[0])+')'
             ax = ax_list[subplot_index]
             try:
                 pos_flux = pos_flux_list[i]
@@ -216,7 +196,7 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift'):
             except IndexError: # assuming there's no pos_flux or flux value
                 ax = MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index)
             subplot_index+=1
-        #endif
+        #endfor
     #endfor
     if title=='':
         f = general_plotting.final_plot_setup(f, r'MMT detections of H$\alpha$ emitters')

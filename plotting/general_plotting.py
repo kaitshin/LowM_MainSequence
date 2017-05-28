@@ -40,7 +40,7 @@ def get_index_list(NAME0, inst_str0, inst_dict, instr):
             namematch='Ha-NB921',instr=instr)
         index_4 = get_name_index_matches(NAME0, inst_str0, inst_dict, 
             namematch='Ha-NB973',instr=instr)
-        return [index_0]*3+[index_1]*3+[index_2]*3+[index_3]*3+[index_4]*3
+        return [index_0]+[index_1]+[index_2]+[index_3]+[index_4]
     elif instr=='Keck':
         index_0 = get_name_index_matches(NAME0, inst_str0, inst_dict, 
             namematch='Ha-NB816',instr=instr)
@@ -99,10 +99,10 @@ def get_iter_lists(instr, stlr=False):
     Returns different subtitle_list based on stlr param
     '''
     if instr=='MMT':
-        xmin_list = np.array([4341,4861,6563]*5)-60
-        xmax_list = np.array([4341,4861,6563]*5)+60
-        label_list=[r'H$\gamma$',r'H$\beta$',r'H$\alpha$']*5
-        subtitle_list = ['NB704']*3+['NB711']*3+['NB816']*3+['NB921']*3+['NB973']*3
+        xmin_list = np.array([4341,4861,6563])-60
+        xmax_list = np.array([4341,4861,6563])+60
+        label_list=[r'H$\gamma$',r'H$\beta$',r'H$\alpha$']
+        subtitle_list = ['NB704']+['NB711']+['NB816']+['NB921']+['NB973']
         return (xmin_list, xmax_list, label_list, subtitle_list)
     elif instr=='Keck':
         if stlr==False:
