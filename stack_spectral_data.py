@@ -297,11 +297,14 @@ def plot_MMT_Ha_stlrmass():
             num_bad_NB921_sources.append(len_input_index[1])
             minz_arr.append(minz)
             maxz_arr.append(maxz)
+            stlrmass_bin_arr.append(subtitle[10:])
 
             # writing the spectra table
             table0 = Table([xval, yval/1E-17], names=['xval','yval/1E-17'])
-            asc.write(table0, full_path+'Composite_Spectra/StellarMass/MMT_spectra_vals/'+subtitle[10:]+'.txt',
+            spectra_file_path = full_path+'Composite_Spectra/StellarMass/MMT_spectra_vals/'+subtitle[10:]+'.txt'
+            asc.write(table0, spectra_file_path,
                 format='fixed_width', delimiter=' ')
+            spectra_file_path_arr.append(spectra_file_path)
 
             # calculating flux for NII emissions
             dlambda = xval[1] - xval[0]
@@ -347,6 +350,23 @@ def plot_MMT_Ha_stlrmass():
         #endfor
     #endfor
     f = general_plotting.final_plot_setup(f, r'MMT detections of H$\alpha$ emitters')
+
+    avg_stlrmass_arr = np.array([0]*len(subtitle_list)) # TODO(properly implement)
+    IDs_arr = np.array(['TBD']*len(subtitle_list)) # TODO(properly implement)
+
+    table00 = Table([subtitle_list, stlrmass_bin_arr, num_sources, num_bad_NB921_sources, minz_arr, maxz_arr, 
+        avg_stlrmass_arr, IDs_arr, spectra_file_path_arr, HG_flux, HB_flux, HA_flux, NII_6548_flux, 
+        NII_6583_flux, HG_EW, HB_EW, HA_EW, HG_EW_corr, HB_EW_corr, HA_EW_corr, HG_EW_abs, HB_EW_abs,
+        HG_continuum, HB_continuum, HA_continuum, HG_pos_amplitude, HB_pos_amplitude, HA_pos_amplitude,
+        HG_neg_amplitude, HB_neg_amplitude], 
+        names=['filter', 'stlrmass_bin', 'num_sources', 'num_bad_MMT_Halpha_NB921', 'minz', 'maxz',
+        'avg_stlrmass', 'IDs', 'spectra_file_path', 'HG_flux', 'HB_flux', 'HA_flux', 'NII_6548_flux', 
+        'NII_6583_flux', 'HG_EW', 'HB_EW', 'HA_EW', 'HG_EW_corr', 'HB_EW_corr', 'HA_EW_corr', 'HG_EW_abs', 'HB_EW_abs',
+        'HG_continuum', 'HB_continuum', 'HA_continuum', 'HG_pos_amplitude', 'HB_pos_amplitude', 'HA_pos_amplitude',
+        'HG_neg_amplitude', 'HB_neg_amplitude'])
+    asc.write(table00, full_path+'Composite_Spectra/StellarMass/MMT_all_five_data.txt',
+        format='fixed_width_two_line', delimiter=' ')
+
     pp.savefig()
     plt.close()
     pp.close()
