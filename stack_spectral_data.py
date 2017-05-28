@@ -192,13 +192,12 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift'):
             # 	median, pos_amplitude, neg_amplitude, 'MMT')
             
             # #writing the spectra table
-            # if (num%3==0):
-            #     if bintype=='Redshift':
-            #         write_spectral_table('MMT', grid_ndarr, gridz, input_index, x0, 
-            #             subtitle, full_path, shortlabel, bintype)
-            #     elif bintype=='StellarMassZ':
-            #         write_spectral_table('MMT', grid_ndarr, gridz, input_index, x0, 
-            #             title[10:]+'_'+subtitle, full_path, shortlabel, bintype)
+            table0 = Table([xval, yval/1E-17], names=['xval','yval/1E-17'])
+            if bintype=='Redshift':
+                spectra_file_path = full_path+'Composite_Spectra/'+bintype+'/MMT_spectra_vals/'+subtitle+'.txt'
+            elif bintype=='StellarMassZ':
+                spectra_file_path = full_path+'Composite_Spectra/'+bintype+'/MMT_spectra_vals/'+title[10:]+'_'+subtitle+'.txt'
+            asc.write(table0, spectra_file_path, format='fixed_width', delimiter=' ')
 
         except ValueError:
             print 'ValueError: none exist'
