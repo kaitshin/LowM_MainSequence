@@ -273,7 +273,7 @@ def plot_MMT_Ha_stlrmass():
     (xmin_list, xmax_list, label_list, 
         subtitle_list) = general_plotting.get_iter_lists('MMT')
 
-    pp = PdfPages(full_path+'Composite_Spectra/StellarMass/MMT_all_20percbins.pdf')
+    pp = PdfPages(full_path+'Composite_Spectra/StellarMass/MMT_all_five.pdf')
 
     f, axarr = plt.subplots(5, 3)
     f.set_size_inches(8, 11)
@@ -338,7 +338,7 @@ def plot_MMT_Ha_stlrmass_z():
     TODO(implement flexible file-naming)
     '''
     stlrmass_index_list = general_plotting.get_index_list2(stlr_mass, inst_str0, inst_dict, 'MMT')
-    pp = PdfPages(full_path+'Composite_Spectra/StellarMassZ/MMT_20_40_percbins.pdf')
+    pp = PdfPages(full_path+'Composite_Spectra/StellarMassZ/MMT_two_percbins.pdf')
     num = 0
     table00 = None
     n = 2 # how many redshifts we want to take into account (max 5, TODO(generalize this?))
@@ -367,7 +367,7 @@ def plot_MMT_Ha_stlrmass_z():
         #endif
         num += 1
     #endfor
-    asc.write(table00, full_path+'Composite_Spectra/StellarMassZ/MMT_20_40_percbins_data.txt',
+    asc.write(table00, full_path+'Composite_Spectra/StellarMassZ/MMT_two_percbins_data.txt',
         format='fixed_width_two_line', delimiter=' ')
     pp.close()
 #enddef
@@ -553,7 +553,7 @@ def plot_Keck_Ha_stlrmass():
     (xmin_list, xmax_list, label_list, 
         subtitle_list) = general_plotting.get_iter_lists('Keck', stlr=True)
 
-    pp = PdfPages(full_path+'Composite_Spectra/StellarMass/Keck_all_20percbins.pdf')
+    pp = PdfPages(full_path+'Composite_Spectra/StellarMass/Keck_all_five.pdf')
 
     f, axarr = plt.subplots(5, 2)
     f.set_size_inches(8, 11)
@@ -618,7 +618,7 @@ def plot_Keck_Ha_stlrmass_z():
     TODO(implement flexible file-naming)
     '''
     stlrmass_index_list = general_plotting.get_index_list2(stlr_mass, inst_str0, inst_dict, 'Keck')
-    pp = PdfPages(full_path+'Composite_Spectra/StellarMassZ/Keck_20_40_60_80_100_percbins.pdf')
+    pp = PdfPages(full_path+'Composite_Spectra/StellarMassZ/Keck_five_percbins.pdf')
     num=0
     n = 5 # how many redshifts we want to take into account (max 5, TODO(generalize this?))
     for stlrmassindex0 in stlrmass_index_list[:n*2]:
@@ -707,8 +707,8 @@ halpha_maskarr = np.array([x for x in range(len(gridap)) if gridap[x] not in goo
 
 print '### plotting MMT_Ha'
 # plot_MMT_Ha()
-# plot_MMT_Ha_stlrmass()
-plot_MMT_Ha_stlrmass_z()
+plot_MMT_Ha_stlrmass()
+# plot_MMT_Ha_stlrmass_z()
 grid.close()
 
 print '### looking at the Keck grid'
