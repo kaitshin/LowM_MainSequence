@@ -32,7 +32,7 @@ import writing_tables.hb_ha_tables as Keck_twriting
 import writing_tables.general_tables as general_twriting
 from analysis.sdf_stack_data import stack_data
 from astropy.io import fits as pyfits, ascii as asc
-from astropy.table import Table
+from astropy.table import Table, vstack
 from create_ordered_AP_arrays import create_ordered_AP_arrays
 from matplotlib.backends.backend_pdf import PdfPages
 
@@ -113,7 +113,7 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift'):
         HG_pos_amplitude, HB_pos_amplitude, HA_pos_amplitude,
         HG_neg_amplitude, HB_neg_amplitude) = table_arrays
     (num_sources, num_bad_NB921_sources, minz_arr, maxz_arr,
-        spectra_file_path_arr) = ([], [], [], [], [])
+        spectra_file_path_arr, stlrmass_bin_arr) = ([], [], [], [], [], [])
     if index_list == []:
         index_list = general_plotting.get_index_list(NAME0, inst_str0, inst_dict, 'MMT')
     (xmin_list, xmax_list, label_list, 
@@ -131,6 +131,14 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift'):
                                 AP_match],dtype=np.int32)
         if len(input_index) < 2: 
             print 'Not enough sources to stack (less than two)'
+            [arr.append(0) for arr in table_arrays]
+            num_sources.append(0)
+            num_bad_NB921_sources.append(0)
+            minz_arr.append(0)
+            maxz_arr.append(0)
+            spectra_file_path_arr.append('N/A')
+            if bintype=='Redshift': stlrmass_bin_arr.append('N/A')
+            elif bintype=='StellarMassZ': stlrmass_bin_arr.append(title[10:])
             for i in range(3):
                 ax = ax_list[subplot_index]
                 label = label_list[i]
@@ -147,12 +155,15 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift'):
             minz_arr.append(minz)
             maxz_arr.append(maxz)
 
-            # #writing the spectra table
+            # writing the spectra table
             table0 = Table([xval, yval/1E-17], names=['xval','yval/1E-17'])
             if bintype=='Redshift':
                 spectra_file_path = full_path+'Composite_Spectra/'+bintype+'/MMT_spectra_vals/'+subtitle+'.txt'
+                stlrmass_bin_arr.append('N/A')
             elif bintype=='StellarMassZ':
                 spectra_file_path = full_path+'Composite_Spectra/'+bintype+'/MMT_spectra_vals/'+title[10:]+'_'+subtitle+'.txt'
+                stlrmass_bin_arr.append(title[10:])
+            #endif
             asc.write(table0, spectra_file_path, format='fixed_width', delimiter=' ')
             spectra_file_path_arr.append(spectra_file_path)
             
@@ -214,19 +225,18 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift'):
     #endfor
     if title=='':
         f = general_plotting.final_plot_setup(f, r'MMT detections of H$\alpha$ emitters')
+        avg_stlrmass_arr = np.array([0]*len(subtitle_list)) # since this is redshift only
+        IDs_arr = np.array(['TBD']*len(subtitle_list)) # TODO(properly implement)
     else:
         f = general_plotting.final_plot_setup(f, title)
+        # since this is stellarmass+z
+        avg_stlrmass_arr = np.array([0]*len(subtitle_list)) # TODO(properly implement)
+        IDs_arr = np.array(['TBD']*len(subtitle_list)) # TODO(properly implement)
     if pp == None:
         plt.savefig(full_path+'Composite_Spectra/Redshift/MMT_stacked_spectra.pdf')
     else:
         pp.savefig()
     plt.close()
-    if pp != None: return pp
-
-    # since this is redshift only
-    stlrmass_bin_arr = np.array(['N/A']*len(subtitle_list))
-    avg_stlrmass_arr = np.array([0]*len(subtitle_list))
-    IDs_arr = np.array(['TBD']*len(subtitle_list)) # TODO(properly implement)
 
     table00 = Table([subtitle_list, stlrmass_bin_arr, num_sources, num_bad_NB921_sources, minz_arr, maxz_arr, 
         avg_stlrmass_arr, IDs_arr, spectra_file_path_arr, HG_flux, HB_flux, HA_flux, NII_6548_flux, 
@@ -238,9 +248,10 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift'):
         'NII_6583_flux', 'HG_EW', 'HB_EW', 'HA_EW', 'HG_EW_corr', 'HB_EW_corr', 'HA_EW_corr', 'HG_EW_abs', 'HB_EW_abs',
         'HG_continuum', 'HB_continuum', 'HA_continuum', 'HG_pos_amplitude', 'HB_pos_amplitude', 'HA_pos_amplitude',
         'HG_neg_amplitude', 'HB_neg_amplitude'])
+    if pp != None: return pp, table00
 
     asc.write(table00, full_path+'Composite_Spectra/Redshift/MMT_stacked_spectra_data.txt',
-        format='fixed_width', delimiter=' ')
+        format='fixed_width_two_line', delimiter=' ')
 #enddef
 
 def plot_MMT_Ha_stlrmass():
@@ -328,7 +339,8 @@ def plot_MMT_Ha_stlrmass_z():
     '''
     stlrmass_index_list = general_plotting.get_index_list2(stlr_mass, inst_str0, inst_dict, 'MMT')
     pp = PdfPages(full_path+'Composite_Spectra/StellarMassZ/MMT_20_40_percbins.pdf')
-    num=0
+    num = 0
+    table00 = None
     n = 2 # how many redshifts we want to take into account (max 5, TODO(generalize this?))
     for stlrmassindex0 in stlrmass_index_list[:n*3]:
         if num%3 != 0:
@@ -347,9 +359,16 @@ def plot_MMT_Ha_stlrmass_z():
             index_list.append(templist)
         #endfor
 
-        pp = plot_MMT_Ha(index_list, pp, title, 'StellarMassZ')
+        pp, table_data = plot_MMT_Ha(index_list, pp, title, 'StellarMassZ')
+        if table00 == None:
+            table00 = table_data
+        else:
+            table00 = vstack([table00, table_data])
+        #endif
         num += 1
     #endfor
+    asc.write(table00, full_path+'Composite_Spectra/StellarMassZ/MMT_20_40_percbins_data.txt',
+        format='fixed_width_two_line', delimiter=' ')
     pp.close()
 #enddef
 
@@ -687,9 +706,9 @@ grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 halpha_maskarr = np.array([x for x in range(len(gridap)) if gridap[x] not in good_NB921_Halpha]) 
 
 print '### plotting MMT_Ha'
-plot_MMT_Ha()
+# plot_MMT_Ha()
 # plot_MMT_Ha_stlrmass()
-# plot_MMT_Ha_stlrmass_z()
+plot_MMT_Ha_stlrmass_z()
 grid.close()
 
 print '### looking at the Keck grid'

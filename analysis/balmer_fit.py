@@ -127,8 +127,8 @@ def get_best_fit3(xval, yval, label):
 
     # param_bounds = ([0,xval[np.argmax(yval)]-3,0,-1,xval[np.argmax(yval)]-3,0,0],
     #     [1,xval[np.argmax(yval)]+3,10,0,xval[np.argmax(yval)]+3,10,1])
-    # param_bounds = ([0,-np.inf,-np.inf,-np.inf,-np.inf,-np.inf,-np.inf],
-    #     [np.inf,np.inf,np.inf,0,np.inf,np.inf,np.inf])
+    # param_bounds = ((-np.inf,-np.inf,-np.inf,-np.inf,-np.inf,-np.inf,-np.inf),
+    #     (np.inf,np.inf,np.inf,0,np.inf,np.inf,np.inf))
 
     # o1,o2 = optimization.curve_fit(func3, xval, yval, p0, err, bounds=param_bounds)
     o1,o2 = optimization.curve_fit(func3, xval, yval, p0, err)
