@@ -170,15 +170,16 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift'):
                     ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, tol)
                 pos_flux_list.append(pos_flux)
                 flux_list.append(flux)
+
+                (ew, ew_emission, ew_absorption, ew_check, median, pos_amplitude, 
+                  neg_amplitude) = MMT_twriting.Hg_Hb_Ha_tables(label, flux, 
+                  o1, xval, pos_flux, dlambda)
+
+                table_arrays = general_twriting.table_arr_appends(subplot_index, table_arrays, label, 
+                  subtitle, flux, flux2, flux3, ew, ew_emission, ew_absorption, ew_check, 
+                  median, pos_amplitude, neg_amplitude, 'MMT')
             #endfor
 
-            # (ew, ew_emission, ew_absorption, ew_check, median, pos_amplitude, 
-            # 	neg_amplitude) = MMT_twriting.Hg_Hb_Ha_tables(label, flux, 
-            # 	o1, xval, pos_flux, dlambda)
-
-            # table_arrays = general_twriting.table_arr_appends(num, table_arrays, label, 
-            # 	subtitle, flux, flux2, flux3, ew, ew_emission, ew_absorption, ew_check, 
-            # 	median, pos_amplitude, neg_amplitude, 'MMT')
         except ValueError:
             print 'ValueError: none exist'
         #endtry
@@ -209,17 +210,17 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift'):
     plt.close()
     if pp != None: return pp
 
-    # #writing the flux table
-    # table1 = Table([tablenames,tablefluxes,nii6548fluxes,nii6583fluxes],
-    #     names=['type','flux','NII6548 flux','NII6583 flux'])
-    # asc.write(table1, full_path+'Composite_Spectra/Redshift/MMT_stacked_fluxes.txt',
-    #     format='fixed_width', delimiter=' ')  
+    #writing the flux table
+    table1 = Table([tablenames,tablefluxes,nii6548fluxes,nii6583fluxes],
+        names=['type','flux','NII6548 flux','NII6583 flux'])
+    asc.write(table1, full_path+'Composite_Spectra/Redshift/MMT_stacked_fluxes.txt',
+        format='fixed_width', delimiter=' ')  
 
-    # #writing the EW table
-    # table2 = Table([tablenames,ewlist,ewposlist,ewneglist,ewchecklist,medianlist,pos_amplitudelist,neg_amplitudelist],
-    #     names=['type','EW','EW_corr','EW_abs','ew check','median','pos_amplitude','neg_amplitude'])
-    # asc.write(table2, full_path+'Composite_Spectra/Redshift/MMT_stacked_ew.txt',
-    #     format='fixed_width', delimiter=' ')  
+    #writing the EW table
+    table2 = Table([tablenames,ewlist,ewposlist,ewneglist,ewchecklist,medianlist,pos_amplitudelist,neg_amplitudelist],
+        names=['type','EW','EW_corr','EW_abs','ew check','median','pos_amplitude','neg_amplitude'])
+    asc.write(table2, full_path+'Composite_Spectra/Redshift/MMT_stacked_ew.txt',
+        format='fixed_width', delimiter=' ')  
 #enddef
 
 def plot_MMT_Ha_stlrmass():
