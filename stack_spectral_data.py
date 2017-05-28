@@ -114,45 +114,48 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift'):
         index_list = general_plotting.get_index_list(NAME0, inst_str0, inst_dict, 'MMT')
     (xmin_list, xmax_list, label_list, 
         subtitle_list) = general_plotting.get_iter_lists('MMT')
+
+    index_list00 = [index_list[0], index_list[3], index_list[6], index_list[9], index_list[12]]
+    subtitle_list00 = [subtitle_list[0], subtitle_list[3], subtitle_list[6], subtitle_list[9], subtitle_list[12]]
+    xmin_list00 = xmin_list[:3]
+    xmax_list00 = xmax_list[:3]
+    label_list00 = label_list[:3]
     
     f, axarr = plt.subplots(5, 3)
     f.set_size_inches(8, 11)
     ax_list = np.ndarray.flatten(axarr)
     
-    num=0
+    subplot_index=0
     # this for-loop stacks by filter
-    for (match_index,ax,xmin0,xmax0,label,subtitle) in zip(index_list,ax_list,
-                                                            xmin_list,xmax_list,
-                                                            label_list, 
-                                                            subtitle_list):
-        shortlabel = ''
-        if 'gamma' in label:
-        	shortlabel = 'Hg'
-        elif 'beta' in label:
-            shortlabel = 'Hb'
-        elif 'alpha' in label:
-            shortlabel = 'Ha'
-        #endif
+    for (match_index, subtitle) in zip(index_list00, subtitle_list00):
+        # shortlabel = ''
+        # if 'gamma' in label:
+        # 	shortlabel = 'Hg'
+        # elif 'beta' in label:
+        #     shortlabel = 'Hb'
+        # elif 'alpha' in label:
+        #     shortlabel = 'Ha'
+        # #endif
 
         AP_match = correct_instr_AP(AP[match_index], inst_str0[match_index], 'MMT')
         input_index = np.array([x for x in range(len(gridap)) if gridap[x] in
                                 AP_match],dtype=np.int32)
         if len(input_index) < 2: 
-            MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, num)
+            MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index)
             print 'Not enough sources to stack (less than two)'
-            num += 1 
+            subplot_index += 1 
             continue
         #endif
 
         try:
-            print label, subtitle
+            # print label, subtitle
             xval, yval, len_input_index = stack_data(grid_ndarr, gridz, input_index,
-                x0, xmin0, xmax0, ff=subtitle, instr='MMT', AP_rows=halpha_maskarr)
+                x0, 3700, 6700, ff=subtitle, instr='MMT', AP_rows=halpha_maskarr)
 
-            if shortlabel=='Ha':
-                label += ' ('+str(len_input_index[0]-len_input_index[1])+')'
-            else:
-                label += ' ('+str(len_input_index[0])+')'
+            # if shortlabel=='Ha':
+            #     label += ' ('+str(len_input_index[0]-len_input_index[1])+')'
+            # else:
+            #     label += ' ('+str(len_input_index[0])+')'
             
             # calculating flux for NII emissions
             zs = np.array(gridz[input_index])
@@ -168,39 +171,53 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift'):
             zs = np.average(zs[good_z])
             dlambda = (x0[1]-x0[0])/(1+zs)
 
-            ax, flux, flux2, flux3, pos_flux, o1 = MMT_plotting.subplots_plotting(
-                ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, tol)
+            pos_flux_list = []
+            flux_list = []
+            for i in range(3):
+                xmin0 = xmin_list00[i]
+                xmax0 = xmax_list00[i]
+                ax = ax_list[subplot_index+i]
+                label = label_list00[i]
+                ax, flux, flux2, flux3, pos_flux, o1 = MMT_plotting.subplots_plotting(
+                    ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, tol)
+                pos_flux_list.append(pos_flux)
+                flux_list.append(flux)
 
-            (ew, ew_emission, ew_absorption, ew_check, median, pos_amplitude, 
-            	neg_amplitude) = MMT_twriting.Hg_Hb_Ha_tables(label, flux, 
-            	o1, xval, pos_flux, dlambda)
+            # (ew, ew_emission, ew_absorption, ew_check, median, pos_amplitude, 
+            # 	neg_amplitude) = MMT_twriting.Hg_Hb_Ha_tables(label, flux, 
+            # 	o1, xval, pos_flux, dlambda)
 
-            table_arrays = general_twriting.table_arr_appends(num, table_arrays, label, 
-            	subtitle, flux, flux2, flux3, ew, ew_emission, ew_absorption, ew_check, 
-            	median, pos_amplitude, neg_amplitude, 'MMT')
+            # table_arrays = general_twriting.table_arr_appends(num, table_arrays, label, 
+            # 	subtitle, flux, flux2, flux3, ew, ew_emission, ew_absorption, ew_check, 
+            # 	median, pos_amplitude, neg_amplitude, 'MMT')
             
-            #writing the spectra table
-            if (num%3==0):
-                if bintype=='Redshift':
-                    write_spectral_table('MMT', grid_ndarr, gridz, input_index, x0, 
-                        subtitle, full_path, shortlabel, bintype)
-                elif bintype=='StellarMassZ':
-                    write_spectral_table('MMT', grid_ndarr, gridz, input_index, x0, 
-                        title[10:]+'_'+subtitle, full_path, shortlabel, bintype)
+            # #writing the spectra table
+            # if (num%3==0):
+            #     if bintype=='Redshift':
+            #         write_spectral_table('MMT', grid_ndarr, gridz, input_index, x0, 
+            #             subtitle, full_path, shortlabel, bintype)
+            #     elif bintype=='StellarMassZ':
+            #         write_spectral_table('MMT', grid_ndarr, gridz, input_index, x0, 
+            #             title[10:]+'_'+subtitle, full_path, shortlabel, bintype)
 
         except ValueError:
             print 'ValueError: none exist'
         #endtry
         
-        if pos_flux and flux:
-            ax = MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, num, pos_flux, flux)
-        elif not pos_flux and not flux:
-            ax = MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, num)
-        else:
-            print '>>>something\'s not right...'
+        for i in range(3):
+            if subplot_index==11:
+                label = label_list00[i] + ' ('+str(len_input_index[0]-len_input_index[1])+')'
+            else:
+                label = label_list00[i] + ' ('+str(len_input_index[0])+')'
+            ax = ax_list[subplot_index]
+            try:
+                pos_flux = pos_flux_list[i]
+                flux = flux_list[i]
+                ax = MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index, pos_flux, flux)
+            except IndexError: # assuming there's no pos_flux or flux value
+                ax = MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index)
+            subplot_index+=1
         #endif
-
-        num+=1
     #endfor
     if title=='':
         f = general_plotting.final_plot_setup(f, r'MMT detections of H$\alpha$ emitters')
@@ -213,17 +230,17 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift'):
     plt.close()
     if pp != None: return pp
 
-    #writing the flux table
-    table1 = Table([tablenames,tablefluxes,nii6548fluxes,nii6583fluxes],
-        names=['type','flux','NII6548 flux','NII6583 flux'])
-    asc.write(table1, full_path+'Composite_Spectra/Redshift/MMT_stacked_fluxes.txt',
-        format='fixed_width', delimiter=' ')  
+    # #writing the flux table
+    # table1 = Table([tablenames,tablefluxes,nii6548fluxes,nii6583fluxes],
+    #     names=['type','flux','NII6548 flux','NII6583 flux'])
+    # asc.write(table1, full_path+'Composite_Spectra/Redshift/MMT_stacked_fluxes.txt',
+    #     format='fixed_width', delimiter=' ')  
 
-    #writing the EW table
-    table2 = Table([tablenames,ewlist,ewposlist,ewneglist,ewchecklist,medianlist,pos_amplitudelist,neg_amplitudelist],
-        names=['type','EW','EW_corr','EW_abs','ew check','median','pos_amplitude','neg_amplitude'])
-    asc.write(table2, full_path+'Composite_Spectra/Redshift/MMT_stacked_ew.txt',
-        format='fixed_width', delimiter=' ')  
+    # #writing the EW table
+    # table2 = Table([tablenames,ewlist,ewposlist,ewneglist,ewchecklist,medianlist,pos_amplitudelist,neg_amplitudelist],
+    #     names=['type','EW','EW_corr','EW_abs','ew check','median','pos_amplitude','neg_amplitude'])
+    # asc.write(table2, full_path+'Composite_Spectra/Redshift/MMT_stacked_ew.txt',
+    #     format='fixed_width', delimiter=' ')  
 #enddef
 
 def plot_MMT_Ha_stlrmass():
@@ -672,8 +689,8 @@ halpha_maskarr = np.array([x for x in range(len(gridap)) if gridap[x] not in goo
 
 print '### plotting MMT_Ha'
 plot_MMT_Ha()
-plot_MMT_Ha_stlrmass()
-plot_MMT_Ha_stlrmass_z()
+# plot_MMT_Ha_stlrmass()
+# plot_MMT_Ha_stlrmass_z()
 grid.close()
 
 print '### looking at the Keck grid'
@@ -697,9 +714,9 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 
 print '### plotting Keck_Ha'
-plot_Keck_Ha()
-plot_Keck_Ha_stlrmass()
-plot_Keck_Ha_stlrmass_z()
+# plot_Keck_Ha()
+# plot_Keck_Ha_stlrmass()
+# plot_Keck_Ha_stlrmass_z()
 grid.close()
 
 nbia.close()

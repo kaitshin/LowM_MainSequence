@@ -15,7 +15,6 @@ def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0):
     Sets up the subplots for Hg/Hb/Ha. Adds emission lines for each subplot
     and sets the ylimits for each row. Also adds flux labels to each subplot.
     '''
-    ax = ax_list[num]
     ax.text(0.03,0.97,label,transform=ax.transAxes,fontsize=7,ha='left',
             va='top')
     
@@ -52,6 +51,9 @@ def subplots_plotting(ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, to
     Plots all the spectra for the subplots for Hg/Hb/Ha. Also calculates
     and returns fluxes and equations of best fit.
     '''
+    good_ii = np.array([x for x in range(len(xval)) if xval[x] >= xmin0 and xval[x] <= xmax0])
+    xval = xval[good_ii]
+    yval = yval[good_ii]
     ax.plot(xval, yval/1E-17, zorder=2)
     
     flux = 0

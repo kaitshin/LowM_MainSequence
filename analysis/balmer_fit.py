@@ -82,6 +82,8 @@ def get_best_fit(xval, yval, label):
     '''
     Uses scipy.optimize.curve_fit() to obtain the best fit of the spectra
     which is then returned
+
+    Ha absorption spectra
     '''
     med0 = get_baseline_median(xval, yval, label)
     err = np.repeat(1.0e-18, len(xval))
@@ -121,7 +123,15 @@ def get_best_fit3(xval, yval, label):
     err = np.repeat(1.0e-18, len(xval))
     p0 = [np.max(yval)-med0, xval[np.argmax(yval)], 1.10,
           -0.05*(np.max(yval)-med0), xval[np.argmax(yval)], 2.20, med0]
+    # print 'p0[3]:', p0[3]
 
+    # param_bounds = ([0,xval[np.argmax(yval)]-3,0,-1,xval[np.argmax(yval)]-3,0,0],
+    #     [1,xval[np.argmax(yval)]+3,10,0,xval[np.argmax(yval)]+3,10,1])
+    # param_bounds = ([0,-np.inf,-np.inf,-np.inf,-np.inf,-np.inf,-np.inf],
+    #     [np.inf,np.inf,np.inf,0,np.inf,np.inf,np.inf])
+
+    # o1,o2 = optimization.curve_fit(func3, xval, yval, p0, err, bounds=param_bounds)
     o1,o2 = optimization.curve_fit(func3, xval, yval, p0, err)
+    # print 'o1[3]:', o1[3]
     return o1
 #enddef
