@@ -7,7 +7,7 @@ PURPOSE:
     stack_spectral_data.py for both Hg/Hb/Ha and Hb/Ha (MMT,Keck) plots
 """
 
-def table_arr_appends(num, table_arrays, label, subtitle, flux, flux2, flux3, ew, ew_emission, ew_absorption, ew_check, median, pos_amplitude, neg_amplitude, instr):
+def table_arr_appends(num, table_arrays, label, subtitle, flux, flux2, flux3, ew, ew_emission, ew_absorption, median, pos_amplitude, neg_amplitude, instr):
     '''
     Appends all the passed in values to the respective arrays in table_arrays
     based on which instr keyword is passed in.
@@ -26,7 +26,6 @@ def table_arr_appends(num, table_arrays, label, subtitle, flux, flux2, flux3, ew
             ewlist.append(ew)
             ewposlist.append(ew_emission)
             ewneglist.append(ew_absorption)
-            ewchecklist.append(ew_check)
             medianlist.append(median)
             pos_amplitudelist.append(pos_amplitude)
             neg_amplitudelist.append(neg_amplitude)
@@ -40,7 +39,6 @@ def table_arr_appends(num, table_arrays, label, subtitle, flux, flux2, flux3, ew
             ewlist.append(ew)
             ewposlist.append(ew_emission)
             ewneglist.append(ew_absorption)
-            ewchecklist.append(ew_check)
             medianlist.append(median)
             pos_amplitudelist.append(pos_amplitude)
             neg_amplitudelist.append(neg_amplitude)

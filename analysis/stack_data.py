@@ -23,7 +23,9 @@ def stack(ndarr_in, zspec_in, index, x0, xmin, xmax, ff='', AP_rows=[]):
     new_grid = np.ndarray(shape=(len(ndarr), len(x_rest)))
     
     num_maskednb921 = 0
-    print '### zspec:', min(x for x in zspec if x > 0), max(x for x in zspec if x < 9)
+    minz = min(x for x in zspec if x > 0)
+    maxz = max(x for x in zspec if x < 9)
+    print '### zspec:', minz, maxz
     #deshifting to rest-frame wavelength
     for (row_num, ii) in zip(range(len(ndarr)), index):
         #normalizing
@@ -50,5 +52,5 @@ def stack(ndarr_in, zspec_in, index, x0, xmin, xmax, ff='', AP_rows=[]):
     #taking the average, column by column
     plot_grid_avg = np.nanmean(new_grid, axis=0)
 
-    return x_rest, plot_grid_avg, [len(index), num_maskednb921]
+    return x_rest, plot_grid_avg, [len(index), num_maskednb921], minz, maxz
 #enddef

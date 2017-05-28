@@ -11,7 +11,7 @@ import numpy as np
 
 def Hb_Ha_tables(label, subtitle, flux, o1, xval, pos_flux, dlambda):
     '''
-    Computes ew, ew_emission, ew_absorption, ew_check, median, 
+    Computes ew, ew_emission, ew_absorption, median, 
     pos_amplitude, and neg_amplitude values based on the passed-in
     values. 
 
@@ -20,14 +20,12 @@ def Hb_Ha_tables(label, subtitle, flux, o1, xval, pos_flux, dlambda):
     ew = 0
     ew_emission = 0
     ew_absorption = 0
-    ew_check = 0
     median = 0
     pos_amplitude = 0
     neg_amplitude = 0
     if 'alpha' in label:
         ew = flux/o1[3]
         ew_emission = ew
-        ew_check = ew
         median = o1[3]
         pos_amplitude = o1[0]
         neg_amplitude = 0
@@ -46,14 +44,12 @@ def Hb_Ha_tables(label, subtitle, flux, o1, xval, pos_flux, dlambda):
             neg_amplitude = 0
             ew = pos_flux/o1[6]
             ew_emission = ew
-            ew_check = ew
         else:
             pos_corr = np.sum(dlambda * (pos0[idx_small] - o1[6]))
             ew_emission = pos_corr / o1[6]
             neg_corr = np.sum(dlambda * neg0[idx_small])
             ew_absorption = neg_corr / o1[6]
-            ew_check = ew_emission + ew_absorption
     #endif
 
-    return (ew, ew_emission, ew_absorption, ew_check, median, pos_amplitude, neg_amplitude)
+    return (ew, ew_emission, ew_absorption, median, pos_amplitude, neg_amplitude)
 #enddef
