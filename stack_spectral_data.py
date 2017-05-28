@@ -126,9 +126,12 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift'):
         input_index = np.array([x for x in range(len(gridap)) if gridap[x] in
                                 AP_match],dtype=np.int32)
         if len(input_index) < 2: 
-            MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index)
             print 'Not enough sources to stack (less than two)'
-            subplot_index += 1 
+            for i in range(3):
+                ax = ax_list[subplot_index]
+                label = label_list[i]
+                MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index)
+                subplot_index += 1
             continue
         #endif
 
@@ -668,9 +671,9 @@ grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 halpha_maskarr = np.array([x for x in range(len(gridap)) if gridap[x] not in good_NB921_Halpha]) 
 
 print '### plotting MMT_Ha'
-plot_MMT_Ha()
+# plot_MMT_Ha()
 # plot_MMT_Ha_stlrmass()
-# plot_MMT_Ha_stlrmass_z()
+plot_MMT_Ha_stlrmass_z()
 grid.close()
 
 print '### looking at the Keck grid'
