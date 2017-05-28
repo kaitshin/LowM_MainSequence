@@ -86,7 +86,7 @@ def get_index_list2(stlr_mass, inst_str0, inst_dict, instr):
         if (stlr_mass[x]>perc80 and stlr_mass[x]<=perc100) 
         and inst_str0[x] in inst_dict[instr]])
     if instr=='MMT':
-        return [index_0]*3+[index_1]*3+[index_2]*3+[index_3]*3+[index_4]*3
+        return [index_0]+[index_1]+[index_2]+[index_3]+[index_4]
     if instr=='Keck':
         return [index_0]*2+[index_1]*2+[index_2]*2+[index_3]*2+[index_4]*2
 #enddef

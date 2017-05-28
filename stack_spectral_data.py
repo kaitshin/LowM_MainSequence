@@ -265,10 +265,14 @@ def plot_MMT_Ha_stlrmass():
     TODO(get rid of assumption that there's only one page)
     TODO(add in the flux/EW/full spectra ASCII table writing code)
     '''
-    table_arrays = ([], [], [], [], [], [], [], [], [], [], [])
-    (tablenames, tablefluxes, nii6548fluxes, nii6583fluxes, ewlist, 
-        ewposlist , ewneglist, ewchecklist, medianlist, pos_amplitudelist, 
-        neg_amplitudelist) = table_arrays
+    table_arrays = ([], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [])
+    (HG_flux, HB_flux, HA_flux, NII_6548_flux, NII_6583_flux,
+        HG_EW, HB_EW, HA_EW, HG_EW_corr, HB_EW_corr, HA_EW_corr,
+        HG_EW_abs, HB_EW_abs, HG_continuum, HB_continuum, HA_continuum,
+        HG_pos_amplitude, HB_pos_amplitude, HA_pos_amplitude,
+        HG_neg_amplitude, HB_neg_amplitude) = table_arrays
+    (num_sources, num_bad_NB921_sources, minz_arr, maxz_arr,
+        spectra_file_path_arr, stlrmass_bin_arr) = ([], [], [], [], [], [])
     index_list = general_plotting.get_index_list2(stlr_mass, inst_str0, inst_dict, 'MMT')
     (xmin_list, xmax_list, label_list, 
         subtitle_list) = general_plotting.get_iter_lists('MMT')
@@ -279,51 +283,68 @@ def plot_MMT_Ha_stlrmass():
     f.set_size_inches(8, 11)
     ax_list = np.ndarray.flatten(axarr)
 
-    num=0
+    subplot_index=0
     # this for-loop stacks by stlr mass
-    for (match_index,ax,xmin0,xmax0,label) in zip(index_list,ax_list,xmin_list,xmax_list,label_list):
-        shortlabel = ''
-        if 'gamma' in label:
-            shortlabel = 'Hg'
-        elif 'beta' in label:
-            shortlabel = 'Hb'
-        elif 'alpha' in label:
-            shortlabel = 'Ha'
-        #endif
-
+    for (match_index) in (index_list):
         AP_match = correct_instr_AP(AP[match_index], inst_str0[match_index], 'MMT')
         input_index = np.array([x for x in range(len(gridap)) if gridap[x] in
                                 AP_match],dtype=np.int32)
         try:
             subtitle='stlrmass: '+str(min(stlr_mass[match_index]))+'-'+str(max(stlr_mass[match_index]))
-            print label, subtitle
-            xval, yval, len_input_index = stack_data(grid_ndarr, gridz, input_index,
-                                                     x0, xmin0, xmax0)
-            label += ' ('+str(len_input_index[0])+')'
+            xval, yval, len_input_index, minz, maxz = stack_data(grid_ndarr, gridz, input_index,
+                                                                 x0, 3700, 6700)
+            num_sources.append(len_input_index[0])
+            num_bad_NB921_sources.append(len_input_index[1])
+            minz_arr.append(minz)
+            maxz_arr.append(maxz)
+
+            # writing the spectra table
+            table0 = Table([xval, yval/1E-17], names=['xval','yval/1E-17'])
+            asc.write(table0, full_path+'Composite_Spectra/StellarMass/MMT_spectra_vals/'+subtitle[10:]+'.txt',
+                format='fixed_width', delimiter=' ')
 
             # calculating flux for NII emissions
             dlambda = xval[1] - xval[0]
 
-            ax, flux, flux2, flux3, pos_flux, o1 = MMT_plotting.subplots_plotting(
-                ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, tol)
-
-            if (num%3==0):
-                write_spectral_table('MMT', grid_ndarr, gridz, input_index, x0, 
-                    subtitle[10:], full_path, shortlabel, 'StellarMass')
-
+            pos_flux_list = []
+            flux_list = []
+            for i in range(3):
+                xmin0 = xmin_list[i]
+                xmax0 = xmax_list[i]
+                ax = ax_list[subplot_index+i]
+                label = label_list[i]
+                try:
+                    ax, flux, flux2, flux3, pos_flux, o1 = MMT_plotting.subplots_plotting(
+                        ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, tol)
+                    pos_flux_list.append(pos_flux)
+                    flux_list.append(flux)
+                except ValueError:
+                    continue
+                finally:
+                    (ew, ew_emission, ew_absorption, median, pos_amplitude, 
+                      neg_amplitude) = MMT_twriting.Hg_Hb_Ha_tables(label, flux, 
+                      o1, xval, pos_flux, dlambda)
+                    table_arrays = general_twriting.table_arr_appends(i, subtitle,
+                      table_arrays, flux, flux2, flux3, ew, ew_emission, ew_absorption, 
+                      median, pos_amplitude, neg_amplitude, 'MMT')
+                #endtry
+            #endfor
+            
         except ValueError:
             print 'ValueError: none exist'
         #endtry
-
-        if pos_flux and flux:
-            ax = MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, num, pos_flux, flux)
-        elif not pos_flux and not flux:
-            ax = MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, num)
-        else:
-            print '>>>something\'s not right...'
-        #endif
-
-        num+=1
+        
+        for i in range(3):
+            label = label_list[i] + ' ('+str(len_input_index[0])+')'
+            ax = ax_list[subplot_index]
+            try:
+                pos_flux = pos_flux_list[i]
+                flux = flux_list[i]
+                ax = MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index, pos_flux, flux)
+            except IndexError: # assuming there's no pos_flux or flux value
+                ax = MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index)
+            subplot_index+=1
+        #endfor
     #endfor
     f = general_plotting.final_plot_setup(f, r'MMT detections of H$\alpha$ emitters')
     pp.savefig()
