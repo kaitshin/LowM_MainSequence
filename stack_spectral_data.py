@@ -106,10 +106,14 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift'):
     
     The fluxes are also output to a separate .txt file.
     '''
-    table_arrays = ([], [], [], [], [], [], [], [], [], [], [])
-    (tablenames, tablefluxes, nii6548fluxes, nii6583fluxes, ewlist, 
-        ewposlist , ewneglist, ewchecklist, medianlist, pos_amplitudelist, 
-        neg_amplitudelist) = table_arrays
+    table_arrays = ([], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [])
+    (HG_flux, HB_flux, HA_flux, NII_6548_flux, NII_6583_flux,
+        HG_EW, HB_EW, HA_EW, HG_EW_corr, HB_EW_corr, HA_EW_corr,
+        HG_EW_abs, HB_EW_abs, HG_continuum, HB_continuum, HA_continuum,
+        HG_pos_amplitude, HB_pos_amplitude, HA_pos_amplitude,
+        HG_neg_amplitude, HB_neg_amplitude) = table_arrays
+    (num_sources, num_bad_NB921_sources, minz_arr, maxz_arr,
+        spectra_file_path_arr) = ([], [], [], [], [])
     if index_list == []:
         index_list = general_plotting.get_index_list(NAME0, inst_str0, inst_dict, 'MMT')
     (xmin_list, xmax_list, label_list, 
@@ -136,9 +140,12 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift'):
         #endif
 
         try:
-            # print label, subtitle
-            xval, yval, len_input_index = stack_data(grid_ndarr, gridz, input_index,
+            xval, yval, len_input_index, minz, maxz = stack_data(grid_ndarr, gridz, input_index,
                 x0, 3700, 6700, ff=subtitle, instr='MMT', AP_rows=halpha_maskarr)
+            num_sources.append(len_input_index[0])
+            num_bad_NB921_sources.append(len_input_index[1])
+            minz_arr.append(minz)
+            maxz_arr.append(maxz)
 
             # #writing the spectra table
             table0 = Table([xval, yval/1E-17], names=['xval','yval/1E-17'])
@@ -147,6 +154,7 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift'):
             elif bintype=='StellarMassZ':
                 spectra_file_path = full_path+'Composite_Spectra/'+bintype+'/MMT_spectra_vals/'+title[10:]+'_'+subtitle+'.txt'
             asc.write(table0, spectra_file_path, format='fixed_width', delimiter=' ')
+            spectra_file_path_arr.append(spectra_file_path)
             
             # calculating flux for NII emissions
             zs = np.array(gridz[input_index])
@@ -169,18 +177,20 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift'):
                 xmax0 = xmax_list[i]
                 ax = ax_list[subplot_index+i]
                 label = label_list[i]
-                ax, flux, flux2, flux3, pos_flux, o1 = MMT_plotting.subplots_plotting(
-                    ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, tol)
-                pos_flux_list.append(pos_flux)
-                flux_list.append(flux)
-
-                (ew, ew_emission, ew_absorption, ew_check, median, pos_amplitude, 
-                  neg_amplitude) = MMT_twriting.Hg_Hb_Ha_tables(label, flux, 
-                  o1, xval, pos_flux, dlambda)
-
-                table_arrays = general_twriting.table_arr_appends(subplot_index, table_arrays, label, 
-                  subtitle, flux, flux2, flux3, ew, ew_emission, ew_absorption, ew_check, 
-                  median, pos_amplitude, neg_amplitude, 'MMT')
+                try:
+                    ax, flux, flux2, flux3, pos_flux, o1 = MMT_plotting.subplots_plotting(
+                        ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, tol)
+                    pos_flux_list.append(pos_flux)
+                    flux_list.append(flux)
+                except ValueError:
+                    continue
+                finally:
+                    (ew, ew_emission, ew_absorption, median, pos_amplitude, 
+                      neg_amplitude) = MMT_twriting.Hg_Hb_Ha_tables(label, flux, 
+                      o1, xval, pos_flux, dlambda)
+                    table_arrays = general_twriting.table_arr_appends(i, subtitle,
+                      table_arrays, flux, flux2, flux3, ew, ew_emission, ew_absorption, 
+                      median, pos_amplitude, neg_amplitude, 'MMT')
             #endfor
 
         except ValueError:
@@ -213,17 +223,24 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift'):
     plt.close()
     if pp != None: return pp
 
-    #writing the flux table
-    table1 = Table([tablenames,tablefluxes,nii6548fluxes,nii6583fluxes],
-        names=['type','flux','NII6548 flux','NII6583 flux'])
-    asc.write(table1, full_path+'Composite_Spectra/Redshift/MMT_stacked_fluxes.txt',
-        format='fixed_width', delimiter=' ')  
+    # since this is redshift only
+    stlrmass_bin_arr = np.array(['N/A']*len(subtitle_list))
+    avg_stlrmass_arr = np.array([0]*len(subtitle_list))
+    IDs_arr = np.array(['TBD']*len(subtitle_list)) # TODO(properly implement)
 
-    #writing the EW table
-    table2 = Table([tablenames,ewlist,ewposlist,ewneglist,ewchecklist,medianlist,pos_amplitudelist,neg_amplitudelist],
-        names=['type','EW','EW_corr','EW_abs','ew check','median','pos_amplitude','neg_amplitude'])
-    asc.write(table2, full_path+'Composite_Spectra/Redshift/MMT_stacked_ew.txt',
-        format='fixed_width', delimiter=' ')  
+    table00 = Table([subtitle_list, stlrmass_bin_arr, num_sources, num_bad_NB921_sources, minz_arr, maxz_arr, 
+        avg_stlrmass_arr, IDs_arr, spectra_file_path_arr, HG_flux, HB_flux, HA_flux, NII_6548_flux, 
+        NII_6583_flux, HG_EW, HB_EW, HA_EW, HG_EW_corr, HB_EW_corr, HA_EW_corr, HG_EW_abs, HB_EW_abs,
+        HG_continuum, HB_continuum, HA_continuum, HG_pos_amplitude, HB_pos_amplitude, HA_pos_amplitude,
+        HG_neg_amplitude, HB_neg_amplitude], 
+        names=['filter', 'stlrmass_bin', 'num_sources', 'num_bad_MMT_Halpha_NB921', 'minz', 'maxz',
+        'avg_stlrmass', 'IDs', 'spectra_file_path', 'HG_flux', 'HB_flux', 'HA_flux', 'NII_6548_flux', 
+        'NII_6583_flux', 'HG_EW', 'HB_EW', 'HA_EW', 'HG_EW_corr', 'HB_EW_corr', 'HA_EW_corr', 'HG_EW_abs', 'HB_EW_abs',
+        'HG_continuum', 'HB_continuum', 'HA_continuum', 'HG_pos_amplitude', 'HB_pos_amplitude', 'HA_pos_amplitude',
+        'HG_neg_amplitude', 'HB_neg_amplitude'])
+
+    asc.write(table00, full_path+'Composite_Spectra/Redshift/MMT_stacked_spectra_data.txt',
+        format='fixed_width', delimiter=' ')
 #enddef
 
 def plot_MMT_Ha_stlrmass():
@@ -427,11 +444,11 @@ def plot_Keck_Ha(index_list=[], pp=None, title='', bintype='Redshift'):
             ax, flux, flux2, flux3, pos_flux, o1 = Keck_plotting.subplots_plotting(
                 ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, tol, num)
 
-            (ew, ew_emission, ew_absorption, ew_check, median, pos_amplitude, 
+            (ew, ew_emission, ew_absorption, median, pos_amplitude, 
             	neg_amplitude) = Keck_twriting.Hb_Ha_tables(label, subtitle, flux, 
             	o1, xval, pos_flux, dlambda)
             table_arrays = general_twriting.table_arr_appends(num, table_arrays, label, 
-            	subtitle, flux, flux2, flux3, ew, ew_emission, ew_absorption, ew_check, 
+            	subtitle, flux, flux2, flux3, ew, ew_emission, ew_absorption,
             	median, pos_amplitude, neg_amplitude, 'Keck')
 
             #writing the spectra table
@@ -483,7 +500,6 @@ def plot_Keck_Ha(index_list=[], pp=None, title='', bintype='Redshift'):
         pp.savefig()
     #endif
     plt.close()
-
     if pp != None: return pp
 
     #writing the flux table
@@ -671,9 +687,9 @@ grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 halpha_maskarr = np.array([x for x in range(len(gridap)) if gridap[x] not in good_NB921_Halpha]) 
 
 print '### plotting MMT_Ha'
-# plot_MMT_Ha()
+plot_MMT_Ha()
 # plot_MMT_Ha_stlrmass()
-plot_MMT_Ha_stlrmass_z()
+# plot_MMT_Ha_stlrmass_z()
 grid.close()
 
 print '### looking at the Keck grid'
