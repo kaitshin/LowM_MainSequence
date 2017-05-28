@@ -23,6 +23,7 @@ def stack(ndarr_in, zspec_in, index, x0, xmin, xmax, ff='', AP_rows=[]):
     new_grid = np.ndarray(shape=(len(ndarr), len(x_rest)))
     
     num_maskednb921 = 0
+    masked_index = []
     minz = min(x for x in zspec if x > 0)
     maxz = max(x for x in zspec if x < 9)
     print '### zspec:', minz, maxz
@@ -44,6 +45,7 @@ def stack(ndarr_in, zspec_in, index, x0, xmin, xmax, ff='', AP_rows=[]):
             mask_ii = np.where(x_rest > 6503)[0]
             spec_interp[mask_ii] = np.nan
             num_maskednb921 += 1
+            masked_index.append(ii)
         #endif
 
         new_grid[row_num] = spec_interp
@@ -52,5 +54,5 @@ def stack(ndarr_in, zspec_in, index, x0, xmin, xmax, ff='', AP_rows=[]):
     #taking the average, column by column
     plot_grid_avg = np.nanmean(new_grid, axis=0)
 
-    return x_rest, plot_grid_avg, [len(index), num_maskednb921], minz, maxz
+    return x_rest, plot_grid_avg, [len(index), num_maskednb921], [index, masked_index], minz, maxz
 #enddef

@@ -113,7 +113,8 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassin
         HG_pos_amplitude, HB_pos_amplitude, HA_pos_amplitude,
         HG_neg_amplitude, HB_neg_amplitude) = table_arrays
     (num_sources, num_bad_NB921_sources, minz_arr, maxz_arr,
-        spectra_file_path_arr, stlrmass_bin_arr, avg_stlrmass_arr) = ([], [], [], [], [], [], [])
+        spectra_file_path_arr, stlrmass_bin_arr, avg_stlrmass_arr,
+        IDs_arr, IDs_bad_NB921_sources) = ([], [], [], [], [], [], [], [], [])
     if index_list == []:
         index_list = general_plotting.get_index_list(NAME0, inst_str0, inst_dict, 'MMT')
     (xmin_list, xmax_list, label_list, 
@@ -137,6 +138,8 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassin
             minz_arr.append(0)
             maxz_arr.append(0)
             spectra_file_path_arr.append('N/A')
+            IDs_arr.append('N/A')
+            IDs_bad_NB921_sources.append('N/A')
             if bintype=='Redshift': 
                 stlrmass_bin_arr.append('N/A')
                 avg_stlrmass_arr.append(0)
@@ -152,12 +155,22 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassin
         #endif
 
         try:
-            xval, yval, len_input_index, minz, maxz = stack_data(grid_ndarr, gridz, input_index,
+            xval, yval, len_input_index, stacked_indexes, minz, maxz = stack_data(grid_ndarr, gridz, input_index,
                 x0, 3700, 6700, ff=subtitle, instr='MMT', AP_rows=halpha_maskarr)
             num_sources.append(len_input_index[0])
             num_bad_NB921_sources.append(len_input_index[1])
             minz_arr.append(minz)
             maxz_arr.append(maxz)
+
+            # appending to the ID columns
+            mm0 = [x for x in range(len(AP)) if any(y in AP[x][:5] for y in gridap[stacked_indexes[0]])] # gridap ordering -> NBIA ordering
+            IDs_arr.append(','.join(NAME0[mm0]))
+            mm1 = [x for x in range(len(AP)) if any(y in AP[x][:5] for y in gridap[stacked_indexes[1]])] # gridap ordering -> NBIA ordering
+            if len(mm1)==0:
+                IDs_bad_NB921_sources.append('N/A')
+            else:
+                IDs_bad_NB921_sources.append(','.join(NAME0[mm1]))
+            #endif
 
             # writing the spectra table
             table0 = Table([xval, yval/1E-17], names=['xval','yval/1E-17'])
@@ -231,13 +244,8 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassin
     #endfor
     if title=='':
         f = general_plotting.final_plot_setup(f, r'MMT detections of H$\alpha$ emitters')
-        IDs_arr = np.array(['TBD']*len(subtitle_list)) # TODO(properly implement)
-        IDs_bad_NB921_sources = np.array(['N/A']*len(subtitle_list)) # TODO(properly implement)
     else:
         f = general_plotting.final_plot_setup(f, title)
-        # since this is stellarmass+z
-        IDs_arr = np.array(['TBD']*len(subtitle_list)) # TODO(properly implement)
-        IDs_bad_NB921_sources = np.array(['N/A']*len(subtitle_list)) # TODO(properly implement)
     if pp == None:
         plt.savefig(full_path+'Composite_Spectra/Redshift/MMT_stacked_spectra.pdf')
     else:
@@ -278,7 +286,8 @@ def plot_MMT_Ha_stlrmass():
         HG_pos_amplitude, HB_pos_amplitude, HA_pos_amplitude,
         HG_neg_amplitude, HB_neg_amplitude) = table_arrays
     (num_sources, num_bad_NB921_sources, minz_arr, maxz_arr,
-        spectra_file_path_arr, stlrmass_bin_arr, avg_stlrmass_arr) = ([], [], [], [], [], [], [])
+        spectra_file_path_arr, stlrmass_bin_arr, avg_stlrmass_arr,
+        IDs_arr, IDs_bad_NB921_sources) = ([], [], [], [], [], [], [], [], [])
     index_list = general_plotting.get_index_list2(stlr_mass, inst_str0, inst_dict, 'MMT')
     (xmin_list, xmax_list, label_list, 
         subtitle_list) = general_plotting.get_iter_lists('MMT')
@@ -298,13 +307,23 @@ def plot_MMT_Ha_stlrmass():
         try:
             subtitle='stlrmass: '+str(min(stlr_mass[match_index]))+'-'+str(max(stlr_mass[match_index]))
             avg_stlrmass_arr.append(np.mean(stlr_mass[match_index]))
-            xval, yval, len_input_index, minz, maxz = stack_data(grid_ndarr, gridz, input_index,
-                                                                 x0, 3700, 6700)
+            xval, yval, len_input_index, stacked_indexes, minz, maxz = stack_data(grid_ndarr, gridz, input_index,
+                x0, 3700, 6700)
             num_sources.append(len_input_index[0])
             num_bad_NB921_sources.append(len_input_index[1])
             minz_arr.append(minz)
             maxz_arr.append(maxz)
             stlrmass_bin_arr.append(subtitle[10:])
+
+            # appending to the ID columns
+            mm0 = [x for x in range(len(AP)) if any(y in AP[x][:5] for y in gridap[stacked_indexes[0]])] # gridap ordering -> NBIA ordering
+            IDs_arr.append(','.join(NAME0[mm0]))
+            mm1 = [x for x in range(len(AP)) if any(y in AP[x][:5] for y in gridap[stacked_indexes[1]])] # gridap ordering -> NBIA ordering
+            if len(mm1)==0:
+                IDs_bad_NB921_sources.append('N/A')
+            else:
+                IDs_bad_NB921_sources.append(','.join(NAME0[mm1]))
+            #endif
 
             # writing the spectra table
             table0 = Table([xval, yval/1E-17], names=['xval','yval/1E-17'])
@@ -358,8 +377,7 @@ def plot_MMT_Ha_stlrmass():
     #endfor
     f = general_plotting.final_plot_setup(f, r'MMT detections of H$\alpha$ emitters')
 
-    IDs_arr = np.array(['TBD']*len(subtitle_list)) # TODO(properly implement)
-    IDs_bad_NB921_sources = np.array(['N/A']*len(subtitle_list)) # TODO(properly implement)
+    subtitle_list = np.array(['all']*len(subtitle_list))
 
     table00 = Table([subtitle_list, stlrmass_bin_arr, num_sources, num_bad_NB921_sources, minz_arr, maxz_arr, 
         avg_stlrmass_arr, IDs_arr, IDs_bad_NB921_sources, spectra_file_path_arr, HG_flux, HB_flux, HA_flux, NII_6548_flux, 
@@ -387,7 +405,6 @@ def plot_MMT_Ha_stlrmass_z():
     '''
     stlrmass_index_list = general_plotting.get_index_list2(stlr_mass, inst_str0, inst_dict, 'MMT')
     pp = PdfPages(full_path+'Composite_Spectra/StellarMassZ/MMT_two_percbins.pdf')
-    num = 0
     table00 = None
     n = 2 # how many redshifts we want to take into account (max 5, TODO(generalize this?))
     for stlrmassindex0 in stlrmass_index_list[:n]:        
@@ -408,7 +425,6 @@ def plot_MMT_Ha_stlrmass_z():
         else:
             table00 = vstack([table00, table_data])
         #endif
-        num += 1
     #endfor
     asc.write(table00, full_path+'Composite_Spectra/StellarMassZ/MMT_two_percbins_data.txt',
         format='fixed_width_two_line', delimiter=' ')
@@ -749,8 +765,8 @@ grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 halpha_maskarr = np.array([x for x in range(len(gridap)) if gridap[x] not in good_NB921_Halpha]) 
 
 print '### plotting MMT_Ha'
-# plot_MMT_Ha()
-# plot_MMT_Ha_stlrmass()
+plot_MMT_Ha()
+plot_MMT_Ha_stlrmass()
 plot_MMT_Ha_stlrmass_z()
 grid.close()
 
