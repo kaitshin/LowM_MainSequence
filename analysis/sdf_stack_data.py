@@ -40,7 +40,8 @@ def stack_data(ndarr, zspec, index, x0, xmin, xmax, ff='', instr='', AP_rows=[])
             # to help mask MMT NB921 Halpha sources
             return stack(ndarr, zspec, index[good_z], x0, xmin, xmax, ff=ff, AP_rows=AP_rows)
         else:
-            return stack(plot_grid, plot_zspec, good_z, x0, xmin, xmax)
+            # return stack(plot_grid, plot_zspec, good_z, x0, xmin, xmax)
+            return stack(ndarr, zspec, index[good_z], x0, xmin, xmax)
         #endif
     # this is stacking data in stlrmass
     else:

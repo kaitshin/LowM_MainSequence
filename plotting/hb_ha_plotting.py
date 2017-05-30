@@ -44,6 +44,9 @@ def subplots_plotting(ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, to
     and returns fluxes and equations of best fit.
     '''
     if not (subtitle=='NB816' and num%2==0):
+        good_ii = np.array([x for x in range(len(xval)) if xval[x] >= xmin0 and xval[x] <= xmax0])
+        xval = xval[good_ii]
+        yval = yval[good_ii]
         ax.plot(xval, yval/1E-17, zorder=2)
     
     flux = 0
