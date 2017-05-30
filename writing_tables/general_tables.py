@@ -70,7 +70,7 @@ def table_arr_appends(i, subtitle, table_arrays, flux, flux2, flux3, ew, ew_emis
             HB_continuum.append(median)
             HB_pos_amplitude.append(pos_amplitude)
             HB_neg_amplitude.append(neg_amplitude)
-        if i==0 and subtitle=='NB816':
+        elif i==0 and subtitle=='NB816':
             HB_flux.append(0)
             HB_EW.append(0)
             HB_EW_corr.append(0)

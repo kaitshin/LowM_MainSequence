@@ -431,7 +431,7 @@ def plot_MMT_Ha_stlrmass_z():
     pp.close()
 #enddef
 
-def plot_Keck_Ha(index_list=[], pp=None, title='', bintype='Redshift'):
+def plot_Keck_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassindex0=[]):
     '''
     Creates a pdf (8"x11") with 3x2 subplots for different lines and filter
     combinations.
@@ -500,7 +500,7 @@ def plot_Keck_Ha(index_list=[], pp=None, title='', bintype='Redshift'):
             elif bintype=='StellarMassZ': 
                 stlrmass_bin_arr.append(title[10:])
                 avg_stlrmass_arr.append(np.mean(stlr_mass[stlrmassindex0]))
-            for i in range(3):
+            for i in range(2):
                 ax = ax_list[subplot_index]
                 label = label_list[i]
                 Keck_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index)
@@ -570,9 +570,6 @@ def plot_Keck_Ha(index_list=[], pp=None, title='', bintype='Redshift'):
             
         except SyntaxError:
             print 'ValueError: none exist'
-        except RuntimeError:
-            print 'Error - curve_fit failed'
-        #endtry
         
         for i in range(2):
             label = label_list[i] + ' ('+str(len_input_index[0])+')'
@@ -698,14 +695,9 @@ def plot_Keck_Ha_stlrmass_z():
     '''
     stlrmass_index_list = general_plotting.get_index_list2(stlr_mass, inst_str0, inst_dict, 'Keck')
     pp = PdfPages(full_path+'Composite_Spectra/StellarMassZ/Keck_five_percbins.pdf')
-    num=0
+    table00 = None
     n = 5 # how many redshifts we want to take into account (max 5, TODO(generalize this?))
-    for stlrmassindex0 in stlrmass_index_list[:n*2]:
-        if num%2 != 0:
-            num += 1
-            continue
-        #endif
-        
+    for stlrmassindex0 in stlrmass_index_list[:n]:
         title='stlrmass: '+str(min(stlr_mass[stlrmassindex0]))+'-'+str(max(stlr_mass[stlrmassindex0]))
         print '>>>', title
 
@@ -717,9 +709,15 @@ def plot_Keck_Ha_stlrmass_z():
             index_list.append(templist)
         #endfor
 
-        pp = plot_Keck_Ha(index_list, pp, title, 'StellarMassZ')
-        num += 1
+        pp, table_data = plot_Keck_Ha(index_list, pp, title, 'StellarMassZ', stlrmassindex0)
+        if table00 == None:
+            table00 = table_data
+        else:
+            table00 = vstack([table00, table_data])
+        #endif
     #endfor
+    asc.write(table00, full_path+'Composite_Spectra/StellarMassZ/Keck_five_percbins_data.txt',
+        format='fixed_width_two_line', delimiter=' ')
     pp.close()
 #enddef
 
@@ -811,9 +809,9 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 
 print '### plotting Keck_Ha'
-plot_Keck_Ha()
+# plot_Keck_Ha()
 # plot_Keck_Ha_stlrmass()
-# plot_Keck_Ha_stlrmass_z()
+plot_Keck_Ha_stlrmass_z()
 grid.close()
 
 nbia.close()

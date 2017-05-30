@@ -88,7 +88,7 @@ def get_index_list2(stlr_mass, inst_str0, inst_dict, instr):
     if instr=='MMT':
         return [index_0]+[index_1]+[index_2]+[index_3]+[index_4]
     if instr=='Keck':
-        return [index_0]*2+[index_1]*2+[index_2]*2+[index_3]*2+[index_4]*2
+        return [index_0]+[index_1]+[index_2]+[index_3]+[index_4]
 #enddef
 
 def get_iter_lists(instr, stlr=False):
