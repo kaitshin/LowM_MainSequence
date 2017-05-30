@@ -466,10 +466,10 @@ def plot_Keck_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassi
     '''
     table_arrays = ([], [], [], [], [], [], [], [], [], [], [], [], [], [])
     (HB_flux, HA_flux, NII_6548_flux, NII_6583_flux, HB_EW, HA_EW, HB_EW_corr, HA_EW_corr,
-     HB_EW_abs, HB_continuum, HA_continuum, HB_pos_amplitude, HA_pos_amplitude,
-     HB_neg_amplitude) = table_arrays
+        HB_EW_abs, HB_continuum, HA_continuum, HB_pos_amplitude, HA_pos_amplitude,
+        HB_neg_amplitude) = table_arrays
     (num_sources, minz_arr, maxz_arr, spectra_file_path_arr, stlrmass_bin_arr, avg_stlrmass_arr,
-     IDs_arr) = ([], [], [], [], [], [], [])
+        IDs_arr) = ([], [], [], [], [], [], [])
     if index_list == []:
         index_list = general_plotting.get_index_list(NAME0, inst_str0, inst_dict, 'Keck')
     (xmin_list, xmax_list, label_list, 
@@ -542,7 +542,16 @@ def plot_Keck_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassi
             spectra_file_path_arr.append(spectra_file_path)
 
             # calculating flux for NII emissions
-            dlambda = xval[1] - xval[0]
+            zs = np.array(gridz[input_index])
+            if subtitle=='NB816':
+                good_z = np.where(zs < 0.3)[0]
+            elif subtitle=='NB921':
+                good_z = np.where(zs < 0.6)[0]
+            else:
+                good_z = np.where(zs < 0.6)[0]
+            #endif
+            zs = np.average(zs[good_z])
+            dlambda = (x0[1]-x0[0])/(1+zs)
 
             pos_flux_list = []
             flux_list = []
@@ -809,7 +818,7 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 
 print '### plotting Keck_Ha'
-# plot_Keck_Ha()
+plot_Keck_Ha()
 # plot_Keck_Ha_stlrmass()
 plot_Keck_Ha_stlrmass_z()
 grid.close()
