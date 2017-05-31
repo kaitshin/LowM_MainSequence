@@ -212,7 +212,7 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassin
                         ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, tol)
                     pos_flux_list.append(pos_flux)
                     flux_list.append(flux)
-                except ValueError:
+                except SyntaxError:
                     continue
                 finally:
                     (ew, ew_emission, ew_absorption, median, pos_amplitude, 
@@ -306,6 +306,7 @@ def plot_MMT_Ha_stlrmass():
                                 AP_match],dtype=np.int32)
         try:
             subtitle='stlrmass: '+str(min(stlr_mass[match_index]))+'-'+str(max(stlr_mass[match_index]))
+            print '>>>', subtitle
             avg_stlrmass_arr.append(np.mean(stlr_mass[match_index]))
             xval, yval, len_input_index, stacked_indexes, minz, maxz = stack_data(grid_ndarr, gridz, input_index,
                 x0, 3700, 6700)
@@ -656,6 +657,7 @@ def plot_Keck_Ha_stlrmass():
                                 AP_match],dtype=np.int32)
         try:
             subtitle='stlrmass: '+str(min(stlr_mass[match_index]))+'-'+str(max(stlr_mass[match_index]))
+            print '>>>', subtitle
             avg_stlrmass_arr.append(np.mean(stlr_mass[match_index]))
             xval, yval, len_input_index, stacked_indexes, minz, maxz = stack_data(grid_ndarr, gridz, input_index,
                 x0, 3800, 6700)
@@ -844,8 +846,8 @@ grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 halpha_maskarr = np.array([x for x in range(len(gridap)) if gridap[x] not in good_NB921_Halpha]) 
 
 print '### plotting MMT_Ha'
-# plot_MMT_Ha()
-# plot_MMT_Ha_stlrmass()
+plot_MMT_Ha()
+plot_MMT_Ha_stlrmass()
 # plot_MMT_Ha_stlrmass_z()
 grid.close()
 
@@ -870,7 +872,7 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 
 print '### plotting Keck_Ha'
-# plot_Keck_Ha()
+plot_Keck_Ha()
 plot_Keck_Ha_stlrmass()
 # plot_Keck_Ha_stlrmass_z()
 grid.close()
