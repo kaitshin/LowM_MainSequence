@@ -52,27 +52,6 @@ def correct_instr_AP(indexed_AP, indexed_inst_str0, instr):
     return indexed_AP
 #enddef
 
-def write_spectral_table(instr, grid_ndarr, gridz, input_index, x0, name, full_path, shortlabel, bintype):
-    '''
-    Writes a table of spectra for the entire wavelength range of each stacked 
-    galaxy data set. The resulting ASCII files are saved in a folder in 'Composite_Spectra/'
-    depending on binning type (redshift, stlrmass, stlrmass+z) and instrument of detection
-    (MMT, Keck).
-
-    The 'name' is either:
-    	o The filter (if bintype='Redshift')
-    	o The stellar mass range (if bintype='StellarMass')
-    	o The stellar mass range + filter (if bintype='StellarMassZ')
-    '''
-    if bintype=='Redshift':
-    	xval, yval, len_input_index = stack_data(grid_ndarr, gridz, input_index, x0, 3700, 6700, ff=name)
-    else:
-    	xval, yval, len_input_index = stack_data(grid_ndarr, gridz, input_index, x0, 3700, 6700)
-    table0 = Table([xval, yval/1E-17], names=['xval','yval/1E-17'])
-    asc.write(table0, full_path+'Composite_Spectra/'+bintype+'/'+instr+'_spectra_vals/'+name+'.txt',
-        format='fixed_width', delimiter=' ')
-#enddef
-
 def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassindex0=[]):
     '''
     Creates a pdf (8"x11") with 5x3 subplots for different lines and filter
