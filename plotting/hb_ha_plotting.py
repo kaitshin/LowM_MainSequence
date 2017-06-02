@@ -22,21 +22,21 @@ def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0,
     if num%2==0:
         ax.set_title(subtitle,fontsize=8,loc='left')
         if subtitle != 'NB816':
-            ax.text(0.97,0.97,'flux='+'{:.4e}'.format((pos_flux))+
-                    '\nflux_corr='+'{:.4e}'.format((flux))+
-                    '\npos_amp='+'{:.4e}'.format((pos_amp))+
-                    '\nneg_amp='+'{:.4e}'.format((neg_amp))+
-                    '\npos_sigma='+'{:.4e}'.format((pos_sigma))+
-                    '\nneg_sigma='+'{:.4e}'.format((neg_sigma))+
-                    '\ncontinuum='+'{:.4e}'.format((continuum)),transform=ax.transAxes,fontsize=7,ha='right',va='top')
+            ax.text(0.97,0.97,'flux='+'{:.3f}'.format((pos_flux/1E-17))+
+                '\nflux_corr='+'{:.3f}'.format((flux/1E-17))+
+                '\nA'+r'$+$'+'='+'{:.3f}'.format((pos_amp/1E-17))+
+                '\nA'+r'$-$'+'='+'{:.3f}'.format((neg_amp/1E-17))+
+                '\n'+r'$\sigma+$'+'='+'{:.3f}'.format((pos_sigma))+
+                '\n'+r'$\sigma-$'+'='+'{:.3f}'.format((neg_sigma))+
+                '\ncontinuum='+'{:.3f}'.format((continuum/1E-17)),transform=ax.transAxes,fontsize=5,ha='right',va='top')
     elif num%2==1:
         ymaxval = max(ax.get_ylim())
         [a.set_ylim(ymax=ymaxval) for a in ax_list[num-1:num]]
-        ax.text(0.97,0.97,'flux='+'{:.4e}'.format((pos_flux))+
-            '\npos_amp='+'{:.4e}'.format((pos_amp))+
-            '\npos_sigma='+'{:.4e}'.format((pos_sigma))+
-            '\ncontinuum='+'{:.4e}'.format((continuum)),
-            transform=ax.transAxes,fontsize=7,ha='right',va='top')
+        ax.text(0.97,0.97,'flux='+'{:.3f}'.format((pos_flux/1E-17))+
+            '\nA'+r'$+$'+'='+'{:.3f}'.format((pos_amp))+
+            '\n'+r'$\sigma+$'+'='+'{:.3f}'.format((pos_sigma))+
+            '\ncontinuum='+'{:.3f}'.format((continuum/1E-17)),
+            transform=ax.transAxes,fontsize=5,ha='right',va='top')
         if subtitle != 'NB816':
             ax_list[num-1].plot([4861,4861],[0,ymaxval],'k',alpha=0.7,zorder=1)
         ax_list[num].plot([6563,6563], [0,ymaxval],'k',alpha=0.7,zorder=1)
