@@ -10,7 +10,8 @@ PURPOSE:
 from analysis.balmer_fit import find_nearest, get_best_fit, get_best_fit2, get_best_fit3
 import numpy as np
 
-def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0):
+def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0, 
+    pos_amp=0, neg_amp=0, pos_sigma=0, neg_sigma=0, continuum=0):
     '''
     Sets up the subplots for Hb/Ha. Adds emission lines for each subplot
     and sets the ylimits for each row. Also adds flux labels to each subplot.
@@ -22,12 +23,20 @@ def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0):
         ax.set_title(subtitle,fontsize=8,loc='left')
         if subtitle != 'NB816':
             ax.text(0.97,0.97,'flux='+'{:.4e}'.format((pos_flux))+
-                    '\nflux_corr='+'{:.4e}'.format((flux)),transform=ax.transAxes,fontsize=7,ha='right',va='top')
+                    '\nflux_corr='+'{:.4e}'.format((flux))+
+                    '\npos_amp='+'{:.4e}'.format((pos_amp))+
+                    '\nneg_amp='+'{:.4e}'.format((neg_amp))+
+                    '\npos_sigma='+'{:.4e}'.format((pos_sigma))+
+                    '\nneg_sigma='+'{:.4e}'.format((neg_sigma))+
+                    '\ncontinuum='+'{:.4e}'.format((continuum)),transform=ax.transAxes,fontsize=7,ha='right',va='top')
     elif num%2==1:
         ymaxval = max(ax.get_ylim())
         [a.set_ylim(ymax=ymaxval) for a in ax_list[num-1:num]]
-        ax.text(0.97,0.97,'flux='+'{:.4e}'.format((pos_flux)),
-                transform=ax.transAxes,fontsize=7,ha='right',va='top')
+        ax.text(0.97,0.97,'flux='+'{:.4e}'.format((pos_flux))+
+            '\npos_amp='+'{:.4e}'.format((pos_amp))+
+            '\npos_sigma='+'{:.4e}'.format((pos_sigma))+
+            '\ncontinuum='+'{:.4e}'.format((continuum)),
+            transform=ax.transAxes,fontsize=7,ha='right',va='top')
         if subtitle != 'NB816':
             ax_list[num-1].plot([4861,4861],[0,ymaxval],'k',alpha=0.7,zorder=1)
         ax_list[num].plot([6563,6563], [0,ymaxval],'k',alpha=0.7,zorder=1)

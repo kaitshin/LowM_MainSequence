@@ -535,6 +535,11 @@ def plot_Keck_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassi
 
             pos_flux_list = []
             flux_list = []
+            pos_amplitude_list = []
+            neg_amplitude_list = []
+            pos_sigma_list = []
+            neg_sigma_list = []
+            median_list = []
             for i in range(2):
                 xmin0 = xmin_list[i]
                 xmax0 = xmax_list[i]
@@ -550,11 +555,27 @@ def plot_Keck_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassi
                     continue
                 else:
                     (ew, ew_emission, ew_absorption, median, pos_amplitude, 
-                      neg_amplitude) = Keck_twriting.Hb_Ha_tables(label, subtitle, flux, 
-                      o1, xval, pos_flux, dlambda)
+                        neg_amplitude) = Keck_twriting.Hb_Ha_tables(label, subtitle, flux, 
+                        o1, xval, pos_flux, dlambda)
                     table_arrays = general_twriting.table_arr_appends(i, subtitle,
-                      table_arrays, flux, flux2, flux3, ew, ew_emission, ew_absorption, 
-                      median, pos_amplitude, neg_amplitude, 'Keck')
+                        table_arrays, flux, flux2, flux3, ew, ew_emission, ew_absorption, 
+                        median, pos_amplitude, neg_amplitude, 'Keck')
+                    if not (subtitle=='NB816' and i==0):
+                        pos_amplitude_list.append(pos_amplitude)
+                        neg_amplitude_list.append(neg_amplitude)
+                        pos_sigma_list.append(o1[2])
+                        if i==0:
+                            neg_sigma_list.append(o1[5])
+                        else:
+                            neg_sigma_list.append(0)
+                        median_list.append(median)
+                    else:
+                        pos_amplitude_list.append(0)
+                        neg_amplitude_list.append(0)
+                        pos_sigma_list.append(0)
+                        neg_sigma_list.append(0)
+                        median_list.append(0)
+                    #endif
             #endfor
             
         except SyntaxError:
@@ -566,8 +587,17 @@ def plot_Keck_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassi
             try:
                 pos_flux = pos_flux_list[i]
                 flux = flux_list[i]
-                ax = Keck_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index, pos_flux, flux)
-            except IndexError: # assuming there's no pos_flux or flux value
+                if not (subtitle=='NB816' and i==0):
+                    pos_amplitude = pos_amplitude_list[i]
+                    neg_amplitude = neg_amplitude_list[i]
+                    pos_sigma = pos_sigma_list[i]
+                    neg_sigma = neg_sigma_list[i]
+                    median = median_list[i]
+                    ax = Keck_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index, pos_flux, flux,
+                        pos_amplitude, neg_amplitude, pos_sigma, neg_sigma, median)
+                else:
+                    ax = Keck_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index, pos_flux, flux)
+            except SyntaxError: # assuming there's no pos_flux or flux value
                 print 'no pos_flux or flux value'
                 ax = Keck_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index)
             subplot_index+=1
@@ -825,8 +855,8 @@ grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 halpha_maskarr = np.array([x for x in range(len(gridap)) if gridap[x] not in good_NB921_Halpha]) 
 
 print '### plotting MMT_Ha'
-plot_MMT_Ha()
-plot_MMT_Ha_stlrmass()
+# plot_MMT_Ha()
+# plot_MMT_Ha_stlrmass()
 # plot_MMT_Ha_stlrmass_z()
 grid.close()
 
@@ -852,7 +882,7 @@ grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 
 print '### plotting Keck_Ha'
 plot_Keck_Ha()
-plot_Keck_Ha_stlrmass()
+# plot_Keck_Ha_stlrmass()
 # plot_Keck_Ha_stlrmass_z()
 grid.close()
 
