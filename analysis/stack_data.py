@@ -13,7 +13,7 @@ OUTPUTS:
     Returns (x_rest, plot_grid_avg)
 """
 
-import numpy as np, numpy.ma as ma
+import numpy as np
 from scipy.interpolate import interp1d
 def stack(ndarr_in, zspec_in, index, x0, xmin, xmax, ff='', AP_rows=[]):
     ndarr = ndarr_in[index]
@@ -22,6 +22,7 @@ def stack(ndarr_in, zspec_in, index, x0, xmin, xmax, ff='', AP_rows=[]):
     x_rest   = np.arange(xmin, xmax, 0.1)
     new_grid = np.ndarray(shape=(len(ndarr), len(x_rest)))
     
+    masked_spectra_len = 0
     num_maskednb921 = 0
     masked_index = []
     minz = min(x for x in zspec if x > 0)
@@ -31,6 +32,11 @@ def stack(ndarr_in, zspec_in, index, x0, xmin, xmax, ff='', AP_rows=[]):
     for (row_num, ii) in zip(range(len(ndarr)), index):
         #normalizing
         spec_test = ndarr[row_num]
+
+        #counts the non-masked elements of the array
+        if np.ma.MaskedArray.count(spec_test)==0:
+            masked_spectra_len += 1
+        #endif
 
         #interpolating a function for rest-frame wavelength and normalized y
         x_test = x0/(1.0+zspec[row_num])
@@ -54,5 +60,5 @@ def stack(ndarr_in, zspec_in, index, x0, xmin, xmax, ff='', AP_rows=[]):
     #taking the average, column by column
     plot_grid_avg = np.nanmean(new_grid, axis=0)
 
-    return x_rest, plot_grid_avg, [len(index), num_maskednb921], [index, masked_index], minz, maxz
+    return x_rest, plot_grid_avg, [len(index)-masked_spectra_len, num_maskednb921], [index, masked_index], minz, maxz
 #enddef
