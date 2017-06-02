@@ -945,7 +945,7 @@ grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 halpha_maskarr = np.array([x for x in range(len(gridap)) if gridap[x] not in good_NB921_Halpha]) 
 
 print '### plotting MMT_Ha'
-# plot_MMT_Ha()
+plot_MMT_Ha()
 plot_MMT_Ha_stlrmass()
 # plot_MMT_Ha_stlrmass_z()
 grid.close()
@@ -971,8 +971,8 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 
 print '### plotting Keck_Ha'
-# plot_Keck_Ha()
-# plot_Keck_Ha_stlrmass()
+plot_Keck_Ha()
+plot_Keck_Ha_stlrmass()
 # plot_Keck_Ha_stlrmass_z()
 grid.close()
 
