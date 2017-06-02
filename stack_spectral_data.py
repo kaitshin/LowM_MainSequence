@@ -699,6 +699,11 @@ def plot_Keck_Ha_stlrmass():
 
             pos_flux_list = []
             flux_list = []
+            pos_amplitude_list = []
+            neg_amplitude_list = []
+            pos_sigma_list = []
+            neg_sigma_list = []
+            median_list = []
             for i in range(2):
                 xmin0 = xmin_list[i]
                 xmax0 = xmax_list[i]
@@ -718,6 +723,22 @@ def plot_Keck_Ha_stlrmass():
                     table_arrays = general_twriting.table_arr_appends(i, subtitle,
                       table_arrays, flux, flux2, flux3, ew, ew_emission, ew_absorption, 
                       median, pos_amplitude, neg_amplitude, 'Keck')
+                    if not (subtitle=='NB816' and i==0):
+                        pos_amplitude_list.append(pos_amplitude)
+                        neg_amplitude_list.append(neg_amplitude)
+                        pos_sigma_list.append(o1[2])
+                        if i==0:
+                            neg_sigma_list.append(o1[5])
+                        else:
+                            neg_sigma_list.append(0)
+                        median_list.append(median)
+                    else:
+                        pos_amplitude_list.append(0)
+                        neg_amplitude_list.append(0)
+                        pos_sigma_list.append(0)
+                        neg_sigma_list.append(0)
+                        median_list.append(0)
+                    #endif
                 #endtry
             #endfor
 
@@ -731,9 +752,18 @@ def plot_Keck_Ha_stlrmass():
             try:
                 pos_flux = pos_flux_list[i]
                 flux = flux_list[i]
-                ax = Keck_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index, pos_flux, flux)
+                if not (subtitle=='NB816' and i==0):
+                    pos_amplitude = pos_amplitude_list[i]
+                    neg_amplitude = neg_amplitude_list[i]
+                    pos_sigma = pos_sigma_list[i]
+                    neg_sigma = neg_sigma_list[i]
+                    median = median_list[i]
+                    ax = Keck_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index, pos_flux, flux,
+                        pos_amplitude, neg_amplitude, pos_sigma, neg_sigma, median)
+                else:
+                    ax = Keck_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index, pos_flux, flux)
             except IndexError: # assuming there's no pos_flux or flux value
-                ax = MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index)
+                ax = Keck_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index)
             subplot_index+=1
         #endfor
     #endfor
@@ -881,8 +911,8 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 
 print '### plotting Keck_Ha'
-plot_Keck_Ha()
-# plot_Keck_Ha_stlrmass()
+# plot_Keck_Ha()
+plot_Keck_Ha_stlrmass()
 # plot_Keck_Ha_stlrmass_z()
 grid.close()
 
