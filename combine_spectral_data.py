@@ -65,35 +65,36 @@ def fix_AP(aa):
 	return aa
 
 
+full_path = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
 # reading in MMT data
-mmt_spec_list_1_4 = glob.glob('Spectra/MMT/Single_Data/f6_mmtlist*fits')
-mmt_spec_list_A_H = glob.glob('Spectra/MMT/Single_Data/f6_2014*fits')
-mmt_spec_list_combined = glob.glob('Spectra/MMT/Combine_Data/f6_MMT_combine_spec.sigma.fits')
+mmt_spec_list_1_4 = glob.glob(full_path+'Spectra/MMT/Single_Data/f6_mmtlist*fits')
+mmt_spec_list_A_H = glob.glob(full_path+'Spectra/MMT/Single_Data/f6_2014*fits')
+mmt_spec_list_combined = glob.glob(full_path+'Spectra/MMT/Combine_Data/f6_MMT_combine_spec.sigma.fits')
 mmt_spec_list_all = (mmt_spec_list_1_4 + mmt_spec_list_A_H +
                      mmt_spec_list_combined)
 
-mmt_table_list_1_4_unordered = glob.glob('Spectra/MMT/Single_Data/MMT_2008_targets.0*fits')
+mmt_table_list_1_4_unordered = glob.glob(full_path+'Spectra/MMT/Single_Data/MMT_2008_targets.0*fits')
 mmt_table_list_1_4 = [mmt_table_list_1_4_unordered[3],
                       mmt_table_list_1_4_unordered[0],
                       mmt_table_list_1_4_unordered[1],
                       mmt_table_list_1_4_unordered[2]]
-mmt_table_list_A_H = glob.glob('Spectra/MMT/Single_Data/MMT_2014*fits')
-mmt_table_list_combined = glob.glob('Spectra/MMT/Combine_Data/f6_MMT_combine_spec.sigma.redshift.all.fits')
+mmt_table_list_A_H = glob.glob(full_path+'Spectra/MMT/Single_Data/MMT_2014*fits')
+mmt_table_list_combined = glob.glob(full_path+'Spectra/MMT/Combine_Data/f6_MMT_combine_spec.sigma.redshift.all.fits')
 mmt_table_list_all = (mmt_table_list_1_4 + mmt_table_list_A_H +
                       mmt_table_list_combined)
 
 
 # reading in Keck data
-keck_spec_list_2 = glob.glob('Spectra/Keck/Single_Data/DEIMOS*f2.fits')
-keck_spec_list_3 = glob.glob('Spectra/Keck/Single_Data/DEIMOS*f3.fits')
-keck_spec_list_4 = glob.glob('Spectra/Keck/Single_Data/DEIMOS*f4.fits')
+keck_spec_list_2 = glob.glob(full_path+'Spectra/Keck/Single_Data/DEIMOS*f2.fits')
+keck_spec_list_3 = glob.glob(full_path+'Spectra/Keck/Single_Data/DEIMOS*f3.fits')
+keck_spec_list_4 = glob.glob(full_path+'Spectra/Keck/Single_Data/DEIMOS*f4.fits')
 keck_spec_list_2_4 = (keck_spec_list_2 + keck_spec_list_3 + keck_spec_list_4)
 keck_spec_list_2_4.sort()
-keck_spec_list_combined = glob.glob('Spectra/Keck/Combine_Data/f3_DEIMOS_combine_spec.sigma.fits')
+keck_spec_list_combined = glob.glob(full_path+'Spectra/Keck/Combine_Data/f3_DEIMOS_combine_spec.sigma.fits')
 keck_spec_list_all = (keck_spec_list_combined + keck_spec_list_2_4)
 
-keck_table_list = glob.glob('Spectra/Keck/Single_Data/DEIMOS*ID.fits')
-keck_table_list_combined = glob.glob('Spectra/Keck/Combine_Data/f3_DEIMOS_combine_spec.sigma.redshift.all.fits')
+keck_table_list = glob.glob(full_path+'Spectra/Keck/Single_Data/DEIMOS*ID.fits')
+keck_table_list_combined = glob.glob(full_path+'Spectra/Keck/Combine_Data/f3_DEIMOS_combine_spec.sigma.redshift.all.fits')
 keck_table_list_all = (keck_table_list_combined + keck_table_list)
 # end reading in data
 
@@ -191,16 +192,16 @@ for version in ['MMT','Keck']:
     print masknum
     grid_ndarr[:masknum,4296:] = 0
 
-    pyfits.writeto('Spectra/spectral_'+version+'_grid.fits', grid_ndarr,
+    pyfits.writeto(full_path+'Spectra/spectral_'+version+'_grid.fits', grid_ndarr,
                    clobber=True)
-    hdr = pyfits.getheader('Spectra/spectral_'+version+'_grid.fits')
+    hdr = pyfits.getheader(full_path+'Spectra/spectral_'+version+'_grid.fits')
     hdr.append(('CDELT1', cdelt_avg))
     hdr.append(('CRVAL1', min(grid_col)))
     hdr.append(('CRPIX1', 1))
-    pyfits.writeto('Spectra/spectral_'+version+'_grid.fits', grid_ndarr,
+    pyfits.writeto(full_path+'Spectra/spectral_'+version+'_grid.fits', grid_ndarr,
                    header=hdr,clobber=True)
     
     t = Table([AP_all, ZSPEC_all],names=['AP','ZSPEC'])
-    asc.write(t,'Spectra/spectral_'+version+'_grid_data.txt',
+    asc.write(t,full_path+'Spectra/spectral_'+version+'_grid_data.txt',
               format='fixed_width',delimiter='\t')
 #endfor
