@@ -85,10 +85,13 @@ def get_best_fit(xval, yval, label):
 
     Ha absorption spectra
     '''
+    good_ii = [ii for ii in range(len(yval)) if not np.isnan(yval[ii])]
+    xval = xval[good_ii]
+    yval = yval[good_ii]
     med0 = get_baseline_median(xval, yval, label)
     err = np.repeat(1.0e-18, len(xval))
     p0 = [np.max(yval)-med0, xval[np.argmax(yval)], 1.10, med0]
-
+    
     o1,o2 = optimization.curve_fit(func, xval, yval, p0, err)
     return o1
 #enddef
