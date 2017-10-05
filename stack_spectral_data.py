@@ -135,7 +135,7 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassin
 
         try:
             xval, yval, len_input_index, stacked_indexes, minz, maxz = stack_data(grid_ndarr, gridz, input_index,
-                x0, 3700, 6700, ff=subtitle, instr='MMT', AP_rows=halpha_maskarr)
+                x0, 3700, 6700, ff=subtitle, instr='MMT')
             num_sources.append(len_input_index[0])
             num_bad_NB921_sources.append(len_input_index[1])
             minz_arr.append(minz)
@@ -896,9 +896,6 @@ def plot_Keck_Ha_stlrmass_z():
 # o Done for both MMT and Keck data.
 #----------------------------------------------------------------------------#
 full_path = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
-good_NB921_Halpha = ['S.245','S.278','S.291','S.306','S.308','S.333','S.334',
-                     'S.350','S.364','A.134','D.076','D.099','D.123','D.125',
-                     'D.127','D.135','D.140','D.215','D.237','D.298'] ##used
 inst_dict = {} ##used
 inst_dict['MMT'] = ['MMT,FOCAS,','MMT,','merged,','MMT,Keck,']
 inst_dict['Keck'] = ['merged,','Keck,','Keck,Keck,','Keck,FOCAS,',
@@ -940,13 +937,11 @@ mask_ndarr[ndarr_zeros] = 1
 # mask spectra with unreliable redshift
 bad_zspec = [x for x in range(len(gridz)) if gridz[x] > 9 or gridz[x] < 0]
 mask_ndarr[bad_zspec,:] = 1
-grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
-
-halpha_maskarr = np.array([x for x in range(len(gridap)) if gridap[x] not in good_NB921_Halpha]) 
+grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr, fill_value=np.nan)
 
 print '### plotting MMT_Ha'
 plot_MMT_Ha()
-plot_MMT_Ha_stlrmass()
+# plot_MMT_Ha_stlrmass()
 # plot_MMT_Ha_stlrmass_z()
 grid.close()
 
@@ -971,8 +966,8 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 
 print '### plotting Keck_Ha'
-plot_Keck_Ha()
-plot_Keck_Ha_stlrmass()
+# plot_Keck_Ha()
+# plot_Keck_Ha_stlrmass()
 # plot_Keck_Ha_stlrmass_z()
 grid.close()
 
