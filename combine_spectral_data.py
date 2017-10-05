@@ -50,9 +50,10 @@ REVISION HISTORY:
     Created by Kaitlyn Shin 23 July 2016
 """
 
-import numpy as np, matplotlib.pyplot as plt, glob
+import numpy as np, matplotlib.pyplot as plt, glob, copy
 from astropy.io import fits as pyfits, ascii as asc
 from astropy.table import Table
+from astropy.stats import sigma_clipped_stats
 from scipy.interpolate import interp1d
 
 def fix_AP(aa):
@@ -130,6 +131,52 @@ for version in ['MMT','Keck']:
         image_data = spec_data[0].data
         img_data_dict['img_'+v] = image_data
         image_data[:,0:badnum]=0.0
+
+        if version=='MMT':
+            # masking the right-most indices of continuously negative spectra
+            for row in image_data:
+                num_red_neg_ii = 0
+                index_marker = 0
+                for ii in range(len(row)-1,-1,-1):
+                    if ii == len(row) - 1:
+                        index_marker = ii
+                    if row[ii] < 0:
+                        if index_marker != ii: break
+                        row[ii] = 0
+                        index_marker -= 1
+                        num_red_neg_ii += 1
+                    #endif
+                #endfor
+            #endfor
+
+            # masking the right-most indices of continuously abnormally positive spectra
+            tempdata = copy.deepcopy(image_data)
+            temp2 = copy.deepcopy(image_data)
+            idx = np.where((x0 > 6000) & (x0 < 6650))[0]
+            for row, ii in zip(tempdata, range(len(tempdata))):
+                tempmed = sigma_clipped_stats(row[idx])[1]
+                row/=tempmed
+            #endfor
+            col_nanmean = np.nanmean(tempdata, axis=0)
+            bad_init = np.where((np.abs(col_nanmean) >= 1.5) | (np.isnan((col_nanmean)) == True))[0]
+            if len(bad_init) > 0:
+                for ii in range(len(bad_init)-1, -1, -1):
+                    if (bad_init[ii] - bad_init[ii-1]) > 1:
+                        break
+                #endfor
+                bad_init = bad_init[ii:]
+                image_data[:,bad_init] = 0.0
+
+                # special cases
+                if v == 'S':
+                    image_data[59] = temp2[59] # 'S.060'
+                    image_data[272] = temp2[272] # 'S.273'
+                    image_data[284] = temp2[284] # 'S.285'
+                    image_data[312] = temp2[312] # 'S.313'
+                #endif
+            #endif
+        #endif
+
         
         table0 = pyfits.open(table)
         table_data = table0[1].data
@@ -189,8 +236,34 @@ for version in ['MMT','Keck']:
         mark += (arr_index+1)
     #endfor
 
-    print masknum
     grid_ndarr[:masknum,4296:] = 0
+    if version=='MMT':
+        # special cases
+        AP_names = np.concatenate((np.array(['D.028', 'D.069', 'D.075', 'D.076', 'D.081', 'D.086', 'D.088', 'D.093',
+            'D.099', 'D.103', 'D.106', 'D.108', 'D.112', 'D.123', 'D.127', 'D.131',
+            'D.132', 'D.140', 'D.147', 'D.150', 'D.195', 'D.213', 'D.215', 'D.231',
+            'D.237', 'D.248', 'D.258', 'D.280', 'D.288', 'D.298', 'S.004', 'S.018',
+            'S.062', 'S.063', 'S.067', 'S.068', 'S.070', 'S.071', 'S.222', 'S.223',
+            'S.224', 'S.225', 'S.226', 'S.228', 'S.229', 'S.231', 'S.232', 'S.234',
+            'S.235', 'S.236', 'S.237', 'S.239', 'S.244', 'S.246', 'S.247', 'S.248',
+            'S.251', 'S.253', 'S.255', 'S.256', 'S.257', 'S.258', 'S.259', 'S.260',
+            'S.261', 'S.267', 'S.268', 'S.269', 'S.270', 'S.271', 'S.272', 'S.275',
+            'S.276', 'S.277', 'S.279', 'S.280', 'S.281', 'S.282', 'S.286', 'S.287',
+            'S.289', 'S.290', 'S.293', 'S.294', 'S.296', 'S.297', 'S.298', 'S.299',
+            'S.300', 'S.301', 'S.302', 'S.303', 'S.304', 'S.305', 'S.316', 'S.315',
+            'S.312', 'S.311', 'S.310', 'S.308', 'S.307', 'S.327', 'S.326', 'S.325',
+            'S.323', 'S.322', 'S.321', 'S.318', 'S.332', 'S.330', 'S.354', 'S.349',
+            'S.348', 'S.347', 'S.346', 'S.345', 'S.344', 'S.342', 'S.336', 'S.335',
+            'S.366', 'S.363', 'S.361', 'S.360', 'S.359', 'S.358', 'S.357', 'S.356',
+            'S.353', 'S.341', 'S.338', 'S.331']), np.array(['S.367', 'S.365', 'S.329', 'S.317', 'S.328'])))
+        mask_cutoffs = np.concatenate((np.array([6500]*132), np.array([6566, 6569, 6598, 6566, 6597])))
+        for ap_name, mask_ii in zip(AP_names, mask_cutoffs):
+            ii = np.where(ap_name == AP_all)[0][0]
+            x_test = x0/(1.0 + ZSPEC_all[ii])
+            tmpidx = np.where((x_test >= mask_ii))[0]
+            grid_ndarr[ii][tmpidx] = np.zeros(np.shape(grid_ndarr[ii][tmpidx]))
+        #endfor
+    #endif
 
     pyfits.writeto(full_path+'Spectra/spectral_'+version+'_grid.fits', grid_ndarr,
                    clobber=True)
@@ -198,6 +271,7 @@ for version in ['MMT','Keck']:
     hdr.append(('CDELT1', cdelt_avg))
     hdr.append(('CRVAL1', min(grid_col)))
     hdr.append(('CRPIX1', 1))
+    hdr.append(('CTYPE1', 'LINEAR'))
     pyfits.writeto(full_path+'Spectra/spectral_'+version+'_grid.fits', grid_ndarr,
                    header=hdr,clobber=True)
     
