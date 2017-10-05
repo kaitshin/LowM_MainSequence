@@ -14,7 +14,6 @@ OUTPUTS:
 """
 
 import numpy as np
-from scipy.interpolate import interp1d
 from stack_data import stack
 def stack_data(ndarr, zspec, index, x0, xmin, xmax, ff='', instr='', AP_rows=[]):   
     '''
