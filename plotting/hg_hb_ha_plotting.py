@@ -18,7 +18,6 @@ def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0,
     '''
     ax.text(0.03,0.97,label,transform=ax.transAxes,fontsize=7,ha='left',
             va='top')
-    
     if num%3!=2:
         ax.text(0.97,0.97,'flux='+'{:.3f}'.format((pos_flux/1E-17))+
             '\nflux_corr='+'{:.3f}'.format((flux/1E-17))+
@@ -59,9 +58,19 @@ def subplots_plotting(ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, to
     Plots all the spectra for the subplots for Hg/Hb/Ha. Also calculates
     and returns fluxes and equations of best fit.
     '''
+    # within range
     good_ii = np.array([x for x in range(len(xval)) if xval[x] >= xmin0 and xval[x] <= xmax0])
     xval = xval[good_ii]
     yval = yval[good_ii]
+
+    # not NaN
+    good_ii = [ii for ii in range(len(yval)) if not np.isnan(yval[ii])]
+    xval = xval[good_ii]
+    yval = yval[good_ii]
+
+    if len(yval) == 0:
+        return ax, 0, 0, 0, 0, np.array([0]*7)
+
     ax.plot(xval, yval/1E-17, zorder=2)
     
     flux = 0
