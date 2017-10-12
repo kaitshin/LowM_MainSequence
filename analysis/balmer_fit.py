@@ -85,9 +85,6 @@ def get_best_fit(xval, yval, label):
 
     Ha absorption spectra
     '''
-    good_ii = [ii for ii in range(len(yval)) if not np.isnan(yval[ii])]
-    xval = xval[good_ii]
-    yval = yval[good_ii]
     med0 = get_baseline_median(xval, yval, label)
     err = np.repeat(1.0e-18, len(xval))
     p0 = [np.max(yval)-med0, xval[np.argmax(yval)], 1.10, med0]
@@ -100,7 +97,7 @@ def get_best_fit(xval, yval, label):
 def get_best_fit2(xval, yval, peakxval, label):
     '''
     Uses scipy.optimize.curve_fit() to obtain the best fit of the spectra
-    which is then returned
+    which is then returned (around the Ha line)
 
     NII 6548 (6548.1 A)
 
@@ -125,13 +122,13 @@ def get_best_fit3(xval, yval, label):
     yval = yval/1e-17
     med0 = get_baseline_median(xval, yval, label)
     err = np.repeat(1.0e-18, len(xval))
-    p0 = [np.max(yval)-med0, xval[np.argmax(yval)], 1.10,
-          -0.05*(np.max(yval)-med0), xval[np.argmax(yval)], 2.20, med0]
+    p0 = [np.max(yval)-med0, xval[np.argmax(yval)], 1.10, -0.05*(np.max(yval)-med0), xval[np.argmax(yval)], 2.20, med0]
 
-    param_bounds = ((0, xval[np.argmax(yval)]-3, 0, -med0, xval[np.argmax(yval)]-3, 0, med0-0.05*med0),
-        (1e-15/1e-17, xval[np.argmax(yval)]+3, 10, 0, xval[np.argmax(yval)]+3, 10, med0+0.05*med0))
+    param_bounds = ((0, xval[np.argmax(yval)]-3, 0, -0.1*np.max(yval), xval[np.argmax(yval)]-3, 0, med0-0.05*np.abs(med0)),
+        (1e-15/1e-17, xval[np.argmax(yval)]+3, 10, 0, xval[np.argmax(yval)]+3, 10, med0+0.05*np.abs(med0)))
 
     o1,o2 = optimization.curve_fit(func3, xval, yval, p0, err, bounds=param_bounds)
+
     o1[0] *= 1e-17
     o1[3] *= 1e-17
     o1[6] *= 1e-17
