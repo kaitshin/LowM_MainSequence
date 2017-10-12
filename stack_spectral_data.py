@@ -133,99 +133,118 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassin
             continue
         #endif
 
-        try:
-            xval, yval, len_input_index, stacked_indexes, minz, maxz = stack_data(grid_ndarr, gridz, input_index,
-                x0, 3700, 6700, ff=subtitle, instr='MMT')
-            num_sources.append(len_input_index[0])
-            num_bad_NB921_sources.append(len_input_index[1])
-            minz_arr.append(minz)
-            maxz_arr.append(maxz)
-
-            # appending to the ID columns
-            mm0 = [x for x in range(len(AP)) if any(y in AP[x][:5] for y in gridap[stacked_indexes[0]])] # gridap ordering -> NBIA ordering
-            IDs_arr.append(','.join(NAME0[mm0]))
-            mm1 = [x for x in range(len(AP)) if any(y in AP[x][:5] for y in gridap[stacked_indexes[1]])] # gridap ordering -> NBIA ordering
-            if len(mm1)==0:
-                IDs_bad_NB921_sources.append('N/A')
-            else:
-                IDs_bad_NB921_sources.append(','.join(NAME0[mm1]))
-            #endif
-
-            # writing the spectra table
-            table0 = Table([xval, yval/1E-17], names=['xval','yval/1E-17'])
-            if bintype=='Redshift':
-                spectra_file_path = full_path+'Composite_Spectra/'+bintype+'/MMT_spectra_vals/'+subtitle+'.txt'
+        xval, yval, len_input_index, stacked_indexes, minz, maxz = stack_data(grid_ndarr, gridz, input_index,
+            x0, 3700, 6700, ff=subtitle, instr='MMT')
+        if (len_input_index[0]-len_input_index[1]) < 0: # more masked sources than sources exist? unphysical...
+            print 'stuff is weird...'
+            [arr.append(0) for arr in table_arrays]
+            num_sources.append(0)
+            num_bad_NB921_sources.append(0)
+            minz_arr.append(0)
+            maxz_arr.append(0)
+            spectra_file_path_arr.append('N/A')
+            IDs_arr.append('N/A')
+            IDs_bad_NB921_sources.append('N/A')
+            if bintype=='Redshift': 
                 stlrmass_bin_arr.append('N/A')
                 avg_stlrmass_arr.append(0)
-            elif bintype=='StellarMassZ':
-                spectra_file_path = full_path+'Composite_Spectra/'+bintype+'/MMT_spectra_vals/'+title[10:]+'_'+subtitle+'.txt'
+            elif bintype=='StellarMassZ': 
                 stlrmass_bin_arr.append(title[10:])
                 avg_stlrmass_arr.append(np.mean(stlr_mass[stlrmassindex0]))
-            #endif
-            asc.write(table0, spectra_file_path, format='fixed_width', delimiter=' ')
-            spectra_file_path_arr.append(spectra_file_path)
-            
-            # calculating flux for NII emissions
-            zs = np.array(gridz[input_index])
-            if subtitle=='NB704' or subtitle=='NB711':
-                good_z = np.where(zs < 0.1)[0]
-            elif subtitle=='NB816':
-                good_z = np.where(zs < 0.3)[0]
-            elif subtitle=='NB921':
-                good_z = np.where(zs < 0.6)[0]
-            else:
-                good_z = np.where(zs < 0.6)[0]
-            #endif
-            zs = np.average(zs[good_z])
-            dlambda = (x0[1]-x0[0])/(1+zs)
-
-            pos_flux_list = []
-            flux_list = []
-            pos_amplitude_list = []
-            neg_amplitude_list = []
-            pos_sigma_list = []
-            neg_sigma_list = []
-            median_list = []
             for i in range(3):
-                xmin0 = xmin_list[i]
-                xmax0 = xmax_list[i]
-                ax = ax_list[subplot_index+i]
+                ax = ax_list[subplot_index]
                 label = label_list[i]
-                try:
-                    ax, flux, flux2, flux3, pos_flux, o1 = MMT_plotting.subplots_plotting(
-                        ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, tol)
-                    pos_flux_list.append(pos_flux)
-                    flux_list.append(flux)
-                except SyntaxError:
-                    continue
-                finally:
-                    (ew, ew_emission, ew_absorption, median, pos_amplitude, 
-                        neg_amplitude) = MMT_twriting.Hg_Hb_Ha_tables(label, flux, 
-                        o1, xval, pos_flux, dlambda)
-                    table_arrays = general_twriting.table_arr_appends(i, subtitle,
-                        table_arrays, flux, flux2, flux3, ew, ew_emission, ew_absorption, 
-                        median, pos_amplitude, neg_amplitude, 'MMT')
-                    if not (subtitle=='NB973' and i==2):
-                        pos_amplitude_list.append(pos_amplitude)
-                        neg_amplitude_list.append(neg_amplitude)
-                        pos_sigma_list.append(o1[2])
-                        if i==2:
-                            neg_sigma_list.append(0)
-                        else:
-                            neg_sigma_list.append(o1[5])
-                        median_list.append(median)
-                    else:
-                        pos_amplitude_list.append(0)
-                        neg_amplitude_list.append(0)
-                        pos_sigma_list.append(0)
-                        neg_sigma_list.append(0)
-                        median_list.append(0)
-                    #endif
-            #endfor
+                MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index)
+                subplot_index += 1
+            continue
+        #endif
 
-        except ValueError:
-            print 'ValueError: none exist'
-        #endtry
+        num_sources.append(len_input_index[0])
+        num_bad_NB921_sources.append(len_input_index[1])
+        minz_arr.append(minz)
+        maxz_arr.append(maxz)
+
+        # appending to the ID columns
+        mm0 = [x for x in range(len(AP)) if any(y in AP[x][:5] for y in gridap[stacked_indexes[0]])] # gridap ordering -> NBIA ordering
+        IDs_arr.append(','.join(NAME0[mm0]))
+        mm1 = [x for x in range(len(AP)) if any(y in AP[x][:5] for y in gridap[stacked_indexes[1]])] # gridap ordering -> NBIA ordering
+        if len(mm1)==0:
+            IDs_bad_NB921_sources.append('N/A')
+        else:
+            IDs_bad_NB921_sources.append(','.join(NAME0[mm1]))
+        #endif
+
+        # writing the spectra table
+        table0 = Table([xval, yval/1E-17], names=['xval','yval/1E-17'])
+        if bintype=='Redshift':
+            spectra_file_path = full_path+'Composite_Spectra/'+bintype+'/MMT_spectra_vals/'+subtitle+'.txt'
+            stlrmass_bin_arr.append('N/A')
+            avg_stlrmass_arr.append(0)
+        elif bintype=='StellarMassZ':
+            spectra_file_path = full_path+'Composite_Spectra/'+bintype+'/MMT_spectra_vals/'+title[10:]+'_'+subtitle+'.txt'
+            stlrmass_bin_arr.append(title[10:])
+            avg_stlrmass_arr.append(np.mean(stlr_mass[stlrmassindex0]))
+        #endif
+        asc.write(table0, spectra_file_path, format='fixed_width', delimiter=' ')
+        spectra_file_path_arr.append(spectra_file_path)
+        
+        # calculating flux for NII emissions
+        zs = np.array(gridz[input_index])
+        if subtitle=='NB704' or subtitle=='NB711':
+            good_z = np.where(zs < 0.1)[0]
+        elif subtitle=='NB816':
+            good_z = np.where(zs < 0.3)[0]
+        elif subtitle=='NB921':
+            good_z = np.where(zs < 0.6)[0]
+        else:
+            good_z = np.where(zs < 0.6)[0]
+        #endif
+        zs = np.average(zs[good_z])
+        dlambda = (x0[1]-x0[0])/(1+zs)
+
+        pos_flux_list = []
+        flux_list = []
+        pos_amplitude_list = []
+        neg_amplitude_list = []
+        pos_sigma_list = []
+        neg_sigma_list = []
+        median_list = []
+        break_flag = False
+        for i in range(3):
+            xmin0 = xmin_list[i]
+            xmax0 = xmax_list[i]
+            ax = ax_list[subplot_index+i]
+            label = label_list[i]
+
+            ax, flux, flux2, flux3, pos_flux, o1 = MMT_plotting.subplots_plotting(
+                ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, tol)
+            pos_flux_list.append(pos_flux)
+            flux_list.append(flux)
+
+            (ew, ew_emission, ew_absorption, median, pos_amplitude, 
+                neg_amplitude) = MMT_twriting.Hg_Hb_Ha_tables(label, flux, 
+                o1, xval, pos_flux, dlambda)
+            table_arrays = general_twriting.table_arr_appends(i, subtitle,
+                table_arrays, flux, flux2, flux3, ew, ew_emission, ew_absorption, 
+                median, pos_amplitude, neg_amplitude, 'MMT')
+            if not (subtitle=='NB973' and i==2):
+                pos_amplitude_list.append(pos_amplitude)
+                neg_amplitude_list.append(neg_amplitude)
+                median_list.append(median)
+                pos_sigma_list.append(o1[2])
+                if i==2:
+                    neg_sigma_list.append(0)
+                else:
+                    neg_sigma_list.append(o1[5])
+            else:
+                pos_amplitude_list.append(0)
+                neg_amplitude_list.append(0)
+                pos_sigma_list.append(0)
+                neg_sigma_list.append(0)
+                median_list.append(0)
+            #endif
+        #endfor
+        if break_flag: break
         
         for i in range(3):
             if subplot_index==11:
@@ -940,9 +959,9 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr, fill_value=np.nan)
 
 print '### plotting MMT_Ha'
-plot_MMT_Ha()
+# plot_MMT_Ha()
 # plot_MMT_Ha_stlrmass()
-# plot_MMT_Ha_stlrmass_z()
+plot_MMT_Ha_stlrmass_z()
 grid.close()
 
 print '### looking at the Keck grid'
