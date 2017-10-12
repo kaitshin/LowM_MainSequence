@@ -563,98 +563,94 @@ def plot_Keck_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassi
             continue
         #endif
 
-        try:
-            xval, yval, len_input_index, stacked_indexes, minz, maxz = stack_data(grid_ndarr, gridz, input_index,
-                x0, 3800, 6700, ff=subtitle)
-            num_sources.append(len_input_index[0])
-            minz_arr.append(minz)
-            maxz_arr.append(maxz)
-            
-            # appending to the ID columns
-            tempgridapstacked_ii = [str(y) for y in gridap[stacked_indexes[0]]]
-            mm0 = []
-            for x in range(len(AP)):
-                for y in tempgridapstacked_ii:
-                    if len(y)==5: 
-                        y = '0'+y
-                    if y in AP[x][6:]:
-                        mm0.append(x)
-            #endfor
-            IDs_arr.append(','.join(NAME0[mm0]))
-            
-            # writing the spectra table
-            table0 = Table([xval, yval/1E-17], names=['xval','yval/1E-17'])
-            if bintype=='Redshift':
-                spectra_file_path = full_path+'Composite_Spectra/'+bintype+'/Keck_spectra_vals/'+subtitle+'.txt'
-                stlrmass_bin_arr.append('N/A')
-                avg_stlrmass_arr.append(0)
-            elif bintype=='StellarMassZ':
-                spectra_file_path = full_path+'Composite_Spectra/'+bintype+'/Keck_spectra_vals/'+title[10:]+'_'+subtitle+'.txt'
-                stlrmass_bin_arr.append(title[10:])
-                avg_stlrmass_arr.append(np.mean(stlr_mass[stlrmassindex0]))
-            #endif
-            asc.write(table0, spectra_file_path, format='fixed_width', delimiter=' ')
-            spectra_file_path_arr.append(spectra_file_path)
+        xval, yval, len_input_index, stacked_indexes, minz, maxz = stack_data(grid_ndarr, gridz, input_index,
+            x0, 3800, 6700, ff=subtitle)
+        num_sources.append(len_input_index[0])
+        minz_arr.append(minz)
+        maxz_arr.append(maxz)
+        
+        # appending to the ID columns
+        tempgridapstacked_ii = [str(y) for y in gridap[stacked_indexes[0]]]
+        mm0 = []
+        for x in range(len(AP)):
+            for y in tempgridapstacked_ii:
+                if len(y)==5: 
+                    y = '0'+y
+                if y in AP[x][6:]:
+                    mm0.append(x)
+        #endfor
+        IDs_arr.append(','.join(NAME0[mm0]))
+        
+        # writing the spectra table
+        table0 = Table([xval, yval/1E-17], names=['xval','yval/1E-17'])
+        if bintype=='Redshift':
+            spectra_file_path = full_path+'Composite_Spectra/'+bintype+'/Keck_spectra_vals/'+subtitle+'.txt'
+            stlrmass_bin_arr.append('N/A')
+            avg_stlrmass_arr.append(0)
+        elif bintype=='StellarMassZ':
+            spectra_file_path = full_path+'Composite_Spectra/'+bintype+'/Keck_spectra_vals/'+title[10:]+'_'+subtitle+'.txt'
+            stlrmass_bin_arr.append(title[10:])
+            avg_stlrmass_arr.append(np.mean(stlr_mass[stlrmassindex0]))
+        #endif
+        asc.write(table0, spectra_file_path, format='fixed_width', delimiter=' ')
+        spectra_file_path_arr.append(spectra_file_path)
 
-            # calculating flux for NII emissions
-            zs = np.array(gridz[input_index])
-            if subtitle=='NB816':
-                good_z = np.where(zs < 0.3)[0]
-            elif subtitle=='NB921':
-                good_z = np.where(zs < 0.6)[0]
+        # calculating flux for NII emissions
+        zs = np.array(gridz[input_index])
+        if subtitle=='NB816':
+            good_z = np.where(zs < 0.3)[0]
+        elif subtitle=='NB921':
+            good_z = np.where(zs < 0.6)[0]
+        else:
+            good_z = np.where(zs < 0.6)[0]
+        #endif
+        zs = np.average(zs[good_z])
+        dlambda = (x0[1]-x0[0])/(1+zs)
+
+        pos_flux_list = []
+        flux_list = []
+        pos_amplitude_list = []
+        neg_amplitude_list = []
+        pos_sigma_list = []
+        neg_sigma_list = []
+        median_list = []
+        for i in range(2):
+            xmin0 = xmin_list[i]
+            xmax0 = xmax_list[i]
+            ax = ax_list[subplot_index+i]
+            label = label_list[i]
+            try:
+                ax, flux, flux2, flux3, pos_flux, o1 = Keck_plotting.subplots_plotting(
+                    ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, tol, subplot_index+i)
+                pos_flux_list.append(pos_flux)
+                flux_list.append(flux)
+            except ValueError:
+                print 'ValueError??'
+                continue
             else:
-                good_z = np.where(zs < 0.6)[0]
-            #endif
-            zs = np.average(zs[good_z])
-            dlambda = (x0[1]-x0[0])/(1+zs)
-
-            pos_flux_list = []
-            flux_list = []
-            pos_amplitude_list = []
-            neg_amplitude_list = []
-            pos_sigma_list = []
-            neg_sigma_list = []
-            median_list = []
-            for i in range(2):
-                xmin0 = xmin_list[i]
-                xmax0 = xmax_list[i]
-                ax = ax_list[subplot_index+i]
-                label = label_list[i]
-                try:
-                    ax, flux, flux2, flux3, pos_flux, o1 = Keck_plotting.subplots_plotting(
-                        ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, tol, subplot_index+i)
-                    pos_flux_list.append(pos_flux)
-                    flux_list.append(flux)
-                except ValueError:
-                    print 'ValueError??'
-                    continue
-                else:
-                    (ew, ew_emission, ew_absorption, median, pos_amplitude, 
-                        neg_amplitude) = Keck_twriting.Hb_Ha_tables(label, subtitle, flux, 
-                        o1, xval, pos_flux, dlambda)
-                    table_arrays = general_twriting.table_arr_appends(i, subtitle,
-                        table_arrays, flux, flux2, flux3, ew, ew_emission, ew_absorption, 
-                        median, pos_amplitude, neg_amplitude, 'Keck')
-                    if not (subtitle=='NB816' and i==0):
-                        pos_amplitude_list.append(pos_amplitude)
-                        neg_amplitude_list.append(neg_amplitude)
-                        pos_sigma_list.append(o1[2])
-                        if i==0:
-                            neg_sigma_list.append(o1[5])
-                        else:
-                            neg_sigma_list.append(0)
-                        median_list.append(median)
+                (ew, ew_emission, ew_absorption, median, pos_amplitude, 
+                    neg_amplitude) = Keck_twriting.Hb_Ha_tables(label, subtitle, flux, 
+                    o1, xval, pos_flux, dlambda)
+                table_arrays = general_twriting.table_arr_appends(i, subtitle,
+                    table_arrays, flux, flux2, flux3, ew, ew_emission, ew_absorption, 
+                    median, pos_amplitude, neg_amplitude, 'Keck')
+                if not (subtitle=='NB816' and i==0):
+                    pos_amplitude_list.append(pos_amplitude)
+                    neg_amplitude_list.append(neg_amplitude)
+                    pos_sigma_list.append(o1[2])
+                    if i==0:
+                        neg_sigma_list.append(o1[5])
                     else:
-                        pos_amplitude_list.append(0)
-                        neg_amplitude_list.append(0)
-                        pos_sigma_list.append(0)
                         neg_sigma_list.append(0)
-                        median_list.append(0)
-                    #endif
-            #endfor
-            
-        except SyntaxError:
-            print 'ValueError: none exist'
+                    median_list.append(median)
+                else:
+                    pos_amplitude_list.append(0)
+                    neg_amplitude_list.append(0)
+                    pos_sigma_list.append(0)
+                    neg_sigma_list.append(0)
+                    median_list.append(0)
+                #endif
+        #endfor
         
         for i in range(2):
             label = label_list[i] + ' ('+str(len_input_index[0])+')'
@@ -739,87 +735,83 @@ def plot_Keck_Ha_stlrmass():
         
         input_index = np.array([x for x in range(len(gridap)) if gridap[x] in
                                 AP_match],dtype=np.int32)
-        try:
-            subtitle='stlrmass: '+str(min(stlr_mass[match_index]))+'-'+str(max(stlr_mass[match_index]))
-            print '>>>', subtitle
-            avg_stlrmass_arr.append(np.mean(stlr_mass[match_index]))
-            xval, yval, len_input_index, stacked_indexes, minz, maxz = stack_data(grid_ndarr, gridz, input_index,
-                x0, 3800, 6700)
-            num_sources.append(len_input_index[0])
-            minz_arr.append(minz)
-            maxz_arr.append(maxz)
-            stlrmass_bin_arr.append(subtitle[10:])
 
-            # appending to the ID columns
-            tempgridapstacked_ii = [str(y) for y in gridap[stacked_indexes[0]]]
-            mm0 = []
-            for x in range(len(AP)):
-                for y in tempgridapstacked_ii:
-                    if len(y)==5: 
-                        y = '0'+y
-                    if y in AP[x][6:]:
-                        mm0.append(x)
-            #endfor
-            IDs_arr.append(','.join(NAME0[mm0]))
+        subtitle='stlrmass: '+str(min(stlr_mass[match_index]))+'-'+str(max(stlr_mass[match_index]))
+        print '>>>', subtitle
+        avg_stlrmass_arr.append(np.mean(stlr_mass[match_index]))
+        xval, yval, len_input_index, stacked_indexes, minz, maxz = stack_data(grid_ndarr, gridz, input_index,
+            x0, 3800, 6700)
+        num_sources.append(len_input_index[0])
+        minz_arr.append(minz)
+        maxz_arr.append(maxz)
+        stlrmass_bin_arr.append(subtitle[10:])
 
-            # writing the spectra table
-            table0 = Table([xval, yval/1E-17], names=['xval','yval/1E-17'])
-            spectra_file_path = full_path+'Composite_Spectra/StellarMass/Keck_spectra_vals/'+subtitle[10:]+'.txt'
-            asc.write(table0, spectra_file_path,
-                format='fixed_width', delimiter=' ')
-            spectra_file_path_arr.append(spectra_file_path)
+        # appending to the ID columns
+        tempgridapstacked_ii = [str(y) for y in gridap[stacked_indexes[0]]]
+        mm0 = []
+        for x in range(len(AP)):
+            for y in tempgridapstacked_ii:
+                if len(y)==5: 
+                    y = '0'+y
+                if y in AP[x][6:]:
+                    mm0.append(x)
+        #endfor
+        IDs_arr.append(','.join(NAME0[mm0]))
 
-            # calculating flux for NII emissions
-            dlambda = xval[1] - xval[0]
+        # writing the spectra table
+        table0 = Table([xval, yval/1E-17], names=['xval','yval/1E-17'])
+        spectra_file_path = full_path+'Composite_Spectra/StellarMass/Keck_spectra_vals/'+subtitle[10:]+'.txt'
+        asc.write(table0, spectra_file_path,
+            format='fixed_width', delimiter=' ')
+        spectra_file_path_arr.append(spectra_file_path)
 
-            pos_flux_list = []
-            flux_list = []
-            pos_amplitude_list = []
-            neg_amplitude_list = []
-            pos_sigma_list = []
-            neg_sigma_list = []
-            median_list = []
-            for i in range(2):
-                xmin0 = xmin_list[i]
-                xmax0 = xmax_list[i]
-                ax = ax_list[subplot_index+i]
-                label = label_list[i]
-                try:
-                    ax, flux, flux2, flux3, pos_flux, o1 = Keck_plotting.subplots_plotting(
-                        ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, tol, subplot_index+i)
-                    pos_flux_list.append(pos_flux)
-                    flux_list.append(flux)
-                except ValueError:
-                    continue
-                finally:
-                    (ew, ew_emission, ew_absorption, median, pos_amplitude, 
-                      neg_amplitude) = Keck_twriting.Hb_Ha_tables(label, subtitle, flux, 
-                      o1, xval, pos_flux, dlambda)
-                    table_arrays = general_twriting.table_arr_appends(i, subtitle,
-                      table_arrays, flux, flux2, flux3, ew, ew_emission, ew_absorption, 
-                      median, pos_amplitude, neg_amplitude, 'Keck')
-                    if not (subtitle=='NB816' and i==0):
-                        pos_amplitude_list.append(pos_amplitude)
-                        neg_amplitude_list.append(neg_amplitude)
-                        pos_sigma_list.append(o1[2])
-                        if i==0:
-                            neg_sigma_list.append(o1[5])
-                        else:
-                            neg_sigma_list.append(0)
-                        median_list.append(median)
+        # calculating flux for NII emissions
+        dlambda = xval[1] - xval[0]
+
+        pos_flux_list = []
+        flux_list = []
+        pos_amplitude_list = []
+        neg_amplitude_list = []
+        pos_sigma_list = []
+        neg_sigma_list = []
+        median_list = []
+        for i in range(2):
+            xmin0 = xmin_list[i]
+            xmax0 = xmax_list[i]
+            ax = ax_list[subplot_index+i]
+            label = label_list[i]
+            try:
+                ax, flux, flux2, flux3, pos_flux, o1 = Keck_plotting.subplots_plotting(
+                    ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, tol, subplot_index+i)
+                pos_flux_list.append(pos_flux)
+                flux_list.append(flux)
+            except ValueError:
+                continue
+            finally:
+                (ew, ew_emission, ew_absorption, median, pos_amplitude, 
+                  neg_amplitude) = Keck_twriting.Hb_Ha_tables(label, subtitle, flux, 
+                  o1, xval, pos_flux, dlambda)
+                table_arrays = general_twriting.table_arr_appends(i, subtitle,
+                  table_arrays, flux, flux2, flux3, ew, ew_emission, ew_absorption, 
+                  median, pos_amplitude, neg_amplitude, 'Keck')
+                if not (subtitle=='NB816' and i==0):
+                    pos_amplitude_list.append(pos_amplitude)
+                    neg_amplitude_list.append(neg_amplitude)
+                    pos_sigma_list.append(o1[2])
+                    if i==0:
+                        neg_sigma_list.append(o1[5])
                     else:
-                        pos_amplitude_list.append(0)
-                        neg_amplitude_list.append(0)
-                        pos_sigma_list.append(0)
                         neg_sigma_list.append(0)
-                        median_list.append(0)
-                    #endif
-                #endtry
-            #endfor
-
-        except ValueError:
-            print 'ValueError: none exist'
-        #endtry
+                    median_list.append(median)
+                else:
+                    pos_amplitude_list.append(0)
+                    neg_amplitude_list.append(0)
+                    pos_sigma_list.append(0)
+                    neg_sigma_list.append(0)
+                    median_list.append(0)
+                #endif
+            #endtry
+        #endfor
 
         for i in range(2):
             label = label_list[i] + ' ('+str(len_input_index[0])+')'
@@ -955,9 +947,9 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr, fill_value=np.nan)
 
 print '### plotting MMT_Ha'
-# plot_MMT_Ha()
+plot_MMT_Ha()
 plot_MMT_Ha_stlrmass()
-# plot_MMT_Ha_stlrmass_z()
+plot_MMT_Ha_stlrmass_z()
 grid.close()
 
 print '### looking at the Keck grid'
@@ -981,9 +973,9 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 
 print '### plotting Keck_Ha'
-# plot_Keck_Ha()
-# plot_Keck_Ha_stlrmass()
-# plot_Keck_Ha_stlrmass_z()
+plot_Keck_Ha()
+plot_Keck_Ha_stlrmass()
+plot_Keck_Ha_stlrmass_z()
 grid.close()
 
 nbia.close()
