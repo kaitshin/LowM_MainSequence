@@ -255,8 +255,8 @@ for version in ['MMT','Keck']:
             'S.323', 'S.322', 'S.321', 'S.318', 'S.332', 'S.330', 'S.354', 'S.349',
             'S.348', 'S.347', 'S.346', 'S.345', 'S.344', 'S.342', 'S.336', 'S.335',
             'S.366', 'S.363', 'S.361', 'S.360', 'S.359', 'S.358', 'S.357', 'S.356',
-            'S.353', 'S.341', 'S.338', 'S.331']), np.array(['S.367', 'S.365', 'S.329', 'S.317', 'S.328'])))
-        mask_cutoffs = np.concatenate((np.array([6500]*132), np.array([6566, 6569, 6598, 6566, 6597])))
+            'S.353', 'S.341', 'S.338', 'S.331', 'S.263', 'S.264', 'S.274', 'S.285', 'S.309', 'S.317', 'S.364', 'S.365', 'S.367']), np.array(['S.329', 'S.328', 'S.273', 'S.313'])))
+        mask_cutoffs = np.concatenate((np.array([6500]*141), np.array([6598, 6597, 6571, 6567])))
         for ap_name, mask_ii in zip(AP_names, mask_cutoffs):
             ii = np.where(ap_name == AP_all)[0][0]
             x_test = x0/(1.0 + ZSPEC_all[ii])
