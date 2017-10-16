@@ -24,8 +24,6 @@ def stack(ndarr_in, zspec_in, index, x0, xmin, xmax, ff=''):
     x_rest   = np.arange(xmin, xmax, 0.1)
     new_grid = np.ndarray(shape=(len(ndarr), len(x_rest)))
     
-    masked_spectra_len = 0
-    num_maskednb921 = 0
     masked_index = []
     minz = min(x for x in zspec if x > 0)
     maxz = max(x for x in zspec if x < 9)
@@ -35,19 +33,9 @@ def stack(ndarr_in, zspec_in, index, x0, xmin, xmax, ff=''):
         # normalizing
         spec_test = ndarr[row_num]
 
-        # counts the completely masked elements of the array
-        if len(np.where(np.isnan(spec_test))[0]) == len(ndarr[row_num]):
-            masked_spectra_len += 1
-
         # interpolating a function for rest-frame wavelength and normalized y
         x_test = x0/(1.0+zspec[row_num])
         f = interp1d(x_test, spec_test, bounds_error=False, fill_value=np.nan)
-
-        # counts the completely masked elements of the nb921 spectrum
-        if ff == 'NB921':
-            nb921ii = np.where(x_test > 6500)[0]
-            if len(np.where(np.isnan(spec_test[nb921ii]))[0]) == len(nb921ii):
-                num_maskednb921 += 1
 
         # finding the new rest-frame wavelength values from the interpolation
         # and putting them into the 'new grid'
@@ -58,5 +46,5 @@ def stack(ndarr_in, zspec_in, index, x0, xmin, xmax, ff=''):
     # taking the average, column by column to 'stack'
     plot_grid_avg = np.nanmean(new_grid, axis=0)
 
-    return x_rest, plot_grid_avg, [len(index)-masked_spectra_len, num_maskednb921], [index, masked_index], minz, maxz
+    return x_rest, plot_grid_avg, [index, masked_index], minz, maxz, new_grid
 #enddef

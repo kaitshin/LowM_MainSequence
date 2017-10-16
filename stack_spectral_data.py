@@ -85,6 +85,8 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassin
     
     The fluxes are also output to a separate .txt file.
     '''
+    if index_list == []:
+        print '>MMT REDSHIFT STACKING'
     table_arrays = ([], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [])
     (HG_flux, HB_flux, HA_flux, NII_6548_flux, NII_6583_flux,
         HG_EW, HB_EW, HA_EW, HG_EW_corr, HB_EW_corr, HA_EW_corr,
@@ -224,10 +226,11 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassin
         if break_flag: break
         
         for i in range(3):
-            if subplot_index==11:
-                label = label_list[i] + ' ('+str(len_input_index[0]-len_input_index[1])+')'
-            else:
-                label = label_list[i] + ' ('+str(len_input_index[0])+')'
+            label = label_list[i] + ' ('+str(len_input_index[i])+')'
+            # if subplot_index==11:
+            #     label = label_list[i] + ' ('+str(len_input_index[0]-len_input_index[1])+')'
+            # else:
+            #     label = label_list[i] + ' ('+str(len_input_index[0])+')'
             ax = ax_list[subplot_index]
             try:
                 pos_flux = pos_flux_list[i]
@@ -258,15 +261,15 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassin
     plt.close()
 
     table00 = Table([subtitle_list, stlrmass_bin_arr, num_sources, num_bad_NB921_sources, minz_arr, maxz_arr, 
-        avg_stlrmass_arr, IDs_arr, IDs_bad_NB921_sources, spectra_file_path_arr, HG_flux, HB_flux, HA_flux, NII_6548_flux, 
+        avg_stlrmass_arr, HG_flux, HB_flux, HA_flux, NII_6548_flux, 
         NII_6583_flux, HG_EW, HB_EW, HA_EW, HG_EW_corr, HB_EW_corr, HA_EW_corr, HG_EW_abs, HB_EW_abs,
         HG_continuum, HB_continuum, HA_continuum, HG_pos_amplitude, HB_pos_amplitude, HA_pos_amplitude,
-        HG_neg_amplitude, HB_neg_amplitude], 
+        HG_neg_amplitude, HB_neg_amplitude, IDs_arr, IDs_bad_NB921_sources, spectra_file_path_arr], 
         names=['filter', 'stlrmass_bin', 'num_sources', 'num_bad_MMT_Halpha_NB921', 'minz', 'maxz',
-        'avg_stlrmass', 'IDs', 'IDs_bad_NB921_sources', 'spectra_file_path', 'HG_flux', 'HB_flux', 'HA_flux', 'NII_6548_flux', 
+        'avg_stlrmass', 'HG_flux', 'HB_flux', 'HA_flux', 'NII_6548_flux', 
         'NII_6583_flux', 'HG_EW', 'HB_EW', 'HA_EW', 'HG_EW_corr', 'HB_EW_corr', 'HA_EW_corr', 'HG_EW_abs', 'HB_EW_abs',
         'HG_continuum', 'HB_continuum', 'HA_continuum', 'HG_pos_amplitude', 'HB_pos_amplitude', 'HA_pos_amplitude',
-        'HG_neg_amplitude', 'HB_neg_amplitude'])
+        'HG_neg_amplitude', 'HB_neg_amplitude', 'IDs', 'IDs_bad_NB921_sources', 'spectra_file_path'])
     if pp != None: return pp, table00
 
     asc.write(table00, full_path+'Composite_Spectra/Redshift/MMT_stacked_spectra_data.txt',
@@ -283,6 +286,7 @@ def plot_MMT_Ha_stlrmass():
         (file name from the command line -- flag to read the stellar mass bins from that ASCII file)
     TODO(get rid of assumption that there's only one page)
     '''
+    print '>MMT STELLARMASS STACKING'
     table_arrays = ([], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [])
     (HG_flux, HB_flux, HA_flux, NII_6548_flux, NII_6583_flux,
         HG_EW, HB_EW, HA_EW, HG_EW_corr, HB_EW_corr, HA_EW_corr,
@@ -313,7 +317,7 @@ def plot_MMT_Ha_stlrmass():
         print '>>>', subtitle
         avg_stlrmass_arr.append(np.mean(stlr_mass[match_index]))
         xval, yval, len_input_index, stacked_indexes, minz, maxz = stack_data(grid_ndarr, gridz, input_index,
-            x0, 3700, 6700)
+            x0, 3700, 6700, instr='MMT')
         num_sources.append(len_input_index[0])
         num_bad_NB921_sources.append(len_input_index[1])
         minz_arr.append(minz)
@@ -386,7 +390,7 @@ def plot_MMT_Ha_stlrmass():
         #endfor
         
         for i in range(3):
-            label = label_list[i] + ' ('+str(len_input_index[0])+')'
+            label = label_list[i] + ' ('+str(len_input_index[i])+')'
             ax = ax_list[subplot_index]
             try:
                 pos_flux = pos_flux_list[i]
@@ -411,15 +415,15 @@ def plot_MMT_Ha_stlrmass():
     subtitle_list = np.array(['all']*len(subtitle_list))
 
     table00 = Table([subtitle_list, stlrmass_bin_arr, num_sources, num_bad_NB921_sources, minz_arr, maxz_arr, 
-        avg_stlrmass_arr, IDs_arr, IDs_bad_NB921_sources, spectra_file_path_arr, HG_flux, HB_flux, HA_flux, NII_6548_flux, 
+        avg_stlrmass_arr, HG_flux, HB_flux, HA_flux, NII_6548_flux, 
         NII_6583_flux, HG_EW, HB_EW, HA_EW, HG_EW_corr, HB_EW_corr, HA_EW_corr, HG_EW_abs, HB_EW_abs,
         HG_continuum, HB_continuum, HA_continuum, HG_pos_amplitude, HB_pos_amplitude, HA_pos_amplitude,
-        HG_neg_amplitude, HB_neg_amplitude], 
+        HG_neg_amplitude, HB_neg_amplitude, IDs_arr, IDs_bad_NB921_sources, spectra_file_path_arr], 
         names=['filter', 'stlrmass_bin', 'num_sources', 'num_bad_MMT_Halpha_NB921', 'minz', 'maxz',
-        'avg_stlrmass', 'IDs', 'IDs_bad_NB921_sources', 'spectra_file_path', 'HG_flux', 'HB_flux', 'HA_flux', 'NII_6548_flux', 
+        'avg_stlrmass', 'HG_flux', 'HB_flux', 'HA_flux', 'NII_6548_flux', 
         'NII_6583_flux', 'HG_EW', 'HB_EW', 'HA_EW', 'HG_EW_corr', 'HB_EW_corr', 'HA_EW_corr', 'HG_EW_abs', 'HB_EW_abs',
         'HG_continuum', 'HB_continuum', 'HA_continuum', 'HG_pos_amplitude', 'HB_pos_amplitude', 'HA_pos_amplitude',
-        'HG_neg_amplitude', 'HB_neg_amplitude'])
+        'HG_neg_amplitude', 'HB_neg_amplitude', 'IDs', 'IDs_bad_NB921_sources', 'spectra_file_path'])
     asc.write(table00, full_path+'Composite_Spectra/StellarMass/MMT_all_five_data.txt',
         format='fixed_width_two_line', delimiter=' ')
 
@@ -434,6 +438,7 @@ def plot_MMT_Ha_stlrmass_z():
     TODO(generalize stellar mass binning functionality?)
     TODO(implement flexible file-naming)
     '''
+    print '>MMT STELLARMASS+REDSHIFT STACKING'
     stlrmass_index_list = general_plotting.get_index_list2(stlr_mass, inst_str0, inst_dict, 'MMT')
     pp = PdfPages(full_path+'Composite_Spectra/StellarMassZ/MMT_two_percbins.pdf')
     table00 = None
@@ -495,6 +500,8 @@ def plot_Keck_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassi
 
     The fluxes are also output to a separate .txt file.
     '''
+    if index_list == []:
+        print '>KECK REDSHIFT STACKING'
     table_arrays = ([], [], [], [], [], [], [], [], [], [], [], [], [], [])
     (HB_flux, HA_flux, NII_6548_flux, NII_6583_flux, HB_EW, HA_EW, HB_EW_corr, HA_EW_corr,
         HB_EW_abs, HB_continuum, HA_continuum, HB_pos_amplitude, HA_pos_amplitude,
@@ -540,7 +547,7 @@ def plot_Keck_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassi
         #endif
 
         xval, yval, len_input_index, stacked_indexes, minz, maxz = stack_data(grid_ndarr, gridz, input_index,
-            x0, 3800, 6700, ff=subtitle)
+            x0, 3800, 6700, ff=subtitle, instr='Keck')
         num_sources.append(len_input_index[0])
         minz_arr.append(minz)
         maxz_arr.append(maxz)
@@ -629,7 +636,7 @@ def plot_Keck_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassi
         #endfor
         
         for i in range(2):
-            label = label_list[i] + ' ('+str(len_input_index[0])+')'
+            label = label_list[i] + ' ('+str(len_input_index[i])+')'
             ax = ax_list[subplot_index]
             try:
                 pos_flux = pos_flux_list[i]
@@ -661,15 +668,15 @@ def plot_Keck_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassi
     plt.close()
 
     table00 = Table([subtitle_list, stlrmass_bin_arr, num_sources, minz_arr, maxz_arr, 
-        avg_stlrmass_arr, IDs_arr, spectra_file_path_arr, HB_flux, HA_flux, NII_6548_flux, 
+        avg_stlrmass_arr, HB_flux, HA_flux, NII_6548_flux, 
         NII_6583_flux, HB_EW, HA_EW, HB_EW_corr, HA_EW_corr, HB_EW_abs,
         HB_continuum, HA_continuum, HB_pos_amplitude, HA_pos_amplitude,
-        HB_neg_amplitude], 
+        HB_neg_amplitude, IDs_arr, spectra_file_path_arr], 
         names=['filter', 'stlrmass_bin', 'num_sources', 'minz', 'maxz',
-        'avg_stlrmass', 'IDs', 'spectra_file_path', 'HB_flux', 'HA_flux', 'NII_6548_flux', 
+        'avg_stlrmass', 'HB_flux', 'HA_flux', 'NII_6548_flux', 
         'NII_6583_flux', 'HB_EW', 'HA_EW', 'HB_EW_corr', 'HA_EW_corr', 'HB_EW_abs',
         'HB_continuum', 'HA_continuum', 'HB_pos_amplitude', 'HA_pos_amplitude',
-        'HB_neg_amplitude'])
+        'HB_neg_amplitude', 'IDs', 'spectra_file_path'])
 
     if pp != None: return pp, table00
     asc.write(table00, full_path+'Composite_Spectra/Redshift/Keck_stacked_spectra_data.txt',
@@ -686,6 +693,7 @@ def plot_Keck_Ha_stlrmass():
         (file name from the command line -- flag to read the stellar mass bins from that ASCII file)
     TODO(get rid of assumption that there's only one page)
     '''
+    print '>KECK STELLARMASS STACKING'
     table_arrays = ([], [], [], [], [], [], [], [], [], [], [], [], [], [])
     (HB_flux, HA_flux, NII_6548_flux, NII_6583_flux, HB_EW, HA_EW, HB_EW_corr, HA_EW_corr,
         HB_EW_abs, HB_continuum, HA_continuum, HB_pos_amplitude, HA_pos_amplitude,
@@ -715,7 +723,7 @@ def plot_Keck_Ha_stlrmass():
         print '>>>', subtitle
         avg_stlrmass_arr.append(np.mean(stlr_mass[match_index]))
         xval, yval, len_input_index, stacked_indexes, minz, maxz = stack_data(grid_ndarr, gridz, input_index,
-            x0, 3800, 6700)
+            x0, 3800, 6700, instr='Keck')
         num_sources.append(len_input_index[0])
         minz_arr.append(minz)
         maxz_arr.append(maxz)
@@ -789,7 +797,7 @@ def plot_Keck_Ha_stlrmass():
         #endfor
 
         for i in range(2):
-            label = label_list[i] + ' ('+str(len_input_index[0])+')'
+            label = label_list[i] + ' ('+str(len_input_index[i])+')'
             ax = ax_list[subplot_index]
             try:
                 pos_flux = pos_flux_list[i]
@@ -814,15 +822,15 @@ def plot_Keck_Ha_stlrmass():
     subtitle_list = np.array(['all']*len(stlrmass_bin_arr))
 
     table00 = Table([subtitle_list, stlrmass_bin_arr, num_sources, minz_arr, maxz_arr, 
-        avg_stlrmass_arr, IDs_arr, spectra_file_path_arr, HB_flux, HA_flux, NII_6548_flux, 
+        avg_stlrmass_arr, HB_flux, HA_flux, NII_6548_flux, 
         NII_6583_flux, HB_EW, HA_EW, HB_EW_corr, HA_EW_corr, HB_EW_abs,
         HB_continuum, HA_continuum, HB_pos_amplitude, HA_pos_amplitude,
-        HB_neg_amplitude], 
+        HB_neg_amplitude, IDs_arr, spectra_file_path_arr], 
         names=['filter', 'stlrmass_bin', 'num_sources', 'minz', 'maxz',
-        'avg_stlrmass', 'IDs', 'spectra_file_path', 'HB_flux', 'HA_flux', 'NII_6548_flux', 
+        'avg_stlrmass', 'HB_flux', 'HA_flux', 'NII_6548_flux', 
         'NII_6583_flux', 'HB_EW', 'HA_EW', 'HB_EW_corr', 'HA_EW_corr', 'HB_EW_abs',
         'HB_continuum', 'HA_continuum', 'HB_pos_amplitude', 'HA_pos_amplitude',
-        'HB_neg_amplitude'])
+        'HB_neg_amplitude', 'IDs', 'spectra_file_path'])
     asc.write(table00, full_path+'Composite_Spectra/StellarMass/Keck_all_five_data.txt',
             format='fixed_width_two_line', delimiter=' ')
 
@@ -837,6 +845,7 @@ def plot_Keck_Ha_stlrmass_z():
     TODO(generalize stellar mass binning functionality?)
     TODO(implement flexible file-naming)
     '''
+    print '>KECK STELLARMASS+REDSHIFT STACKING'
     stlrmass_index_list = general_plotting.get_index_list2(stlr_mass, inst_str0, inst_dict, 'Keck')
     pp = PdfPages(full_path+'Composite_Spectra/StellarMassZ/Keck_five_percbins.pdf')
     table00 = None
@@ -922,8 +931,8 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr, fill_value=np.nan)
 
 print '### plotting MMT_Ha'
-# plot_MMT_Ha()
-# plot_MMT_Ha_stlrmass()
+plot_MMT_Ha()
+plot_MMT_Ha_stlrmass()
 plot_MMT_Ha_stlrmass_z()
 grid.close()
 
@@ -948,9 +957,9 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 
 print '### plotting Keck_Ha'
-# plot_Keck_Ha()
-# plot_Keck_Ha_stlrmass()
-# plot_Keck_Ha_stlrmass_z()
+plot_Keck_Ha()
+plot_Keck_Ha_stlrmass()
+plot_Keck_Ha_stlrmass_z()
 grid.close()
 
 nbia.close()
