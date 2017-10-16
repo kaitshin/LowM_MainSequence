@@ -135,29 +135,6 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassin
 
         xval, yval, len_input_index, stacked_indexes, minz, maxz = stack_data(grid_ndarr, gridz, input_index,
             x0, 3700, 6700, ff=subtitle, instr='MMT')
-        if (len_input_index[0]-len_input_index[1]) < 0: # more masked sources than sources exist? unphysical...
-            print 'stuff is weird...'
-            [arr.append(0) for arr in table_arrays]
-            num_sources.append(0)
-            num_bad_NB921_sources.append(0)
-            minz_arr.append(0)
-            maxz_arr.append(0)
-            spectra_file_path_arr.append('N/A')
-            IDs_arr.append('N/A')
-            IDs_bad_NB921_sources.append('N/A')
-            if bintype=='Redshift': 
-                stlrmass_bin_arr.append('N/A')
-                avg_stlrmass_arr.append(0)
-            elif bintype=='StellarMassZ': 
-                stlrmass_bin_arr.append(title[10:])
-                avg_stlrmass_arr.append(np.mean(stlr_mass[stlrmassindex0]))
-            for i in range(3):
-                ax = ax_list[subplot_index]
-                label = label_list[i]
-                MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index)
-                subplot_index += 1
-            continue
-        #endif
 
         num_sources.append(len_input_index[0])
         num_bad_NB921_sources.append(len_input_index[1])
@@ -305,7 +282,6 @@ def plot_MMT_Ha_stlrmass():
         (number n from the command line -- make n bins by percentile)
         (file name from the command line -- flag to read the stellar mass bins from that ASCII file)
     TODO(get rid of assumption that there's only one page)
-    TODO(add in the flux/EW/full spectra ASCII table writing code)
     '''
     table_arrays = ([], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [])
     (HG_flux, HB_flux, HA_flux, NII_6548_flux, NII_6583_flux,
@@ -709,7 +685,6 @@ def plot_Keck_Ha_stlrmass():
         (number n from the command line -- make n bins by percentile)
         (file name from the command line -- flag to read the stellar mass bins from that ASCII file)
     TODO(get rid of assumption that there's only one page)
-    TODO(add in the flux/EW/full spectra ASCII table writing code)
     '''
     table_arrays = ([], [], [], [], [], [], [], [], [], [], [], [], [], [])
     (HB_flux, HA_flux, NII_6548_flux, NII_6583_flux, HB_EW, HA_EW, HB_EW_corr, HA_EW_corr,
@@ -947,8 +922,8 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr, fill_value=np.nan)
 
 print '### plotting MMT_Ha'
-plot_MMT_Ha()
-plot_MMT_Ha_stlrmass()
+# plot_MMT_Ha()
+# plot_MMT_Ha_stlrmass()
 plot_MMT_Ha_stlrmass_z()
 grid.close()
 
@@ -973,9 +948,9 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 
 print '### plotting Keck_Ha'
-plot_Keck_Ha()
-plot_Keck_Ha_stlrmass()
-plot_Keck_Ha_stlrmass_z()
+# plot_Keck_Ha()
+# plot_Keck_Ha_stlrmass()
+# plot_Keck_Ha_stlrmass_z()
 grid.close()
 
 nbia.close()
