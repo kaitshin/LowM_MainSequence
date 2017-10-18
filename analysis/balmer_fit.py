@@ -9,6 +9,7 @@ PURPOSE:
 
 import numpy as np, math
 import scipy.optimize as optimization
+from astropy.stats import sigma_clipped_stats
 
 def find_nearest(array,value):
     '''
@@ -29,26 +30,26 @@ def get_baseline_median(xval, yval, label):
     emission peaks
     '''
     if 'gamma' in label:
-        peak_l = find_nearest(xval, 4341-5)
-        peak_r = find_nearest(xval, 4341+5)
+        peak_l = find_nearest(xval, 4341-8)
+        peak_r = find_nearest(xval, 4341+8)
 
         temparr = np.concatenate([yval[:peak_l], yval[peak_r:]], axis=0)
         return np.median(temparr)
     if 'beta' in label:
-        peak_l = find_nearest(xval, 4861-5)
-        peak_r = find_nearest(xval, 4861+5)
+        peak_l = find_nearest(xval, 4861-8)
+        peak_r = find_nearest(xval, 4861+8)
 
         temparr = np.concatenate([yval[:peak_l], yval[peak_r:]], axis=0)
         return np.median(temparr)
     if 'alpha' in label:
-        nii_1l = find_nearest(xval, 6548.1-3)
-        nii_1r = find_nearest(xval, 6548.1+3)
+        nii_1l = find_nearest(xval, 6548.1-5)
+        nii_1r = find_nearest(xval, 6548.1+5)
 
-        peak_l = find_nearest(xval, 6563-5)
-        peak_r = find_nearest(xval, 6563+5)
+        peak_l = find_nearest(xval, 6563-8)
+        peak_r = find_nearest(xval, 6563+8)
 
-        nii_2l = find_nearest(xval, 6583.6-3)
-        nii_2r = find_nearest(xval, 6583.6+3)
+        nii_2l = find_nearest(xval, 6583.6-5)
+        nii_2r = find_nearest(xval, 6583.6+5)
 
         temparr = np.concatenate([yval[:nii_1l], yval[nii_1r:peak_l],
                                   yval[peak_r:nii_2l], yval[nii_2r:]], axis=0)
