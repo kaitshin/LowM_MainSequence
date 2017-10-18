@@ -33,7 +33,7 @@ def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0,
         ymaxval = max(ax.get_ylim())
         [a.set_ylim(ymax=ymaxval) for a in ax_list[num-1:num]]
         ax.text(0.97,0.97,'flux='+'{:.3f}'.format((pos_flux/1E-17))+
-            '\nA'+r'$+$'+'='+'{:.3f}'.format((pos_amp))+
+            '\nA'+r'$+$'+'='+'{:.3f}'.format((pos_amp/1E-17))+
             '\n'+r'$\sigma+$'+'='+'{:.3f}'.format((pos_sigma))+
             '\ncontinuum='+'{:.3f}'.format((continuum/1E-17)),
             transform=ax.transAxes,fontsize=5,ha='right',va='top')
