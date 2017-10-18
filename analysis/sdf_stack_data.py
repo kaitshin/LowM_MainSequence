@@ -61,15 +61,15 @@ def stack_data(ndarr, zspec, index, x0, xmin, xmax, ff='', instr=''):
             ma = np.isnan(new_grid)
             new_grid2 = np.ma.array(new_grid, mask=ma)
             x_rest = np.arange(xmin, xmax, 0.1)
-            idx0 = (np.abs(x_rest-4341.0)).argmin()
-            idx1 = (np.abs(x_rest-4861.0)).argmin()
-            good_hg_num = np.ma.count(new_grid2, axis=0)[idx0]
-            good_hb_num = np.ma.count(new_grid2, axis=0)[idx1]
+            idx0 = (np.abs(x_rest-4861.0)).argmin()
+            idx1 = (np.abs(x_rest-6563.0)).argmin()
+            good_hb_num = np.ma.count(new_grid2, axis=0)[idx0]
+            good_ha_num = np.ma.count(new_grid2, axis=0)[idx1]
 
-            return x_rest, plot_grid_avg, [good_hg_num, good_hb_num], [index, masked_index], minz, maxz
+            return x_rest, plot_grid_avg, [good_hb_num, good_ha_num], [index, masked_index], minz, maxz
         #endif
     # this is stacking data in stlrmass
-    else:
+    else: # instr == 'Keck'
         x_rest, plot_grid_avg, [index, masked_index], minz, maxz, new_grid = stack(ndarr, 
             zspec, index, x0, xmin, xmax)
 
@@ -77,15 +77,15 @@ def stack_data(ndarr, zspec, index, x0, xmin, xmax, ff='', instr=''):
         ma = np.isnan(new_grid)
         new_grid2 = np.ma.array(new_grid, mask=ma)
         x_rest = np.arange(xmin, xmax, 0.1)
-        idx0 = (np.abs(x_rest-4341.0)).argmin()
-        idx1 = (np.abs(x_rest-4861.0)).argmin()
-        good_hg_num = np.ma.count(new_grid2, axis=0)[idx0]
-        good_hb_num = np.ma.count(new_grid2, axis=0)[idx1]
+        idx0 = (np.abs(x_rest-4861.0)).argmin()
+        idx1 = (np.abs(x_rest-6563.0)).argmin()
+        good_hb_num = np.ma.count(new_grid2, axis=0)[idx0]
+        good_ha_num = np.ma.count(new_grid2, axis=0)[idx1]
 
         if instr=='MMT':
-            idx2 = (np.abs(x_rest-6563.0)).argmin()
-            good_ha_num = np.ma.count(new_grid2, axis=0)[idx2]
+            idx2 = (np.abs(x_rest-4341.0)).argmin()
+            good_hg_num = np.ma.count(new_grid2, axis=0)[idx2]
             return x_rest, plot_grid_avg, [good_hg_num, good_hb_num, good_ha_num], [index, masked_index], minz, maxz
         else:
-            return x_rest, plot_grid_avg, [good_hg_num, good_hb_num], [index, masked_index], minz, maxz
+            return x_rest, plot_grid_avg, [good_hb_num, good_ha_num], [index, masked_index], minz, maxz
 #enddef
