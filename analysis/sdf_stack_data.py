@@ -38,7 +38,7 @@ def stack_data(ndarr, zspec, index, x0, xmin, xmax, ff='', instr=''):
         if instr=='MMT':
             # to help mask MMT NB921 Halpha sources
             # return stack(ndarr, zspec, index[good_z], x0, xmin, xmax, ff=ff)
-            x_rest, plot_grid_avg, index, minz, maxz, new_grid = stack(ndarr, 
+            x_rest, plot_grid_avg, index, avgz, minz, maxz, new_grid = stack(ndarr, 
                 zspec, index[good_z], x0, xmin, xmax, ff=ff)
 
             # looks for # sources stacked @ nearest emission line by finding nearest idx 
@@ -52,9 +52,9 @@ def stack_data(ndarr, zspec, index, x0, xmin, xmax, ff='', instr=''):
             good_hb_num = np.ma.count(new_grid2, axis=0)[idx1]
             good_ha_num = np.ma.count(new_grid2, axis=0)[idx2]
 
-            return x_rest, plot_grid_avg, [good_hg_num, good_hb_num, good_ha_num], index, minz, maxz
+            return x_rest, plot_grid_avg, [good_hg_num, good_hb_num, good_ha_num], index, avgz, minz, maxz
         else:
-            x_rest, plot_grid_avg, index, minz, maxz, new_grid = stack(ndarr, 
+            x_rest, plot_grid_avg, index, avgz, minz, maxz, new_grid = stack(ndarr, 
                 zspec, index[good_z], x0, xmin, xmax)
 
             # looks for # sources stacked @ nearest emission line by finding nearest idx 
@@ -66,11 +66,11 @@ def stack_data(ndarr, zspec, index, x0, xmin, xmax, ff='', instr=''):
             good_hb_num = np.ma.count(new_grid2, axis=0)[idx0]
             good_ha_num = np.ma.count(new_grid2, axis=0)[idx1]
 
-            return x_rest, plot_grid_avg, [good_hb_num, good_ha_num], index, minz, maxz
+            return x_rest, plot_grid_avg, [good_hb_num, good_ha_num], index, avgz, minz, maxz
         #endif
     # this is stacking data in stlrmass
     else: # instr == 'Keck'
-        x_rest, plot_grid_avg, index, minz, maxz, new_grid = stack(ndarr, 
+        x_rest, plot_grid_avg, index, avgz, minz, maxz, new_grid = stack(ndarr, 
             zspec, index, x0, xmin, xmax)
 
         # looks for # sources stacked @ nearest emission line by finding nearest idx 
@@ -85,7 +85,7 @@ def stack_data(ndarr, zspec, index, x0, xmin, xmax, ff='', instr=''):
         if instr=='MMT':
             idx2 = (np.abs(x_rest-4341.0)).argmin()
             good_hg_num = np.ma.count(new_grid2, axis=0)[idx2]
-            return x_rest, plot_grid_avg, [good_hg_num, good_hb_num, good_ha_num], index, minz, maxz
+            return x_rest, plot_grid_avg, [good_hg_num, good_hb_num, good_ha_num], index, avgz, minz, maxz
         else:
-            return x_rest, plot_grid_avg, [good_hb_num, good_ha_num], index, minz, maxz
+            return x_rest, plot_grid_avg, [good_hb_num, good_ha_num], index, avgz, minz, maxz
 #enddef

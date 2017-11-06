@@ -24,6 +24,7 @@ def stack(ndarr_in, zspec_in, index, x0, xmin, xmax, ff=''):
     x_rest   = np.arange(xmin, xmax, 0.1)
     new_grid = np.ndarray(shape=(len(ndarr), len(x_rest)))
     
+    avgz = np.mean([x for x in zspec if (x > 0 and x < 9)])
     minz = min(x for x in zspec if x > 0)
     maxz = max(x for x in zspec if x < 9)
     print '### zspec:', minz, maxz
@@ -45,5 +46,5 @@ def stack(ndarr_in, zspec_in, index, x0, xmin, xmax, ff=''):
     # taking the average, column by column to 'stack'
     plot_grid_avg = np.nanmean(new_grid, axis=0)
 
-    return x_rest, plot_grid_avg, index, minz, maxz, new_grid
+    return x_rest, plot_grid_avg, index, avgz, minz, maxz, new_grid
 #enddef
