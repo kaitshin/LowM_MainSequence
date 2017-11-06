@@ -255,12 +255,12 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassin
         avg_stlrmass_arr, HG_flux, HB_flux, HA_flux, NII_6548_flux, 
         NII_6583_flux, HG_EW, HB_EW, HA_EW, HG_EW_corr, HB_EW_corr, HA_EW_corr, HG_EW_abs, HB_EW_abs,
         HG_continuum, HB_continuum, HA_continuum, HG_pos_amplitude, HB_pos_amplitude, HA_pos_amplitude,
-        HG_neg_amplitude, HB_neg_amplitude, IDs_arr], 
+        HG_neg_amplitude, HB_neg_amplitude], # IDs_arr
         names=['filter', 'stlrmass_bin', 'num_sources', 'num_bad_MMT_Halpha_NB921', 'minz', 'maxz',
         'avg_stlrmass', 'HG_flux', 'HB_flux', 'HA_flux', 'NII_6548_flux', 
         'NII_6583_flux', 'HG_EW', 'HB_EW', 'HA_EW', 'HG_EW_corr', 'HB_EW_corr', 'HA_EW_corr', 'HG_EW_abs', 'HB_EW_abs',
         'HG_continuum', 'HB_continuum', 'HA_continuum', 'HG_pos_amplitude', 'HB_pos_amplitude', 'HA_pos_amplitude',
-        'HG_neg_amplitude', 'HB_neg_amplitude', 'IDs'])
+        'HG_neg_amplitude', 'HB_neg_amplitude']) # IDs
     if pp != None: return pp, table00
 
     asc.write(table00, full_path+'Composite_Spectra/Redshift/MMT_stacked_spectra_data.txt',
@@ -402,12 +402,12 @@ def plot_MMT_Ha_stlrmass():
         avg_stlrmass_arr, HG_flux, HB_flux, HA_flux, NII_6548_flux, 
         NII_6583_flux, HG_EW, HB_EW, HA_EW, HG_EW_corr, HB_EW_corr, HA_EW_corr, HG_EW_abs, HB_EW_abs,
         HG_continuum, HB_continuum, HA_continuum, HG_pos_amplitude, HB_pos_amplitude, HA_pos_amplitude,
-        HG_neg_amplitude, HB_neg_amplitude, IDs_arr],
+        HG_neg_amplitude, HB_neg_amplitude], # IDs_arr
         names=['filter', 'stlrmass_bin', 'num_sources', 'num_bad_MMT_Halpha_NB921', 'minz', 'maxz',
         'avg_stlrmass', 'HG_flux', 'HB_flux', 'HA_flux', 'NII_6548_flux', 
         'NII_6583_flux', 'HG_EW', 'HB_EW', 'HA_EW', 'HG_EW_corr', 'HB_EW_corr', 'HA_EW_corr', 'HG_EW_abs', 'HB_EW_abs',
         'HG_continuum', 'HB_continuum', 'HA_continuum', 'HG_pos_amplitude', 'HB_pos_amplitude', 'HA_pos_amplitude',
-        'HG_neg_amplitude', 'HB_neg_amplitude', 'IDs'])
+        'HG_neg_amplitude', 'HB_neg_amplitude']) # IDs
     asc.write(table00, full_path+'Composite_Spectra/StellarMass/MMT_all_five_data.txt',
         format='fixed_width_two_line', delimiter=' ')
 
@@ -653,12 +653,12 @@ def plot_Keck_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassi
         avg_stlrmass_arr, HB_flux, HA_flux, NII_6548_flux, 
         NII_6583_flux, HB_EW, HA_EW, HB_EW_corr, HA_EW_corr, HB_EW_abs,
         HB_continuum, HA_continuum, HB_pos_amplitude, HA_pos_amplitude,
-        HB_neg_amplitude, IDs_arr], 
+        HB_neg_amplitude], # IDs_arr
         names=['filter', 'stlrmass_bin', 'num_sources', 'minz', 'maxz',
         'avg_stlrmass', 'HB_flux', 'HA_flux', 'NII_6548_flux', 
         'NII_6583_flux', 'HB_EW', 'HA_EW', 'HB_EW_corr', 'HA_EW_corr', 'HB_EW_abs',
         'HB_continuum', 'HA_continuum', 'HB_pos_amplitude', 'HA_pos_amplitude',
-        'HB_neg_amplitude', 'IDs'])
+        'HB_neg_amplitude']) # IDs
 
     if pp != None: return pp, table00
     asc.write(table00, full_path+'Composite_Spectra/Redshift/Keck_stacked_spectra_data.txt',
@@ -806,12 +806,12 @@ def plot_Keck_Ha_stlrmass():
         avg_stlrmass_arr, HB_flux, HA_flux, NII_6548_flux, 
         NII_6583_flux, HB_EW, HA_EW, HB_EW_corr, HA_EW_corr, HB_EW_abs,
         HB_continuum, HA_continuum, HB_pos_amplitude, HA_pos_amplitude,
-        HB_neg_amplitude, IDs_arr], 
+        HB_neg_amplitude], # IDs_arr
         names=['filter', 'stlrmass_bin', 'num_sources', 'minz', 'maxz',
         'avg_stlrmass', 'HB_flux', 'HA_flux', 'NII_6548_flux', 
         'NII_6583_flux', 'HB_EW', 'HA_EW', 'HB_EW_corr', 'HA_EW_corr', 'HB_EW_abs',
         'HB_continuum', 'HA_continuum', 'HB_pos_amplitude', 'HA_pos_amplitude',
-        'HB_neg_amplitude', 'IDs'])
+        'HB_neg_amplitude']) # 'IDs'
     asc.write(table00, full_path+'Composite_Spectra/StellarMass/Keck_all_five_data.txt',
             format='fixed_width_two_line', delimiter=' ')
 
