@@ -95,7 +95,7 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassin
         HG_neg_amplitude, HB_neg_amplitude) = table_arrays
     (num_sources, num_bad_NB921_sources, minz_arr, maxz_arr,
         stlrmass_bin_arr, avg_stlrmass_arr,
-        IDs_arr, IDs_bad_NB921_sources) = ([], [], [], [], [], [], [], [])
+        IDs_arr) = ([], [], [], [], [], [], [])
     if index_list == []:
         index_list = general_plotting.get_index_list(NAME0, inst_str0, inst_dict, 'MMT')
     (xmin_list, xmax_list, label_list, 
@@ -119,7 +119,6 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassin
             minz_arr.append(0)
             maxz_arr.append(0)
             IDs_arr.append('N/A')
-            IDs_bad_NB921_sources.append('N/A')
             if bintype=='Redshift': 
                 stlrmass_bin_arr.append('N/A')
                 avg_stlrmass_arr.append(0)
@@ -143,14 +142,8 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassin
         maxz_arr.append(maxz)
 
         # appending to the ID columns
-        mm0 = [x for x in range(len(AP)) if any(y in AP[x][:5] for y in gridap[stacked_indexes[0]])] # gridap ordering -> NBIA ordering
+        mm0 = [x for x in range(len(AP)) if any(y in AP[x][:5] for y in gridap[stacked_indexes])] # gridap ordering -> NBIA ordering
         IDs_arr.append(','.join(NAME0[mm0]))
-        mm1 = [x for x in range(len(AP)) if any(y in AP[x][:5] for y in gridap[stacked_indexes[1]])] # gridap ordering -> NBIA ordering
-        if len(mm1)==0:
-            IDs_bad_NB921_sources.append('N/A')
-        else:
-            IDs_bad_NB921_sources.append(','.join(NAME0[mm1]))
-        #endif
 
         # writing the spectra table
         table0 = Table([xval, yval/1E-17], names=['xval','yval/1E-17'])
@@ -262,12 +255,12 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassin
         avg_stlrmass_arr, HG_flux, HB_flux, HA_flux, NII_6548_flux, 
         NII_6583_flux, HG_EW, HB_EW, HA_EW, HG_EW_corr, HB_EW_corr, HA_EW_corr, HG_EW_abs, HB_EW_abs,
         HG_continuum, HB_continuum, HA_continuum, HG_pos_amplitude, HB_pos_amplitude, HA_pos_amplitude,
-        HG_neg_amplitude, HB_neg_amplitude, IDs_arr, IDs_bad_NB921_sources], 
+        HG_neg_amplitude, HB_neg_amplitude, IDs_arr], 
         names=['filter', 'stlrmass_bin', 'num_sources', 'num_bad_MMT_Halpha_NB921', 'minz', 'maxz',
         'avg_stlrmass', 'HG_flux', 'HB_flux', 'HA_flux', 'NII_6548_flux', 
         'NII_6583_flux', 'HG_EW', 'HB_EW', 'HA_EW', 'HG_EW_corr', 'HB_EW_corr', 'HA_EW_corr', 'HG_EW_abs', 'HB_EW_abs',
         'HG_continuum', 'HB_continuum', 'HA_continuum', 'HG_pos_amplitude', 'HB_pos_amplitude', 'HA_pos_amplitude',
-        'HG_neg_amplitude', 'HB_neg_amplitude', 'IDs', 'IDs_bad_NB921_sources'])
+        'HG_neg_amplitude', 'HB_neg_amplitude', 'IDs'])
     if pp != None: return pp, table00
 
     asc.write(table00, full_path+'Composite_Spectra/Redshift/MMT_stacked_spectra_data.txt',
@@ -293,7 +286,7 @@ def plot_MMT_Ha_stlrmass():
         HG_neg_amplitude, HB_neg_amplitude) = table_arrays
     (num_sources, num_bad_NB921_sources, minz_arr, maxz_arr,
         stlrmass_bin_arr, avg_stlrmass_arr,
-        IDs_arr, IDs_bad_NB921_sources) = ([], [], [], [], [], [], [], [])
+        IDs_arr) = ([], [], [], [], [], [], [])
     index_list = general_plotting.get_index_list2(stlr_mass, inst_str0, inst_dict, 'MMT')
     (xmin_list, xmax_list, label_list, 
         subtitle_list) = general_plotting.get_iter_lists('MMT')
@@ -323,14 +316,8 @@ def plot_MMT_Ha_stlrmass():
         stlrmass_bin_arr.append(subtitle[10:])
 
         # appending to the ID columns
-        mm0 = [x for x in range(len(AP)) if any(y in AP[x][:5] for y in gridap[stacked_indexes[0]])] # gridap ordering -> NBIA ordering
+        mm0 = [x for x in range(len(AP)) if any(y in AP[x][:5] for y in gridap[stacked_indexes])] # gridap ordering -> NBIA ordering
         IDs_arr.append(','.join(NAME0[mm0]))
-        mm1 = [x for x in range(len(AP)) if any(y in AP[x][:5] for y in gridap[stacked_indexes[1]])] # gridap ordering -> NBIA ordering
-        if len(mm1)==0:
-            IDs_bad_NB921_sources.append('N/A')
-        else:
-            IDs_bad_NB921_sources.append(','.join(NAME0[mm1]))
-        #endif
 
         # writing the spectra table
         table0 = Table([xval, yval/1E-17], names=['xval','yval/1E-17'])
@@ -415,12 +402,12 @@ def plot_MMT_Ha_stlrmass():
         avg_stlrmass_arr, HG_flux, HB_flux, HA_flux, NII_6548_flux, 
         NII_6583_flux, HG_EW, HB_EW, HA_EW, HG_EW_corr, HB_EW_corr, HA_EW_corr, HG_EW_abs, HB_EW_abs,
         HG_continuum, HB_continuum, HA_continuum, HG_pos_amplitude, HB_pos_amplitude, HA_pos_amplitude,
-        HG_neg_amplitude, HB_neg_amplitude, IDs_arr, IDs_bad_NB921_sources], 
+        HG_neg_amplitude, HB_neg_amplitude, IDs_arr],
         names=['filter', 'stlrmass_bin', 'num_sources', 'num_bad_MMT_Halpha_NB921', 'minz', 'maxz',
         'avg_stlrmass', 'HG_flux', 'HB_flux', 'HA_flux', 'NII_6548_flux', 
         'NII_6583_flux', 'HG_EW', 'HB_EW', 'HA_EW', 'HG_EW_corr', 'HB_EW_corr', 'HA_EW_corr', 'HG_EW_abs', 'HB_EW_abs',
         'HG_continuum', 'HB_continuum', 'HA_continuum', 'HG_pos_amplitude', 'HB_pos_amplitude', 'HA_pos_amplitude',
-        'HG_neg_amplitude', 'HB_neg_amplitude', 'IDs', 'IDs_bad_NB921_sources'])
+        'HG_neg_amplitude', 'HB_neg_amplitude', 'IDs'])
     asc.write(table00, full_path+'Composite_Spectra/StellarMass/MMT_all_five_data.txt',
         format='fixed_width_two_line', delimiter=' ')
 
@@ -549,7 +536,7 @@ def plot_Keck_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassi
         maxz_arr.append(maxz)
         
         # appending to the ID columns
-        tempgridapstacked_ii = [str(y) for y in gridap[stacked_indexes[0]]]
+        tempgridapstacked_ii = [str(y) for y in gridap[stacked_indexes]]
         mm0 = []
         for x in range(len(AP)):
             for y in tempgridapstacked_ii:
@@ -725,7 +712,7 @@ def plot_Keck_Ha_stlrmass():
         stlrmass_bin_arr.append(subtitle[10:])
 
         # appending to the ID columns
-        tempgridapstacked_ii = [str(y) for y in gridap[stacked_indexes[0]]]
+        tempgridapstacked_ii = [str(y) for y in gridap[stacked_indexes]]
         mm0 = []
         for x in range(len(AP)):
             for y in tempgridapstacked_ii:
