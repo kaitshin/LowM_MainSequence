@@ -93,9 +93,9 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassin
         HG_EW_abs, HB_EW_abs, HG_continuum, HB_continuum, HA_continuum,
         HG_pos_amplitude, HB_pos_amplitude, HA_pos_amplitude,
         HG_neg_amplitude, HB_neg_amplitude) = table_arrays
-    (num_sources, num_bad_NB921_sources, avgz_arr, minz_arr, maxz_arr,
+    (num_sources, num_bad_NB921_sources, num_stack_HG, num_stack_HB, num_stack_HA, avgz_arr, minz_arr, maxz_arr,
         stlrmass_bin_arr, avg_stlrmass_arr, min_stlrmass_arr, max_stlrmass_arr,
-        IDs_arr) = ([], [], [], [], [], [], [], [], [], [])
+        IDs_arr) = ([], [], [], [], [], [], [], [], [], [], [], [], [])
     if index_list == []:
         index_list = general_plotting.get_index_list(NAME0, inst_str0, inst_dict, 'MMT')
     (xmin_list, xmax_list, label_list, 
@@ -116,6 +116,9 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassin
             [arr.append(0) for arr in table_arrays]
             num_sources.append(0)
             num_bad_NB921_sources.append(0)
+            num_stack_HG.append(0)
+            num_stack_HB.append(0)
+            num_stack_HA.append(0)
             avgz_arr.append(0)
             minz_arr.append(0)
             maxz_arr.append(0)
@@ -228,10 +231,13 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassin
         
         for i in range(3):
             label = label_list[i] + ' ('+str(len_input_index[i])+')'
-            # if subplot_index==11:
-            #     label = label_list[i] + ' ('+str(len_input_index[0]-len_input_index[1])+')'
-            # else:
-            #     label = label_list[i] + ' ('+str(len_input_index[0])+')'
+            if i == 0:
+                num_stack_HG = np.append(num_stack_HG, int(len_input_index[i]))
+            elif i == 1:
+                num_stack_HB = np.append(num_stack_HB, int(len_input_index[i]))
+            else: # i == 2:
+                num_stack_HA = np.append(num_stack_HA, int(len_input_index[i]))
+
             ax = ax_list[subplot_index]
             try:
                 pos_flux = pos_flux_list[i]
@@ -261,12 +267,14 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassin
         pp.savefig()
     plt.close()
 
-    table00 = Table([subtitle_list, stlrmass_bin_arr, num_sources, num_bad_NB921_sources, avgz_arr, minz_arr, maxz_arr, 
+    table00 = Table([subtitle_list, stlrmass_bin_arr, num_sources, num_bad_NB921_sources, num_stack_HG, num_stack_HB, num_stack_HA,
+        avgz_arr, minz_arr, maxz_arr, 
         avg_stlrmass_arr, min_stlrmass_arr, max_stlrmass_arr, HG_flux, HB_flux, HA_flux, NII_6548_flux, 
         NII_6583_flux, HG_EW, HB_EW, HA_EW, HG_EW_corr, HB_EW_corr, HA_EW_corr, HG_EW_abs, HB_EW_abs,
         HG_continuum, HB_continuum, HA_continuum, HG_pos_amplitude, HB_pos_amplitude, HA_pos_amplitude,
         HG_neg_amplitude, HB_neg_amplitude], # IDs_arr
-        names=['filter', 'stlrmass_bin', 'num_sources', 'num_bad_MMT_Halpha_NB921', 'avgz', 'minz', 'maxz',
+        names=['filter', 'stlrmass_bin', 'num_sources', 'num_bad_MMT_Halpha_NB921', 'num_stack_HG', 'num_stack_HB', 'num_stack_HA',
+        'avgz', 'minz', 'maxz',
         'avg_stlrmass',  'min_stlrmass', 'max_stlrmass','HG_flux', 'HB_flux', 'HA_flux', 'NII_6548_flux', 
         'NII_6583_flux', 'HG_EW', 'HB_EW', 'HA_EW', 'HG_EW_corr', 'HB_EW_corr', 'HA_EW_corr', 'HG_EW_abs', 'HB_EW_abs',
         'HG_continuum', 'HB_continuum', 'HA_continuum', 'HG_pos_amplitude', 'HB_pos_amplitude', 'HA_pos_amplitude',
@@ -294,9 +302,9 @@ def plot_MMT_Ha_stlrmass():
         HG_EW_abs, HB_EW_abs, HG_continuum, HB_continuum, HA_continuum,
         HG_pos_amplitude, HB_pos_amplitude, HA_pos_amplitude,
         HG_neg_amplitude, HB_neg_amplitude) = table_arrays
-    (num_sources, num_bad_NB921_sources, avgz_arr, minz_arr, maxz_arr,
+    (num_sources, num_bad_NB921_sources, num_stack_HG, num_stack_HB, num_stack_HA, avgz_arr, minz_arr, maxz_arr,
         stlrmass_bin_arr, avg_stlrmass_arr, min_stlrmass_arr, max_stlrmass_arr,
-        IDs_arr) = ([], [], [], [], [], [], [], [], [], [])
+        IDs_arr) = ([], [], [], [], [], [], [], [], [], [], [], [], [])
     index_list = general_plotting.get_index_list2(stlr_mass, inst_str0, inst_dict, 'MMT')
     (xmin_list, xmax_list, label_list, 
         subtitle_list) = general_plotting.get_iter_lists('MMT')
@@ -388,6 +396,13 @@ def plot_MMT_Ha_stlrmass():
         
         for i in range(3):
             label = label_list[i] + ' ('+str(len_input_index[i])+')'
+            if i == 0:
+                num_stack_HG = np.append(num_stack_HG, int(len_input_index[i]))
+            elif i == 1:
+                num_stack_HB = np.append(num_stack_HB, int(len_input_index[i]))
+            else: # i == 2:
+                num_stack_HA = np.append(num_stack_HA, int(len_input_index[i]))
+
             ax = ax_list[subplot_index]
             try:
                 pos_flux = pos_flux_list[i]
@@ -411,12 +426,14 @@ def plot_MMT_Ha_stlrmass():
 
     subtitle_list = np.array(['all']*len(subtitle_list))
 
-    table00 = Table([subtitle_list, stlrmass_bin_arr, num_sources, num_bad_NB921_sources, avgz_arr, minz_arr, maxz_arr, 
+    table00 = Table([subtitle_list, stlrmass_bin_arr, num_sources, num_bad_NB921_sources, num_stack_HG, num_stack_HB, num_stack_HA,
+        avgz_arr, minz_arr, maxz_arr, 
         avg_stlrmass_arr, min_stlrmass_arr, max_stlrmass_arr, HG_flux, HB_flux, HA_flux, NII_6548_flux, 
         NII_6583_flux, HG_EW, HB_EW, HA_EW, HG_EW_corr, HB_EW_corr, HA_EW_corr, HG_EW_abs, HB_EW_abs,
         HG_continuum, HB_continuum, HA_continuum, HG_pos_amplitude, HB_pos_amplitude, HA_pos_amplitude,
         HG_neg_amplitude, HB_neg_amplitude], # IDs_arr
-        names=['filter', 'stlrmass_bin', 'num_sources', 'num_bad_MMT_Halpha_NB921', 'avgz', 'minz', 'maxz',
+        names=['filter', 'stlrmass_bin', 'num_sources', 'num_bad_MMT_Halpha_NB921', 'num_stack_HG', 'num_stack_HB', 'num_stack_HA',
+        'avgz', 'minz', 'maxz',
         'avg_stlrmass', 'min_stlrmass', 'max_stlrmass', 'HG_flux', 'HB_flux', 'HA_flux', 'NII_6548_flux', 
         'NII_6583_flux', 'HG_EW', 'HB_EW', 'HA_EW', 'HG_EW_corr', 'HB_EW_corr', 'HA_EW_corr', 'HG_EW_abs', 'HB_EW_abs',
         'HG_continuum', 'HB_continuum', 'HA_continuum', 'HG_pos_amplitude', 'HB_pos_amplitude', 'HA_pos_amplitude',
@@ -503,8 +520,9 @@ def plot_Keck_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassi
     (HB_flux, HA_flux, NII_6548_flux, NII_6583_flux, HB_EW, HA_EW, HB_EW_corr, HA_EW_corr,
         HB_EW_abs, HB_continuum, HA_continuum, HB_pos_amplitude, HA_pos_amplitude,
         HB_neg_amplitude) = table_arrays
-    (num_sources, avgz_arr, minz_arr, maxz_arr, stlrmass_bin_arr, avg_stlrmass_arr, min_stlrmass_arr, max_stlrmass_arr,
-        IDs_arr) = ([], [], [], [], [], [], [], [], [])
+    (num_sources, num_stack_HG, num_stack_HB, num_stack_HA, avgz_arr, minz_arr, maxz_arr,
+        stlrmass_bin_arr, avg_stlrmass_arr, min_stlrmass_arr, max_stlrmass_arr,
+        IDs_arr) = ([], [], [], [], [], [], [], [], [], [], [], [])
     if index_list == []:
         index_list = general_plotting.get_index_list(NAME0, inst_str0, inst_dict, 'Keck')
     (xmin_list, xmax_list, label_list, 
@@ -525,6 +543,9 @@ def plot_Keck_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassi
             print 'Not enough sources to stack (less than two)'
             [arr.append(0) for arr in table_arrays]
             num_sources.append(0)
+            num_stack_HG.append(0)
+            num_stack_HB.append(0)
+            num_stack_HA.append(0)
             avgz_arr.append(0)
             minz_arr.append(0)
             maxz_arr.append(0)
@@ -642,6 +663,11 @@ def plot_Keck_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassi
         
         for i in range(2):
             label = label_list[i] + ' ('+str(len_input_index[i])+')'
+            if i == 0:
+                num_stack_HB = np.append(num_stack_HB, int(len_input_index[i]))
+            else: # i == 1:
+                num_stack_HA = np.append(num_stack_HA, int(len_input_index[i]))
+
             ax = ax_list[subplot_index]
             try:
                 pos_flux = pos_flux_list[i]
@@ -672,12 +698,14 @@ def plot_Keck_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassi
         pp.savefig()
     plt.close()
 
-    table00 = Table([subtitle_list, stlrmass_bin_arr, num_sources, avgz_arr, minz_arr, maxz_arr, 
+    table00 = Table([subtitle_list, stlrmass_bin_arr, num_sources, num_stack_HG, num_stack_HB, num_stack_HA,
+        avgz_arr, minz_arr, maxz_arr, 
         avg_stlrmass_arr, min_stlrmass_arr, max_stlrmass_arr, HB_flux, HA_flux, NII_6548_flux, 
         NII_6583_flux, HB_EW, HA_EW, HB_EW_corr, HA_EW_corr, HB_EW_abs,
         HB_continuum, HA_continuum, HB_pos_amplitude, HA_pos_amplitude,
         HB_neg_amplitude], # IDs_arr
-        names=['filter', 'stlrmass_bin', 'num_sources', 'avgz', 'minz', 'maxz',
+        names=['filter', 'stlrmass_bin', 'num_sources', 'num_stack_HG', 'num_stack_HB', 'num_stack_HA',
+        'avgz', 'minz', 'maxz',
         'avg_stlrmass', 'min_stlrmass', 'max_stlrmass', 'HB_flux', 'HA_flux', 'NII_6548_flux', 
         'NII_6583_flux', 'HB_EW', 'HA_EW', 'HB_EW_corr', 'HA_EW_corr', 'HB_EW_abs',
         'HB_continuum', 'HA_continuum', 'HB_pos_amplitude', 'HA_pos_amplitude',
@@ -703,8 +731,9 @@ def plot_Keck_Ha_stlrmass():
     (HB_flux, HA_flux, NII_6548_flux, NII_6583_flux, HB_EW, HA_EW, HB_EW_corr, HA_EW_corr,
         HB_EW_abs, HB_continuum, HA_continuum, HB_pos_amplitude, HA_pos_amplitude,
         HB_neg_amplitude) = table_arrays
-    (num_sources, avgz_arr, minz_arr, maxz_arr, stlrmass_bin_arr, avg_stlrmass_arr, min_stlrmass_arr, max_stlrmass_arr,
-        IDs_arr) = ([], [], [], [], [], [], [], [], [])
+    (num_sources, num_stack_HG, num_stack_HB, num_stack_HA, avgz_arr, minz_arr, maxz_arr,
+        stlrmass_bin_arr, avg_stlrmass_arr, min_stlrmass_arr, max_stlrmass_arr,
+        IDs_arr) = ([], [], [], [], [], [], [], [], [], [], [], [])
     index_list = general_plotting.get_index_list2(nan_stlr_mass, inst_str0, inst_dict, 'Keck')
     (xmin_list, xmax_list, label_list, 
         subtitle_list) = general_plotting.get_iter_lists('Keck', stlr=True)
@@ -805,6 +834,11 @@ def plot_Keck_Ha_stlrmass():
 
         for i in range(2):
             label = label_list[i] + ' ('+str(len_input_index[i])+')'
+            if i == 0:
+                num_stack_HB = np.append(num_stack_HB, int(len_input_index[i]))
+            else: # i == 1:
+                num_stack_HA = np.append(num_stack_HA, int(len_input_index[i]))
+
             ax = ax_list[subplot_index]
             try:
                 pos_flux = pos_flux_list[i]
@@ -828,12 +862,14 @@ def plot_Keck_Ha_stlrmass():
 
     subtitle_list = np.array(['all']*len(stlrmass_bin_arr))
 
-    table00 = Table([subtitle_list, stlrmass_bin_arr, num_sources, avgz_arr, minz_arr, maxz_arr, 
+    table00 = Table([subtitle_list, stlrmass_bin_arr, num_sources, num_stack_HG, num_stack_HB, num_stack_HA,
+        avgz_arr, minz_arr, maxz_arr, 
         avg_stlrmass_arr, min_stlrmass_arr, max_stlrmass_arr, HB_flux, HA_flux, NII_6548_flux, 
         NII_6583_flux, HB_EW, HA_EW, HB_EW_corr, HA_EW_corr, HB_EW_abs,
         HB_continuum, HA_continuum, HB_pos_amplitude, HA_pos_amplitude,
         HB_neg_amplitude], # IDs_arr
-        names=['filter', 'stlrmass_bin', 'num_sources', 'avgz', 'minz', 'maxz',
+        names=['filter', 'stlrmass_bin', 'num_sources', 'num_stack_HG', 'num_stack_HB', 'num_stack_HA',
+        'avgz', 'minz', 'maxz',
         'avg_stlrmass', 'min_stlrmass', 'max_stlrmass', 'HB_flux', 'HA_flux', 'NII_6548_flux', 
         'NII_6583_flux', 'HB_EW', 'HA_EW', 'HB_EW_corr', 'HA_EW_corr', 'HB_EW_abs',
         'HB_continuum', 'HA_continuum', 'HB_pos_amplitude', 'HA_pos_amplitude',
