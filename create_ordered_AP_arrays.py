@@ -255,6 +255,42 @@ def get_Y0(all_AP, detect_AP, all_HA_Y0, detect_HA_Y0, all_HB_Y0,
 #enddef
 
 
+def get_LMIN0_LMAX0(all_AP, detect_AP, all_MMT_LMIN0, detect_MMT_LMIN0, 
+    all_MMT_LMAX0, detect_MMT_LMAX0, all_KECK_LMIN0, detect_KECK_LMIN0,
+    all_KECK_LMAX0, detect_KECK_LMAX0):
+    '''
+    Accepts, modifies, and returns 'HA_Y0' (passed in as 'all_HA_Y0').
+    'all_AP' is the complete AP column with all the information, while
+    'detect_AP' and every input subsequent until the last four are the arrays
+    specific to the Main_Sequence catalog.
+
+    There are 5 different types of catalogs, so this method is called 5 times.
+
+    This method looks at the indices where the detect_AP is in the all_AP and
+    appends the overlapping indices of the all_AP array. Then, at those
+    overlapping indices, the zero values in all_AP are replaced by the
+    corresponding detected values.
+    '''
+
+    index1 = np.array([x for x in range(len(detect_AP)) if detect_AP[x]
+                       in all_AP], dtype=np.int32)
+    index2 = np.array([])
+
+    for mm in range(len(detect_AP)):
+        index2 = np.append(index2, [x for x in range(len(all_AP))
+                                    if all_AP[x] == detect_AP[mm]])
+    #endfor
+    index2 = np.array(index2, dtype=np.int32)
+
+    all_MMT_LMIN0[index2] = detect_MMT_LMIN0[index1]
+    all_MMT_LMAX0[index2] = detect_MMT_LMAX0[index1]
+    all_KECK_LMIN0[index2] = detect_KECK_LMIN0[index1]
+    all_KECK_LMAX0[index2] = detect_KECK_LMAX0[index1]
+
+    return all_MMT_LMIN0,all_MMT_LMAX0,all_KECK_LMIN0,all_KECK_LMAX0
+#enddef
+
+
 def create_ordered_AP_arrays(AP_only=False):
     '''
     Reads relevant inputs, combining all of the input data into one ordered
@@ -274,6 +310,8 @@ def create_ordered_AP_arrays(AP_only=False):
     MMTallHAY0 = MMTalldata['HA_Y0']
     MMTallHBY0 = MMTalldata['HB_Y0']
     MMTallHGY0 = MMTalldata['HG_Y0']
+    MMTallLMIN0 = MMTalldata['LMIN0']
+    MMTallLMAX0 = MMTalldata['LMAX0']
 
     MMTsingle = pyfits.open('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Main_Sequence/Catalogs/MMT/MMT_single_line_fit.fits')
     MMTsingledata = MMTsingle[1].data
@@ -281,6 +319,8 @@ def create_ordered_AP_arrays(AP_only=False):
     MMTsingleHAY0 = MMTsingledata['HA_Y0']
     MMTsingleHBY0 = MMTsingledata['HB_Y0']
     MMTsingleHGY0 = MMTsingledata['HG_Y0']
+    MMTsingleLMIN0 = MMTsingledata['LMIN0']
+    MMTsingleLMAX0 = MMTsingledata['LMAX0']
 
     DEIMOS = pyfits.open('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Main_Sequence/Catalogs/Keck/DEIMOS_single_line_fit.fits')
     DEIMOSdata = DEIMOS[1].data
@@ -288,6 +328,8 @@ def create_ordered_AP_arrays(AP_only=False):
     DEIMOSHAY0 = DEIMOSdata['HA_Y0']
     DEIMOSHBY0 = DEIMOSdata['HB_Y0']
     DEIMOSHGY0 = DEIMOSdata['HG_Y0']
+    DEIMOSLMIN0 = DEIMOSdata['LMIN0']
+    DEIMOSLMAX0 = DEIMOSdata['LMAX0']
 
     DEIMOS00=pyfits.open('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Main_Sequence/Catalogs/Keck/DEIMOS_00_all_line_fit.fits')
     DEIMOS00data = DEIMOS00[1].data
@@ -295,6 +337,8 @@ def create_ordered_AP_arrays(AP_only=False):
     DEIMOS00HAY0 = DEIMOS00data['HA_Y0']
     DEIMOS00HBY0 = DEIMOS00data['HB_Y0']
     DEIMOS00HGY0 = DEIMOS00data['HG_Y0']
+    DEIMOS00LMIN0 = DEIMOS00data['LMIN0']
+    DEIMOS00LMAX0 = DEIMOS00data['LMAX0']
 
     merged = pyfits.open('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Main_Sequence/Catalogs/merged/MMT_Keck_line_fit.fits')
     mergeddata = merged[1].data
@@ -302,6 +346,10 @@ def create_ordered_AP_arrays(AP_only=False):
     mergedHAY0 = mergeddata['HA_Y0']
     mergedHBY0 = mergeddata['HB_Y0']
     mergedHGY0 = mergeddata['HG_Y0']
+    mergedLMIN0_MMT = mergeddata['MMT_LMIN0']
+    mergedLMAX0_MMT = mergeddata['MMT_LMAX0']
+    mergedLMIN0_KECK = mergeddata['KECK_LMIN0']
+    mergedLMAX0_KECK = mergeddata['KECK_LMAX0']
     #end inputs
     print '### done reading input files'
 
@@ -338,10 +386,35 @@ def create_ordered_AP_arrays(AP_only=False):
                                  mergedHBY0, HG_Y0, mergedHGY0)
     print '### done creating ordered HA,HB,HG_Y0 arrays'
 
+    print '### creating ordered LMIN0/LMAX0 arr'
+    MMT_LMIN0 = np.array([-99.99999]*len(AP))
+    MMT_LMAX0 = np.array([-99.99999]*len(AP))
+    KECK_LMIN0 = np.array([-99.99999]*len(AP))
+    KECK_LMAX0 = np.array([-99.99999]*len(AP))
+    MMT_LMIN0, MMT_LMAX0, KECK_LMIN0, KECK_LMAX0 = get_LMIN0_LMAX0(AP, MMTallAP, MMT_LMIN0, MMTallLMIN0, 
+        MMT_LMAX0, MMTallLMAX0, KECK_LMIN0, MMTallLMIN0, KECK_LMAX0, MMTallLMAX0)
+    MMT_LMIN0, MMT_LMAX0, KECK_LMIN0, KECK_LMAX0 = get_LMIN0_LMAX0(AP, MMTsingleAP, MMT_LMIN0, MMTsingleLMIN0, 
+        MMT_LMAX0, MMTsingleLMAX0, KECK_LMIN0, MMTsingleLMIN0, KECK_LMAX0, MMTsingleLMAX0)
+    MMT_LMIN0, MMT_LMAX0, KECK_LMIN0, KECK_LMAX0 = get_LMIN0_LMAX0(AP, DEIMOSAP, MMT_LMIN0, DEIMOSLMIN0, 
+        MMT_LMAX0, DEIMOSLMAX0, KECK_LMIN0, DEIMOSLMIN0, KECK_LMAX0, DEIMOSLMAX0)
+    MMT_LMIN0, MMT_LMAX0, KECK_LMIN0, KECK_LMAX0 = get_LMIN0_LMAX0(AP, DEIMOS00AP, MMT_LMIN0, DEIMOS00LMIN0, 
+        MMT_LMAX0, DEIMOS00LMAX0, KECK_LMIN0, DEIMOS00LMIN0, KECK_LMAX0, DEIMOS00LMAX0)
+    MMT_LMIN0, MMT_LMAX0, KECK_LMIN0, KECK_LMAX0 = get_LMIN0_LMAX0(AP, mergedAP, MMT_LMIN0, mergedLMIN0_MMT, 
+        MMT_LMAX0, mergedLMAX0_MMT, KECK_LMIN0, mergedLMIN0_KECK, KECK_LMAX0, mergedLMAX0_KECK)
+    print '### done creating ordered LMIN0/LMAX0 arr'
+
     MMTall.close()
     MMTsingle.close()
     DEIMOS.close()
     DEIMOS00.close()
     merged.close()
 
-    return {'AP': AP, 'HA_Y0': HA_Y0, 'HB_Y0': HB_Y0, 'HG_Y0': HG_Y0}
+    return {'AP': AP, 'HA_Y0': HA_Y0, 'HB_Y0': HB_Y0, 'HG_Y0': HG_Y0, 'MMT_LMIN0': MMT_LMIN0, 'MMT_LMAX0': MMT_LMAX0, 'KECK_LMIN0': KECK_LMIN0, 'KECK_LMAX0': KECK_LMAX0}
+
+
+def main():
+    AP_dict = create_ordered_AP_arrays()
+
+
+if __name__ == '__main__':
+    main()
