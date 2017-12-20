@@ -164,6 +164,8 @@ def write_MMT_table(inst_str0_ii, ID_ii, z_ii, NAME0_ii, AP_ii, stlr_mass_ii, fi
     stlrmassbinZ_ii_m = get_stlrmassbinZ_arr(stlr_mass, inst_str0, inst_dict, stlr_mass_ii_m, filt_arr_m, 'MMT')
     HG_cvg, HB_cvg, HA_cvg = get_spectral_cvg_MMT(mmt_ii, MMT_LMIN0_ii, MMT_LMAX0_ii)
 
+    AP_ii_m = np.array([ap[:5] for ap in AP_ii_m])
+
     tt_mmt = Table([ID_ii_m, NAME0_ii_m, AP_ii_m, z_ii_m, filt_arr_m, 
         stlrmassbin_ii_m, stlrmassbinZ_ii_m, HG_cvg, HB_cvg, HA_cvg], 
         names=['ID', 'NAME', 'AP', 'z', 'filter', 'stlrmassbin', 'stlrmassZbin', 'HG_cvg', 'HB_cvg', 'HA_cvg']) 
@@ -204,6 +206,8 @@ def write_Keck_table(inst_str0_ii, ID_ii, z_ii, NAME0_ii, AP_ii, stlr_mass_ii, f
     stlrmassbin_ii_k = get_stlrmassbin_arr(stlr_mass, inst_str0, inst_dict, stlr_mass_ii_k, 'Keck')
     stlrmassbinZ_ii_k = get_stlrmassbinZ_arr(stlr_mass, inst_str0, inst_dict, stlr_mass_ii_k, filt_arr_k, 'Keck')
     HB_cvg, HA_cvg = get_spectral_cvg_Keck(keck_ii, KECK_LMIN0_ii, KECK_LMAX0_ii)
+
+    AP_ii_k = np.array([x if len(x) == 6 else x[6:] for x in AP_ii_k])
 
     tt_keck = Table([ID_ii_k, NAME0_ii_k, AP_ii_k, z_ii_k, filt_arr_k, 
         stlrmassbin_ii_k, stlrmassbinZ_ii_k, HB_cvg, HA_cvg], 
@@ -254,9 +258,9 @@ def main():
     HG_Y0_i, HB_Y0_i, HA_Y0_i = get_indexed_arrs(ha_ii, [HG_Y0, HB_Y0, HA_Y0])
     HG_Y0_ii, HB_Y0_ii, HA_Y0_ii = get_init_NO_YES_coverage([HG_Y0_i, HB_Y0_i, HA_Y0_i])
 
-    # print 'writing MMT table...'
-    # write_MMT_table(inst_str0_ii, ID_ii, z_ii, NAME0_ii, AP_ii, stlr_mass_ii, filt_arr, stlr_mass, inst_str0, inst_dict, MMT_LMIN0_ii, MMT_LMAX0_ii)
-    # print 'finished writing MMT table'
+    print 'writing MMT table...'
+    write_MMT_table(inst_str0_ii, ID_ii, z_ii, NAME0_ii, AP_ii, stlr_mass_ii, filt_arr, stlr_mass, inst_str0, inst_dict, MMT_LMIN0_ii, MMT_LMAX0_ii)
+    print 'finished writing MMT table'
 
     print 'writing Keck table...'
     write_Keck_table(inst_str0_ii, ID_ii, z_ii, NAME0_ii, AP_ii, stlr_mass_ii, filt_arr, stlr_mass, inst_str0, inst_dict, KECK_LMIN0_ii, KECK_LMAX0_ii)
