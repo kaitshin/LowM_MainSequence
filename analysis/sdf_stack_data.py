@@ -35,6 +35,9 @@ def stack_data(ndarr, zspec, index, x0, xmin, xmax, ff='', instr=''):
             good_z = np.where(plot_zspec < 0.6)[0]
         #endif
 
+        if len(good_z) < 2:
+            raise AttributeError('There are less than 2 good sources')
+
         if instr=='MMT':
             # to help mask MMT NB921 Halpha sources
             # return stack(ndarr, zspec, index[good_z], x0, xmin, xmax, ff=ff)

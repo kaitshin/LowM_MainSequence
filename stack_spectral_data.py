@@ -141,8 +141,38 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassin
             continue
         #endif
 
-        xval, yval, len_input_index, stacked_indexes, avgz, minz, maxz = stack_data(grid_ndarr, gridz, input_index,
-            x0, 3700, 6700, ff=subtitle, instr='MMT')
+        try:
+            xval, yval, len_input_index, stacked_indexes, avgz, minz, maxz = stack_data(grid_ndarr, gridz, input_index,
+                x0, 3700, 6700, ff=subtitle, instr='MMT')
+        except AttributeError:
+            print 'Not enough sources to stack (less than two)'
+            [arr.append(0) for arr in table_arrays]
+            num_sources.append(0)
+            num_bad_NB921_sources.append(0)
+            num_stack_HG.append(0)
+            num_stack_HB.append(0)
+            num_stack_HA.append(0)
+            avgz_arr.append(0)
+            minz_arr.append(0)
+            maxz_arr.append(0)
+            IDs_arr.append('N/A')
+            if bintype=='Redshift': 
+                stlrmass_bin_arr.append('N/A')
+                avg_stlrmass_arr.append('N/A')
+                min_stlrmass_arr.append('N/A')
+                max_stlrmass_arr.append('N/A')
+            elif bintype=='StellarMassZ': 
+                stlrmass_bin_arr.append(title[10:])
+                avg_stlrmass_arr.append(np.mean(stlr_mass[stlrmassindex0]))
+                min_stlrmass_arr.append(np.min(stlr_mass[stlrmassindex0]))
+                max_stlrmass_arr.append(np.max(stlr_mass[stlrmassindex0]))
+            for i in range(3):
+                ax = ax_list[subplot_index]
+                label = label_list[i]
+                MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index)
+                subplot_index += 1
+            continue
+        #endtry
 
         num_sources.append(len_input_index[0])
         num_bad_NB921_sources.append(len_input_index[1])
@@ -453,11 +483,11 @@ def plot_MMT_Ha_stlrmass_z():
     TODO(implement flexible file-naming)
     '''
     print '>MMT STELLARMASS+REDSHIFT STACKING'
-    stlrmass_index_list = general_plotting.get_index_list2(stlr_mass, inst_str0, inst_dict, 'MMT')
     pp = PdfPages(full_path+'Composite_Spectra/StellarMassZ/MMT_two_percbins.pdf')
     table00 = None
-    n = 2 # how many redshifts we want to take into account (max 5, TODO(generalize this?))
-    for stlrmassindex0 in stlrmass_index_list[:n]:        
+    # n = 2 -- how many redshifts we want to take into account (max 5, TODO(generalize this?))
+    stlrmass_index_list = general_plotting.get_index_list3(stlr_mass, inst_str0, inst_dict, 'MMT')
+    for stlrmassindex0 in stlrmass_index_list:
         title='stlrmass: '+str(min(stlr_mass[stlrmassindex0]))+'-'+str(max(stlr_mass[stlrmassindex0]))
         print '>>>', title
 
@@ -974,8 +1004,8 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr, fill_value=np.nan)
 
 print '### plotting MMT_Ha'
-plot_MMT_Ha()
-plot_MMT_Ha_stlrmass()
+# plot_MMT_Ha()
+# plot_MMT_Ha_stlrmass()
 plot_MMT_Ha_stlrmass_z()
 grid.close()
 
@@ -1000,9 +1030,9 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 
 print '### plotting Keck_Ha'
-plot_Keck_Ha()
-plot_Keck_Ha_stlrmass()
-plot_Keck_Ha_stlrmass_z()
+# plot_Keck_Ha()
+# plot_Keck_Ha_stlrmass()
+# plot_Keck_Ha_stlrmass_z()
 grid.close()
 
 nbia.close()
