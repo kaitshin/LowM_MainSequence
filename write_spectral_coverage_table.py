@@ -200,7 +200,7 @@ def get_spectral_cvg_Keck(keck_ii, KECK_LMIN0_ii, KECK_LMAX0_ii):
 def write_Keck_table(inst_str0_ii, ID_ii, z_ii, NAME0_ii, AP_ii, stlr_mass_ii, filt_arr, stlr_mass, inst_str0, inst_dict, KECK_LMIN0_ii, KECK_LMAX0_ii):
     '''
     '''
-    keck_ii = [x for x in range(len(inst_str0_ii)) if 'Keck' in inst_str0_ii[x] or 'merged' in inst_str0_ii[x]]
+    keck_ii = [x for x in range(len(inst_str0_ii)) if ('Keck' in inst_str0_ii[x] or 'merged' in inst_str0_ii[x]) and 'MMT' not in inst_str0_ii[x]] # MMT,Keck, means MMT
     ID_ii_k, z_ii_k, NAME0_ii_k, AP_ii_k, inst_str0_ii_k, stlr_mass_ii_k, filt_arr_k = get_indexed_arrs(keck_ii, [ID_ii, z_ii, NAME0_ii, AP_ii, inst_str0_ii, stlr_mass_ii, filt_arr])
 
     stlrmassbin_ii_k = get_stlrmassbin_arr(stlr_mass, inst_str0, inst_dict, stlr_mass_ii_k, 'Keck')
