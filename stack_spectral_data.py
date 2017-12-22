@@ -65,7 +65,7 @@ def HG_HB_EBV(hg, hb):
     EBV_hghb = np.array([-99.0 if np.isnan(x) else x for x in EBV_hghb])
     return EBV_hghb
 
-def HA_HB_EBV(ha, hb, instr):
+def HA_HB_EBV(ha, hb, instr, bintype='redshift'):
     '''
     '''
     ha = np.array(ha)
@@ -73,9 +73,10 @@ def HA_HB_EBV(ha, hb, instr):
     hahb = np.array([2.86 if (x < 2.86 and x > 0) else x for x in ha/hb])
     EBV_hahb = np.log10((hahb)/2.86)/(-0.4*(k_ha - k_hb))
     if instr=='MMT':
-        EBV_hahb[-1] = -99.0 #no nb973 halpha
         EBV_hahb[-2] = -99.0 #unreliable nb921 halpha
-    elif instr=='Keck':
+        if bintype=='redshift':
+            EBV_hahb[-1] = -99.0 #no nb973 halpha
+    elif instr=='Keck' and bintype=='redshift':
         EBV_hahb[0] = -99.0 #no nb816 hbeta
 
     EBV_hahb = np.array([-99.0 if np.isnan(x) else x for x in EBV_hahb])
@@ -489,7 +490,7 @@ def plot_MMT_Ha_stlrmass():
     subtitle_list = np.array(['all']*len(subtitle_list))
 
     EBV_hghb = HG_HB_EBV(HG_flux, HB_flux)
-    EBV_hahb = HA_HB_EBV(HA_flux, HB_flux, 'MMT')
+    EBV_hahb = HA_HB_EBV(HA_flux, HB_flux, 'MMT', 'stlrmass')
 
     table00 = Table([subtitle_list, stlrmass_bin_arr, num_sources, num_bad_NB921_sources, num_stack_HG, num_stack_HB, num_stack_HA,
         avgz_arr, minz_arr, maxz_arr, 
@@ -928,7 +929,7 @@ def plot_Keck_Ha_stlrmass():
     f = general_plotting.final_plot_setup(f, r'Keck detections of H$\alpha$ emitters')
 
     subtitle_list = np.array(['all']*len(stlrmass_bin_arr))
-    EBV_hahb = HA_HB_EBV(HA_flux, HB_flux, 'Keck')
+    EBV_hahb = HA_HB_EBV(HA_flux, HB_flux, 'Keck', 'stlrmass')
 
     table00 = Table([subtitle_list, stlrmass_bin_arr, num_sources, num_stack_HB, num_stack_HA,
         avgz_arr, minz_arr, maxz_arr, 
@@ -1046,9 +1047,9 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr, fill_value=np.nan)
 
 print '### plotting MMT_Ha'
-plot_MMT_Ha()
+# plot_MMT_Ha()
 plot_MMT_Ha_stlrmass()
-plot_MMT_Ha_stlrmass_z()
+# plot_MMT_Ha_stlrmass_z()
 grid.close()
 
 print '### looking at the Keck grid'
@@ -1072,9 +1073,9 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 
 print '### plotting Keck_Ha'
-plot_Keck_Ha()
+# plot_Keck_Ha()
 plot_Keck_Ha_stlrmass()
-plot_Keck_Ha_stlrmass_z()
+# plot_Keck_Ha_stlrmass_z()
 grid.close()
 
 nbia.close()
