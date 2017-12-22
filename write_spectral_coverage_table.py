@@ -44,6 +44,16 @@ def get_init_NO_YES_coverage(arr):
     return covg_arrs
 
 
+def find_nearest_iis(array, value):
+    '''
+    '''
+    idx_closest = (np.abs(array-value)).argmin()
+    if array[idx_closest] > value:
+        return [idx_closest-1, idx_closest]
+    else:
+        return [idx_closest, idx_closest+1]
+
+
 def get_stlrmassbin_arr(stlr_mass, inst_str0, inst_dict, stlr_mass_ii_instr, instr):
     '''
     '''
@@ -122,32 +132,46 @@ def get_stlrmassbinZ_arr(stlr_mass, inst_str0, inst_dict, stlr_mass_ii_instr, fi
     #endif
 
 
-def get_spectral_cvg_MMT(mmt_ii, MMT_LMIN0_ii, MMT_LMAX0_ii):
+def get_spectral_cvg_MMT(mmt_ii, MMT_LMIN0_ii, MMT_LMAX0_ii, grid_ndarr_match_ii, x0):
     '''
+    TODO(the 'MASK' keyvals seem suspicious?)
     '''
     MMT_LMIN0_ii_m, MMT_LMAX0_ii_m = get_indexed_arrs(mmt_ii, [MMT_LMIN0_ii, MMT_LMAX0_ii])
+
+    hg_near_iis = find_nearest_iis(x0, 4341)
+    hb_near_iis = find_nearest_iis(x0, 4861)
+    ha_near_iis = find_nearest_iis(x0, 6563)
 
     HG = np.array([])
     HB = np.array([])
     HA = np.array([])
-    for lmin, lmax in zip(MMT_LMIN0_ii_m, MMT_LMAX0_ii_m):
+    for lmin, lmax, row in zip(MMT_LMIN0_ii_m, MMT_LMAX0_ii_m, grid_ndarr_match_ii):
         if lmin < 0:
             HG = np.append(HG, 'NO')
             HB = np.append(HB, 'NO')
             HA = np.append(HA, 'NO')
         else:
             if lmin < HG_VAL and lmax > HG_VAL:
-                HG = np.append(HG, 'YES')
+                if np.average(row[hg_near_iis])==0:
+                    HG = np.append(HG, 'MASK')
+                else:
+                    HG = np.append(HG, 'YES')
             else:
                 HG = np.append(HG, 'NO')
             
             if lmin < HB_VAL and lmax > HB_VAL:
-                HB = np.append(HB, 'YES')
+                if np.average(row[hb_near_iis])==0:
+                    HB = np.append(HB, 'MASK')
+                else:
+                    HB = np.append(HB, 'YES')
             else:
                 HB = np.append(HB, 'NO')
                 
             if lmin < HA_VAL and lmax > HA_VAL:
-                HA = np.append(HA, 'YES')
+                if np.average(row[ha_near_iis])==0:
+                    HA = np.append(HA, 'MASK')
+                else:
+                    HA = np.append(HA, 'YES')
             else:
                 HA = np.append(HA, 'NO')
     #endfor
@@ -157,40 +181,68 @@ def get_spectral_cvg_MMT(mmt_ii, MMT_LMIN0_ii, MMT_LMAX0_ii):
 def write_MMT_table(inst_str0_ii, ID_ii, z_ii, NAME0_ii, AP_ii, stlr_mass_ii, filt_arr, stlr_mass, inst_str0, inst_dict, MMT_LMIN0_ii, MMT_LMAX0_ii):
     '''
     '''
+    # reading in grid tables
+    griddata = asc.read(FULL_PATH+'Spectra/spectral_MMT_grid_data.txt',guess=False)
+    gridz  = np.array(griddata['ZSPEC']) ##used
+    gridap = np.array(griddata['AP']) ##used
+
+    grid   = pyfits.open(FULL_PATH+'Spectra/spectral_MMT_grid.fits')
+    grid_ndarr = grid[0].data ##used
+    grid_hdr   = grid[0].header
+    CRVAL1 = grid_hdr['CRVAL1']
+    CDELT1 = grid_hdr['CDELT1']
+    NAXIS1 = grid_hdr['NAXIS1']
+    x0 = np.arange(CRVAL1, CDELT1*NAXIS1+CRVAL1, CDELT1)
+
+    # getting indices relevant to MMT
     mmt_ii = [x for x in range(len(inst_str0_ii)) if 'MMT' in inst_str0_ii[x] or 'merged' in inst_str0_ii[x]]
     ID_ii_m, z_ii_m, NAME0_ii_m, AP_ii_m, inst_str0_ii_m, stlr_mass_ii_m, filt_arr_m = get_indexed_arrs(mmt_ii, [ID_ii, z_ii, NAME0_ii, AP_ii, inst_str0_ii, stlr_mass_ii, filt_arr])
-
-    stlrmassbin_ii_m = get_stlrmassbin_arr(stlr_mass, inst_str0, inst_dict, stlr_mass_ii_m, 'MMT')
-    stlrmassbinZ_ii_m = get_stlrmassbinZ_arr(stlr_mass, inst_str0, inst_dict, stlr_mass_ii_m, filt_arr_m, 'MMT')
-    HG_cvg, HB_cvg, HA_cvg = get_spectral_cvg_MMT(mmt_ii, MMT_LMIN0_ii, MMT_LMAX0_ii)
-
     AP_ii_m = np.array([ap[:5] for ap in AP_ii_m])
 
+    # getting stlrmassbin and stlrmassZbin cols for the table
+    stlrmassbin_ii_m = get_stlrmassbin_arr(stlr_mass, inst_str0, inst_dict, stlr_mass_ii_m, 'MMT')
+    stlrmassbinZ_ii_m = get_stlrmassbinZ_arr(stlr_mass, inst_str0, inst_dict, stlr_mass_ii_m, filt_arr_m, 'MMT')
+    
+    # setting 'YES' and 'NO' and 'MASK' coverage values
+    match_ii = np.array([x for x in range(len(gridap)) if gridap[x] in AP_ii_m])
+    HG_cvg, HB_cvg, HA_cvg = get_spectral_cvg_MMT(mmt_ii, MMT_LMIN0_ii, MMT_LMAX0_ii, grid_ndarr[match_ii], x0)
+
+    # creating/writing the table
     tt_mmt = Table([ID_ii_m, NAME0_ii_m, AP_ii_m, z_ii_m, filt_arr_m, 
         stlrmassbin_ii_m, stlrmassbinZ_ii_m, HG_cvg, HB_cvg, HA_cvg], 
         names=['ID', 'NAME', 'AP', 'z', 'filter', 'stlrmassbin', 'stlrmassZbin', 'HG_cvg', 'HB_cvg', 'HA_cvg']) 
     asc.write(tt_mmt, FULL_PATH+'Composite_Spectra/MMT_spectral_coverage.txt', format='fixed_width', delimiter=' ')
 
 
-def get_spectral_cvg_Keck(keck_ii, KECK_LMIN0_ii, KECK_LMAX0_ii):
+def get_spectral_cvg_Keck(keck_ii, KECK_LMIN0_ii, KECK_LMAX0_ii, grid_ndarr_match_ii, x0):
     '''
+    TODO(the 'MASK' keyvals seem suspicious?)
     '''
     KECK_LMIN0_ii_k, KECK_LMAX0_ii_k = get_indexed_arrs(keck_ii, [KECK_LMIN0_ii, KECK_LMAX0_ii])
 
+    hb_near_iis = find_nearest_iis(x0, 4861)
+    ha_near_iis = find_nearest_iis(x0, 6563)
+
     HB = np.array([])
     HA = np.array([])
-    for lmin, lmax in zip(KECK_LMIN0_ii_k, KECK_LMAX0_ii_k):
+    for lmin, lmax, row in zip(KECK_LMIN0_ii_k, KECK_LMAX0_ii_k, grid_ndarr_match_ii):
         if lmin < 0:
             HB = np.append(HB, 'NO')
             HA = np.append(HA, 'NO')
         else:
             if lmin < HB_VAL and lmax > HB_VAL:
-                HB = np.append(HB, 'YES')
+                if np.average(row[hb_near_iis])==0:
+                    HB = np.append(HB, 'MASK')
+                else:
+                    HB = np.append(HB, 'YES')
             else:
                 HB = np.append(HB, 'NO')
                 
             if lmin < HA_VAL and lmax > HA_VAL:
-                HA = np.append(HA, 'YES')
+                if np.average(row[ha_near_iis])==0:
+                    HA = np.append(HA, 'MASK')
+                else:
+                    HA = np.append(HA, 'YES')
             else:
                 HA = np.append(HA, 'NO')
     #endfor
@@ -200,15 +252,35 @@ def get_spectral_cvg_Keck(keck_ii, KECK_LMIN0_ii, KECK_LMAX0_ii):
 def write_Keck_table(inst_str0_ii, ID_ii, z_ii, NAME0_ii, AP_ii, stlr_mass_ii, filt_arr, stlr_mass, inst_str0, inst_dict, KECK_LMIN0_ii, KECK_LMAX0_ii):
     '''
     '''
+    # reading in grid tables
+    griddata = asc.read(FULL_PATH+'Spectra/spectral_Keck_grid_data.txt',guess=False)
+    gridz  = np.array(griddata['ZSPEC']) ##used
+    gridap = np.array(griddata['AP']) ##used
+
+    grid   = pyfits.open(FULL_PATH+'Spectra/spectral_Keck_grid.fits')
+    grid_ndarr = grid[0].data ##used
+    grid_hdr   = grid[0].header
+    CRVAL1 = grid_hdr['CRVAL1']
+    CDELT1 = grid_hdr['CDELT1']
+    NAXIS1 = grid_hdr['NAXIS1']
+    x0 = np.arange(CRVAL1, CDELT1*NAXIS1+CRVAL1, CDELT1)
+
+    # getting indices relevant to Keck
     keck_ii = [x for x in range(len(inst_str0_ii)) if ('Keck' in inst_str0_ii[x] or 'merged' in inst_str0_ii[x]) and 'MMT' not in inst_str0_ii[x]] # MMT,Keck, means MMT
     ID_ii_k, z_ii_k, NAME0_ii_k, AP_ii_k, inst_str0_ii_k, stlr_mass_ii_k, filt_arr_k = get_indexed_arrs(keck_ii, [ID_ii, z_ii, NAME0_ii, AP_ii, inst_str0_ii, stlr_mass_ii, filt_arr])
+    AP_ii_k = np.array([x if len(x) == 6 else x[6:] for x in AP_ii_k], dtype=np.float32)
 
+    # getting stlrmassbin and stlrmassZbin cols for the table
     stlrmassbin_ii_k = get_stlrmassbin_arr(stlr_mass, inst_str0, inst_dict, stlr_mass_ii_k, 'Keck')
     stlrmassbinZ_ii_k = get_stlrmassbinZ_arr(stlr_mass, inst_str0, inst_dict, stlr_mass_ii_k, filt_arr_k, 'Keck')
-    HB_cvg, HA_cvg = get_spectral_cvg_Keck(keck_ii, KECK_LMIN0_ii, KECK_LMAX0_ii)
 
-    AP_ii_k = np.array([x if len(x) == 6 else x[6:] for x in AP_ii_k])
+    # setting 'YES' and 'NO' and 'MASK' coverage values
+    match_ii = np.array([x for x in range(len(gridap)) if gridap[x] in AP_ii_k])
+    HB_cvg, HA_cvg = get_spectral_cvg_Keck(keck_ii, KECK_LMIN0_ii, KECK_LMAX0_ii, grid_ndarr[match_ii], x0)
 
+    print len(stlrmassbin_ii_k), len(stlrmassbinZ_ii_k)
+
+    # creating/writing the table
     tt_keck = Table([ID_ii_k, NAME0_ii_k, AP_ii_k, z_ii_k, filt_arr_k, 
         stlrmassbin_ii_k, stlrmassbinZ_ii_k, HB_cvg, HA_cvg], 
         names=['ID', 'NAME', 'AP', 'z', 'filter', 'stlrmassbin', 'stlrmassZbin', 'HB_cvg', 'HA_cvg']) 
