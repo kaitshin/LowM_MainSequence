@@ -35,6 +35,8 @@ from astropy.io import fits as pyfits, ascii as asc
 from astropy.table import Table, vstack
 from create_ordered_AP_arrays import create_ordered_AP_arrays
 from matplotlib.backends.backend_pdf import PdfPages
+from analysis.cardelli import *   # k = cardelli(lambda0, R=3.1)
+from astropy import units as u
 
 def correct_instr_AP(indexed_AP, indexed_inst_str0, instr):
     '''
@@ -51,6 +53,33 @@ def correct_instr_AP(indexed_AP, indexed_inst_str0, instr):
     #endfor
     return indexed_AP
 #enddef
+
+def HG_HB_EBV(hg, hb):
+    '''
+    instr is always MMT
+    '''
+    hg = np.array(hg)
+    hb = np.array(hb)
+    hghb = np.array([0.468 if x > 0.468 else x for x in hg/hb])
+    EBV_hghb = np.log10((hghb)/0.468)/(-0.4*(k_hg - k_hb))
+    EBV_hghb = np.array([-99.0 if np.isnan(x) else x for x in EBV_hghb])
+    return EBV_hghb
+
+def HA_HB_EBV(ha, hb, instr):
+    '''
+    '''
+    ha = np.array(ha)
+    hb = np.array(hb)
+    hahb = np.array([2.86 if (x < 2.86 and x > 0) else x for x in ha/hb])
+    EBV_hahb = np.log10((hahb)/2.86)/(-0.4*(k_ha - k_hb))
+    if instr=='MMT':
+        EBV_hahb[-1] = -99.0 #no nb973 halpha
+        EBV_hahb[-2] = -99.0 #unreliable nb921 halpha
+    elif instr=='Keck':
+        EBV_hahb[0] = -99.0 #no nb816 hbeta
+
+    EBV_hahb = np.array([-99.0 if np.isnan(x) else x for x in EBV_hahb])
+    return EBV_hahb
 
 def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassindex0=[]):
     '''
@@ -297,18 +326,21 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassin
         pp.savefig()
     plt.close()
 
+    EBV_hghb = HG_HB_EBV(HG_flux, HB_flux)
+    EBV_hahb = HA_HB_EBV(HA_flux, HB_flux, 'MMT')
+
     table00 = Table([subtitle_list, stlrmass_bin_arr, num_sources, num_bad_NB921_sources, num_stack_HG, num_stack_HB, num_stack_HA,
         avgz_arr, minz_arr, maxz_arr, 
         avg_stlrmass_arr, min_stlrmass_arr, max_stlrmass_arr, HG_flux, HB_flux, HA_flux, NII_6548_flux, 
         NII_6583_flux, HG_EW, HB_EW, HA_EW, HG_EW_corr, HB_EW_corr, HA_EW_corr, HG_EW_abs, HB_EW_abs,
         HG_continuum, HB_continuum, HA_continuum, HG_pos_amplitude, HB_pos_amplitude, HA_pos_amplitude,
-        HG_neg_amplitude, HB_neg_amplitude], # IDs_arr
+        HG_neg_amplitude, HB_neg_amplitude, EBV_hghb, EBV_hahb], # IDs_arr
         names=['filter', 'stlrmass_bin', 'num_sources', 'num_bad_MMT_Halpha_NB921', 'num_stack_HG', 'num_stack_HB', 'num_stack_HA',
         'avgz', 'minz', 'maxz',
         'avg_stlrmass',  'min_stlrmass', 'max_stlrmass','HG_flux', 'HB_flux', 'HA_flux', 'NII_6548_flux', 
         'NII_6583_flux', 'HG_EW', 'HB_EW', 'HA_EW', 'HG_EW_corr', 'HB_EW_corr', 'HA_EW_corr', 'HG_EW_abs', 'HB_EW_abs',
         'HG_continuum', 'HB_continuum', 'HA_continuum', 'HG_pos_amplitude', 'HB_pos_amplitude', 'HA_pos_amplitude',
-        'HG_neg_amplitude', 'HB_neg_amplitude']) # IDs
+        'HG_neg_amplitude', 'HB_neg_amplitude', 'E(B-V)_hghb', 'E(B-V)_hahb']) # IDs
     if pp != None: return pp, table00
 
     asc.write(table00, full_path+'Composite_Spectra/Redshift/MMT_stacked_spectra_data.txt',
@@ -456,18 +488,21 @@ def plot_MMT_Ha_stlrmass():
 
     subtitle_list = np.array(['all']*len(subtitle_list))
 
+    EBV_hghb = HG_HB_EBV(HG_flux, HB_flux)
+    EBV_hahb = HA_HB_EBV(HA_flux, HB_flux, 'MMT')
+
     table00 = Table([subtitle_list, stlrmass_bin_arr, num_sources, num_bad_NB921_sources, num_stack_HG, num_stack_HB, num_stack_HA,
         avgz_arr, minz_arr, maxz_arr, 
         avg_stlrmass_arr, min_stlrmass_arr, max_stlrmass_arr, HG_flux, HB_flux, HA_flux, NII_6548_flux, 
         NII_6583_flux, HG_EW, HB_EW, HA_EW, HG_EW_corr, HB_EW_corr, HA_EW_corr, HG_EW_abs, HB_EW_abs,
         HG_continuum, HB_continuum, HA_continuum, HG_pos_amplitude, HB_pos_amplitude, HA_pos_amplitude,
-        HG_neg_amplitude, HB_neg_amplitude], # IDs_arr
+        HG_neg_amplitude, HB_neg_amplitude, EBV_hghb, EBV_hahb], # IDs_arr
         names=['filter', 'stlrmass_bin', 'num_sources', 'num_bad_MMT_Halpha_NB921', 'num_stack_HG', 'num_stack_HB', 'num_stack_HA',
         'avgz', 'minz', 'maxz',
         'avg_stlrmass', 'min_stlrmass', 'max_stlrmass', 'HG_flux', 'HB_flux', 'HA_flux', 'NII_6548_flux', 
         'NII_6583_flux', 'HG_EW', 'HB_EW', 'HA_EW', 'HG_EW_corr', 'HB_EW_corr', 'HA_EW_corr', 'HG_EW_abs', 'HB_EW_abs',
         'HG_continuum', 'HB_continuum', 'HA_continuum', 'HG_pos_amplitude', 'HB_pos_amplitude', 'HA_pos_amplitude',
-        'HG_neg_amplitude', 'HB_neg_amplitude']) # IDs
+        'HG_neg_amplitude', 'HB_neg_amplitude', 'E(B-V)_hghb', 'E(B-V)_hahb']) # IDs
     asc.write(table00, full_path+'Composite_Spectra/StellarMass/MMT_all_five_data.txt',
         format='fixed_width_two_line', delimiter=' ')
 
@@ -728,18 +763,20 @@ def plot_Keck_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassi
         pp.savefig()
     plt.close()
 
+    EBV_hahb = HA_HB_EBV(HA_flux, HB_flux, 'Keck')
+
     table00 = Table([subtitle_list, stlrmass_bin_arr, num_sources, num_stack_HB, num_stack_HA,
         avgz_arr, minz_arr, maxz_arr, 
         avg_stlrmass_arr, min_stlrmass_arr, max_stlrmass_arr, HB_flux, HA_flux, NII_6548_flux, 
         NII_6583_flux, HB_EW, HA_EW, HB_EW_corr, HA_EW_corr, HB_EW_abs,
         HB_continuum, HA_continuum, HB_pos_amplitude, HA_pos_amplitude,
-        HB_neg_amplitude], # IDs_arr
+        HB_neg_amplitude, EBV_hahb], # IDs_arr
         names=['filter', 'stlrmass_bin', 'num_sources', 'num_stack_HB', 'num_stack_HA',
         'avgz', 'minz', 'maxz',
         'avg_stlrmass', 'min_stlrmass', 'max_stlrmass', 'HB_flux', 'HA_flux', 'NII_6548_flux', 
         'NII_6583_flux', 'HB_EW', 'HA_EW', 'HB_EW_corr', 'HA_EW_corr', 'HB_EW_abs',
         'HB_continuum', 'HA_continuum', 'HB_pos_amplitude', 'HA_pos_amplitude',
-        'HB_neg_amplitude']) # IDs
+        'HB_neg_amplitude', 'E(B-V)_hahb']) # IDs
 
     if pp != None: return pp, table00
     asc.write(table00, full_path+'Composite_Spectra/Redshift/Keck_stacked_spectra_data.txt',
@@ -891,19 +928,20 @@ def plot_Keck_Ha_stlrmass():
     f = general_plotting.final_plot_setup(f, r'Keck detections of H$\alpha$ emitters')
 
     subtitle_list = np.array(['all']*len(stlrmass_bin_arr))
+    EBV_hahb = HA_HB_EBV(HA_flux, HB_flux, 'Keck')
 
     table00 = Table([subtitle_list, stlrmass_bin_arr, num_sources, num_stack_HB, num_stack_HA,
         avgz_arr, minz_arr, maxz_arr, 
         avg_stlrmass_arr, min_stlrmass_arr, max_stlrmass_arr, HB_flux, HA_flux, NII_6548_flux, 
         NII_6583_flux, HB_EW, HA_EW, HB_EW_corr, HA_EW_corr, HB_EW_abs,
         HB_continuum, HA_continuum, HB_pos_amplitude, HA_pos_amplitude,
-        HB_neg_amplitude], # IDs_arr
+        HB_neg_amplitude, EBV_hahb], # IDs_arr
         names=['filter', 'stlrmass_bin', 'num_sources', 'num_stack_HB', 'num_stack_HA',
         'avgz', 'minz', 'maxz',
         'avg_stlrmass', 'min_stlrmass', 'max_stlrmass', 'HB_flux', 'HA_flux', 'NII_6548_flux', 
         'NII_6583_flux', 'HB_EW', 'HA_EW', 'HB_EW_corr', 'HA_EW_corr', 'HB_EW_abs',
         'HB_continuum', 'HA_continuum', 'HB_pos_amplitude', 'HA_pos_amplitude',
-        'HB_neg_amplitude']) # 'IDs'
+        'HB_neg_amplitude', 'E(B-V)_hahb']) # 'IDs'
     asc.write(table00, full_path+'Composite_Spectra/StellarMass/Keck_all_five_data.txt',
             format='fixed_width_two_line', delimiter=' ')
 
@@ -966,6 +1004,10 @@ inst_dict['Keck'] = ['merged,','Keck,','Keck,Keck,','Keck,FOCAS,',
                      'Keck,FOCAS,FOCAS,','Keck,Keck,FOCAS,']
 tol = 3 #in angstroms, used for NII emission flux calculations ##used
 
+k_hg = cardelli(4341 * u.Angstrom)
+k_hb = cardelli(4861 * u.Angstrom)
+k_ha = cardelli(6563 * u.Angstrom)
+
 nbia = pyfits.open(full_path+'Catalogs/python_outputs/nbia_all_nsource.fits')
 nbiadata = nbia[1].data
 NAME0 = nbiadata['source_name'] ##used
@@ -1004,8 +1046,8 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr, fill_value=np.nan)
 
 print '### plotting MMT_Ha'
-# plot_MMT_Ha()
-# plot_MMT_Ha_stlrmass()
+plot_MMT_Ha()
+plot_MMT_Ha_stlrmass()
 plot_MMT_Ha_stlrmass_z()
 grid.close()
 
@@ -1030,9 +1072,9 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 
 print '### plotting Keck_Ha'
-# plot_Keck_Ha()
-# plot_Keck_Ha_stlrmass()
-# plot_Keck_Ha_stlrmass_z()
+plot_Keck_Ha()
+plot_Keck_Ha_stlrmass()
+plot_Keck_Ha_stlrmass_z()
 grid.close()
 
 nbia.close()
