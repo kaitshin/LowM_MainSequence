@@ -44,6 +44,7 @@ def main(MMT=False, Keck=False, silent=False, verbose=True):
     Notes
     -----
     Created by Chun Ly, 22 January 2018
+     - Modified input MMT files
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
@@ -54,8 +55,8 @@ def main(MMT=False, Keck=False, silent=False, verbose=True):
         g_dir0 = ''
 
     if MMT:
-        pdf_files = glob.glob(g_dir0 + 'MMT/Plots/MMT?_all_line_fit.pdf')
-        cat_files = glob.glob(g_dir0 + 'MMT/Plots/MMT?_all_line_fit.fits')
+        pdf_files = glob.glob(g_dir0 + 'MMT/Plots/MMT*_line_fit.pdf')
+        cat_files = glob.glob(g_dir0 + 'MMT/Plots/MMT*_line_fit.fits')
 
     if Keck:
         pdf_files = glob.glob(g_dir0 + 'Keck/Plots/DEIMOS_*_line_fit.pdf')
@@ -65,4 +66,3 @@ def main(MMT=False, Keck=False, silent=False, verbose=True):
 
     if silent == False: log.info('### End main : '+systime())
 #enddef
-
