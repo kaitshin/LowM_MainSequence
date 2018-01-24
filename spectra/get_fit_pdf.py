@@ -52,7 +52,9 @@ def main(MMT=False, Keck=False, silent=False, verbose=True):
     Created by Chun Ly, 23 January 2018
      - Read in FITS catalog files
      - Use match_nosort_str to crossmatch to get pages
-     - Get pages and all exec_pdfmerge to generate PDF
+     - Get pages and call exec_pdfmerge to generate PDF
+     - Bug fix: Fix issue when FITS catalog is different from number of pages
+       in PDF (i.e., some spectra were not fitted by IDL)
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
@@ -67,19 +69,44 @@ def main(MMT=False, Keck=False, silent=False, verbose=True):
         pdf_files = glob.glob(s_dir0+'MMT/Plots/MMT*_line_fit.pdf')
         cat_files = glob.glob(s_dir0+'MMT/Plots/MMT*_line_fit.fits')
 
+        # Handle spectra without PDF fitting plots | + on 23/01/2018
+        spec_fit_file = glob.glob(s_dir0+'MMT/Plots/spec_fit*txt')
+        spec_fit_file.reverse() # For consistency with pdf_files and cat_files
+
+        # Accidently removed before last commit, cc34fdf
+        spec_cov_file = g_dir0+'Composite_Spectra/MMT_spectral_coverage.txt'
+
     if Keck:
         pdf_files = glob.glob(s_dir0+'Keck/Plots/DEIMOS_*_line_fit.pdf')
         cat_files = glob.glob(s_dir0+'Keck/Plots/DEIMOS_*_line_fit.fits')
+
+        # Handle spectra without PDF fitting plots | + on 23/01/2018
+        spec_fit_file = glob.glob(s_dir0+'Keck/Plots/spec_fit*txt')
+
         spec_cov_file = g_dir0+'Composite_Spectra/Keck_spectral_coverage.txt'
 
-    print cat_files, pdf_files
+    if silent == False: log.info('## cat_files : ')
+    print cat_files
+
+    if silent == False: log.info('## pdf_files : ')
+    print pdf_files
 
     # Read in FITS catalogs | + on 23/01/2018
     cat_data = []
     for cc in range(len(cat_files)):
         if silent == False: log.info('### Reading : '+cat_files[cc])
         tmp = fits.getdata(cat_files[cc])
+
+        # Fix issue when FITS catalog is different from PDF | + on 23/01/2018
+        if silent == False: log.info('### Reading : '+spec_fit_file[cc])
+        tmp1 = asc.read(spec_fit_file[cc])
+        good = np.where(tmp1['col2'] == 1)[0]
+
+        # Only reduce if FITS catalog contain more entries than PDF pages
+        if len(tmp) > len(good): tmp = tmp[good]
+
         cat_data.append(tmp)
+    #endfor
 
     n_files = len(pdf_files)
 
