@@ -44,6 +44,7 @@ def NB_spec_redshift(filt):
     Notes
     -----
     Created by Chun Ly, 27 January 2018
+     - This is a Python version of IDL's code, NB_spec_redshift.pro
     '''
 
     if filt == 'NB704':
