@@ -27,6 +27,63 @@ from matplotlib.backends.backend_pdf import PdfPages
 
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
+def NB_spec_redshift(filt):
+    '''
+    Redshift for NB excess emitter selection for various emission lines
+
+    Parameters
+    ----------
+    filt : str
+      Name of filter. Either 'NB704', 'NB711', 'NB816', 'NB921', 'NB973'
+
+    Returns
+    -------
+    z1, z2, z3, z4, z5, z6, z7, z8, z9, z10 : float
+      Minimum and maximum redshift for various emission lines
+
+    Notes
+    -----
+    Created by Chun Ly, 27 January 2018
+    '''
+
+    if filt == 'NB704':
+        z1, z2  = 0.050, 0.100 # H-alpha
+        z3, z4  = 0.370, 0.475 # OIII
+        z5, z6  = 0.870, 0.910 # OII
+        z7, z8  = 4.600, 4.900 # Ly-alpha
+        z9, z10 = 0.800, 0.850 # NeIII
+    #endif
+    if filt == 'NB711':
+        z1, z2  = 0.050, 0.100 # H-alpha
+        z3, z4  = 0.375, 0.475 # OIII
+        z5, z6  = 0.875, 0.940 # OII
+        z7, z8  = 4.650, 4.900 # Ly-alpha
+        z9, z10 = 0.800, 0.870 # NeIII
+    #endif
+    if filt == 'NB816':
+        z1, z2  = 0.210, 0.260 # H-alpha
+        z3, z4  = 0.600, 0.700 # OIII
+        z5, z6  = 1.150, 1.225 # OII
+        z7, z8  = 5.600, 5.800 # Ly-alpha
+        z9, z10 = 1.075, 1.150 # NeIII
+    #endif
+    if filt == 'NB921':
+        z1, z2  = 0.385, 0.420 # H-alpha
+        z3, z4  = 0.810, 0.910 # OIII
+        z5, z6  = 1.460, 1.480 # OII
+        z7, z8  = 6.520, 6.630 # Ly-alpha
+        z9, z10 = 0.000, 0.000 # NeIII
+    #endif
+    if filt == 'NB973':
+        z1, z2  = 0.450, 0.520 # H-alpha
+        z3, z4  = 0.940, 0.975 # OIII
+        z5, z6  = 1.585, 1.620 # OII
+        z7, z8  = 6.950, 7.100 # Ly-alpha
+        z9, z10 = 0.000, 0.000 # NeIII
+    #endif
+    return z1, z2, z3, z4, z5, z6, z7, z8, z9, z10
+#enddef
+
 def main(silent=False, verbose=True):
 
     '''
