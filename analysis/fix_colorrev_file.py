@@ -25,6 +25,8 @@ from astropy import log
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+
 def main(silent=False, verbose=True):
 
     '''
@@ -45,6 +47,9 @@ def main(silent=False, verbose=True):
     Notes
     -----
     Created by Chun Ly, 26 January 2018
+    Modified by Chun Ly, 27 January 2018
+     - Add inset plot that zooms in for H-alpha to [OII]
+     - Plot aesthetics
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
@@ -75,16 +80,30 @@ def main(silent=False, verbose=True):
     out_pdf = dir0+'Plots/NB_IA_zspec.pdf'
     pp = PdfPages(out_pdf)
 
-    for filt in filt0:
-        idx = [xx for xx in range(len(c_data)) if filt in c_data.NAME[xx]]
+    zmax = [1.05, 1.05, 1.3, 1.55, 1.70]
+    for ff in range(len(filt0)):
+        idx = [xx for xx in range(len(c_data)) if filt0[ff] in c_data.NAME[xx]]
         idx_z = intersect(idx, with_z)
 
         fig, ax = plt.subplots()
-        ax.hist(z_spec0[idx_z], bins=500, alpha=0.5)
+        N, bins, patch = ax.hist(z_spec0[idx_z], bins=500, alpha=0.5,
+                                 edgecolor='none', histtype='bar',
+                                 align='mid')
         ax.set_xlabel('Spectroscopic Redshift')
         ax.set_ylabel('Number of Spectra')
-        ax.annotate(filt, [0.05,0.95], xycoords='axes fraction', ha='left',
-                    va='top')
+        ax.minorticks_on()
+        ax.annotate(filt0[ff], [0.025,0.975], xycoords='axes fraction',
+                    ha='left', va='top')
+
+        # zoom-in inset panel | + on 12/12/2016
+        axins = inset_axes(ax, width=4., height=4., loc=1)
+        axins.hist(z_spec0[idx_z], bins=500, alpha=0.5, edgecolor='none',
+                   histtype='bar', align='mid')
+        axins.set_xlim([0.0,zmax[ff]])
+        axins.set_xlabel(r'$z_{\rm spec}$')
+        # axins.set_ylim([0.0,max(N)])
+        axins.minorticks_on()
+
         fig.set_size_inches(8,8)
         fig.savefig(pp, format='pdf', bbox_inches='tight')
 
