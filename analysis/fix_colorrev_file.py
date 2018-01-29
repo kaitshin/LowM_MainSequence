@@ -135,6 +135,7 @@ def main(silent=False, verbose=True):
      - Read in original NBIA no-dup FITS file
      - Add IA598 and IA679 filters for update
      - Plot aesthetics - Avoid when min/max redshift if both equal to zero
+     - Update galaxy name with redshift info
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
@@ -153,8 +154,10 @@ def main(silent=False, verbose=True):
     c_data = fits.getdata(colorrev_file)
 
     # + on 29/01/2018
-    raw_Name = [str0.replace(' ','') for str0 in raw_data.NAME]
-    rev_Name = [str0.replace(' ','') for str0 in c_data.NAME]
+    raw_Name = np.array([str0.replace(' ','') for str0 in raw_data.NAME])
+    rev_Name = np.array([str0.replace(' ','') for str0 in c_data.NAME])
+
+    corr_Name = raw_Name.copy() # + on 29/01/2018
 
     zspec_file = dir0+'Catalogs/nb_ia_zspec.txt'
     log.info('### Reading : '+zspec_file)
@@ -203,6 +206,8 @@ def main(silent=False, verbose=True):
 
         # Draw vertical lines for selection | + on 29/01/2018
         ctype = ['red','green','blue','black','purple']
+        ltype = [ 'Ha', 'OIII', 'OII',  'Lya', 'NeIII']
+
         for zz in range(len(ctype)):
             if z_vals[2*zz] != 0.0 and z_vals[2*zz+1] != 0.0:
                 ax.axvline(x=z_vals[2*zz],   color=ctype[zz], linestyle='dashed')
@@ -210,6 +215,15 @@ def main(silent=False, verbose=True):
 
                 axins.axvline(x=z_vals[2*zz],   color=ctype[zz], linestyle='dashed')
                 axins.axvline(x=z_vals[2*zz+1], color=ctype[zz], linestyle='dashed')
+
+                # Update galaxy name with redshift info | + on 29/01/2018
+                z_line = np.array([xx for xx in range(len(idx_z)) if
+                                   (z_spec0[idx_z][xx] >= z_vals[2*zz]) &
+                                   (z_spec0[idx_z][xx] <= z_vals[2*zz+1])])
+                z_line = np.array(idx_z[z_line])
+                new_Name = [str0.replace(filt0[ff],ltype[zz]+'-'+filt0[ff]) for
+                            str0 in raw_Name[z_line]]
+                corr_Name[z_line] = new_Name
             #endif
         #endfor
 
