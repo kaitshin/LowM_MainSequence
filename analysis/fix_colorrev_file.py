@@ -111,16 +111,27 @@ def main(silent=False, verbose=True):
     Modified by Chun Ly, 29 January 2018
      - Call NB_spec_redshift()
      - Draw vertical lines for redshift selection
+     - Read in original NBIA no-dup FITS file
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
 
     dir0 = '/Users/cly/Google Drive/NASA_Summer2015/'
 
-    colorrev_file = dir0+'Catalogs/NB_IA_emitters.nodup.colorrev.fits'
+    # Mod on 29/01/2018
+    orig_file     = dir0+'Catalogs/NB_IA_emitters.nodup.fits'
+    colorrev_file = orig_file.replace('.fits','.colorrev.fits')
+
+    # + on 29/01/2018
+    log.info('### Reading : '+orig_file)
+    raw_data = fits.getdata(orig_file)
 
     log.info('### Reading : '+colorrev_file)
     c_data = fits.getdata(colorrev_file)
+
+    # + on 29/01/2018
+    raw_Name = [str0.replace(' ','') for str0 in raw_data.NAME]
+    rev_Name = [str0.replace(' ','') for str0 in c_data.NAME]
 
     zspec_file = dir0+'Catalogs/nb_ia_zspec.txt'
     log.info('### Reading : '+zspec_file)
