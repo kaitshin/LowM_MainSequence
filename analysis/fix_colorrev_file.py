@@ -134,6 +134,7 @@ def main(silent=False, verbose=True):
      - Draw vertical lines for redshift selection
      - Read in original NBIA no-dup FITS file
      - Add IA598 and IA679 filters for update
+     - Plot aesthetics - Avoid when min/max redshift if both equal to zero
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
@@ -203,15 +204,18 @@ def main(silent=False, verbose=True):
         # Draw vertical lines for selection | + on 29/01/2018
         ctype = ['red','green','blue','black','purple']
         for zz in range(len(ctype)):
-            ax.axvline(x=z_vals[2*zz],   color=ctype[zz], linestyle='dashed')
-            ax.axvline(x=z_vals[2*zz+1], color=ctype[zz], linestyle='dashed')
+            if z_vals[2*zz] != 0.0 and z_vals[2*zz+1] != 0.0:
+                ax.axvline(x=z_vals[2*zz],   color=ctype[zz], linestyle='dashed')
+                ax.axvline(x=z_vals[2*zz+1], color=ctype[zz], linestyle='dashed')
 
-            axins.axvline(x=z_vals[2*zz],   color=ctype[zz], linestyle='dashed')
-            axins.axvline(x=z_vals[2*zz+1], color=ctype[zz], linestyle='dashed')
+                axins.axvline(x=z_vals[2*zz],   color=ctype[zz], linestyle='dashed')
+                axins.axvline(x=z_vals[2*zz+1], color=ctype[zz], linestyle='dashed')
+            #endif
+        #endfor
 
         fig.set_size_inches(8,8)
         fig.savefig(pp, format='pdf', bbox_inches='tight')
-
+        
     #endfor
 
     pp.close()
