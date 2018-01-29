@@ -108,6 +108,9 @@ def main(silent=False, verbose=True):
     Modified by Chun Ly, 27 January 2018
      - Add inset plot that zooms in for H-alpha to [OII]
      - Plot aesthetics
+    Modified by Chun Ly, 29 January 2018
+     - Call NB_spec_redshift()
+     - Draw vertical lines for redshift selection
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
@@ -143,6 +146,8 @@ def main(silent=False, verbose=True):
         idx = [xx for xx in range(len(c_data)) if filt0[ff] in c_data.NAME[xx]]
         idx_z = intersect(idx, with_z)
 
+        z_vals = NB_spec_redshift(filt0[ff])
+
         fig, ax = plt.subplots()
         N, bins, patch = ax.hist(z_spec0[idx_z], bins=500, alpha=0.5,
                                  edgecolor='none', histtype='bar',
@@ -161,6 +166,15 @@ def main(silent=False, verbose=True):
         axins.set_xlabel(r'$z_{\rm spec}$')
         # axins.set_ylim([0.0,max(N)])
         axins.minorticks_on()
+
+        # Draw vertical lines for selection | + on 29/01/2018
+        ctype = ['red','green','blue','black','purple']
+        for zz in range(len(ctype)):
+            ax.axvline(x=z_vals[2*zz],   color=ctype[zz], linestyle='dashed')
+            ax.axvline(x=z_vals[2*zz+1], color=ctype[zz], linestyle='dashed')
+
+            axins.axvline(x=z_vals[2*zz],   color=ctype[zz], linestyle='dashed')
+            axins.axvline(x=z_vals[2*zz+1], color=ctype[zz], linestyle='dashed')
 
         fig.set_size_inches(8,8)
         fig.savefig(pp, format='pdf', bbox_inches='tight')
