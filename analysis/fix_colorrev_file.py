@@ -133,6 +133,7 @@ def main(silent=False, verbose=True):
      - Call NB_spec_redshift()
      - Draw vertical lines for redshift selection
      - Read in original NBIA no-dup FITS file
+     - Add IA598 and IA679 filters for update
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
@@ -168,12 +169,12 @@ def main(silent=False, verbose=True):
     with_z = np.where((z_spec0 != -10) & (z_spec0 < 9.999) &
                       (z_spec0 != -1.0))[0]
 
-    filt0 = ['NB704','NB711','NB816','NB921','NB973']
+    filt0 = ['NB704','NB711','NB816','NB921','NB973','IA598','IA679']
 
     out_pdf = dir0+'Plots/NB_IA_zspec.pdf'
     pp = PdfPages(out_pdf)
 
-    zmax = [1.05, 1.05, 1.3, 1.55, 1.70]
+    zmax = [1.05, 1.05, 1.3, 1.55, 1.70, 0.70, 0.96]
     for ff in range(len(filt0)):
         idx = [xx for xx in range(len(c_data)) if filt0[ff] in c_data.NAME[xx]]
         idx_z = intersect(idx, with_z)
