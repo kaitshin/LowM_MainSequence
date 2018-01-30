@@ -139,6 +139,7 @@ def main(silent=False, verbose=True):
     Modified by Chun Ly, 30 January 2018
      - Change Name of source to include emission line info
      - Write changes to source name to file
+     - Transfer colorrev info from rev_Name to corr_Name for those without redshift
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
@@ -175,6 +176,12 @@ def main(silent=False, verbose=True):
     # Note: This yields 1519 galaxies
     with_z = np.where((z_spec0 != -10) & (z_spec0 < 9.999) &
                       (z_spec0 != -1.0))[0]
+
+    # + on 30/01/2018
+    without_z = np.where((z_spec0 == -10) | (z_spec0 > 9.999) |
+                         (z_spec0 == -1.0))[0]
+
+    corr_Name[without_z] = rev_Name[without_z]
 
     filt0 = ['NB704','NB711','NB816','NB921','NB973','IA598','IA679']
 
