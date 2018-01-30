@@ -141,6 +141,7 @@ def main(silent=False, verbose=True):
      - Write changes to source name to file
      - Transfer colorrev info from rev_Name to corr_Name for those without redshift
      - Write redshift info (ID, redshift) to outfile
+     - Bug fix: On without_z definition
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
@@ -179,7 +180,7 @@ def main(silent=False, verbose=True):
                       (z_spec0 != -1.0))[0]
 
     # + on 30/01/2018
-    without_z = np.where((z_spec0 == -10) | (z_spec0 > 9.999) |
+    without_z = np.where((z_spec0 == -10) | (z_spec0 >= 9.999) |
                          (z_spec0 == -1.0))[0]
 
     corr_Name[without_z] = rev_Name[without_z]
