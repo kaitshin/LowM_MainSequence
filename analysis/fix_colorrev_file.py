@@ -144,6 +144,7 @@ def main(silent=False, verbose=True):
      - Bug fix: On without_z definition
      - Bug fix: Address string loss with np.array dtype default settings
      - Logging via print statements
+     - QA check - Get spec-z cases that don't have em-line info updated
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
@@ -249,7 +250,15 @@ def main(silent=False, verbose=True):
 
         fig.set_size_inches(8,8)
         fig.savefig(pp, format='pdf', bbox_inches='tight')
-        
+
+        # Get spec-z cases that don't have color info updated | + on 30/01/2018
+        no_change = [cc for cc in range(len(idx_z))
+                     if '-'+filt0[ff] not in corr_Name[idx_z[cc]]]
+        if len(no_change) == 0:
+            log.info('## All sources updated')
+        else:
+            log.info('## '+filt0[ff]+' no change')
+            z_data[idx_z[no_change]].pprint(max_lines=-1)
     #endfor
 
     pp.close()
