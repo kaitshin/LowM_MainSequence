@@ -140,6 +140,7 @@ def main(silent=False, verbose=True):
      - Change Name of source to include emission line info
      - Write changes to source name to file
      - Transfer colorrev info from rev_Name to corr_Name for those without redshift
+     - Write redshift info (ID, redshift) to outfile
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
@@ -252,9 +253,15 @@ def main(silent=False, verbose=True):
     change = [xx for xx in range(len(raw_Name)) if corr_Name[xx] != rev_Name[xx]]
     print len(change)
 
-    change_str0 = [a+' '+b+'->'+c+'\n' for a,b,c in
-                   zip(z_data['slit_str0'][change],rev_Name[change],corr_Name[change])]
-    f0 = open(dir0+'Catalogs/fix_colorrev_file.dat', 'w')
+    # Mod on 30/01/2018
+    z_data_ch = z_data[change]
+    arr0 = zip(z_data_ch['ID0'], z_data_ch['zspec0'], z_data_ch['slit_str0'],
+               rev_Name[change], corr_Name[change])
+    change_str0 = [str(a)+' '+str(b)+' '+c+' '+d+' -> '+e+'\n' for a,b,c,d,e in arr0]
+
+    outfile = dir0+'Catalogs/fix_colorrev_file.dat'
+    log.info('## Writing : '+outfile)
+    f0 = open(outfile, 'w')
     f0.writelines(change_str0)
     f0.close()
 
