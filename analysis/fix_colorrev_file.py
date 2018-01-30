@@ -47,6 +47,7 @@ def NB_spec_redshift(filt):
      - This is a Python version of IDL's code, NB_spec_redshift.pro
     Modified by Chun Ly, 29 January 2018
      - Add IA598 and IA679 redshift limits
+     - Redshift limit change for OII-NB921 and Ha-NB921
     '''
 
     if filt == 'NB704':
@@ -71,9 +72,9 @@ def NB_spec_redshift(filt):
         z9, z10 = 1.075, 1.150 # NeIII
     #endif
     if filt == 'NB921':
-        z1, z2  = 0.385, 0.420 # H-alpha
+        z1, z2  = 0.385, 0.429 # H-alpha
         z3, z4  = 0.810, 0.910 # OIII
-        z5, z6  = 1.460, 1.480 # OII
+        z5, z6  = 1.445, 1.492 # OII
         z7, z8  = 6.520, 6.630 # Ly-alpha
         z9, z10 = 0.000, 0.000 # NeIII
     #endif
