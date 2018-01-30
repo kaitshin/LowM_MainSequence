@@ -145,6 +145,7 @@ def main(silent=False, verbose=True):
      - Bug fix: Address string loss with np.array dtype default settings
      - Logging via print statements
      - QA check - Get spec-z cases that don't have em-line info updated
+     - Write nochange ASCII table
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
@@ -257,8 +258,11 @@ def main(silent=False, verbose=True):
         if len(no_change) == 0:
             log.info('## All sources updated')
         else:
-            log.info('## '+filt0[ff]+' no change')
-            z_data[idx_z[no_change]].pprint(max_lines=-1)
+            tab_temp = z_data[idx_z[no_change]]
+            tab_temp.sort('zspec0')
+            outfile2 = dir0+'Catalogs/'+filt0[ff]+'_nochange.tbl'
+            log.info('### Writing : '+outfile2)
+            tab_temp.write(outfile2, format='ascii.fixed_width_two_line', overwrite=True)
     #endfor
 
     pp.close()
