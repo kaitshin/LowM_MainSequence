@@ -138,6 +138,7 @@ def main(silent=False, verbose=True):
      - Update galaxy name with redshift info
     Modified by Chun Ly, 30 January 2018
      - Change Name of source to include emission line info
+     - Write changes to source name to file
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
@@ -240,6 +241,15 @@ def main(silent=False, verbose=True):
 
     pp.close()
 
+    # Write changes to source name to file | + on 30/01/2018
+    change = [xx for xx in range(len(raw_Name)) if corr_Name[xx] != rev_Name[xx]]
+    print len(change)
+
+    change_str0 = [a+' '+b+'->'+c+'\n' for a,b,c in
+                   zip(z_data['slit_str0'][change],rev_Name[change],corr_Name[change])]
+    f0 = open(dir0+'Catalogs/fix_colorrev_file.dat', 'w')
+    f0.writelines(change_str0)
+    f0.close()
 
     if silent == False: log.info('### End main : '+systime())
 #enddef
