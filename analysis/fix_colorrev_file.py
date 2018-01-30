@@ -136,6 +136,8 @@ def main(silent=False, verbose=True):
      - Add IA598 and IA679 filters for update
      - Plot aesthetics - Avoid when min/max redshift if both equal to zero
      - Update galaxy name with redshift info
+    Modified by Chun Ly, 30 January 2018
+     - Change Name of source to include emission line info
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
@@ -220,10 +222,14 @@ def main(silent=False, verbose=True):
                 z_line = np.array([xx for xx in range(len(idx_z)) if
                                    (z_spec0[idx_z][xx] >= z_vals[2*zz]) &
                                    (z_spec0[idx_z][xx] <= z_vals[2*zz+1])])
-                z_line = np.array(idx_z[z_line])
-                new_Name = [str0.replace(filt0[ff],ltype[zz]+'-'+filt0[ff]) for
-                            str0 in raw_Name[z_line]]
-                corr_Name[z_line] = new_Name
+                print filt0[ff], ltype[zz], len(z_line), z_vals[2*zz], z_vals[2*zz+1]
+
+                # + on 30/01/2018
+                if len(z_line) > 0:
+                    z_temp = np.array(idx_z)[z_line]
+                    new_Name = [str0.replace(filt0[ff],ltype[zz]+'-'+filt0[ff]) for
+                                str0 in corr_Name[z_temp]]
+                    corr_Name[z_temp] = new_Name
             #endif
         #endfor
 
@@ -233,7 +239,8 @@ def main(silent=False, verbose=True):
     #endfor
 
     pp.close()
-    
+
+
     if silent == False: log.info('### End main : '+systime())
 #enddef
 
