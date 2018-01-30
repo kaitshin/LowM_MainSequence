@@ -142,6 +142,7 @@ def main(silent=False, verbose=True):
      - Transfer colorrev info from rev_Name to corr_Name for those without redshift
      - Write redshift info (ID, redshift) to outfile
      - Bug fix: On without_z definition
+     - Bug fix: Address string loss with np.array dtype default settings
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
@@ -160,7 +161,8 @@ def main(silent=False, verbose=True):
     c_data = fits.getdata(colorrev_file)
 
     # + on 29/01/2018
-    raw_Name = np.array([str0.replace(' ','') for str0 in raw_data.NAME])
+    raw_Name = np.array([str0.replace(' ','') for str0 in raw_data.NAME],
+                        dtype='|S67')
     rev_Name = np.array([str0.replace(' ','') for str0 in c_data.NAME])
 
     corr_Name = raw_Name.copy() # + on 29/01/2018
