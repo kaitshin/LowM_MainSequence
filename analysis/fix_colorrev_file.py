@@ -50,6 +50,7 @@ def NB_spec_redshift(filt):
      - Redshift limit change for OII-NB921 and Ha-NB921
     Modified by Chun Ly, 31 January 2018
      - Include and return ltype
+     - Add MgII for NB704 and NB711
     '''
 
     if filt == 'NB704':
@@ -58,7 +59,8 @@ def NB_spec_redshift(filt):
         z5, z6  = 0.870, 0.910 # OII
         z7, z8  = 4.600, 4.900 # Ly-alpha
         z9, z10 = 0.800, 0.850 # NeIII
-        ltype = ['Ha', 'OIII', 'OII',  'Lya', 'NeIII']
+        z11,z12 = 1.460, 1.560 # MgII | + on 31/01/2018
+        ltype = ['Ha', 'OIII', 'OII',  'Lya', 'NeIII', 'MgII']
     #endif
     if filt == 'NB711':
         z1, z2  = 0.050, 0.100 # H-alpha
@@ -66,7 +68,8 @@ def NB_spec_redshift(filt):
         z5, z6  = 0.875, 0.940 # OII
         z7, z8  = 4.650, 4.900 # Ly-alpha
         z9, z10 = 0.800, 0.870 # NeIII
-        ltype = ['Ha', 'OIII', 'OII',  'Lya', 'NeIII']
+        z11,z12 = 1.460, 1.560 # MgII | + on 31/01/2018
+        ltype = ['Ha', 'OIII', 'OII',  'Lya', 'NeIII', 'MgII']
     #endif
     if filt == 'NB816':
         z1, z2  = 0.210, 0.260 # H-alpha
