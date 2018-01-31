@@ -156,6 +156,8 @@ def main(silent=False, verbose=True):
      - Logging via print statements
      - QA check - Get spec-z cases that don't have em-line info updated
      - Write nochange ASCII table
+    Modified by Chun Ly, 31 January 2018
+     - Get ltype from NB_spec_redshift()
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
@@ -210,7 +212,7 @@ def main(silent=False, verbose=True):
         idx = [xx for xx in range(len(c_data)) if filt0[ff] in c_data.NAME[xx]]
         idx_z = intersect(idx, with_z)
 
-        z_vals = NB_spec_redshift(filt0[ff])
+        z_vals, ltype = NB_spec_redshift(filt0[ff])
 
         fig, ax = plt.subplots()
         N, bins, patch = ax.hist(z_spec0[idx_z], bins=500, alpha=0.5,
@@ -233,7 +235,7 @@ def main(silent=False, verbose=True):
 
         # Draw vertical lines for selection | + on 29/01/2018
         ctype = ['red','green','blue','black','purple']
-        ltype = [ 'Ha', 'OIII', 'OII',  'Lya', 'NeIII']
+        # ltype = [ 'Ha', 'OIII', 'OII',  'Lya', 'NeIII']
 
         for zz in range(len(ctype)):
             if z_vals[2*zz] != 0.0 and z_vals[2*zz+1] != 0.0:
