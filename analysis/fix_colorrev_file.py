@@ -48,6 +48,8 @@ def NB_spec_redshift(filt):
     Modified by Chun Ly, 29 January 2018
      - Add IA598 and IA679 redshift limits
      - Redshift limit change for OII-NB921 and Ha-NB921
+    Modified by Chun Ly, 31 January 2018
+     - Include and return ltype
     '''
 
     if filt == 'NB704':
@@ -56,6 +58,7 @@ def NB_spec_redshift(filt):
         z5, z6  = 0.870, 0.910 # OII
         z7, z8  = 4.600, 4.900 # Ly-alpha
         z9, z10 = 0.800, 0.850 # NeIII
+        ltype = ['Ha', 'OIII', 'OII',  'Lya', 'NeIII']
     #endif
     if filt == 'NB711':
         z1, z2  = 0.050, 0.100 # H-alpha
@@ -63,6 +66,7 @@ def NB_spec_redshift(filt):
         z5, z6  = 0.875, 0.940 # OII
         z7, z8  = 4.650, 4.900 # Ly-alpha
         z9, z10 = 0.800, 0.870 # NeIII
+        ltype = ['Ha', 'OIII', 'OII',  'Lya', 'NeIII']
     #endif
     if filt == 'NB816':
         z1, z2  = 0.210, 0.260 # H-alpha
@@ -70,6 +74,7 @@ def NB_spec_redshift(filt):
         z5, z6  = 1.150, 1.225 # OII
         z7, z8  = 5.600, 5.800 # Ly-alpha
         z9, z10 = 1.075, 1.150 # NeIII
+        ltype = ['Ha', 'OIII', 'OII',  'Lya', 'NeIII']
     #endif
     if filt == 'NB921':
         z1, z2  = 0.385, 0.429 # H-alpha
@@ -77,6 +82,7 @@ def NB_spec_redshift(filt):
         z5, z6  = 1.445, 1.492 # OII
         z7, z8  = 6.520, 6.630 # Ly-alpha
         z9, z10 = 0.000, 0.000 # NeIII
+        ltype = ['Ha', 'OIII', 'OII',  'Lya', 'NeIII']
     #endif
     if filt == 'NB973':
         z1, z2  = 0.450, 0.520 # H-alpha
@@ -84,6 +90,7 @@ def NB_spec_redshift(filt):
         z5, z6  = 1.585, 1.620 # OII
         z7, z8  = 6.950, 7.100 # Ly-alpha
         z9, z10 = 0.000, 0.000 # NeIII
+        ltype = ['Ha', 'OIII', 'OII',  'Lya', 'NeIII']
     #endif
 
     # + on 29/01/2018
@@ -94,17 +101,19 @@ def NB_spec_redshift(filt):
         z7, z8  = 3.600, 4.100 # Ly-alpha
         z9, z10 = 0.000, 0.000 # NeIII
         #Also, we have 1 CIII] 1909. No [NeIII]
+        ltype = ['Ha', 'OIII', 'OII',  'Lya', 'NeIII']
     #endif
     if filt == 'IA679':
-        z1, z2  = 0.000, 0.080 # Don't really use this
+        z1, z2  = 0.000, 0.080 # Ha. Don't really use this
         z3, z4  = 0.300, 0.450 # [OIII]/H-beta
         z5, z6  = 0.750, 0.950 # [OII]
         z7, z8  = 4.200, 4.900 # Ly-alpha
         z9, z10 = 0.000, 0.000 # NeIII
         #Also, we have 1 CIII] 1909 and 1 or 2 CIV 1549. No [NeIII]
+        ltype = ['Ha', 'OIII', 'OII',  'Lya', 'NeIII']
     #endif
 
-    return z1, z2, z3, z4, z5, z6, z7, z8, z9, z10
+    return (z1, z2, z3, z4, z5, z6, z7, z8, z9, z10), ltype
 #enddef
 
 def main(silent=False, verbose=True):
