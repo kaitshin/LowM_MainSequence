@@ -174,6 +174,8 @@ def main(silent=False, verbose=True):
      - Get ltype from NB_spec_redshift()
      - Handle more than the usual sets of emission lines
      - Bug fix: Incorrect boolean statement. Allow for zmin = 0.0
+    Modified by Chun Ly,  1 February 2018
+     - Write updated colorrev file
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
@@ -189,7 +191,7 @@ def main(silent=False, verbose=True):
     raw_data = fits.getdata(orig_file)
 
     log.info('### Reading : '+colorrev_file)
-    c_data = fits.getdata(colorrev_file)
+    c_data, c_hdr = fits.getdata(colorrev_file, header=True) # Mod on 01/02/2018
 
     # + on 29/01/2018
     raw_Name = np.array([str0.replace(' ','') for str0 in raw_data.NAME],
@@ -311,6 +313,9 @@ def main(silent=False, verbose=True):
     f0.writelines(change_str0)
     f0.close()
 
+    # + on 01/02/2018
+    c_data.NAME = corr_Name
+    fits.writeto(colorrev_file.replace('.fits','.fix.fits'), c_data, c_hdr)
     if silent == False: log.info('### End main : '+systime())
 #enddef
 
