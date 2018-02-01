@@ -53,6 +53,7 @@ def NB_spec_redshift(filt):
      - Add MgII for NB704 and NB711
     Modified by Chun Ly, 1 February 2018
      - Add MgII for IA679
+     - Define and return z_vals
     '''
 
     if filt == 'NB704':
@@ -62,6 +63,7 @@ def NB_spec_redshift(filt):
         z7, z8  = 4.600, 4.900 # Ly-alpha
         z9, z10 = 0.800, 0.850 # NeIII
         z11,z12 = 1.460, 1.560 # MgII | + on 31/01/2018
+        z_vals = (z1, z2, z3, z4, z5, z6, z7, z8, z9, z10, z11, z12)
         ltype = ['Ha', 'OIII', 'OII',  'Lya', 'NeIII', 'MgII']
     #endif
     if filt == 'NB711':
@@ -71,6 +73,7 @@ def NB_spec_redshift(filt):
         z7, z8  = 4.650, 4.900 # Ly-alpha
         z9, z10 = 0.800, 0.870 # NeIII
         z11,z12 = 1.460, 1.560 # MgII | + on 31/01/2018
+        z_vals = (z1, z2, z3, z4, z5, z6, z7, z8, z9, z10, z11, z12)
         ltype = ['Ha', 'OIII', 'OII',  'Lya', 'NeIII', 'MgII']
     #endif
     if filt == 'NB816':
@@ -79,6 +82,7 @@ def NB_spec_redshift(filt):
         z5, z6  = 1.150, 1.225 # OII
         z7, z8  = 5.600, 5.800 # Ly-alpha
         z9, z10 = 1.075, 1.150 # NeIII
+        z_vals = (z1, z2, z3, z4, z5, z6, z7, z8, z9, z10)
         ltype = ['Ha', 'OIII', 'OII',  'Lya', 'NeIII']
     #endif
     if filt == 'NB921':
@@ -87,6 +91,7 @@ def NB_spec_redshift(filt):
         z5, z6  = 1.445, 1.492 # OII
         z7, z8  = 6.520, 6.630 # Ly-alpha
         z9, z10 = 0.000, 0.000 # NeIII
+        z_vals = (z1, z2, z3, z4, z5, z6, z7, z8, z9, z10)
         ltype = ['Ha', 'OIII', 'OII',  'Lya', 'NeIII']
     #endif
     if filt == 'NB973':
@@ -95,6 +100,7 @@ def NB_spec_redshift(filt):
         z5, z6  = 1.585, 1.620 # OII
         z7, z8  = 6.950, 7.100 # Ly-alpha
         z9, z10 = 0.000, 0.000 # NeIII
+        z_vals = (z1, z2, z3, z4, z5, z6, z7, z8, z9, z10)
         ltype = ['Ha', 'OIII', 'OII',  'Lya', 'NeIII']
     #endif
 
@@ -106,6 +112,7 @@ def NB_spec_redshift(filt):
         z7, z8  = 3.600, 4.100 # Ly-alpha
         z9, z10 = 0.000, 0.000 # NeIII
         #Also, we have 1 CIII] 1909. No [NeIII]
+        z_vals = (z1, z2, z3, z4, z5, z6, z7, z8, z9, z10)
         ltype = ['Ha', 'OIII', 'OII',  'Lya', 'NeIII']
     #endif
     if filt == 'IA679':
@@ -116,10 +123,11 @@ def NB_spec_redshift(filt):
         z9, z10 = 0.000, 0.000 # NeIII
         z11,z12 = 1.500, 1.510 # MgII
         #Also, we have 1 CIII] 1909 and 1 or 2 CIV 1549. No [NeIII]
+        z_vals = (z1, z2, z3, z4, z5, z6, z7, z8, z9, z10, z11, z12)
         ltype = ['Ha', 'OIII', 'OII',  'Lya', 'NeIII', 'MgII']
     #endif
 
-    return (z1, z2, z3, z4, z5, z6, z7, z8, z9, z10), ltype
+    return z_vals, ltype
 #enddef
 
 def main(silent=False, verbose=True):
