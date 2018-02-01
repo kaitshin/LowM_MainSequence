@@ -51,6 +51,8 @@ def NB_spec_redshift(filt):
     Modified by Chun Ly, 31 January 2018
      - Include and return ltype
      - Add MgII for NB704 and NB711
+    Modified by Chun Ly, 1 February 2018
+     - Add MgII for IA679
     '''
 
     if filt == 'NB704':
@@ -112,8 +114,9 @@ def NB_spec_redshift(filt):
         z5, z6  = 0.750, 0.950 # [OII]
         z7, z8  = 4.200, 4.900 # Ly-alpha
         z9, z10 = 0.000, 0.000 # NeIII
+        z11,z12 = 1.500, 1.510 # MgII
         #Also, we have 1 CIII] 1909 and 1 or 2 CIV 1549. No [NeIII]
-        ltype = ['Ha', 'OIII', 'OII',  'Lya', 'NeIII']
+        ltype = ['Ha', 'OIII', 'OII',  'Lya', 'NeIII', 'MgII']
     #endif
 
     return (z1, z2, z3, z4, z5, z6, z7, z8, z9, z10), ltype
