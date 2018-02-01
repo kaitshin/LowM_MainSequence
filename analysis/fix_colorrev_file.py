@@ -161,6 +161,7 @@ def main(silent=False, verbose=True):
      - Write nochange ASCII table
     Modified by Chun Ly, 31 January 2018
      - Get ltype from NB_spec_redshift()
+     - Handle more than the usual sets of emission lines
     '''
     
     if silent == False: log.info('### Begin main : '+systime())
@@ -237,10 +238,10 @@ def main(silent=False, verbose=True):
         axins.minorticks_on()
 
         # Draw vertical lines for selection | + on 29/01/2018
-        ctype = ['red','green','blue','black','purple']
+        ctype = ['red','green','blue','black','purple', 'magenta']
         # ltype = [ 'Ha', 'OIII', 'OII',  'Lya', 'NeIII']
 
-        for zz in range(len(ctype)):
+        for zz in range(len(z_vals)/2):
             if z_vals[2*zz] != 0.0 and z_vals[2*zz+1] != 0.0:
                 ax.axvline(x=z_vals[2*zz],   color=ctype[zz], linestyle='dashed')
                 ax.axvline(x=z_vals[2*zz+1], color=ctype[zz], linestyle='dashed')
