@@ -131,7 +131,7 @@ def make_AP_arr_merged(AP, slit_str0):
     Then, at the indices where there were multiple detections (not including
     a FOCAS detection), those indices were replaced and returned.
 
-    Takes care of merged, and MMT,KECK, and merged,FOCAS,    
+    Takes care of merged, and MMT,Keck, and merged,FOCAS,
     '''
 
     #merged,
