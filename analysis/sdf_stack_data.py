@@ -30,7 +30,7 @@ def stack_data(ndarr, zspec, index, x0, xmin, xmax, ff='', instr=''):
         elif ff=='NB816':
             good_z = np.where(plot_zspec < 0.3)[0]
         elif ff=='NB921':
-            good_z = np.where(plot_zspec < 0.4)[0]
+            good_z = np.where(plot_zspec < 0.5)[0]
         elif ff=='NB973':
             good_z = np.where(plot_zspec < 0.6)[0]
         #endif
@@ -41,8 +41,9 @@ def stack_data(ndarr, zspec, index, x0, xmin, xmax, ff='', instr=''):
         if instr=='MMT':
             # to help mask MMT NB921 Halpha sources
             # return stack(ndarr, zspec, index[good_z], x0, xmin, xmax, ff=ff)
+            print 'sdf_stack_data goodz length:', len(good_z)
             x_rest, plot_grid_avg, index, avgz, minz, maxz, new_grid = stack(ndarr, 
-                zspec, index[good_z], x0, xmin, xmax, ff=ff)
+                zspec, index[good_z], x0, xmin, xmax)
 
             # looks for # sources stacked @ nearest emission line by finding nearest idx 
             ma = np.isnan(new_grid)
