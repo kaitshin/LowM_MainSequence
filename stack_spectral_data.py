@@ -40,14 +40,16 @@ from astropy import units as u
 
 def correct_instr_AP(indexed_AP, indexed_inst_str0, instr):
     '''
-    Returns the indexed AP_match array based on the 'match_index' from
+    Returns the indexed AP_match array based on the 'matctot = 3h_index' from
     plot_MMT/Keck_Ha
     '''
     for ii in range(len(indexed_inst_str0)):
-        if indexed_inst_str0[ii]=='merged,':
-            if instr=='MMT':
+        if instr == 'MMT': # indexed_inst_str0[ii]=='MMT,' is fine
+            if (indexed_inst_str0[ii]=='merged,FOCAS,' or indexed_inst_str0[ii] == 'MMT,FOCAS,' 
+                or indexed_inst_str0[ii] == 'MMT,Keck,' or indexed_inst_str0[ii] == 'merged,'):
                 indexed_AP[ii] = indexed_AP[ii][:5]
-            elif instr=='Keck':
+        elif instr=='Keck': # indexed_inst_str0[ii]=='Keck,' is fine
+            if (indexed_inst_str0[ii] == 'merged,' or indexed_inst_str0[ii]=='merged,FOCAS,'):
                 indexed_AP[ii] = indexed_AP[ii][6:]
         #endif
     #endfor
@@ -64,6 +66,7 @@ def HG_HB_EBV(hg, hb):
     EBV_hghb = np.log10((hghb)/0.468)/(-0.4*(k_hg - k_hb))
     EBV_hghb = np.array([-99.0 if np.isnan(x) else x for x in EBV_hghb])
     return EBV_hghb
+#enddef
 
 def HA_HB_EBV(ha, hb, instr, bintype='redshift'):
     '''
@@ -81,6 +84,7 @@ def HA_HB_EBV(ha, hb, instr, bintype='redshift'):
 
     EBV_hahb = np.array([-99.0 if np.isnan(x) else x for x in EBV_hahb])
     return EBV_hahb
+#enddef
 
 def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassindex0=[]):
     '''
@@ -392,6 +396,7 @@ def plot_MMT_Ha_stlrmass():
         max_stlrmass_arr.append(np.max(stlr_mass[match_index]))
         xval, yval, len_input_index, stacked_indexes, avgz, minz, maxz = stack_data(grid_ndarr, gridz, input_index,
             x0, 3700, 6700, instr='MMT')
+        
         num_sources.append(len_input_index[0])
         num_bad_NB921_sources.append(len_input_index[1])
         avgz_arr.append(avgz)
@@ -430,6 +435,7 @@ def plot_MMT_Ha_stlrmass():
                 pos_flux_list.append(pos_flux)
                 flux_list.append(flux)
             except ValueError:
+                print 'There\'s an exception'
                 continue
             finally:
                 (ew, ew_emission, ew_absorption, median, pos_amplitude, 
@@ -525,7 +531,7 @@ def plot_MMT_Ha_stlrmass_z():
     stlrmass_index_list = general_plotting.get_index_list3(stlr_mass, inst_str0, inst_dict, 'MMT')
     for stlrmassindex0 in stlrmass_index_list:
         title='stlrmass: '+str(min(stlr_mass[stlrmassindex0]))+'-'+str(max(stlr_mass[stlrmassindex0]))
-        print '>>>', title
+        print '>>>', title, 'len:', len(stlrmassindex0)
 
         # get one stlrmass bin per page
         temp_index_list = general_plotting.get_index_list(NAME0, inst_str0, inst_dict, 'MMT')
@@ -1000,9 +1006,9 @@ def plot_Keck_Ha_stlrmass_z():
 #----------------------------------------------------------------------------#
 full_path = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
 inst_dict = {} ##used
-inst_dict['MMT'] = ['MMT,FOCAS,','MMT,','merged,','MMT,Keck,']
+inst_dict['MMT'] = ['MMT,FOCAS,','MMT,','merged,','MMT,Keck,','merged,FOCAS,']
 inst_dict['Keck'] = ['merged,','Keck,','Keck,Keck,','Keck,FOCAS,',
-                     'Keck,FOCAS,FOCAS,','Keck,Keck,FOCAS,']
+                     'Keck,FOCAS,FOCAS,','Keck,Keck,FOCAS,','merged,FOCAS,']
 tol = 3 #in angstroms, used for NII emission flux calculations ##used
 
 k_hg = cardelli(4341 * u.Angstrom)
@@ -1047,8 +1053,8 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr, fill_value=np.nan)
 
 print '### plotting MMT_Ha'
-# plot_MMT_Ha()
-plot_MMT_Ha_stlrmass()
+plot_MMT_Ha()
+# plot_MMT_Ha_stlrmass()
 # plot_MMT_Ha_stlrmass_z()
 grid.close()
 
@@ -1074,7 +1080,7 @@ grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 
 print '### plotting Keck_Ha'
 # plot_Keck_Ha()
-plot_Keck_Ha_stlrmass()
+# plot_Keck_Ha_stlrmass()
 # plot_Keck_Ha_stlrmass_z()
 grid.close()
 
