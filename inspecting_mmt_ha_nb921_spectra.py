@@ -216,9 +216,9 @@ def plotting_spectra(full_path, new_grid, new_grid_um, gridap, input_index, x_re
 def main():
     full_path = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
 
-    nbia = pyfits.open(full_path+'Catalogs/python_outputs/nbia_all_nsource.fits')
+    nbia = pyfits.open(full_path+'Catalogs/NB_IA_emitters.nodup.colorrev.fix.fits')
     nbiadata = nbia[1].data
-    NAME0 = nbiadata['source_NAME']
+    NAME0 = nbiadata['NAME']
 
     zspec = asc.read(full_path+'Catalogs/nb_ia_zspec.txt',guess=False,
                      Reader=asc.CommentedHeader)

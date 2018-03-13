@@ -299,9 +299,9 @@ def main():
     inst_dict['Keck'] = ['merged,','Keck,','Keck,Keck,','Keck,FOCAS,',
                          'Keck,FOCAS,FOCAS,','Keck,Keck,FOCAS,']
 
-    nbia = pyfits.open(FULL_PATH+'Catalogs/python_outputs/nbia_all_nsource.fits')
+    nbia = pyfits.open(FULL_PATH+'Catalogs/NB_IA_emitters.nodup.colorrev.fix.fits')
     nbiadata = nbia[1].data
-    NAME0 = nbiadata['source_name'] ##used
+    NAME0 = nbiadata['NAME']
 
     zspec = asc.read(FULL_PATH+'Catalogs/nb_ia_zspec.txt',guess=False,
                      Reader=asc.CommentedHeader)

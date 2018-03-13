@@ -208,6 +208,7 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassin
             continue
         #endtry
 
+        # print len_input_index[0], len(stacked_indexes)
         num_sources.append(len_input_index[0])
         num_bad_NB921_sources.append(len_input_index[1])
         avgz_arr.append(avgz)
@@ -217,6 +218,8 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassin
         # appending to the ID columns
         mm0 = [x for x in range(len(AP)) if any(y in AP[x][:5] for y in gridap[stacked_indexes])] # gridap ordering -> NBIA ordering
         IDs_arr.append(','.join(NAME0[mm0]))
+
+        # print '>>', NAME0[mm0]
 
         # writing the spectra table
         table0 = Table([xval, yval/1E-17], names=['xval','yval/1E-17'])
@@ -1015,9 +1018,9 @@ k_hg = cardelli(4341 * u.Angstrom)
 k_hb = cardelli(4861 * u.Angstrom)
 k_ha = cardelli(6563 * u.Angstrom)
 
-nbia = pyfits.open(full_path+'Catalogs/python_outputs/nbia_all_nsource.fits')
+nbia = pyfits.open(full_path+'Catalogs/NB_IA_emitters.nodup.colorrev.fix.fits')
 nbiadata = nbia[1].data
-NAME0 = nbiadata['source_name'] ##used
+NAME0 = nbiadata['NAME']
 
 zspec = asc.read(full_path+'Catalogs/nb_ia_zspec.txt',guess=False,
                  Reader=asc.CommentedHeader)
