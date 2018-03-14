@@ -63,7 +63,7 @@ def get_index_list2(NAME0, stlr_mass, inst_str0, inst_dict, instr):
     TODO(generalize?)
     '''
     good_iis = np.array([x for x in range(len(stlr_mass)) if 
-        (stlr_mass[x] > 0 and 'Ha-' in NAME0[x])])
+        (stlr_mass[x] > 0 and 'Ha-' in NAME0[x] and inst_str0[x] in inst_dict[instr])])
     good_stlr_mass = stlr_mass[good_iis]
 
     # 20% percentile bins
@@ -101,8 +101,8 @@ def get_index_list3(NAME0, stlr_mass, inst_str0, inst_dict, instr):
     Considers by-stellarmass. For now, goes in 50% percentile bins.
     TODO(generalize?)
     '''
-    good_iis = np.array([x for x in range(len(stlr_mass)) 
-        if (stlr_mass[x] > 0 and 'Ha-' in NAME0[x])])
+    good_iis = np.array([x for x in range(len(stlr_mass)) if 
+        (stlr_mass[x] > 0 and 'Ha-' in NAME0[x] and inst_str0[x] in inst_dict[instr])])
     good_stlr_mass = stlr_mass[good_iis]
 
     # 50% percentile bins
