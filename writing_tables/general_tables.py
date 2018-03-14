@@ -7,7 +7,7 @@ PURPOSE:
     stack_spectral_data.py for both Hg/Hb/Ha and Hb/Ha (MMT,Keck) plots
 """
 
-def table_arr_appends(i, subtitle, table_arrays, flux, flux2, flux3, ew, ew_emission, ew_absorption, median, pos_amplitude, neg_amplitude, instr):
+def table_arr_appends(i, subtitle, table_arrays, flux, flux2, flux3, ew, ew_emission, ew_absorption, median, pos_amplitude, neg_amplitude, instr, len_ii=999):
     '''
     i denotes which column it is. 
     i==0: Hgamma
@@ -42,13 +42,22 @@ def table_arr_appends(i, subtitle, table_arrays, flux, flux2, flux3, ew, ew_emis
             HB_pos_amplitude.append(pos_amplitude)
             HB_neg_amplitude.append(neg_amplitude)
         elif i==2 and subtitle!='NB973':
-            HA_flux.append(flux)
-            NII_6548_flux.append(flux2)
-            NII_6583_flux.append(flux3)
-            HA_EW.append(ew)
-            HA_EW_corr.append(ew_emission)
-            HA_continuum.append(median)
-            HA_pos_amplitude.append(pos_amplitude)
+            if len_ii < 2:
+                HA_flux.append(0)
+                NII_6548_flux.append(0)
+                NII_6583_flux.append(0)
+                HA_EW.append(0)
+                HA_EW_corr.append(0)
+                HA_continuum.append(0)
+                HA_pos_amplitude.append(0)
+            else:
+                HA_flux.append(flux)
+                NII_6548_flux.append(flux2)
+                NII_6583_flux.append(flux3)
+                HA_EW.append(ew)
+                HA_EW_corr.append(ew_emission)
+                HA_continuum.append(median)
+                HA_pos_amplitude.append(pos_amplitude)
         elif i==2 and subtitle=='NB973':
             HA_flux.append(0)
             NII_6548_flux.append(0)

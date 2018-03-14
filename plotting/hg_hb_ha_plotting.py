@@ -53,12 +53,15 @@ def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0,
 #enddef
 
 
-def subplots_plotting(ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, tol):
+def subplots_plotting(ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, tol, len_ii=999):
     '''
     Plots all the spectra for the subplots for Hg/Hb/Ha. Also calculates
     and returns fluxes and equations of best fit.
     '''
     # within range
+    if len_ii < 2:
+        raise IndexError('Not enough sources to stack (less than two)')
+        
     good_ii = np.array([x for x in range(len(xval)) if xval[x] >= xmin0 and xval[x] <= xmax0])
     xval = xval[good_ii]
     yval = yval[good_ii]
@@ -93,6 +96,7 @@ def subplots_plotting(ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, to
             flux2 = 0
             flux3 = 0
         else: #elif subtitle!='NB973':
+            print 'label|subtitle', label, subtitle
             peak_idx2_left  = find_nearest(xval, 6548.1-tol)
             peak_idx2_right = find_nearest(xval, 6548.1+tol)
             xval2=xval[peak_idx2_left:peak_idx2_right]

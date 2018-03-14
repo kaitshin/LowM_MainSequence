@@ -259,42 +259,45 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassin
         pos_sigma_list = []
         neg_sigma_list = []
         median_list = []
-        break_flag = False
         for i in range(3):
             xmin0 = xmin_list[i]
             xmax0 = xmax_list[i]
             ax = ax_list[subplot_index+i]
             label = label_list[i]
+            len_ii = len_input_index[i]
 
-            ax, flux, flux2, flux3, pos_flux, o1 = MMT_plotting.subplots_plotting(
-                ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, tol)
-            pos_flux_list.append(pos_flux)
-            flux_list.append(flux)
-
-            (ew, ew_emission, ew_absorption, median, pos_amplitude, 
-                neg_amplitude) = MMT_twriting.Hg_Hb_Ha_tables(label, flux, 
-                o1, xval, pos_flux, dlambda)
-            table_arrays = general_twriting.table_arr_appends(i, subtitle,
-                table_arrays, flux, flux2, flux3, ew, ew_emission, ew_absorption, 
-                median, pos_amplitude, neg_amplitude, 'MMT')
-            if not (subtitle=='NB973' and i==2):
-                pos_amplitude_list.append(pos_amplitude)
-                neg_amplitude_list.append(neg_amplitude)
-                median_list.append(median)
-                pos_sigma_list.append(o1[2])
-                if i==2:
-                    neg_sigma_list.append(0)
+            try:
+                ax, flux, flux2, flux3, pos_flux, o1 = MMT_plotting.subplots_plotting(
+                    ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, tol, len_ii=len_ii)
+                pos_flux_list.append(pos_flux)
+                flux_list.append(flux)
+            except IndexError:
+                print 'IndexError (too few sources?)'
+                continue
+            finally:
+                (ew, ew_emission, ew_absorption, median, pos_amplitude, 
+                    neg_amplitude) = MMT_twriting.Hg_Hb_Ha_tables(label, flux, 
+                    o1, xval, pos_flux, dlambda)
+                table_arrays = general_twriting.table_arr_appends(i, subtitle,
+                    table_arrays, flux, flux2, flux3, ew, ew_emission, ew_absorption, 
+                    median, pos_amplitude, neg_amplitude, 'MMT', len_ii=len_ii)
+                if len_ii > 2 and (not (subtitle=='NB973' and i==2)):
+                    pos_amplitude_list.append(pos_amplitude)
+                    neg_amplitude_list.append(neg_amplitude)
+                    median_list.append(median)
+                    pos_sigma_list.append(o1[2])
+                    if i==2:
+                        neg_sigma_list.append(0)
+                    else:
+                        neg_sigma_list.append(o1[5])
                 else:
-                    neg_sigma_list.append(o1[5])
-            else:
-                pos_amplitude_list.append(0)
-                neg_amplitude_list.append(0)
-                pos_sigma_list.append(0)
-                neg_sigma_list.append(0)
-                median_list.append(0)
-            #endif
+                    pos_amplitude_list.append(0)
+                    neg_amplitude_list.append(0)
+                    pos_sigma_list.append(0)
+                    neg_sigma_list.append(0)
+                    median_list.append(0)
+                #endif
         #endfor
-        if break_flag: break
         
         for i in range(3):
             label = label_list[i] + ' ('+str(len_input_index[i])+')'
@@ -318,7 +321,10 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassin
                     ax = MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index, pos_flux, flux,
                         pos_amplitude, neg_amplitude, pos_sigma, neg_sigma, median)
                 else:
-                    ax = MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index, pos_flux, flux)
+                    if len_input_index[i] < 2:
+                        raise(IndexError)
+                    else:
+                        ax = MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index, pos_flux, flux)
             except IndexError: # assuming there's no pos_flux or flux value
                 ax = MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index)
             subplot_index+=1
@@ -375,7 +381,7 @@ def plot_MMT_Ha_stlrmass():
     (num_sources, num_bad_NB921_sources, num_stack_HG, num_stack_HB, num_stack_HA, avgz_arr, minz_arr, maxz_arr,
         stlrmass_bin_arr, avg_stlrmass_arr, min_stlrmass_arr, max_stlrmass_arr,
         IDs_arr) = ([], [], [], [], [], [], [], [], [], [], [], [], [])
-    index_list = general_plotting.get_index_list2(stlr_mass, inst_str0, inst_dict, 'MMT')
+    index_list = general_plotting.get_index_list2(NAME0, stlr_mass, inst_str0, inst_dict, 'MMT')
     (xmin_list, xmax_list, label_list, 
         subtitle_list) = general_plotting.get_iter_lists('MMT')
 
@@ -531,7 +537,7 @@ def plot_MMT_Ha_stlrmass_z():
     pp = PdfPages(full_path+'Composite_Spectra/StellarMassZ/MMT_two_percbins.pdf')
     table00 = None
     # n = 2 -- how many redshifts we want to take into account (max 5, TODO(generalize this?))
-    stlrmass_index_list = general_plotting.get_index_list3(stlr_mass, inst_str0, inst_dict, 'MMT')
+    stlrmass_index_list = general_plotting.get_index_list3(NAME0, stlr_mass, inst_str0, inst_dict, 'MMT')
     for stlrmassindex0 in stlrmass_index_list:
         title='stlrmass: '+str(min(stlr_mass[stlrmassindex0]))+'-'+str(max(stlr_mass[stlrmassindex0]))
         print '>>>', title, 'len:', len(stlrmassindex0)
@@ -643,8 +649,38 @@ def plot_Keck_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassi
             continue
         #endif
 
-        xval, yval, len_input_index, stacked_indexes, avgz, minz, maxz = stack_data(grid_ndarr, gridz, input_index,
-            x0, 3800, 6700, ff=subtitle, instr='Keck')
+        try:
+            xval, yval, len_input_index, stacked_indexes, avgz, minz, maxz = stack_data(grid_ndarr, gridz, input_index,
+                x0, 3800, 6700, ff=subtitle, instr='Keck')
+        except AttributeError:
+            print 'Not enough sources to stack (less than two)'
+            [arr.append(0) for arr in table_arrays]
+            num_sources.append(0)
+            num_stack_HG.append(0)
+            num_stack_HB.append(0)
+            num_stack_HA.append(0)
+            avgz_arr.append(0)
+            minz_arr.append(0)
+            maxz_arr.append(0)
+            IDs_arr.append('N/A')
+            if bintype=='Redshift': 
+                stlrmass_bin_arr.append('N/A')
+                avg_stlrmass_arr.append('N/A')
+                min_stlrmass_arr.append('N/A')
+                max_stlrmass_arr.append('N/A')
+            elif bintype=='StellarMassZ': 
+                stlrmass_bin_arr.append(title[10:])
+                avg_stlrmass_arr.append(np.mean(stlr_mass[stlrmassindex0]))
+                min_stlrmass_arr.append(np.min(stlr_mass[stlrmassindex0]))
+                max_stlrmass_arr.append(np.max(stlr_mass[stlrmassindex0]))
+            for i in range(2):
+                ax = ax_list[subplot_index]
+                label = label_list[i]
+                Keck_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index)
+                subplot_index += 1
+            continue
+        #endtry
+
         num_sources.append(len_input_index[0])
         avgz_arr.append(avgz)
         minz_arr.append(minz)
@@ -703,37 +739,34 @@ def plot_Keck_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassi
             xmax0 = xmax_list[i]
             ax = ax_list[subplot_index+i]
             label = label_list[i]
-            try:
-                ax, flux, flux2, flux3, pos_flux, o1 = Keck_plotting.subplots_plotting(
-                    ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, tol, subplot_index+i)
-                pos_flux_list.append(pos_flux)
-                flux_list.append(flux)
-            except ValueError:
-                print 'ValueError??'
-                continue
-            else:
-                (ew, ew_emission, ew_absorption, median, pos_amplitude, 
-                    neg_amplitude) = Keck_twriting.Hb_Ha_tables(label, subtitle, flux, 
-                    o1, xval, pos_flux, dlambda)
-                table_arrays = general_twriting.table_arr_appends(i, subtitle,
-                    table_arrays, flux, flux2, flux3, ew, ew_emission, ew_absorption, 
-                    median, pos_amplitude, neg_amplitude, 'Keck')
-                if not (subtitle=='NB816' and i==0):
-                    pos_amplitude_list.append(pos_amplitude)
-                    neg_amplitude_list.append(neg_amplitude)
-                    pos_sigma_list.append(o1[2])
-                    if i==0:
-                        neg_sigma_list.append(o1[5])
-                    else:
-                        neg_sigma_list.append(0)
-                    median_list.append(median)
+
+            ax, flux, flux2, flux3, pos_flux, o1 = Keck_plotting.subplots_plotting(
+                ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, tol, subplot_index+i)
+            pos_flux_list.append(pos_flux)
+            flux_list.append(flux)
+
+            (ew, ew_emission, ew_absorption, median, pos_amplitude, 
+                neg_amplitude) = Keck_twriting.Hb_Ha_tables(label, subtitle, flux, 
+                o1, xval, pos_flux, dlambda)
+            table_arrays = general_twriting.table_arr_appends(i, subtitle,
+                table_arrays, flux, flux2, flux3, ew, ew_emission, ew_absorption, 
+                median, pos_amplitude, neg_amplitude, 'Keck')
+            if not (subtitle=='NB816' and i==0):
+                pos_amplitude_list.append(pos_amplitude)
+                neg_amplitude_list.append(neg_amplitude)
+                pos_sigma_list.append(o1[2])
+                if i==0:
+                    neg_sigma_list.append(o1[5])
                 else:
-                    pos_amplitude_list.append(0)
-                    neg_amplitude_list.append(0)
-                    pos_sigma_list.append(0)
                     neg_sigma_list.append(0)
-                    median_list.append(0)
-                #endif
+                median_list.append(median)
+            else:
+                pos_amplitude_list.append(0)
+                neg_amplitude_list.append(0)
+                pos_sigma_list.append(0)
+                neg_sigma_list.append(0)
+                median_list.append(0)
+            #endif
         #endfor
         
         for i in range(2):
@@ -811,7 +844,7 @@ def plot_Keck_Ha_stlrmass():
     (num_sources, num_stack_HG, num_stack_HB, num_stack_HA, avgz_arr, minz_arr, maxz_arr,
         stlrmass_bin_arr, avg_stlrmass_arr, min_stlrmass_arr, max_stlrmass_arr,
         IDs_arr) = ([], [], [], [], [], [], [], [], [], [], [], [])
-    index_list = general_plotting.get_index_list2(nan_stlr_mass, inst_str0, inst_dict, 'Keck')
+    index_list = general_plotting.get_index_list2(NAME0, stlr_mass, inst_str0, inst_dict, 'Keck')
     (xmin_list, xmax_list, label_list, 
         subtitle_list) = general_plotting.get_iter_lists('Keck', stlr=True)
 
@@ -967,10 +1000,10 @@ def plot_Keck_Ha_stlrmass_z():
     TODO(implement flexible file-naming)
     '''
     print '>KECK STELLARMASS+REDSHIFT STACKING'
-    stlrmass_index_list = general_plotting.get_index_list2(stlr_mass, inst_str0, inst_dict, 'Keck')
     pp = PdfPages(full_path+'Composite_Spectra/StellarMassZ/Keck_five_percbins.pdf')
     table00 = None
     n = 5 # how many redshifts we want to take into account (max 5, TODO(generalize this?))
+    stlrmass_index_list = general_plotting.get_index_list2(NAME0, stlr_mass, inst_str0, inst_dict, 'Keck')
     for stlrmassindex0 in stlrmass_index_list[:n]:
         title='stlrmass: '+str(min(stlr_mass[stlrmassindex0]))+'-'+str(max(stlr_mass[stlrmassindex0]))
         print '>>>', title
@@ -1056,9 +1089,9 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr, fill_value=np.nan)
 
 print '### plotting MMT_Ha'
-plot_MMT_Ha()
+# plot_MMT_Ha()
 # plot_MMT_Ha_stlrmass()
-# plot_MMT_Ha_stlrmass_z()
+plot_MMT_Ha_stlrmass_z()
 grid.close()
 
 print '### looking at the Keck grid'
