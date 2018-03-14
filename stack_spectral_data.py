@@ -265,6 +265,7 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassin
             ax = ax_list[subplot_index+i]
             label = label_list[i]
             len_ii = len_input_index[i]
+            print '>>>>>>>>>>>>>>>>>>>>>>>>>>>', label, subtitle, len_ii
 
             try:
                 ax, flux, flux2, flux3, pos_flux, o1 = MMT_plotting.subplots_plotting(
@@ -272,7 +273,7 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassin
                 pos_flux_list.append(pos_flux)
                 flux_list.append(flux)
             except IndexError:
-                print 'IndexError (too few sources?)'
+                print len_ii, 'IndexError (too few sources?)'
                 continue
             finally:
                 (ew, ew_emission, ew_absorption, median, pos_amplitude, 
@@ -321,10 +322,7 @@ def plot_MMT_Ha(index_list=[], pp=None, title='', bintype='Redshift', stlrmassin
                     ax = MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index, pos_flux, flux,
                         pos_amplitude, neg_amplitude, pos_sigma, neg_sigma, median)
                 else:
-                    if len_input_index[i] < 2:
-                        raise(IndexError)
-                    else:
-                        ax = MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index, pos_flux, flux)
+                    ax = MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index, pos_flux, flux)
             except IndexError: # assuming there's no pos_flux or flux value
                 ax = MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index)
             subplot_index+=1
