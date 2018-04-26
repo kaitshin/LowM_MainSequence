@@ -4,11 +4,11 @@ from astropy.io import fits as pyfits, ascii as asc
 from astropy.table import Table
 from create_ordered_AP_arrays import create_ordered_AP_arrays
 
-def get_filt_arr(NAME0, ha_ii):
+def get_filt_arr(NAME0):
     '''
     '''
     filt_arr = np.array([])
-    for name in NAME0[ha_ii]:
+    for name in NAME0:
         if name.count('Ha-NB') > 1: 
             tempname = ''
             for m in re.finditer('Ha', name):
@@ -48,16 +48,16 @@ def find_nearest_iis(array, value):
     '''
     '''
     idx_closest = (np.abs(array-value)).argmin()
-    if array[idx_closest] > value:
+    if array[idx_closest] > value and idx_closest != 0:
         return [idx_closest-1, idx_closest]
     else:
         return [idx_closest, idx_closest+1]
 
 
-def get_stlrmassbin_arr(stlr_mass, inst_str0, inst_dict, stlr_mass_ii_instr, instr):
+def get_stlrmassbin_arr(stlr_mass, inst_str0, inst_dict, stlr_mass_ii_instr, instr, NAME0):
     '''
     '''
-    index_list = general_plotting.get_index_list2(stlr_mass, inst_str0, inst_dict, instr)
+    index_list = general_plotting.get_index_list2(NAME0, stlr_mass, inst_str0, inst_dict, instr)
 
     masslist = []
     for match_index in index_list:
@@ -84,14 +84,14 @@ def get_stlrmassbin_arr(stlr_mass, inst_str0, inst_dict, stlr_mass_ii_instr, ins
     return stlrmassbin
 
 
-def get_stlrmassbinZ_arr(stlr_mass, inst_str0, inst_dict, stlr_mass_ii_instr, filt_arr_instr, instr):
+def get_stlrmassbinZ_arr(stlr_mass, inst_str0, inst_dict, stlr_mass_ii_instr, filt_arr_instr, instr, NAME0):
     '''
     '''
     index_list = []
     if instr=='MMT':
-        index_list = general_plotting.get_index_list3(stlr_mass, inst_str0, inst_dict, instr)
+        index_list = general_plotting.get_index_list3(NAME0, stlr_mass, inst_str0, inst_dict, instr)
     elif instr=='Keck':
-        index_list = general_plotting.get_index_list2(stlr_mass, inst_str0, inst_dict, instr)
+        index_list = general_plotting.get_index_list2(NAME0, stlr_mass, inst_str0, inst_dict, instr)
 
     masslist = []
     for match_index in index_list:
@@ -132,20 +132,20 @@ def get_stlrmassbinZ_arr(stlr_mass, inst_str0, inst_dict, stlr_mass_ii_instr, fi
     #endif
 
 
-def get_spectral_cvg_MMT(mmt_ii, MMT_LMIN0_ii, MMT_LMAX0_ii, grid_ndarr_match_ii, x0):
+def get_spectral_cvg_MMT(mmt_ii, MMT_LMIN0, MMT_LMAX0, zspec0, grid_ndarr_match_ii, x0):
     '''
     TODO(the 'MASK' keyvals seem suspicious?)
     '''
-    MMT_LMIN0_ii_m, MMT_LMAX0_ii_m = get_indexed_arrs(mmt_ii, [MMT_LMIN0_ii, MMT_LMAX0_ii])
-
-    hg_near_iis = find_nearest_iis(x0, 4341)
-    hb_near_iis = find_nearest_iis(x0, 4861)
-    ha_near_iis = find_nearest_iis(x0, 6563)
+    MMT_LMIN0_ii_m, MMT_LMAX0_ii_m = get_indexed_arrs(mmt_ii, [MMT_LMIN0, MMT_LMAX0])
 
     HG = np.array([])
     HB = np.array([])
     HA = np.array([])
-    for lmin, lmax, row in zip(MMT_LMIN0_ii_m, MMT_LMAX0_ii_m, grid_ndarr_match_ii):
+    for lmin, lmax, row, z in zip(MMT_LMIN0_ii_m, MMT_LMAX0_ii_m, grid_ndarr_match_ii, zspec0):
+        hg_near_iis = find_nearest_iis(x0, 4341*(1+z))
+        hb_near_iis = find_nearest_iis(x0, 4861*(1+z))
+        ha_near_iis = find_nearest_iis(x0, 6563*(1+z))
+
         if lmin < 0:
             HG = np.append(HG, 'NO')
             HB = np.append(HB, 'NO')
@@ -178,7 +178,8 @@ def get_spectral_cvg_MMT(mmt_ii, MMT_LMIN0_ii, MMT_LMAX0_ii, grid_ndarr_match_ii
     return HG, HB, HA
 
 
-def write_MMT_table(inst_str0_ii, ID_ii, z_ii, NAME0_ii, AP_ii, stlr_mass_ii, filt_arr, stlr_mass, inst_str0, inst_dict, MMT_LMIN0_ii, MMT_LMAX0_ii):
+def write_MMT_table(inst_str0, ID, zspec0, NAME0, AP, stlr_mass, filt_arr, 
+    stlr_mass_orig, inst_str0_orig, inst_dict, MMT_LMIN0, MMT_LMAX0, NAME0_orig):
     '''
     '''
     # reading in grid tables
@@ -195,61 +196,59 @@ def write_MMT_table(inst_str0_ii, ID_ii, z_ii, NAME0_ii, AP_ii, stlr_mass_ii, fi
     x0 = np.arange(CRVAL1, CDELT1*NAXIS1+CRVAL1, CDELT1)
 
     # getting indices relevant to MMT
-    mmt_ii = [x for x in range(len(inst_str0_ii)) if 'MMT' in inst_str0_ii[x] or 'merged' in inst_str0_ii[x]]
-    ID_ii_m, z_ii_m, NAME0_ii_m, AP_ii_m, inst_str0_ii_m, stlr_mass_ii_m, filt_arr_m = get_indexed_arrs(mmt_ii, [ID_ii, z_ii, NAME0_ii, AP_ii, inst_str0_ii, stlr_mass_ii, filt_arr])
-    AP_ii_m = np.array([ap[:5] for ap in AP_ii_m])
+    mmt_ii = [x for x in range(len(inst_str0)) if 'MMT' in inst_str0[x] or 'merged' in inst_str0[x]]
+    ID = ID[mmt_ii]
+    zspec0 = zspec0[mmt_ii]
+    NAME0 = NAME0[mmt_ii]
+    AP = AP[mmt_ii]
+    stlr_mass = stlr_mass[mmt_ii]
+    filt_arr = filt_arr[mmt_ii]
+    AP = np.array([ap[:5] for ap in AP])
 
     # getting stlrmassbin and stlrmassZbin cols for the table
-    stlrmassbin_ii_m = get_stlrmassbin_arr(stlr_mass, inst_str0, inst_dict, stlr_mass_ii_m, 'MMT')
-    stlrmassbinZ_ii_m = get_stlrmassbinZ_arr(stlr_mass, inst_str0, inst_dict, stlr_mass_ii_m, filt_arr_m, 'MMT')
+    stlrmassbin = get_stlrmassbin_arr(stlr_mass_orig, inst_str0_orig, inst_dict, stlr_mass, 'MMT', NAME0_orig)
+    stlrmassbinZ = get_stlrmassbinZ_arr(stlr_mass_orig, inst_str0_orig, inst_dict, stlr_mass, filt_arr, 'MMT', NAME0_orig)
     
     # setting 'YES' and 'NO' and 'MASK' coverage values
-    match_ii = np.array([x for x in range(len(gridap)) if gridap[x] in AP_ii_m])
-    HG_cvg, HB_cvg, HA_cvg = get_spectral_cvg_MMT(mmt_ii, MMT_LMIN0_ii, MMT_LMAX0_ii, grid_ndarr[match_ii], x0)
+    match_ii = np.array([x for x in range(len(gridap)) if gridap[x] in AP])
+    HG_cvg, HB_cvg, HA_cvg = get_spectral_cvg_MMT(mmt_ii, MMT_LMIN0, MMT_LMAX0, zspec0, grid_ndarr[match_ii], x0)
 
     # creating/writing the table
-    tt_mmt = Table([ID_ii_m, NAME0_ii_m, AP_ii_m, z_ii_m, filt_arr_m, 
-        stlrmassbin_ii_m, stlrmassbinZ_ii_m, HG_cvg, HB_cvg, HA_cvg], 
+    tt_mmt = Table([ID, NAME0, AP, zspec0, filt_arr, stlrmassbin, stlrmassbinZ, HG_cvg, HB_cvg, HA_cvg], 
         names=['ID', 'NAME', 'AP', 'z', 'filter', 'stlrmassbin', 'stlrmassZbin', 'HG_cvg', 'HB_cvg', 'HA_cvg']) 
     asc.write(tt_mmt, FULL_PATH+'Composite_Spectra/MMT_spectral_coverage.txt', format='fixed_width', delimiter=' ')
 
 
-def get_spectral_cvg_Keck(keck_ii, KECK_LMIN0_ii, KECK_LMAX0_ii, grid_ndarr_match_ii, x0):
+def get_spectral_cvg_Keck(keck_ii, KECK_LMIN0, KECK_LMAX0, zspec0, grid_ndarr_match_ii, x0):
     '''
-    TODO(the 'MASK' keyvals seem suspicious?)
     '''
-    KECK_LMIN0_ii_k, KECK_LMAX0_ii_k = get_indexed_arrs(keck_ii, [KECK_LMIN0_ii, KECK_LMAX0_ii])
-
-    hb_near_iis = find_nearest_iis(x0, 4861)
-    ha_near_iis = find_nearest_iis(x0, 6563)
+    KECK_LMIN0_ii_k, KECK_LMAX0_ii_k = get_indexed_arrs(keck_ii, [KECK_LMIN0, KECK_LMAX0])
 
     HB = np.array([])
     HA = np.array([])
-    for lmin, lmax, row in zip(KECK_LMIN0_ii_k, KECK_LMAX0_ii_k, grid_ndarr_match_ii):
-        if lmin < 0:
+    for lmin0, lmax0, row, z in zip(KECK_LMIN0_ii_k, KECK_LMAX0_ii_k, grid_ndarr_match_ii, zspec0):
+        hb_near_iis = find_nearest_iis(x0, 4861*(1+z))
+        ha_near_iis = find_nearest_iis(x0, 6563*(1+z))
+
+        if lmin0 < 0:
             HB = np.append(HB, 'NO')
             HA = np.append(HA, 'NO')
         else:
-            if lmin < HB_VAL and lmax > HB_VAL:
-                if np.average(row[hb_near_iis])==0:
-                    HB = np.append(HB, 'MASK')
-                else:
-                    HB = np.append(HB, 'YES')
+            if lmin0 < HB_VAL and lmax0 > HB_VAL:
+                HB = np.append(HB, 'YES')
             else:
                 HB = np.append(HB, 'NO')
                 
-            if lmin < HA_VAL and lmax > HA_VAL:
-                if np.average(row[ha_near_iis])==0:
-                    HA = np.append(HA, 'MASK')
-                else:
-                    HA = np.append(HA, 'YES')
+            if lmin0 < HA_VAL and lmax0 > HA_VAL:
+                HA = np.append(HA, 'YES')
             else:
                 HA = np.append(HA, 'NO')
     #endfor
     return HB, HA
 
 
-def write_Keck_table(inst_str0_ii, ID_ii, z_ii, NAME0_ii, AP_ii, stlr_mass_ii, filt_arr, stlr_mass, inst_str0, inst_dict, KECK_LMIN0_ii, KECK_LMAX0_ii):
+def write_Keck_table(inst_str0, ID, zspec0, NAME0, AP, stlr_mass, filt_arr, 
+    stlr_mass_orig, inst_str0_orig, inst_dict, KECK_LMIN0, KECK_LMAX0, NAME0_orig):
     '''
     '''
     # reading in grid tables
@@ -266,23 +265,25 @@ def write_Keck_table(inst_str0_ii, ID_ii, z_ii, NAME0_ii, AP_ii, stlr_mass_ii, f
     x0 = np.arange(CRVAL1, CDELT1*NAXIS1+CRVAL1, CDELT1)
 
     # getting indices relevant to Keck
-    keck_ii = [x for x in range(len(inst_str0_ii)) if ('Keck' in inst_str0_ii[x] or 'merged' in inst_str0_ii[x]) and 'MMT' not in inst_str0_ii[x]] # MMT,Keck, means MMT
-    ID_ii_k, z_ii_k, NAME0_ii_k, AP_ii_k, inst_str0_ii_k, stlr_mass_ii_k, filt_arr_k = get_indexed_arrs(keck_ii, [ID_ii, z_ii, NAME0_ii, AP_ii, inst_str0_ii, stlr_mass_ii, filt_arr])
-    AP_ii_k = np.array([x if len(x) == 6 else x[6:] for x in AP_ii_k], dtype=np.float32)
+    keck_ii = [x for x in range(len(inst_str0)) if ('Keck' in inst_str0[x] or 'merged' in inst_str0[x]) and 'MMT' not in inst_str0[x]] # MMT,Keck, means MMT
+    ID = ID[keck_ii]
+    zspec0 = zspec0[keck_ii]
+    NAME0 = NAME0[keck_ii]
+    AP = AP[keck_ii]
+    stlr_mass = stlr_mass[keck_ii]
+    filt_arr = filt_arr[keck_ii]
+    AP = np.array([x if len(x) == 6 else x[6:] for x in AP], dtype=np.float64)
 
     # getting stlrmassbin and stlrmassZbin cols for the table
-    stlrmassbin_ii_k = get_stlrmassbin_arr(stlr_mass, inst_str0, inst_dict, stlr_mass_ii_k, 'Keck')
-    stlrmassbinZ_ii_k = get_stlrmassbinZ_arr(stlr_mass, inst_str0, inst_dict, stlr_mass_ii_k, filt_arr_k, 'Keck')
+    stlrmassbin = get_stlrmassbin_arr(stlr_mass_orig, inst_str0_orig, inst_dict, stlr_mass, 'Keck', NAME0_orig)
+    stlrmassbinZ = get_stlrmassbinZ_arr(stlr_mass_orig, inst_str0_orig, inst_dict, stlr_mass, filt_arr, 'Keck', NAME0_orig)
 
     # setting 'YES' and 'NO' and 'MASK' coverage values
-    match_ii = np.array([x for x in range(len(gridap)) if gridap[x] in AP_ii_k])
-    HB_cvg, HA_cvg = get_spectral_cvg_Keck(keck_ii, KECK_LMIN0_ii, KECK_LMAX0_ii, grid_ndarr[match_ii], x0)
-
-    print len(stlrmassbin_ii_k), len(stlrmassbinZ_ii_k)
+    match_ii = np.array([x for x in range(len(gridap)) if gridap[x] in AP])
+    HB_cvg, HA_cvg = get_spectral_cvg_Keck(keck_ii, KECK_LMIN0, KECK_LMAX0, zspec0, grid_ndarr[match_ii], x0)
 
     # creating/writing the table
-    tt_keck = Table([ID_ii_k, NAME0_ii_k, AP_ii_k, z_ii_k, filt_arr_k, 
-        stlrmassbin_ii_k, stlrmassbinZ_ii_k, HB_cvg, HA_cvg], 
+    tt_keck = Table([ID, NAME0, AP, zspec0, filt_arr, stlrmassbin, stlrmassbinZ, HB_cvg, HA_cvg], 
         names=['ID', 'NAME', 'AP', 'z', 'filter', 'stlrmassbin', 'stlrmassZbin', 'HB_cvg', 'HA_cvg']) 
     asc.write(tt_keck, FULL_PATH+'Composite_Spectra/Keck_spectral_coverage.txt', format='fixed_width', delimiter=' ')
 
@@ -301,42 +302,53 @@ def main():
 
     nbia = pyfits.open(FULL_PATH+'Catalogs/NB_IA_emitters.nodup.colorrev.fix.fits')
     nbiadata = nbia[1].data
-    NAME0 = nbiadata['NAME']
+    NAME0_orig = np.array(nbiadata['NAME'])
 
     zspec = asc.read(FULL_PATH+'Catalogs/nb_ia_zspec.txt',guess=False,
                      Reader=asc.CommentedHeader)
-    inst_str0 = np.array(zspec['inst_str0'])
+    zspec0 = np.array(zspec['zspec0'])
+
+    # limit all data to valid Halpha NB emitters only
+    ha_ii = np.array([x for x in range(len(NAME0_orig)) if 'Ha-NB' in NAME0_orig[x] and (zspec0[x] < 9.0 and zspec0[x] > 0.0)])
+    NAME0 = NAME0_orig[ha_ii]
+    zspec0 = zspec0[ha_ii]
+    
+    ID        = np.array(zspec['ID0'][ha_ii])
+    inst_str0_orig = np.array(zspec['inst_str0'])
+    inst_str0 = inst_str0_orig[ha_ii]
 
     fout  = asc.read(FULL_PATH+'FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast.fout',
                      guess=False,Reader=asc.NoHeader)
-    stlr_mass = np.array(fout['col7']) ##used
-    nan_stlr_mass = np.copy(stlr_mass)
-    nan_stlr_mass[nan_stlr_mass < 0] = np.nan
+    stlr_mass_orig = np.array(fout['col7'])
+    stlr_mass = stlr_mass_orig[ha_ii]
 
     data_dict = create_ordered_AP_arrays()
-    AP = data_dict['AP'] ##used
-    HA_Y0 = data_dict['HA_Y0'] ##used
-    HB_Y0 = data_dict['HB_Y0'] ##used
-    HG_Y0 = data_dict['HG_Y0'] ##used
-    MMT_LMIN0 = data_dict['MMT_LMIN0']
-    MMT_LMAX0 = data_dict['MMT_LMAX0']
-    KECK_LMIN0 = data_dict['KECK_LMIN0']
-    KECK_LMAX0 = data_dict['KECK_LMAX0']
-
-    ha_ii = [x for x in range(len(NAME0)) if 'Ha' in NAME0[x]]
-    filt_arr = get_filt_arr(NAME0, ha_ii)
-    ID_ii, z_ii, NAME0_ii, AP_ii, inst_str0_ii, stlr_mass_ii = get_indexed_arrs(ha_ii, [zspec['ID0'], zspec['zspec0'], NAME0, AP, inst_str0, stlr_mass])
-    MMT_LMIN0_ii, MMT_LMAX0_ii, KECK_LMIN0_ii, KECK_LMAX0_ii = get_indexed_arrs(ha_ii, [MMT_LMIN0, MMT_LMAX0, KECK_LMIN0, KECK_LMAX0])
-    HG_Y0_i, HB_Y0_i, HA_Y0_i = get_indexed_arrs(ha_ii, [HG_Y0, HB_Y0, HA_Y0])
-    HG_Y0_ii, HB_Y0_ii, HA_Y0_ii = get_init_NO_YES_coverage([HG_Y0_i, HB_Y0_i, HA_Y0_i])
+    AP = data_dict['AP'][ha_ii]
+    MMT_LMIN0 = data_dict['MMT_LMIN0'][ha_ii]
+    MMT_LMAX0 = data_dict['MMT_LMAX0'][ha_ii]
+    KECK_LMIN0 = data_dict['KECK_LMIN0'][ha_ii]
+    KECK_LMAX0 = data_dict['KECK_LMAX0'][ha_ii]
+    filt_arr = get_filt_arr(NAME0)
 
     print 'writing MMT table...'
-    write_MMT_table(inst_str0_ii, ID_ii, z_ii, NAME0_ii, AP_ii, stlr_mass_ii, filt_arr, stlr_mass, inst_str0, inst_dict, MMT_LMIN0_ii, MMT_LMAX0_ii)
+    write_MMT_table(inst_str0, ID, zspec0, NAME0, AP, stlr_mass, filt_arr, 
+        stlr_mass_orig, inst_str0_orig, inst_dict, MMT_LMIN0, MMT_LMAX0, NAME0_orig)
     print 'finished writing MMT table'
 
     print 'writing Keck table...'
-    write_Keck_table(inst_str0_ii, ID_ii, z_ii, NAME0_ii, AP_ii, stlr_mass_ii, filt_arr, stlr_mass, inst_str0, inst_dict, KECK_LMIN0_ii, KECK_LMAX0_ii)
-    print 'finished writing Keck table'    
+    bad_iis    = np.array([x for x in range(len(NAME0)) if ('Ha-NB816' not in NAME0[x] 
+        and 'Ha-NB921' not in NAME0[x] and 'Ha-NB973' not in NAME0[x])])
+    NAME0      = np.array([NAME0[x] for x in range(len(NAME0)) if x not in bad_iis])
+    zspec0     = np.array([zspec0[x] for x in range(len(zspec0)) if x not in bad_iis])
+    ID         = np.array([ID[x] for x in range(len(ID)) if x not in bad_iis])
+    inst_str0  = np.array([inst_str0[x] for x in range(len(inst_str0)) if x not in bad_iis])
+    AP         = np.array([AP[x] for x in range(len(AP)) if x not in bad_iis])
+    KECK_LMIN0 = np.array([KECK_LMIN0[x] for x in range(len(KECK_LMIN0)) if x not in bad_iis])
+    KECK_LMAX0 = np.array([KECK_LMAX0[x] for x in range(len(KECK_LMAX0)) if x not in bad_iis])
+    filt_arr   = np.array([filt_arr[x] for x in range(len(filt_arr)) if x not in bad_iis])
+    # write_Keck_table(inst_str0, ID, zspec0, NAME0, AP, stlr_mass, filt_arr, 
+    #     stlr_mass_orig, inst_str0_orig, inst_dict, KECK_LMIN0, KECK_LMAX0, NAME0_orig)
+    print 'finished writing Keck table'
 
 if __name__ == '__main__':
     main()
