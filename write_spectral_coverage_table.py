@@ -346,8 +346,8 @@ def main():
     KECK_LMIN0 = np.array([KECK_LMIN0[x] for x in range(len(KECK_LMIN0)) if x not in bad_iis])
     KECK_LMAX0 = np.array([KECK_LMAX0[x] for x in range(len(KECK_LMAX0)) if x not in bad_iis])
     filt_arr   = np.array([filt_arr[x] for x in range(len(filt_arr)) if x not in bad_iis])
-    # write_Keck_table(inst_str0, ID, zspec0, NAME0, AP, stlr_mass, filt_arr, 
-    #     stlr_mass_orig, inst_str0_orig, inst_dict, KECK_LMIN0, KECK_LMAX0, NAME0_orig)
+    write_Keck_table(inst_str0, ID, zspec0, NAME0, AP, stlr_mass, filt_arr, 
+        stlr_mass_orig, inst_str0_orig, inst_dict, KECK_LMIN0, KECK_LMAX0, NAME0_orig)
     print 'finished writing Keck table'
 
 if __name__ == '__main__':

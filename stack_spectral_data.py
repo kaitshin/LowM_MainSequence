@@ -657,54 +657,9 @@ def plot_Keck_Ha():
 
         input_index = np.array([x for x in range(len(gridap)) if gridap[x] in
                                 AP_match and gridz[x] != 0],dtype=np.int32)
-        if len(input_index) < 2: 
-            print 'Not enough sources to stack (less than two)'
-            [arr.append(0) for arr in table_arrays]
-            num_sources.append(0)
-            num_stack_HG.append(0)
-            num_stack_HB.append(0)
-            num_stack_HA.append(0)
-            avgz_arr.append(0)
-            minz_arr.append(0)
-            maxz_arr.append(0)
-            IDs_arr.append('N/A')
-            stlrmass_bin_arr.append('N/A')
-            avg_stlrmass_arr.append('N/A')
-            min_stlrmass_arr.append('N/A')
-            max_stlrmass_arr.append('N/A')
-            for i in range(2):
-                ax = ax_list[subplot_index]
-                label = label_list[i]
-                Keck_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index)
-                subplot_index += 1
-            continue
-        #endif
 
-        try:
-            xval, yval, len_input_index, stacked_indexes, avgz, minz, maxz = stack_data(grid_ndarr, gridz, input_index,
-                x0, 3800, 6700, ff=subtitle, instr='Keck')
-        except AttributeError:
-            print 'Not enough sources to stack (less than two)'
-            [arr.append(0) for arr in table_arrays]
-            num_sources.append(0)
-            num_stack_HG.append(0)
-            num_stack_HB.append(0)
-            num_stack_HA.append(0)
-            avgz_arr.append(0)
-            minz_arr.append(0)
-            maxz_arr.append(0)
-            IDs_arr.append('N/A')
-            stlrmass_bin_arr.append('N/A')
-            avg_stlrmass_arr.append('N/A')
-            min_stlrmass_arr.append('N/A')
-            max_stlrmass_arr.append('N/A')
-            for i in range(2):
-                ax = ax_list[subplot_index]
-                label = label_list[i]
-                Keck_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index)
-                subplot_index += 1
-            continue
-        #endtry
+        xval, yval, len_input_index, stacked_indexes, avgz, minz, maxz = stack_data(grid_ndarr, gridz, input_index,
+            x0, 3800, 6700, ff=subtitle, instr='Keck')
 
         num_sources.append(len_input_index[0])
         avgz_arr.append(avgz)
@@ -713,6 +668,7 @@ def plot_Keck_Ha():
         
         # appending to the ID columns
         tempgridapstacked_ii = [str(y) for y in gridap[stacked_indexes]]
+        print 'gridap[stacked_indexes]', gridap[stacked_indexes]
         mm0 = []
         for x in range(len(AP)):
             for y in tempgridapstacked_ii:
@@ -818,8 +774,6 @@ def plot_Keck_Ha():
     plt.close()
 
     EBV_hahb = HA_HB_EBV(HA_flux, HB_flux, 'Keck')
-
-    print '>>>>>>>>>>IDs_arr:', IDs_arr
 
     table00 = Table([subtitle_list, stlrmass_bin_arr, num_sources, num_stack_HB, num_stack_HA,
         avgz_arr, minz_arr, maxz_arr, 
@@ -1113,7 +1067,7 @@ grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr, fill_value=np.nan)
 print '### plotting MMT_Ha'
 # plot_MMT_Ha()
 # plot_MMT_Ha_stlrmass()
-plot_MMT_Ha_stlrmass_z()
+# plot_MMT_Ha_stlrmass_z()
 grid.close()
 
 print '### looking at the Keck grid'
@@ -1137,9 +1091,9 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 
 print '### plotting Keck_Ha'
-# plot_Keck_Ha()
-# plot_Keck_Ha_stlrmass()
-# plot_Keck_Ha_stlrmass_z()
+plot_Keck_Ha()
+plot_Keck_Ha_stlrmass()
+plot_Keck_Ha_stlrmass_z()
 grid.close()
 
 nbia.close()

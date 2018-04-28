@@ -69,8 +69,6 @@ def stack_data(ndarr, zspec, index, x0, xmin, xmax, ff='', instr=''):
             good_hb_num = np.ma.count(new_grid2, axis=0)[idx0]
             good_ha_num = np.ma.count(new_grid2, axis=0)[idx1]
 
-            print 'good_ha_num', ff, '-', good_ha_num
-
             return x_rest, plot_grid_avg, [good_hb_num, good_ha_num], index, avgz, minz, maxz
         #endif
     # this is stacking data in stlrmass

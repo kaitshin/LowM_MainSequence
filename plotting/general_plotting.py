@@ -62,15 +62,26 @@ def get_index_list2(NAME0, stlr_mass, inst_str0, inst_dict, instr):
     Considers by-stellarmass. For now, goes in 20% percentile bins.
     TODO(generalize?)
     '''
-    good_iis = np.array([x for x in range(len(stlr_mass)) if 
-        (stlr_mass[x] > 0 and 'Ha-' in NAME0[x] and inst_str0[x] in inst_dict[instr])])
+    if instr=='Keck':
+        good_iis = np.array([x for x in range(len(stlr_mass)) if 
+            (stlr_mass[x] > 0 and inst_str0[x] in inst_dict[instr]) 
+            and ('Ha-NB8' in NAME0[x] or 'Ha-NB9' in NAME0[x])])
+    else:
+        good_iis = np.array([x for x in range(len(stlr_mass)) if 
+            (stlr_mass[x] > 0 and inst_str0[x] in inst_dict[instr]) 
+            and ('Ha-NB' in NAME0[x])])
     good_stlr_mass = stlr_mass[good_iis]
 
     # 20% percentile bins
     perc20 = np.percentile(good_stlr_mass, 20)
-    index_0 = np.array([x for x in range(len(stlr_mass)) 
-        if (stlr_mass[x]>0 and stlr_mass[x]<=perc20) 
-        and (inst_str0[x] in inst_dict[instr] and 'Ha-' in NAME0[x])])
+    if instr=='Keck':
+        index_0 = np.array([x for x in range(len(stlr_mass)) 
+            if (stlr_mass[x]>0 and stlr_mass[x]<=perc20) 
+            and (inst_str0[x] in inst_dict[instr]) and ('Ha-NB8' in NAME0[x] or 'Ha-NB9' in NAME0[x])])
+    else:
+        index_0 = np.array([x for x in range(len(stlr_mass)) 
+            if (stlr_mass[x]>0 and stlr_mass[x]<=perc20) 
+            and (inst_str0[x] in inst_dict[instr] and 'Ha-' in NAME0[x])])
     perc40 = np.percentile(good_stlr_mass, 40)
     index_1 = np.array([x for x in range(len(stlr_mass)) 
         if (stlr_mass[x]>perc20 and stlr_mass[x]<=perc40) 
