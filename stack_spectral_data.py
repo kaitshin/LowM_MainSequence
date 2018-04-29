@@ -231,7 +231,7 @@ def plot_MMT_Ha():
 
         # writing the spectra table
         table0 = Table([xval, yval/1E-17], names=['xval','yval/1E-17'])
-        spectra_file_path = full_path+'Composite_Spectra/'+bintype+'/MMT_spectra_vals/'+subtitle+'.txt'
+        spectra_file_path = full_path+'Composite_Spectra/Redshift/MMT_spectra_vals/'+subtitle+'.txt'
         stlrmass_bin_arr.append('N/A')
         avg_stlrmass_arr.append('N/A')
         min_stlrmass_arr.append('N/A')
@@ -328,14 +328,8 @@ def plot_MMT_Ha():
             subplot_index+=1
         #endfor
     #endfor
-    if title=='':
-        f = general_plotting.final_plot_setup(f, r'MMT detections of H$\alpha$ emitters')
-    else:
-        f = general_plotting.final_plot_setup(f, title)
-    if pp == None:
-        plt.savefig(full_path+'Composite_Spectra/Redshift/MMT_stacked_spectra.pdf')
-    else:
-        pp.savefig()
+    f = general_plotting.final_plot_setup(f, r'MMT detections of H$\alpha$ emitters')
+    plt.savefig(full_path+'Composite_Spectra/Redshift/MMT_stacked_spectra.pdf')
     plt.close()
 
     EBV_hghb = HG_HB_EBV(HG_flux, HB_flux)
@@ -353,7 +347,6 @@ def plot_MMT_Ha():
         'NII_6583_flux', 'HG_EW', 'HB_EW', 'HA_EW', 'HG_EW_corr', 'HB_EW_corr', 'HA_EW_corr', 'HG_EW_abs', 'HB_EW_abs',
         'HG_continuum', 'HB_continuum', 'HA_continuum', 'HG_pos_amplitude', 'HB_pos_amplitude', 'HA_pos_amplitude',
         'HG_neg_amplitude', 'HB_neg_amplitude', 'E(B-V)_hghb', 'E(B-V)_hahb']) # IDs
-    if pp != None: return pp, table00
 
     asc.write(table00, full_path+'Composite_Spectra/Redshift/MMT_stacked_spectra_data.txt',
         format='fixed_width_two_line', delimiter=' ')
@@ -1065,9 +1058,9 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr, fill_value=np.nan)
 
 print '### plotting MMT_Ha'
-# plot_MMT_Ha()
-# plot_MMT_Ha_stlrmass()
-# plot_MMT_Ha_stlrmass_z()
+plot_MMT_Ha()
+plot_MMT_Ha_stlrmass()
+plot_MMT_Ha_stlrmass_z()
 grid.close()
 
 print '### looking at the Keck grid'
@@ -1091,9 +1084,9 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 
 print '### plotting Keck_Ha'
-plot_Keck_Ha()
-plot_Keck_Ha_stlrmass()
-plot_Keck_Ha_stlrmass_z()
+# plot_Keck_Ha()
+# plot_Keck_Ha_stlrmass()
+# plot_Keck_Ha_stlrmass_z()
 grid.close()
 
 nbia.close()
