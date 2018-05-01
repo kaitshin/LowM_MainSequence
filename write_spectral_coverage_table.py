@@ -217,8 +217,8 @@ def write_MMT_table(inst_str0, ID, zspec0, NAME0, AP, stlr_mass, filt_arr,
     HG_cvg, HB_cvg, HA_cvg = get_spectral_cvg_MMT(MMT_LMIN0, MMT_LMAX0, zspec0, grid_ndarr[match_ii], x0)
 
     # creating/writing the table
-    tt_mmt = Table([ID, NAME0, AP, zspec0, filt_arr, stlrmassbin, stlrmassbinZ, HG_cvg, HB_cvg, HA_cvg], 
-        names=['ID', 'NAME', 'AP', 'z', 'filter', 'stlrmassbin', 'stlrmassZbin', 'HG_cvg', 'HB_cvg', 'HA_cvg']) 
+    tt_mmt = Table([ID, NAME0, AP, zspec0, filt_arr, stlrmassbin, stlrmassbinZ, HG_cvg, HB_cvg, HA_cvg, MMT_LMIN0, MMT_LMAX0], 
+        names=['ID', 'NAME', 'AP', 'z', 'filter', 'stlrmassbin', 'stlrmassZbin', 'HG_cvg', 'HB_cvg', 'HA_cvg', 'LMIN0', 'LMAX0']) 
     asc.write(tt_mmt, FULL_PATH+'Composite_Spectra/MMT_spectral_coverage.txt', format='fixed_width', delimiter=' ')
 
 
@@ -282,8 +282,8 @@ def write_Keck_table(inst_str0, ID, zspec0, NAME0, AP, stlr_mass, filt_arr,
     HB_cvg, HA_cvg = get_spectral_cvg_Keck(KECK_LMIN0, KECK_LMAX0)
 
     # creating/writing the table
-    tt_keck = Table([ID, NAME0, AP, zspec0, filt_arr, stlrmassbin, stlrmassbinZ, HB_cvg, HA_cvg], 
-        names=['ID', 'NAME', 'AP', 'z', 'filter', 'stlrmassbin', 'stlrmassZbin', 'HB_cvg', 'HA_cvg']) 
+    tt_keck = Table([ID, NAME0, AP, zspec0, filt_arr, stlrmassbin, stlrmassbinZ, HB_cvg, HA_cvg, KECK_LMIN0, KECK_LMAX0], 
+        names=['ID', 'NAME', 'AP', 'z', 'filter', 'stlrmassbin', 'stlrmassZbin', 'HB_cvg', 'HA_cvg', 'LMIN0', 'LMAX0']) 
     asc.write(tt_keck, FULL_PATH+'Composite_Spectra/Keck_spectral_coverage.txt', format='fixed_width', delimiter=' ')
 
 
