@@ -22,19 +22,6 @@ def get_filt_arr(NAME0):
     return filt_arr
 
 
-def get_init_NO_YES_coverage(arr):
-    '''
-    '''
-    covg_arrs = [[], [], []] # assuming len(arr) <= 3
-    
-    for i in range(len(arr)):
-        covg_arrs[i] = np.array(['NO']*len(arr[i]), dtype='|S4')
-        good_ii = np.array([x for x in range(len(arr[i])) if (arr[i][x] > -99 and arr[i][x] != -1.0 and arr[i][x] != 0.0)])
-        covg_arrs[i][good_ii] = 'YES'
-
-    return covg_arrs
-
-
 def find_nearest_iis(array, value):
     '''
     '''
@@ -45,33 +32,17 @@ def find_nearest_iis(array, value):
         return [idx_closest, idx_closest+1]
 
 
-def get_stlrmassbin_arr(stlr_mass, inst_str0, inst_dict, stlr_mass_ii_instr, instr, NAME0):
+def get_stlrmassbin_arr(stlr_mass, min_mass, max_mass):
     '''
     '''
-    index_list = general_plotting.get_index_list2(NAME0, stlr_mass, inst_str0, inst_dict, instr)
-
-    masslist = []
-    for match_index in index_list:
-        subtitle = 'stlrmass: '+str(min(stlr_mass[match_index]))+'-'+str(max(stlr_mass[match_index]))
-        masslist.append(subtitle[10:].split('-'))
+    stlrmassbin = np.array([], dtype=int)
+    for m in stlr_mass:
+        for ii in range(len(min_mass)):
+            if m >= min_mass[ii] and m <= max_mass[ii]:
+                stlrmassbin = np.append(stlrmassbin, ii+1)
+                break
     #endfor
 
-    stlrmassbin = np.array([], dtype='int32')
-    for mass in stlr_mass_ii_instr:
-        bin_num = -1
-        if mass >= np.float(masslist[-1][0]):
-            bin_num = len(masslist)
-        elif mass >= np.float(masslist[-2][0]):
-            bin_num = len(masslist)-1
-        elif mass >= np.float(masslist[-3][0]):
-            bin_num = len(masslist)-2
-        elif mass >= np.float(masslist[-4][0]):
-            bin_num = len(masslist)-3
-        elif mass >= np.float(masslist[-5][0]):
-            bin_num = len(masslist)-4
-            
-        stlrmassbin = np.append(stlrmassbin, bin_num)
-    #endfor
     return stlrmassbin
 
 
@@ -195,8 +166,13 @@ def write_MMT_table(inst_str0, ID, zspec0, NAME0, AP, stlr_mass, filt_arr,
     MMT_LMIN0 = MMT_LMIN0[mmt_ii]
     MMT_LMAX0 = MMT_LMAX0[mmt_ii]
 
-    # getting stlrmassbin and stlrmassZbin cols for the table
-    stlrmassbin = get_stlrmassbin_arr(stlr_mass_orig, inst_str0_orig, inst_dict, stlr_mass, 'MMT', NAME0_orig)
+    # getting stlrmassbin cols for the table
+    tab0 = asc.read('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Composite_Spectra/StellarMass/MMT_all_five_data.txt')
+    min_mass = np.array(tab0['min_stlrmass'])
+    max_mass = np.array(tab0['max_stlrmass'])
+    stlrmassbin = get_stlrmassbin_arr(stlr_mass, min_mass, max_mass)
+
+    # getting stlrmassZbin cols for the table
     stlrmassbinZ = get_stlrmassbinZ_arr(stlr_mass_orig, inst_str0_orig, inst_dict, stlr_mass, filt_arr, 'MMT', NAME0_orig)
     
     # setting 'YES' and 'NO' and 'MASK' coverage values
@@ -265,8 +241,13 @@ def write_Keck_table(inst_str0, ID, zspec0, NAME0, AP, stlr_mass, filt_arr,
     KECK_LMAX0 = KECK_LMAX0[keck_ii]
     AP = np.array([x if len(x) == 6 else x[6:] for x in AP], dtype=np.float64)
 
-    # getting stlrmassbin and stlrmassZbin cols for the table
-    stlrmassbin = get_stlrmassbin_arr(stlr_mass_orig, inst_str0_orig, inst_dict, stlr_mass, 'Keck', NAME0_orig)
+    # getting stlrmassbin cols for the table
+    tab0 = asc.read('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Composite_Spectra/StellarMass/Keck_all_five_data.txt')
+    min_mass = np.array(tab0['min_stlrmass'])
+    max_mass = np.array(tab0['max_stlrmass'])
+    stlrmassbin = get_stlrmassbin_arr(stlr_mass, min_mass, max_mass)
+
+    # getting stlrmassZbin cols for the table
     stlrmassbinZ = get_stlrmassbinZ_arr(stlr_mass_orig, inst_str0_orig, inst_dict, stlr_mass, filt_arr, 'Keck', NAME0_orig)
 
     # setting 'YES' and 'NO' and 'MASK' coverage values
