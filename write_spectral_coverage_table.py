@@ -132,26 +132,23 @@ def get_stlrmassbinZ_arr(stlr_mass, inst_str0, inst_dict, stlr_mass_ii_instr, fi
     #endif
 
 
-def get_spectral_cvg_MMT(mmt_ii, MMT_LMIN0, MMT_LMAX0, zspec0, grid_ndarr_match_ii, x0):
+def get_spectral_cvg_MMT(MMT_LMIN0, MMT_LMAX0, zspec0, grid_ndarr_match_ii, x0):
     '''
-    TODO(the 'MASK' keyvals seem suspicious?)
     '''
-    MMT_LMIN0_ii_m, MMT_LMAX0_ii_m = get_indexed_arrs(mmt_ii, [MMT_LMIN0, MMT_LMAX0])
-
     HG = np.array([])
     HB = np.array([])
     HA = np.array([])
-    for lmin, lmax, row, z in zip(MMT_LMIN0_ii_m, MMT_LMAX0_ii_m, grid_ndarr_match_ii, zspec0):
+    for lmin0, lmax0, row, z in zip(MMT_LMIN0, MMT_LMAX0, grid_ndarr_match_ii, zspec0):
         hg_near_iis = find_nearest_iis(x0, 4341*(1+z))
         hb_near_iis = find_nearest_iis(x0, 4861*(1+z))
         ha_near_iis = find_nearest_iis(x0, 6563*(1+z))
 
-        if lmin < 0:
+        if lmin0 < 0:
             HG = np.append(HG, 'NO')
             HB = np.append(HB, 'NO')
             HA = np.append(HA, 'NO')
         else:
-            if lmin < HG_VAL and lmax > HG_VAL:
+            if lmin0 < HG_VAL and lmax0 > HG_VAL:
                 if np.average(row[hg_near_iis])==0:
                     HG = np.append(HG, 'MASK')
                 else:
@@ -159,7 +156,7 @@ def get_spectral_cvg_MMT(mmt_ii, MMT_LMIN0, MMT_LMAX0, zspec0, grid_ndarr_match_
             else:
                 HG = np.append(HG, 'NO')
             
-            if lmin < HB_VAL and lmax > HB_VAL:
+            if lmin0 < HB_VAL and lmax0 > HB_VAL:
                 if np.average(row[hb_near_iis])==0:
                     HB = np.append(HB, 'MASK')
                 else:
@@ -167,7 +164,7 @@ def get_spectral_cvg_MMT(mmt_ii, MMT_LMIN0, MMT_LMAX0, zspec0, grid_ndarr_match_
             else:
                 HB = np.append(HB, 'NO')
                 
-            if lmin < HA_VAL and lmax > HA_VAL:
+            if lmin0 < HA_VAL and lmax0 > HA_VAL:
                 if np.average(row[ha_near_iis])==0:
                     HA = np.append(HA, 'MASK')
                 else:
@@ -204,14 +201,20 @@ def write_MMT_table(inst_str0, ID, zspec0, NAME0, AP, stlr_mass, filt_arr,
     stlr_mass = stlr_mass[mmt_ii]
     filt_arr = filt_arr[mmt_ii]
     AP = np.array([ap[:5] for ap in AP])
+    MMT_LMIN0 = MMT_LMIN0[mmt_ii]
+    MMT_LMAX0 = MMT_LMAX0[mmt_ii]
 
     # getting stlrmassbin and stlrmassZbin cols for the table
     stlrmassbin = get_stlrmassbin_arr(stlr_mass_orig, inst_str0_orig, inst_dict, stlr_mass, 'MMT', NAME0_orig)
     stlrmassbinZ = get_stlrmassbinZ_arr(stlr_mass_orig, inst_str0_orig, inst_dict, stlr_mass, filt_arr, 'MMT', NAME0_orig)
     
     # setting 'YES' and 'NO' and 'MASK' coverage values
-    match_ii = np.array([x for x in range(len(gridap)) if gridap[x] in AP])
-    HG_cvg, HB_cvg, HA_cvg = get_spectral_cvg_MMT(mmt_ii, MMT_LMIN0, MMT_LMAX0, zspec0, grid_ndarr[match_ii], x0)
+    match_ii = np.array([])
+    for ii in range(len(AP)):
+        match_ii = np.append(match_ii, np.where(gridap == AP[ii])[0])
+    #endfor
+    match_ii = np.array(match_ii, dtype=np.int32)
+    HG_cvg, HB_cvg, HA_cvg = get_spectral_cvg_MMT(MMT_LMIN0, MMT_LMAX0, zspec0, grid_ndarr[match_ii], x0)
 
     # creating/writing the table
     tt_mmt = Table([ID, NAME0, AP, zspec0, filt_arr, stlrmassbin, stlrmassbinZ, HG_cvg, HB_cvg, HA_cvg], 
