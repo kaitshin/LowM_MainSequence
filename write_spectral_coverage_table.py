@@ -219,17 +219,12 @@ def write_MMT_table(inst_str0, ID, zspec0, NAME0, AP, stlr_mass, filt_arr,
     asc.write(tt_mmt, FULL_PATH+'Composite_Spectra/MMT_spectral_coverage.txt', format='fixed_width', delimiter=' ')
 
 
-def get_spectral_cvg_Keck(keck_ii, KECK_LMIN0, KECK_LMAX0, zspec0, grid_ndarr_match_ii, x0):
+def get_spectral_cvg_Keck(KECK_LMIN0, KECK_LMAX0):
     '''
     '''
-    KECK_LMIN0_ii_k, KECK_LMAX0_ii_k = get_indexed_arrs(keck_ii, [KECK_LMIN0, KECK_LMAX0])
-
     HB = np.array([])
     HA = np.array([])
-    for lmin0, lmax0, row, z in zip(KECK_LMIN0_ii_k, KECK_LMAX0_ii_k, grid_ndarr_match_ii, zspec0):
-        hb_near_iis = find_nearest_iis(x0, 4861*(1+z))
-        ha_near_iis = find_nearest_iis(x0, 6563*(1+z))
-
+    for lmin0, lmax0 in zip(KECK_LMIN0, KECK_LMAX0):
         if lmin0 < 0:
             HB = np.append(HB, 'NO')
             HA = np.append(HA, 'NO')
@@ -272,6 +267,8 @@ def write_Keck_table(inst_str0, ID, zspec0, NAME0, AP, stlr_mass, filt_arr,
     AP = AP[keck_ii]
     stlr_mass = stlr_mass[keck_ii]
     filt_arr = filt_arr[keck_ii]
+    KECK_LMIN0 = KECK_LMIN0[keck_ii]
+    KECK_LMAX0 = KECK_LMAX0[keck_ii]
     AP = np.array([x if len(x) == 6 else x[6:] for x in AP], dtype=np.float64)
 
     # getting stlrmassbin and stlrmassZbin cols for the table
@@ -279,8 +276,7 @@ def write_Keck_table(inst_str0, ID, zspec0, NAME0, AP, stlr_mass, filt_arr,
     stlrmassbinZ = get_stlrmassbinZ_arr(stlr_mass_orig, inst_str0_orig, inst_dict, stlr_mass, filt_arr, 'Keck', NAME0_orig)
 
     # setting 'YES' and 'NO' and 'MASK' coverage values
-    match_ii = np.array([x for x in range(len(gridap)) if gridap[x] in AP])
-    HB_cvg, HA_cvg = get_spectral_cvg_Keck(keck_ii, KECK_LMIN0, KECK_LMAX0, zspec0, grid_ndarr[match_ii], x0)
+    HB_cvg, HA_cvg = get_spectral_cvg_Keck(KECK_LMIN0, KECK_LMAX0)
 
     # creating/writing the table
     tt_keck = Table([ID, NAME0, AP, zspec0, filt_arr, stlrmassbin, stlrmassbinZ, HB_cvg, HA_cvg], 
