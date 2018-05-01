@@ -106,33 +106,6 @@ def get_index_list2(NAME0, stlr_mass, inst_str0, inst_dict, instr):
         return [index_0]+[index_1]+[index_2]+[index_3]+[index_4]
 #enddef
 
-def get_index_list3(NAME0, stlr_mass, inst_str0, inst_dict, instr):
-    '''
-    Helper function. Returns an index_list for either MMT or Keck 
-    based on instr keyword
-
-    Considers by-stellarmass. For now, goes in 50% percentile bins.
-    TODO(generalize?)
-    '''
-    good_iis = np.array([x for x in range(len(stlr_mass)) if 
-        (stlr_mass[x] > 0 and 'Ha-' in NAME0[x] and inst_str0[x] in inst_dict[instr])])
-    good_stlr_mass = stlr_mass[good_iis]
-
-    # 50% percentile bins
-    perc50 = np.percentile(good_stlr_mass, 50)
-    index_0 = np.array([x for x in range(len(stlr_mass)) 
-        if (stlr_mass[x]>0 and stlr_mass[x]<=perc50) 
-        and (inst_str0[x] in inst_dict[instr] and 'Ha-' in NAME0[x])])
-    perc100 = np.percentile(good_stlr_mass, 100)        
-    index_1 = np.array([x for x in range(len(stlr_mass)) 
-        if (stlr_mass[x]>perc50 and stlr_mass[x]<=perc100) 
-        and (inst_str0[x] in inst_dict[instr] and 'Ha-' in NAME0[x])])
-    if instr=='MMT':
-        return [index_0]+[index_1]
-    if instr=='Keck':
-        return [index_0]+[index_1]
-#enddef
-
 def get_iter_lists(instr, stlr=False):
     '''
     Helper function. Returns  for either MMT or Keck
