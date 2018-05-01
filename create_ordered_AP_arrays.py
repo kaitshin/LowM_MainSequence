@@ -221,7 +221,7 @@ def make_AP_arr_FOCAS(AP, slit_str0):
 #enddef
 
 
-def get_LMIN0_LMAX0(all_AP, detect_AP, all_MMT_LMIN0, detect_MMT_LMIN0, 
+def get_LMIN0_LMAX0(all_AP, detect_AP, all_MMT_LMIN0, detect_MMT_LMIN0,
     all_MMT_LMAX0, detect_MMT_LMAX0, all_KECK_LMIN0, detect_KECK_LMIN0,
     all_KECK_LMAX0, detect_KECK_LMAX0):
     '''
@@ -237,14 +237,14 @@ def get_LMIN0_LMAX0(all_AP, detect_AP, all_MMT_LMIN0, detect_MMT_LMIN0,
     overlapping indices, the zero values in all_AP are replaced by the
     corresponding detected values.
     '''
-
+    # indexes of data that correspond to indexes in 9264-AP-ordering
     index1 = np.array([x for x in range(len(detect_AP)) if detect_AP[x]
                        in all_AP], dtype=np.int32)
-    index2 = np.array([])
 
+    # indexes of 9264-AP-ordering that correspond to indexes in data
+    index2 = np.array([])
     for mm in range(len(detect_AP)):
-        index2 = np.append(index2, [x for x in range(len(all_AP))
-                                    if all_AP[x] == detect_AP[mm]])
+        index2 = np.append(index2, np.where(all_AP == detect_AP[mm])[0])
     #endfor
     index2 = np.array(index2, dtype=np.int32)
 
@@ -252,6 +252,48 @@ def get_LMIN0_LMAX0(all_AP, detect_AP, all_MMT_LMIN0, detect_MMT_LMIN0,
     all_MMT_LMAX0[index2] = detect_MMT_LMAX0[index1]
     all_KECK_LMIN0[index2] = detect_KECK_LMIN0[index1]
     all_KECK_LMAX0[index2] = detect_KECK_LMAX0[index1]
+
+    return all_MMT_LMIN0,all_MMT_LMAX0,all_KECK_LMIN0,all_KECK_LMAX0
+#enddef
+
+
+def get_LMIN0_LMAX0_merged(all_AP, mergedAP, all_MMT_LMIN0, all_MMT_LMAX0, all_KECK_LMIN0,
+    all_KECK_LMAX0, MMTallAP, MMTallLMIN0, MMTallLMAX0, MMTsingleAP,
+    MMTsingleLMIN0, MMTsingleLMAX0, DEIMOSAP, DEIMOSLMIN0, DEIMOSLMAX0,
+    DEIMOS00AP, DEIMOS00LMIN0, DEIMOS00LMAX0):
+    '''
+    '''
+    for ii in range(len(mergedAP)):
+        bothap = mergedAP[ii]
+        mmt = bothap.split(',')[0]
+        keck = bothap.split(',')[1]
+
+        # index in 9264-ordering corresponding to index in data
+        jj = [x for x in range(len(all_AP)) if mmt==all_AP[x][:5]]
+
+        # below: index in data corresponding to index in 9264-ordering
+        # mmt part
+        m1 = [x for x in range(len(MMTallAP)) if mmt==MMTallAP[x]]
+        m2 = [x for x in range(len(MMTsingleAP)) if mmt==MMTsingleAP[x]]
+
+        if len(m1) > 0:
+            all_MMT_LMIN0[jj] = MMTallLMIN0[m1]
+            all_MMT_LMAX0[jj] = MMTallLMAX0[m1]
+        elif len(m2) > 0:
+            all_MMT_LMIN0[jj] = MMTsingleLMIN0[m2]
+            all_MMT_LMAX0[jj] = MMTsingleLMAX0[m2]
+
+        # keck part
+        k1 = [x for x in range(len(DEIMOSAP)) if keck==DEIMOSAP[x]]
+        k2 = [x for x in range(len(DEIMOS00AP)) if keck==DEIMOS00AP[x]]
+        if len(k1) > 0:
+            all_KECK_LMIN0[jj] = DEIMOSLMIN0[k1]
+            all_KECK_LMAX0[jj] = DEIMOSLMAX0[k1]
+        elif len(k2) > 0:
+            all_KECK_LMIN0[jj] = DEIMOS00LMIN0[k2]
+            all_KECK_LMAX0[jj] = DEIMOS00LMAX0[k2]
+    #endfor
+
 
     return all_MMT_LMIN0,all_MMT_LMAX0,all_KECK_LMIN0,all_KECK_LMAX0
 #enddef
@@ -269,6 +311,7 @@ def create_ordered_AP_arrays(AP_only=False):
     zspec = asc.read('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Catalogs/nb_ia_zspec.txt',guess=False,
                      Reader=asc.CommentedHeader)
     slit_str0 = np.array(zspec['slit_str0'])
+    inst_str0 = np.array(zspec['inst_str0'])
 
     MMTall = pyfits.open('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Main_Sequence/Catalogs/MMT/MMTS_all_line_fit.fits')
     MMTalldata = MMTall[1].data
@@ -311,6 +354,9 @@ def create_ordered_AP_arrays(AP_only=False):
     AP  = make_AP_arr_FOCAS(AP2, slit_str0)
     print '### done creating ordered AP arr'
 
+    merged_iis = np.array([x for x in range(len(inst_str0)) if 'merged' in inst_str0[x]])
+    AP_merged = AP[merged_iis]
+
     if (AP_only == True):
         MMTall.close()
         MMTsingle.close()
@@ -334,8 +380,10 @@ def create_ordered_AP_arrays(AP_only=False):
         MMT_LMAX0, DEIMOSLMAX0, KECK_LMIN0, DEIMOSLMIN0, KECK_LMAX0, DEIMOSLMAX0)
     MMT_LMIN0, MMT_LMAX0, KECK_LMIN0, KECK_LMAX0 = get_LMIN0_LMAX0(AP, DEIMOS00AP, MMT_LMIN0, DEIMOS00LMIN0, 
         MMT_LMAX0, DEIMOS00LMAX0, KECK_LMIN0, DEIMOS00LMIN0, KECK_LMAX0, DEIMOS00LMAX0)
-    MMT_LMIN0, MMT_LMAX0, KECK_LMIN0, KECK_LMAX0 = get_LMIN0_LMAX0(AP, mergedAP, MMT_LMIN0, mergedLMIN0_MMT, 
-        MMT_LMAX0, mergedLMAX0_MMT, KECK_LMIN0, mergedLMIN0_KECK, KECK_LMAX0, mergedLMAX0_KECK)
+    MMT_LMIN0, MMT_LMAX0, KECK_LMIN0, KECK_LMAX0 = get_LMIN0_LMAX0_merged(AP, AP_merged, 
+        MMT_LMIN0, MMT_LMAX0, KECK_LMIN0, KECK_LMAX0, MMTallAP, MMTallLMIN0, MMTallLMAX0, 
+        MMTsingleAP, MMTsingleLMIN0, MMTsingleLMAX0, DEIMOSAP, DEIMOSLMIN0, DEIMOSLMAX0, 
+        DEIMOS00AP, DEIMOS00LMIN0, DEIMOS00LMAX0)
     print '### done creating ordered LMIN0/LMAX0 arr'
 
     MMTall.close()
