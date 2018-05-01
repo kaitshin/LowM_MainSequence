@@ -1,4 +1,4 @@
-import numpy as np, numpy.ma as ma, matplotlib.pyplot as plt, re, copy
+import numpy as np, re
 import plotting.general_plotting as general_plotting
 from astropy.io import fits as pyfits, ascii as asc
 from astropy.table import Table
@@ -20,15 +20,6 @@ def get_filt_arr(NAME0):
             filt_arr = np.append(filt_arr, name[i+3:i+8])
 
     return filt_arr
-
-
-def get_indexed_arrs(ha_ii, arrs):
-    '''
-    '''
-    copyarrs = copy.deepcopy(arrs)
-    for i in range(len(copyarrs)):
-        copyarrs[i] = copyarrs[i][ha_ii]
-    return copyarrs
 
 
 def get_init_NO_YES_coverage(arr):
