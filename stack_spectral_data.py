@@ -521,11 +521,11 @@ def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='Redshift'):
 
     if pp == None:
         plt.savefig(full_path+'Composite_Spectra/StellarMass/MMT_all_five.pdf')
+        subtitle_list = np.array(['all']*len(stlrmass_bin_arr))
     else:
         pp.savefig()
+        subtitle_list = np.array([title]*len(stlrmass_bin_arr))
     plt.close()
-
-    subtitle_list = np.array(['all']*len(subtitle_list))
 
     EBV_hghb = HG_HB_EBV(HG_flux, HB_flux)
     EBV_hahb = HA_HB_EBV(HA_flux, HB_flux, 'MMT', 'stlrmass')
@@ -925,11 +925,12 @@ def plot_Keck_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass'):
 
     if pp == None:
         plt.savefig(full_path+'Composite_Spectra/StellarMass/Keck_all_five.pdf')
+        subtitle_list = np.array(['all']*len(stlrmass_bin_arr))
     else:
         pp.savefig()
+        subtitle_list = np.array([title]*len(stlrmass_bin_arr))
     plt.close()
 
-    subtitle_list = np.array(['all']*len(stlrmass_bin_arr))
     EBV_hahb = HA_HB_EBV(HA_flux, HB_flux, 'Keck', 'stlrmass')
 
     table00 = Table([subtitle_list, stlrmass_bin_arr, num_sources, num_stack_HB, num_stack_HA,
@@ -1058,8 +1059,8 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr, fill_value=np.nan)
 
 print '### plotting MMT_Ha'
-plot_MMT_Ha()
-plot_MMT_Ha_stlrmass()
+# plot_MMT_Ha()
+# plot_MMT_Ha_stlrmass()
 plot_MMT_Ha_stlrmass_z()
 grid.close()
 
@@ -1086,7 +1087,7 @@ grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 print '### plotting Keck_Ha'
 # plot_Keck_Ha()
 # plot_Keck_Ha_stlrmass()
-# plot_Keck_Ha_stlrmass_z()
+plot_Keck_Ha_stlrmass_z()
 grid.close()
 
 nbia.close()
