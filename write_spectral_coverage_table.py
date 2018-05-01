@@ -46,52 +46,33 @@ def get_stlrmassbin_arr(stlr_mass, min_mass, max_mass):
     return stlrmassbin
 
 
-def get_stlrmassbinZ_arr(stlr_mass, inst_str0, inst_dict, stlr_mass_ii_instr, filt_arr_instr, instr, NAME0):
+def get_stlrmassbinZ_arr(filt_arr, stlr_mass, tab1, instr):
     '''
     '''
-    index_list = []
-    if instr=='MMT':
-        index_list = general_plotting.get_index_list3(NAME0, stlr_mass, inst_str0, inst_dict, instr)
-    elif instr=='Keck':
-        index_list = general_plotting.get_index_list2(NAME0, stlr_mass, inst_str0, inst_dict, instr)
-
-    masslist = []
-    for match_index in index_list:
-        subtitle = 'stlrmass: '+str(min(stlr_mass[match_index]))+'-'+str(max(stlr_mass[match_index]))
-        masslist.append(subtitle[10:].split('-'))
+    stlrmassZbin = np.array([])
+    for ff, m in zip(filt_arr, stlr_mass):
+        if instr=='Keck' and ff=='NB816':
+            stlrmassZbin = np.append(stlrmassZbin, 'N/A')
+        elif instr=='MMT' and ff=='NB704,NB711,':
+            assigned_bin = ''
+            for ff0 in ['NB704', 'NB711']:
+                good_filt_iis = np.array([x for x in range(len(tab1)) if tab1['filter'][x]==ff0])
+                min_mass = np.array(tab1['min_stlrmass'][good_filt_iis])
+                max_mass = np.array(tab1['max_stlrmass'][good_filt_iis])
+                for ii in range(len(good_filt_iis)):
+                    if m >= min_mass[ii] and m <= max_mass[ii]:
+                        assigned_bin += str(ii+1)+'-'+ff0+','
+            stlrmassZbin = np.append(stlrmassZbin, assigned_bin)
+        else:
+            good_filt_iis = np.array([x for x in range(len(tab1)) if tab1['filter'][x]==ff])
+            min_mass = np.array(tab1['min_stlrmass'][good_filt_iis])
+            max_mass = np.array(tab1['max_stlrmass'][good_filt_iis])
+            for ii in range(len(good_filt_iis)):
+                if m >= min_mass[ii] and m <= max_mass[ii]:
+                    stlrmassZbin = np.append(stlrmassZbin, str(ii+1)+'-'+ff)
     #endfor
 
-    stlrmassZbin = np.array([], dtype='int32')
-    if instr == 'MMT':
-        for mass, filt in zip(stlr_mass_ii_instr, filt_arr_instr):
-            bin_num = -1
-            if mass >= np.float(masslist[-1][0]):
-                bin_num = len(masslist)
-            elif mass >= np.float(masslist[-2][0]):
-                bin_num = len(masslist)-1
-                
-            stlrmassZbin = np.append(stlrmassZbin, str(bin_num)+'-'+filt)
-        #endfor
-        return stlrmassZbin
-    #endif
-    elif instr == 'Keck':
-        for mass, filt in zip(stlr_mass_ii_instr, filt_arr_instr):
-            bin_num = -1
-            if mass >= np.float(masslist[-1][0]):
-                bin_num = len(masslist)
-            elif mass >= np.float(masslist[-2][0]):
-                bin_num = len(masslist)-1
-            elif mass >= np.float(masslist[-3][0]):
-                bin_num = len(masslist)-2
-            elif mass >= np.float(masslist[-4][0]):
-                bin_num = len(masslist)-3
-            elif mass >= np.float(masslist[-5][0]):
-                bin_num = len(masslist)-4
-                
-            stlrmassZbin = np.append(stlrmassZbin, str(bin_num)+'-'+filt)
-        #endfor
-        return stlrmassZbin
-    #endif
+    return stlrmassZbin
 
 
 def get_spectral_cvg_MMT(MMT_LMIN0, MMT_LMAX0, zspec0, grid_ndarr_match_ii, x0):
@@ -173,7 +154,8 @@ def write_MMT_table(inst_str0, ID, zspec0, NAME0, AP, stlr_mass, filt_arr,
     stlrmassbin = get_stlrmassbin_arr(stlr_mass, min_mass, max_mass)
 
     # getting stlrmassZbin cols for the table
-    stlrmassbinZ = get_stlrmassbinZ_arr(stlr_mass_orig, inst_str0_orig, inst_dict, stlr_mass, filt_arr, 'MMT', NAME0_orig)
+    tab1 = asc.read('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Composite_Spectra/StellarMassZ/MMT_stlrmassZ_data.txt')
+    stlrmassbinZ = stlrmassbinZ = get_stlrmassbinZ_arr(filt_arr, stlr_mass, tab1, 'MMT')
     
     # setting 'YES' and 'NO' and 'MASK' coverage values
     match_ii = np.array([])
@@ -248,7 +230,8 @@ def write_Keck_table(inst_str0, ID, zspec0, NAME0, AP, stlr_mass, filt_arr,
     stlrmassbin = get_stlrmassbin_arr(stlr_mass, min_mass, max_mass)
 
     # getting stlrmassZbin cols for the table
-    stlrmassbinZ = get_stlrmassbinZ_arr(stlr_mass_orig, inst_str0_orig, inst_dict, stlr_mass, filt_arr, 'Keck', NAME0_orig)
+    tab1 = asc.read('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Composite_Spectra/StellarMassZ/Keck_stlrmassZ_data.txt')
+    stlrmassbinZ = get_stlrmassbinZ_arr(filt_arr, stlr_mass, tab1, 'Keck')
 
     # setting 'YES' and 'NO' and 'MASK' coverage values
     HB_cvg, HA_cvg = get_spectral_cvg_Keck(KECK_LMIN0, KECK_LMAX0)
@@ -314,6 +297,7 @@ def main():
     ID         = np.array([ID[x] for x in range(len(ID)) if x not in bad_iis])
     inst_str0  = np.array([inst_str0[x] for x in range(len(inst_str0)) if x not in bad_iis])
     AP         = np.array([AP[x] for x in range(len(AP)) if x not in bad_iis])
+    stlr_mass  = np.array([stlr_mass[x] for x in range(len(stlr_mass)) if x not in bad_iis])
     KECK_LMIN0 = np.array([KECK_LMIN0[x] for x in range(len(KECK_LMIN0)) if x not in bad_iis])
     KECK_LMAX0 = np.array([KECK_LMAX0[x] for x in range(len(KECK_LMAX0)) if x not in bad_iis])
     filt_arr   = np.array([filt_arr[x] for x in range(len(filt_arr)) if x not in bad_iis])
