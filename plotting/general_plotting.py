@@ -54,22 +54,24 @@ def get_index_list(NAME0, inst_str0, inst_dict, instr):
         return 0
 #enddef
 
-def get_index_list2(NAME0, stlr_mass, inst_str0, inst_dict, instr):
+def get_index_list2(NAME0, stlr_mass, inst_str0, zspec0, inst_dict, instr):
     '''
     Helper function. Returns an index_list for either MMT or Keck 
     based on instr keyword
 
     Considers by-stellarmass. For now, goes in 20% percentile bins.
-    TODO(generalize?)
+    Only considers valid redshifts.
     '''
     if instr=='Keck':
         good_iis = np.array([x for x in range(len(stlr_mass)) if 
             (stlr_mass[x] > 0 and inst_str0[x] in inst_dict[instr]) 
-            and ('Ha-NB8' in NAME0[x] or 'Ha-NB9' in NAME0[x])])
-    else:
+            and ('Ha-NB8' in NAME0[x] or 'Ha-NB9' in NAME0[x])
+            and (zspec0[x] > 0 and zspec0[x] < 9)])
+    else: #=='MMT'
         good_iis = np.array([x for x in range(len(stlr_mass)) if 
             (stlr_mass[x] > 0 and inst_str0[x] in inst_dict[instr]) 
-            and ('Ha-NB' in NAME0[x])])
+            and ('Ha-NB' in NAME0[x])
+            and (zspec0[x] > 0 and zspec0[x] < 9)])
     good_stlr_mass = stlr_mass[good_iis]
 
     # 20% percentile bins
@@ -77,29 +79,36 @@ def get_index_list2(NAME0, stlr_mass, inst_str0, inst_dict, instr):
     if instr=='Keck':
         index_0 = np.array([x for x in range(len(stlr_mass)) 
             if (stlr_mass[x]>0 and stlr_mass[x]<=perc20) 
-            and (inst_str0[x] in inst_dict[instr]) and ('Ha-NB8' in NAME0[x] or 'Ha-NB9' in NAME0[x])])
-    else:
+            and (inst_str0[x] in inst_dict[instr]) 
+            and ('Ha-NB8' in NAME0[x] or 'Ha-NB9' in NAME0[x])
+            and (zspec0[x] > 0 and zspec0[x] < 9)])
+    else: #=='MMT'
         index_0 = np.array([x for x in range(len(stlr_mass)) 
             if (stlr_mass[x]>0 and stlr_mass[x]<=perc20) 
-            and (inst_str0[x] in inst_dict[instr] and 'Ha-NB' in NAME0[x])])
+            and (inst_str0[x] in inst_dict[instr] and 'Ha-NB' in NAME0[x])
+            and (zspec0[x] > 0 and zspec0[x] < 9)])
 
     # the below don't have problems for keck accidentally including ha-nb704/711 yet...
     perc40 = np.percentile(good_stlr_mass, 40)
     index_1 = np.array([x for x in range(len(stlr_mass)) 
         if (stlr_mass[x]>perc20 and stlr_mass[x]<=perc40) 
-        and (inst_str0[x] in inst_dict[instr] and 'Ha-NB' in NAME0[x])])
+        and (inst_str0[x] in inst_dict[instr] and 'Ha-NB' in NAME0[x])
+        and (zspec0[x] > 0 and zspec0[x] < 9)])
     perc60 = np.percentile(good_stlr_mass, 60)
     index_2 = np.array([x for x in range(len(stlr_mass)) 
         if (stlr_mass[x]>perc40 and stlr_mass[x]<=perc60) 
-        and (inst_str0[x] in inst_dict[instr] and 'Ha-NB' in NAME0[x])])
+        and (inst_str0[x] in inst_dict[instr] and 'Ha-NB' in NAME0[x])
+        and (zspec0[x] > 0 and zspec0[x] < 9)])
     perc80 = np.percentile(good_stlr_mass, 80)
     index_3 = np.array([x for x in range(len(stlr_mass)) 
         if (stlr_mass[x]>perc60 and stlr_mass[x]<=perc80) 
-        and (inst_str0[x] in inst_dict[instr] and 'Ha-NB' in NAME0[x])])
+        and (inst_str0[x] in inst_dict[instr] and 'Ha-NB' in NAME0[x])
+        and (zspec0[x] > 0 and zspec0[x] < 9)])
     perc100 = np.percentile(good_stlr_mass, 100)        
     index_4 = np.array([x for x in range(len(stlr_mass)) 
         if (stlr_mass[x]>perc80 and stlr_mass[x]<=perc100) 
-        and (inst_str0[x] in inst_dict[instr] and 'Ha-NB' in NAME0[x])])
+        and (inst_str0[x] in inst_dict[instr] and 'Ha-NB' in NAME0[x])
+        and (zspec0[x] > 0 and zspec0[x] < 9)])
     if instr=='MMT':
         return [index_0]+[index_1]+[index_2]+[index_3]+[index_4]
     if instr=='Keck':

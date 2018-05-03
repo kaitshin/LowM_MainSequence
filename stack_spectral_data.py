@@ -374,7 +374,7 @@ def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='Redshift'):
         stlrmass_bin_arr, avg_stlrmass_arr, min_stlrmass_arr, max_stlrmass_arr,
         IDs_arr) = ([], [], [], [], [], [], [], [], [], [], [], [], [])
     if index_list == []:
-        index_list = general_plotting.get_index_list2(NAME0, stlr_mass, inst_str0, inst_dict, 'MMT')
+        index_list = general_plotting.get_index_list2(NAME0, stlr_mass, inst_str0, zspec0, inst_dict, 'MMT')
     (xmin_list, xmax_list, label_list, 
         subtitle_list) = general_plotting.get_iter_lists('MMT')
 
@@ -805,7 +805,7 @@ def plot_Keck_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass'):
         stlrmass_bin_arr, avg_stlrmass_arr, min_stlrmass_arr, max_stlrmass_arr,
         IDs_arr) = ([], [], [], [], [], [], [], [], [], [], [], [])
     if index_list == []:
-        index_list = general_plotting.get_index_list2(NAME0, stlr_mass, inst_str0, inst_dict, 'Keck')
+        index_list = general_plotting.get_index_list2(NAME0, stlr_mass, inst_str0, zspec0, inst_dict, 'Keck')
     (xmin_list, xmax_list, label_list, 
         subtitle_list) = general_plotting.get_iter_lists('Keck', stlr=True)
 
@@ -1060,8 +1060,8 @@ grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr, fill_value=np.nan)
 
 print '### plotting MMT_Ha'
 # plot_MMT_Ha()
-# plot_MMT_Ha_stlrmass()
-plot_MMT_Ha_stlrmass_z()
+plot_MMT_Ha_stlrmass()
+# plot_MMT_Ha_stlrmass_z()
 grid.close()
 
 print '### looking at the Keck grid'
@@ -1087,7 +1087,7 @@ grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 print '### plotting Keck_Ha'
 # plot_Keck_Ha()
 # plot_Keck_Ha_stlrmass()
-plot_Keck_Ha_stlrmass_z()
+# plot_Keck_Ha_stlrmass_z()
 grid.close()
 
 nbia.close()
