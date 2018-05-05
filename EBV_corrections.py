@@ -71,8 +71,8 @@ def bins_table_no_spectra(indexes, NAME0, AP, stlr_mass, massbins_MMT, massbins_
     # get stlrmassZ bins
     ii0 = 0
     ii1 = 0
-    massZs_MMT = np.array([])
-    massZs_Keck = np.array([])
+    massZs_MMT = np.array(['UNFILLED']*len(indexes))
+    massZs_Keck = np.array(['UNFILLED']*len(indexes))
     for ff in ['NB704','NB711','NB816','NB921','NB973']:
         jj = len(np.where(ff==massZlist_filts_MMT)[0])        
         
@@ -83,7 +83,7 @@ def bins_table_no_spectra(indexes, NAME0, AP, stlr_mass, massbins_MMT, massbins_
         
         mass_MMT_iis  = np.digitize(masses[good_filt_iis], massZbins_MMT[ii0:ii0+jj])
         massZ_MMT_iis = np.array([str(x)+'-'+ff for x in mass_MMT_iis])
-        massZs_MMT  = np.append(massZs_MMT, massZ_MMT_iis)
+        massZs_MMT[good_filt_iis] = massZ_MMT_iis
         
         ii0+=jj
         if 'NB9' in ff:
@@ -94,7 +94,7 @@ def bins_table_no_spectra(indexes, NAME0, AP, stlr_mass, massbins_MMT, massbins_
                 
             mass_Keck_iis  = np.digitize(masses[good_filt_iis], massZbins_Keck[ii1:ii1+kk])
             massZ_Keck_iis = np.array([str(x)+'-'+ff for x in mass_Keck_iis])
-            massZs_Keck = np.append(massZs_Keck, massZ_Keck_iis)
+            massZs_Keck[good_filt_iis] = massZ_Keck_iis
             
             ii1+=kk
         else:
