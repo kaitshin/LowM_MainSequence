@@ -71,17 +71,18 @@ def HG_HB_EBV(hg, hb):
     return EBV_hghb
 #enddef
 
-def HA_HB_EBV(ha, hb, instr, bintype='redshift'):
+def HA_HB_EBV(ha, hb, instr, bintype='redshift', filt='N/A'):
     '''
     '''
     ha = np.array(ha)
     hb = np.array(hb)
     hahb = np.array([2.86 if (x < 2.86 and x > 0) else x for x in ha/hb])
     EBV_hahb = np.log10((hahb)/2.86)/(-0.4*(k_ha - k_hb))
-    if instr=='MMT':
+    if instr=='MMT' and bintype=='redshift':
         EBV_hahb[-2] = -99.0 #unreliable nb921 halpha
-        if bintype=='redshift':
-            EBV_hahb[-1] = -99.0 #no nb973 halpha
+        EBV_hahb[-1] = -99.0 #no nb973 halpha
+    elif instr=='MMT' and bintype=='StellarMassZ' and 'NB9' in filt:
+        EBV_hahb[:] = -99.0 #unreliable nb921 halpha; no nb973 halpha
     elif instr=='Keck' and bintype=='redshift':
         EBV_hahb[0] = -99.0 #no nb816 hbeta
 
@@ -352,7 +353,7 @@ def plot_MMT_Ha():
         format='fixed_width_two_line', delimiter=' ')
 #enddef
 
-def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='Redshift'):
+def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass'):
     '''
     TODO(document)
     TODO(implement flexible stellar mass bin-readings)
@@ -528,7 +529,7 @@ def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='Redshift'):
     plt.close()
 
     EBV_hghb = HG_HB_EBV(HG_flux, HB_flux)
-    EBV_hahb = HA_HB_EBV(HA_flux, HB_flux, 'MMT', 'stlrmass')
+    EBV_hahb = HA_HB_EBV(HA_flux, HB_flux, 'MMT', bintype, title)
 
     table00 = Table([subtitle_list, stlrmass_bin_arr, num_sources, num_bad_NB921_sources, num_stack_HG, num_stack_HB, num_stack_HA,
         avgz_arr, minz_arr, maxz_arr, 
@@ -1060,8 +1061,8 @@ grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr, fill_value=np.nan)
 
 print '### plotting MMT_Ha'
 # plot_MMT_Ha()
-plot_MMT_Ha_stlrmass()
-# plot_MMT_Ha_stlrmass_z()
+# plot_MMT_Ha_stlrmass()
+plot_MMT_Ha_stlrmass_z()
 grid.close()
 
 print '### looking at the Keck grid'
