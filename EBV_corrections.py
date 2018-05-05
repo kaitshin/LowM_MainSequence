@@ -210,9 +210,14 @@ def main():
     no_spectra  = np.where((zspec0 <= 0) | (zspec0 > 9))[0]
     yes_spectra = np.where((zspec0 >= 0) & (zspec0 < 9))[0]
 
-    # getting rid of special case:
+    # getting rid of special cases:
     bad_highz_gal = np.where(NAME0[no_spectra]=='Ha-NB816_174829_Ha-NB921_187439_Lya-IA598_163379')[0]
     no_spectra = np.delete(no_spectra, bad_highz_gal)
+
+    bad_HbNB704_SIINB973_gals = np.array([x for x in range(len(no_spectra)) if 
+        (NAME0[no_spectra][x]=='Ha-NB704_028405_OII-NB973_056979' or 
+            NAME0[no_spectra][x]=='Ha-NB704_090945_OII-NB973_116533')])
+    no_spectra = np.delete(no_spectra, bad_HbNB704_SIINB973_gals)
 
 
     # reading in EBV data tables & getting relevant EBV cols
