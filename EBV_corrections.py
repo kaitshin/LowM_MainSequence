@@ -10,6 +10,15 @@ FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
 def get_bins(masslist_MMT, masslist_Keck, massZlist_MMT, massZlist_Keck):
     '''
     Helper function for main. Flattens ndarrays of bins into a bins array
+
+    Doesn't include the max_mass as an upper bound to the mass bins so that
+    sources that have m > m_max_bin will automatically fall into the highest
+    bin.
+    Ex:
+      >>> x = np.array([5.81, 6.78, 7.12, 7.94, 9.31])
+      >>> bins = np.array([6.2, 7.53]) # not incl. 8.12 as the max mass
+      >>> np.digitize(x, bins)
+      array([0, 1, 1, 2, 2]) # instead of array([0, 1, 1, 2, 3])
     '''
     massbins_MMT = np.append(masslist_MMT[:,0], masslist_MMT[-1,-1])
     massbins_Keck = np.append(masslist_Keck[:,0], masslist_Keck[-1,-1])
@@ -53,10 +62,10 @@ def bins_table_no_spectra(indexes, NAME0, AP, stlr_mass, massbins_MMT, massbins_
     # get redshift bins
     filts = np.array([x[x.find('Ha-')+3:x.find('Ha-')+8] for x in names])
     
-    # this ensures that NB704+NB921 dual emitters will be placed in Ha-NB704 bins
+    # this ensures that NB704+NB921 dual emitters will be placed in Ha-NB921 bins
     #  since these sources are likely OIII-NB704 and Ha-NB921
     dual_iis = [x for x in range(len(names)) if 'Ha-NB704' in names[x] and 'Ha-NB921' in names[x]]
-    filts[dual_iis] = 'NB704'
+    filts[dual_iis] = 'NB921'
     
     # this ensures that the NB816+NB921 dual emitter will be placed in the NB921 bin
     #  we decided this based on visual inspection of the photometry
@@ -98,7 +107,7 @@ def bins_table_no_spectra(indexes, NAME0, AP, stlr_mass, massbins_MMT, massbins_
             
             ii1+=kk
         else:
-            massZs_Keck = np.append(massZs_Keck, np.array(['N/A']*len(good_filt_iis)))
+            massZs_Keck[good_filt_iis] = np.array(['N/A']*len(good_filt_iis))
             masses_Keck[good_filt_iis] = -99
     
     # putting sources with m < m_min_bin in the lowest-massZ mass bin
