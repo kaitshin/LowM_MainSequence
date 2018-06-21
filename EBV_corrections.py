@@ -320,7 +320,7 @@ def main():
     # getting the EBV corrections to use
     #  yes_spectra originally gets the no_spectra and then individual ones are applied 
     #  if S/N is large enough
-    EBV_corrs_ns = EBV_corrs_no_spectra(tab_no_spectra, mmt_mz, mmt_mz_EBV_hahb, 
+    EBV_corrs_ns = EBV_corrs_no_spectra(tab_no_spectra, mmt_mz, mmt_mz_EBV_hahb,
         mmt_mz_EBV_hghb, keck_mz, keck_mz_EBV_hahb)
     EBV_corrs_ys = EBV_corrs_no_spectra(tab_yes_spectra, mmt_mz, mmt_mz_EBV_hahb, 
         mmt_mz_EBV_hghb, keck_mz, keck_mz_EBV_hahb)
@@ -362,7 +362,6 @@ def main():
         #                                                        filt, filt_index)
         # NB_lumin_filt_corr[filt_index] = NB_flux_filt_corr[filt_index]+lum_factor
         # NB_filt_corr[filt_index] = NB_flux_filt_corr[filt_index]-NB_flux[filt_index]
-
     #endfor
 
 
