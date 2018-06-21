@@ -4,7 +4,51 @@ from create_ordered_AP_arrays import create_ordered_AP_arrays
 import numpy as np, matplotlib.pyplot as plt
 import plotting.general_plotting as general_plotting
 
+from analysis.cardelli import *
+from astropy.cosmology import FlatLambdaCDM
+cosmo = FlatLambdaCDM(H0 = 70 * u.km / u.s / u.Mpc, Om0=0.3)
+
+
 FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
+
+
+def filt_corrs(no_spectra, yes_spectra, ff, zspec0, FLUX_filt_corr):
+    '''
+    Applies the filter-based correction.
+
+    Accepts only no/yes_spectra sources with filter matches (based on NAME0).
+
+    For the sources with no_spectra, a log correction factor of 1.28 was added.
+    For the ones with a yes_spectra, the relevant filter response .dat file
+    was read in to try and find what kind of flux a source with that zspec
+    would have in the filter response; a log correction factor of 1 over
+    that ratio was then added, with the filter-corrected flux returned.
+    '''
+    print ff, len(no_spectra)+len(yes_spectra)
+    # reading data
+    response = asc.read(FULL_PATH+'Filters/'+ff+'response.dat',guess=False,
+                    Reader=asc.NoHeader)
+    xresponse = np.array(response['col1'])
+    xresponse = (xresponse/6563.0)-1                    
+    yresponse = np.array(response['col2'])
+    yresponse = (yresponse/max(yresponse)) #normalize to 1
+
+    FLUX_filt_corr[no_spectra] += np.log10(1.28)
+
+    good_z = zspec0[yes_spectra]
+    for ii in range(len(yes_spectra)):            
+        temp = np.array([x for x in range(len(xresponse)-1)
+                         if good_z[ii] > xresponse[x]
+                         and good_z[ii] < xresponse[x+1]])
+
+        if len(temp) == 0:
+            FLUX_filt_corr[yes_spectra[ii]] += np.log10(1.28)
+        elif len(temp) > 0:
+            avg_y_response = np.mean((yresponse[temp], yresponse[temp+1]))
+            FLUX_filt_corr[yes_spectra[ii]] += np.log10(1/avg_y_response)
+        #endif
+    #endfor
+    return FLUX_filt_corr
 
 
 def get_bins(masslist_MMT, masslist_Keck, massZlist_MMT, massZlist_Keck):
@@ -16,8 +60,8 @@ def get_bins(masslist_MMT, masslist_Keck, massZlist_MMT, massZlist_Keck):
     bin.
     Ex:
       >>> x = np.array([5.81, 6.78, 7.12, 7.94, 9.31])
-      >>> bins = np.array([6.2, 7.53]) # not incl. 8.12 as the max mass
-      >>> np.digitize(x, bins)
+      >>> bins = np.array([6.2, 7.53, 9.31]) 
+      >>> np.digitize(x, bins, right=True)
       array([0, 1, 1, 2, 2]) # instead of array([0, 1, 1, 2, 3])
     '''
     massbins_MMT = np.append(masslist_MMT[:,0], masslist_MMT[-1,-1])
@@ -46,7 +90,7 @@ def fix_masses_out_of_range(masses_MMT_ii, masses_Keck_ii, masstype):
 
 
 def bins_table_no_spectra(indexes, NAME0, AP, stlr_mass, massbins_MMT, massbins_Keck, 
-    massZbins_MMT, massZbins_Keck):
+    massZbins_MMT, massZbins_Keck, massZlist_filts_MMT, massZlist_filts_Keck):
     '''
     Creates and returns a table of bins as such:
 
@@ -77,8 +121,8 @@ def bins_table_no_spectra(indexes, NAME0, AP, stlr_mass, massbins_MMT, massbins_
     filts[dual_ii2] = 'NB921'
 
     # get stlrmass bins
-    masses_MMT_ii = np.digitize(masses, massbins_MMT)
-    masses_Keck_ii = np.digitize(masses, massbins_Keck)
+    masses_MMT_ii = np.digitize(masses, massbins_MMT, right=True)
+    masses_Keck_ii = np.digitize(masses, massbins_Keck, right=True)
     masses_MMT, masses_Keck = fix_masses_out_of_range(masses_MMT_ii, masses_Keck_ii, 'stlrmass')
     
     # get stlrmassZ bins
@@ -94,7 +138,7 @@ def bins_table_no_spectra(indexes, NAME0, AP, stlr_mass, massbins_MMT, massbins_
         if ff=='NB973':
             jj += 1
         
-        mass_MMT_iis  = np.digitize(masses[good_filt_iis], massZbins_MMT[ii0:ii0+jj])
+        mass_MMT_iis  = np.digitize(masses[good_filt_iis], massZbins_MMT[ii0:ii0+jj], right=True)
         massZ_MMT_iis = np.array([str(x)+'-'+ff for x in mass_MMT_iis])
         massZs_MMT[good_filt_iis] = massZ_MMT_iis
         
@@ -105,7 +149,7 @@ def bins_table_no_spectra(indexes, NAME0, AP, stlr_mass, massbins_MMT, massbins_
             if ff=='NB973':
                 kk += 1
                 
-            mass_Keck_iis  = np.digitize(masses[good_filt_iis], massZbins_Keck[ii1:ii1+kk])
+            mass_Keck_iis  = np.digitize(masses[good_filt_iis], massZbins_Keck[ii1:ii1+kk], right=True)
             massZ_Keck_iis = np.array([str(x)+'-'+ff for x in mass_Keck_iis])
             massZs_Keck[good_filt_iis] = massZ_Keck_iis
             
@@ -133,7 +177,8 @@ def EBV_corrs_no_spectra(tab_no_spectra, mmt_mz, mmt_mz_EBV_hahb, mmt_mz_EBV_hgh
     # loop based on filter
     for ff in ['NB704', 'NB711', 'NB816', 'NB921', 'NB973']:
         bin_filt_iis = np.array([x for x in range(len(tab_no_spectra)) if tab_no_spectra['filter'][x]==ff])
-        print len(bin_filt_iis)
+        print 'num in '+ff+':', len(bin_filt_iis)
+
         if ff=='NB704' or ff=='NB711' or ff=='NB816':
             tab_filt_iis = np.array([x for x in range(len(mmt_mz)) if 
                 (mmt_mz['filter'][x]==ff and mmt_mz['stlrmass_bin'][x] != 'N/A')])
@@ -180,6 +225,8 @@ def main():
     # reading in data
     nbia = pyfits.open(FULL_PATH+'Catalogs/NB_IA_emitters.nodup.colorrev.fix.fits')
     nbiadata = nbia[1].data
+    allcols = pyfits.open(FULL_PATH+'Catalogs/NB_IA_emitters.allcols.colorrev.fits')
+    allcolsdata0 = allcols[1].data
     NAME0 = np.array(nbiadata['NAME'])
     zspec = asc.read(FULL_PATH+'Catalogs/nb_ia_zspec.txt',guess=False,
                      Reader=asc.CommentedHeader)
@@ -192,19 +239,20 @@ def main():
     AP = data_dict['AP']
 
     # defining other useful data structs
+    filtarr = np.array(['NB704', 'NB711', 'NB816', 'NB921', 'NB973'])
     inst_dict = {}
     inst_dict['MMT']  = ['MMT,FOCAS,','MMT,','merged,','MMT,Keck,']
     inst_dict['Keck'] = ['merged,','Keck,','Keck,Keck,','Keck,FOCAS,','Keck,FOCAS,FOCAS,','Keck,Keck,FOCAS,']
 
 
     # limit all data to Halpha emitters only
-    ha_ii = np.array([x for x in range(len(NAME0)) if 'Ha' in NAME0[x]])
-    NAME0     = NAME0[ha_ii]
-    zspec0    = zspec0[ha_ii]
-    inst_str0 = inst_str0[ha_ii]
-    stlr_mass = stlr_mass[ha_ii]
-    AP        = AP[ha_ii]
-
+    ha_ii = np.array([x for x in range(len(NAME0)) if 'Ha-NB' in NAME0[x]])
+    NAME0       = NAME0[ha_ii]
+    zspec0      = zspec0[ha_ii]
+    inst_str0   = inst_str0[ha_ii]
+    stlr_mass   = stlr_mass[ha_ii]
+    AP          = AP[ha_ii]
+    allcolsdata = allcolsdata0[ha_ii]
 
     # getting indexes for sources with and without spectra
     no_spectra  = np.where((zspec0 <= 0) | (zspec0 > 9))[0]
@@ -218,6 +266,10 @@ def main():
         (NAME0[no_spectra][x]=='Ha-NB704_028405_OII-NB973_056979' or 
             NAME0[no_spectra][x]=='Ha-NB704_090945_OII-NB973_116533')])
     no_spectra = np.delete(no_spectra, bad_HbNB704_SIINB973_gals)
+
+    # getting rid of a source w/o flux 
+    no_flux_gal = np.where(NAME0[yes_spectra]=='Ha-NB921_069950')[0]
+    yes_spectra = np.delete(yes_spectra, no_flux_gal)
 
 
     # reading in EBV data tables & getting relevant EBV cols
@@ -260,28 +312,107 @@ def main():
 
     # getting tables of which bins the sources fall into (for eventual EBV corrections)
     tab_no_spectra = bins_table_no_spectra(no_spectra, NAME0, AP, stlr_mass, 
-        massbins_MMT, massbins_Keck, massZbins_MMT, massZbins_Keck)
+        massbins_MMT, massbins_Keck, massZbins_MMT, massZbins_Keck, massZlist_filts_MMT, massZlist_filts_Keck)
+    tab_yes_spectra = bins_table_no_spectra(yes_spectra, NAME0, AP, stlr_mass, 
+        massbins_MMT, massbins_Keck, massZbins_MMT, massZbins_Keck, massZlist_filts_MMT, massZlist_filts_Keck)
+
+
     # getting the EBV corrections to use
-    EBV_corrs_ns = EBV_corrs_no_spectra(no_spectra, mmt_mz, mmt_mz_EBV_hahb, 
+    #  yes_spectra originally gets the no_spectra and then individual ones are applied 
+    #  if S/N is large enough
+    EBV_corrs_ns = EBV_corrs_no_spectra(tab_no_spectra, mmt_mz, mmt_mz_EBV_hahb, 
         mmt_mz_EBV_hghb, keck_mz, keck_mz_EBV_hahb)
+    EBV_corrs_ys = EBV_corrs_no_spectra(tab_yes_spectra, mmt_mz, mmt_mz_EBV_hahb, 
+        mmt_mz_EBV_hghb, keck_mz, keck_mz_EBV_hahb)
+
+    # getting fluxes
+    fluxes_orig = np.array(nbiadata[ha_ii]['FLUX'])
+    fluxes_orig_ns = fluxes_orig[no_spectra]
+    fluxes_orig_ys = fluxes_orig[yes_spectra]
+
+
+    # getting dust extinction corrections
+    k_ha = cardelli(6563.0 * u.Angstrom)
+    A_V_ns = k_ha * EBV_corrs_ns
+    dustcorr_fluxes_ns = fluxes_orig_ns + A_V_ns # A_V = A(Ha) = extinction at Ha
+    A_V_ys = k_ha * EBV_corrs_ys
+    dustcorr_fluxes_ys = fluxes_orig_ys + A_V_ys
+
+
+    # getting filter corrections
+    NB_flux = np.zeros(len(allcolsdata))
+    filtcorr_fluxes = np.zeros(len(allcolsdata))
+    for filt in filtarr:
+        filt_ii = np.array([x for x in range(len(NAME0)) if 'Ha-'+filt 
+            in NAME0[x] and (x in no_spectra or x in yes_spectra)])
+
+        no_spectra_temp  = np.array([x for x in filt_ii if x in no_spectra])
+        yes_spectra_temp = np.array([x for x in filt_ii if x in yes_spectra])
+
+        NB_flux[filt_ii] = allcolsdata[filt+'_FLUX'][filt_ii]
+        filtcorr_fluxes[filt_ii] = np.copy(NB_flux[filt_ii])
+        filtcorr_fluxes = filt_corrs(no_spectra_temp, yes_spectra_temp,
+            filt, zspec0, filtcorr_fluxes)
+
+        # lum_dist = (cosmo.luminosity_distance(tempz).to(u.cm).value)
+        # lum_factor = np.log10(4*np.pi)+2*np.log10(lum_dist)
+        # NB_obs_lumin[filt_index] = NB_flux[filt_index]+lum_factor
+        
+        # NB_flux_filt_corr[filt_index] = correct_FLUX_goodzspec(zspec0[filt_index],
+        #                                                        filt, filt_index)
+        # NB_lumin_filt_corr[filt_index] = NB_flux_filt_corr[filt_index]+lum_factor
+        # NB_filt_corr[filt_index] = NB_flux_filt_corr[filt_index]-NB_flux[filt_index]
+
+    #endfor
+
+
+    # getting luminosities
+    filt_cen = [7046, 7162, 8150, 9195, 9755] # angstroms
+    tempz = np.array([-100.0]*len(no_spectra))
+    for ff, ii in zip(filtarr, range(len(filt_cen))):
+        filt_match = np.array([x for x in range(len(no_spectra)) if tab_no_spectra['filter'][x]==ff])
+        tempz[filt_match] = filt_cen[ii]/6562.8 - 1
+    #endfor
+    lum_dist_ns = (cosmo.luminosity_distance(tempz).to(u.cm).value)
+    lum_factor_ns = np.log10(4*np.pi)+2*np.log10(lum_dist_ns) # = log10(L[Ha])
+    dustcorr_lums_ns = dustcorr_fluxes_ns + lum_factor_ns
+
+    lum_dist_ys = (cosmo.luminosity_distance(zspec0[yes_spectra]).to(u.cm).value)
+    lum_factor_ys = np.log10(4*np.pi)+2*np.log10(lum_dist_ys)
+    dustcorr_lums_ys = dustcorr_fluxes_ys + lum_factor_ys
+
+
+    # getting dust-corrected SFRs
+    #  7.9E-42 is conversion btwn L and SFR based on Kennicutt 1998 for Salpeter IMF. 
+    #  We use 1.8 to convert to Chabrier IMF.
+    dustcorr_sfrs_ns = np.log10(7.9/1.8) - 42 + dustcorr_lums_ns
+    dustcorr_sfrs_ys = np.log10(7.9/1.8) - 42 + dustcorr_lums_ys
+
+
+    # write some table so that plot_nbia_mainseq.py can read this in
+    # columns:
+    #  ID, name, zspec, stlr_mass, obs_flux, obs_lumin, obs_sfr,
+    #  filt_corr, filt_corr_flux, filt_corr_lumin, filt_corr_sfr,
+    #  NII_Ha_corr_ratio, ratio_vs_line, nii_ha_corr_flux, 
+    #  nii_ha_corr_lumin, nii_ha_corr_sfr, A_V, EBV, extinction_corr_factor,
+    #  dust_corr_flux, dust_corr_lumin, dust_corr_sfr
+
+
+    # TEMP plotting for now
+        # defining useful data structs for plotting
+    markarr = np.array(['o', 'o', '^', 'D', '*'])
+
+    # defining an approximate redshift array for plot visualization
+    z_arr0 = np.array([7046.0, 7111.0, 8150.0, 9196.0, 9755.0])/6563.0 - 1
+    z_arr0 = np.around(z_arr0, 2)
+    z_arr  = np.array(z_arr0, dtype='|S4')
+    z_arr  = np.array([x+'0' if len(x)==3 else x for x in z_arr])
     
-    # tab_yes_spectra = bins_table(yes_spectra, NAME0, AP, stlr_mass, 
-    #     massbins_MMT, massbins_Keck, massZbins_MMT, massZbins_Keck)
+    # title = 'mainseq plot (no_spectra only)'
+    for title in ['mainseq plot']:
+        make_all_graph(stlr_mass, dustcorr_sfrs_ns, dustcorr_sfrs_ys, filtarr, markarr, z_arr, title, 
+            no_spectra, yes_spectra, tab_no_spectra, tab_yes_spectra)
 
-    # start getting those corrections!
-    # def EBV_corrs_for_yes_spectra_sources(Pass in the identified sources w/ spectra):
-    #     for each source:
-    #         what is its S/N (for all lines?)?
 
-    #         (think of handling keck vs. mmt measurements when both spectra are available)
-    #             Will use Keck if Ha and Hb available (NB921, NB973) and MMT for NB816 (Ha/Hb)
-
-    #         apply EBV correction
-
-    #     return dust-corrected fluxes for the sources
-
-    # MMT_z_data = asc.read()
-
-    
 if __name__ == '__main__':
     main()
