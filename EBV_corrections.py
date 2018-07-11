@@ -12,7 +12,7 @@ cosmo = FlatLambdaCDM(H0 = 70 * u.km / u.s / u.Mpc, Om0=0.3)
 FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
 
 
-def filt_corrs(no_spectra, yes_spectra, ff, zspec0, FLUX_filt_corr):
+def apply_filt_corrs(no_spectra, yes_spectra, ff, zspec0, FLUX_filt_corr):
     '''
     Applies the filter-based correction.
 
@@ -249,11 +249,7 @@ def main():
     ha_ii = np.array([x for x in range(len(NAME0)) if 'Ha-NB' in NAME0[x]])
     NAME0       = NAME0[ha_ii]
     zspec0      = zspec0[ha_ii]
-    inst_str0   = inst_str0[ha_ii]
-    stlr_mass   = stlr_mass[ha_ii]
-    AP          = AP[ha_ii]
-    allcolsdata = allcolsdata0[ha_ii]
-
+    
     # getting indexes for sources with and without spectra
     no_spectra  = np.where((zspec0 <= 0) | (zspec0 > 9))[0]
     yes_spectra = np.where((zspec0 >= 0) & (zspec0 < 9))[0]
@@ -270,6 +266,19 @@ def main():
     # getting rid of a source w/o flux 
     no_flux_gal = np.where(NAME0[yes_spectra]=='Ha-NB921_069950')[0]
     yes_spectra = np.delete(yes_spectra, no_flux_gal)
+
+
+    # final round of limiting data (1081 sources)
+    bad_sources = np.array([x for x in range(len(ha_ii)) if ha_ii[x] not in no_spectra 
+        and ha_ii[x] not in yes_spectra])
+    ha_ii = np.delete(ha_ii, bad_sources)
+
+    NAME0       = NAME0[ha_ii]
+    zspec0      = zspec0[ha_ii]
+    inst_str0   = inst_str0[ha_ii]
+    stlr_mass   = stlr_mass[ha_ii]
+    AP          = AP[ha_ii]
+    allcolsdata = allcolsdata0[ha_ii]
 
 
     # reading in EBV data tables & getting relevant EBV cols
@@ -338,6 +347,10 @@ def main():
     A_V_ys = k_ha * EBV_corrs_ys
     dustcorr_fluxes_ys = fluxes_orig_ys + A_V_ys
 
+    dustcorr_fluxes = np.zeros(len(fluxes_orig))
+    dustcorr_fluxes[no_spectra]  = dustcorr_fluxes_ns
+    dustcorr_fluxes[yes_spectra] = dustcorr_fluxes_ys
+
 
     # getting filter corrections
     NB_flux = np.zeros(len(allcolsdata))
@@ -351,17 +364,8 @@ def main():
 
         NB_flux[filt_ii] = allcolsdata[filt+'_FLUX'][filt_ii]
         filtcorr_fluxes[filt_ii] = np.copy(NB_flux[filt_ii])
-        filtcorr_fluxes = filt_corrs(no_spectra_temp, yes_spectra_temp,
+        filtcorr_fluxes = apply_filt_corrs(no_spectra_temp, yes_spectra_temp,
             filt, zspec0, filtcorr_fluxes)
-
-        # lum_dist = (cosmo.luminosity_distance(tempz).to(u.cm).value)
-        # lum_factor = np.log10(4*np.pi)+2*np.log10(lum_dist)
-        # NB_obs_lumin[filt_index] = NB_flux[filt_index]+lum_factor
-        
-        # NB_flux_filt_corr[filt_index] = correct_FLUX_goodzspec(zspec0[filt_index],
-        #                                                        filt, filt_index)
-        # NB_lumin_filt_corr[filt_index] = NB_flux_filt_corr[filt_index]+lum_factor
-        # NB_filt_corr[filt_index] = NB_flux_filt_corr[filt_index]-NB_flux[filt_index]
     #endfor
 
 
@@ -388,6 +392,11 @@ def main():
     dustcorr_sfrs_ys = np.log10(7.9/1.8) - 42 + dustcorr_lums_ys
 
 
+    #  before table-writing:
+    #    EBV vs. diff M* (per each composite stack)
+    #    diff symbols correspond to diff redshifts
+    #    diff colors to diff ratios
+    
     # write some table so that plot_nbia_mainseq.py can read this in
     # columns:
     #  ID, name, zspec, stlr_mass, obs_flux, obs_lumin, obs_sfr,
