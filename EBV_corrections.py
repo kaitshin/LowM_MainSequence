@@ -248,37 +248,29 @@ def main():
     # limit all data to Halpha emitters only
     ha_ii = np.array([x for x in range(len(NAME0)) if 'Ha-NB' in NAME0[x]])
     NAME0       = NAME0[ha_ii]
-    zspec0      = zspec0[ha_ii]
-    
-    # getting indexes for sources with and without spectra
-    no_spectra  = np.where((zspec0 <= 0) | (zspec0 > 9))[0]
-    yes_spectra = np.where((zspec0 >= 0) & (zspec0 < 9))[0]
 
-    # getting rid of special cases:
-    bad_highz_gal = np.where(NAME0[no_spectra]=='Ha-NB816_174829_Ha-NB921_187439_Lya-IA598_163379')[0]
-    no_spectra = np.delete(no_spectra, bad_highz_gal)
+    # getting rid of special cases (no_spectra):
+    bad_highz_gal = np.where(NAME0=='Ha-NB816_174829_Ha-NB921_187439_Lya-IA598_163379')[0]
 
-    bad_HbNB704_SIINB973_gals = np.array([x for x in range(len(no_spectra)) if 
-        (NAME0[no_spectra][x]=='Ha-NB704_028405_OII-NB973_056979' or 
-            NAME0[no_spectra][x]=='Ha-NB704_090945_OII-NB973_116533')])
-    no_spectra = np.delete(no_spectra, bad_HbNB704_SIINB973_gals)
+    bad_HbNB704_SIINB973_gals = np.array([x for x in range(len(ha_ii)) if 
+        (NAME0[x]=='Ha-NB704_028405_OII-NB973_056979' or 
+            NAME0[x]=='Ha-NB704_090945_OII-NB973_116533')])
 
-    # getting rid of a source w/o flux 
-    no_flux_gal = np.where(NAME0[yes_spectra]=='Ha-NB921_069950')[0]
-    yes_spectra = np.delete(yes_spectra, no_flux_gal)
+    # getting rid of a source w/o flux (yes_spectra):
+    no_flux_gal = np.where(NAME0=='Ha-NB921_069950')[0]
 
-
-    # final round of limiting data (1081 sources)
-    bad_sources = np.array([x for x in range(len(ha_ii)) if ha_ii[x] not in no_spectra 
-        and ha_ii[x] not in yes_spectra])
+    bad_sources = np.concatenate( [bad_highz_gal, bad_HbNB704_SIINB973_gals, no_flux_gal])
     ha_ii = np.delete(ha_ii, bad_sources)
+    NAME0 = np.delete(NAME0, bad_sources)
 
-    NAME0       = NAME0[ha_ii]
     zspec0      = zspec0[ha_ii]
     inst_str0   = inst_str0[ha_ii]
     stlr_mass   = stlr_mass[ha_ii]
     AP          = AP[ha_ii]
     allcolsdata = allcolsdata0[ha_ii]
+
+    no_spectra  = np.where((zspec0 <= 0) | (zspec0 > 9))[0]
+    yes_spectra = np.where((zspec0 >= 0) & (zspec0 < 9))[0]
 
 
     # reading in EBV data tables & getting relevant EBV cols
