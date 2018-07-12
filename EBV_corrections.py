@@ -51,6 +51,18 @@ def apply_filt_corrs(no_spectra, yes_spectra, ff, zspec0, FLUX_filt_corr):
     return FLUX_filt_corr
 
 
+def consolidate_ns_ys(orig_fluxes, no_spectra, yes_spectra, data_ns, data_ys):
+    '''
+    consolidates no_spectra and yes_spectra data into a single data_array
+    of shape orig_fluxes
+    '''
+    consod = np.zeros(len(orig_fluxes))
+    consod[no_spectra] = data_ns
+    consod[yes_spectra] = data_ys
+
+    return consod
+
+
 def get_bins(masslist_MMT, masslist_Keck, massZlist_MMT, massZlist_Keck):
     '''
     Helper function for main. Flattens ndarrays of bins into a bins array
@@ -327,22 +339,20 @@ def main():
         mmt_mz_EBV_hghb, keck_mz, keck_mz_EBV_hahb)
 
     # getting fluxes
-    fluxes_orig = np.array(nbiadata[ha_ii]['FLUX'])
-    fluxes_orig_ns = fluxes_orig[no_spectra]
-    fluxes_orig_ys = fluxes_orig[yes_spectra]
+    orig_fluxes = np.array(nbiadata[ha_ii]['FLUX'])
+    orig_fluxes_ns = orig_fluxes[no_spectra]
+    orig_fluxes_ys = orig_fluxes[yes_spectra]
 
 
     # getting dust extinction corrections
     k_ha = cardelli(6563.0 * u.Angstrom)
     A_V_ns = k_ha * EBV_corrs_ns
-    dustcorr_fluxes_ns = fluxes_orig_ns + A_V_ns # A_V = A(Ha) = extinction at Ha
+    dustcorr_fluxes_ns = orig_fluxes_ns + A_V_ns # A_V = A(Ha) = extinction at Ha
     A_V_ys = k_ha * EBV_corrs_ys
-    dustcorr_fluxes_ys = fluxes_orig_ys + A_V_ys
-
-    dustcorr_fluxes = np.zeros(len(fluxes_orig))
-    dustcorr_fluxes[no_spectra]  = dustcorr_fluxes_ns
-    dustcorr_fluxes[yes_spectra] = dustcorr_fluxes_ys
-
+    dustcorr_fluxes_ys = orig_fluxes_ys + A_V_ys
+    dustcorr_fluxes = consolidate_ns_ys(orig_fluxes, no_spectra, yes_spectra, 
+        dustcorr_fluxes_ns, dustcorr_fluxes_ys)
+    
 
     # getting filter corrections
     NB_flux = np.zeros(len(allcolsdata))
@@ -370,18 +380,21 @@ def main():
     #endfor
     lum_dist_ns = (cosmo.luminosity_distance(tempz).to(u.cm).value)
     lum_factor_ns = np.log10(4*np.pi)+2*np.log10(lum_dist_ns) # = log10(L[Ha])
-    dustcorr_lums_ns = dustcorr_fluxes_ns + lum_factor_ns
-
     lum_dist_ys = (cosmo.luminosity_distance(zspec0[yes_spectra]).to(u.cm).value)
     lum_factor_ys = np.log10(4*np.pi)+2*np.log10(lum_dist_ys)
-    dustcorr_lums_ys = dustcorr_fluxes_ys + lum_factor_ys
+    lum_factors = consolidate_ns_ys(orig_fluxes, no_spectra, yes_spectra,
+        lum_factor_ns, filtcorr_lums_ys)
+    
+    dustcorr_lums = dustcorr_fluxes + lum_factors
+    filtcorr_lums = filtcorr_fluxes + lum_factors
+    
 
 
-    # getting dust-corrected SFRs
-    #  7.9E-42 is conversion btwn L and SFR based on Kennicutt 1998 for Salpeter IMF. 
-    #  We use 1.8 to convert to Chabrier IMF.
-    dustcorr_sfrs_ns = np.log10(7.9/1.8) - 42 + dustcorr_lums_ns
-    dustcorr_sfrs_ys = np.log10(7.9/1.8) - 42 + dustcorr_lums_ys
+    # # getting SFR correction factors
+    # #  7.9E-42 is conversion btwn L and SFR based on Kennicutt 1998 for Salpeter IMF. 
+    # #  We use 1.8 to convert to Chabrier IMF.
+    # dustcorr_sfrs = np.log10(7.9/1.8) - 42 + dustcorr_lums
+    # filtcorr_sfrs = np.log10(7.9/1.8) - 42 + filtcorr_lums
 
 
     #  before table-writing:
