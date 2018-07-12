@@ -113,12 +113,15 @@ def get_nii_line_corr(good_index1, allcolsdata, stlr_mass, ratio0):
     return 10**nii_corr1
 
 
-def consolidate_ns_ys(orig_fluxes, no_spectra, yes_spectra, data_ns, data_ys):
+def consolidate_ns_ys(orig_fluxes, no_spectra, yes_spectra, data_ns, data_ys, datatype='num'):
     '''
     consolidates no_spectra and yes_spectra data into a single data_array
     of shape orig_fluxes
     '''
     consod = np.zeros(len(orig_fluxes))
+    if datatype == 'str':
+        consod = np.array(['']*len(orig_fluxes), dtype='|S10')
+
     consod[no_spectra] = data_ns
     consod[yes_spectra] = data_ys
 
@@ -302,6 +305,7 @@ def main():
     allcols = pyfits.open(FULL_PATH+'Catalogs/NB_IA_emitters.allcols.colorrev.fits')
     allcolsdata0 = allcols[1].data
     NAME0 = np.array(nbiadata['NAME'])
+    ID0   = np.array(nbiadata['ID'])
     zspec = asc.read(FULL_PATH+'Catalogs/nb_ia_zspec.txt',guess=False,
                      Reader=asc.CommentedHeader)
     zspec0 = np.array(zspec['zspec0'])
@@ -311,7 +315,7 @@ def main():
     stlr_mass = np.array(fout['col7'])
     data_dict = create_ordered_AP_arrays(AP_only = True)
     AP = data_dict['AP']
-    NIIB_Ha_ratios = asc.read('Main_Sequence/Catalogs/line_emission_ratios_table.dat',
+    NIIB_Ha_ratios = asc.read(FULL_PATH+'Main_Sequence/Catalogs/line_emission_ratios_table.dat',
         guess=False,Reader=asc.CommentedHeader)
     ratio0 = np.array(NIIB_Ha_ratios['NII_Ha_ratio'])
     ratio1 = np.array(NIIB_Ha_ratios['OIIIR_HB_ratio'])
@@ -343,6 +347,7 @@ def main():
     ha_ii = np.delete(ha_ii, bad_sources)
     NAME0 = np.delete(NAME0, bad_sources)
 
+    ID0         = ID0[ha_ii]
     zspec0      = zspec0[ha_ii]
     inst_str0   = inst_str0[ha_ii]
     stlr_mass   = stlr_mass[ha_ii]
@@ -351,6 +356,7 @@ def main():
     ratio0 = ratio0[ha_ii]
     ratio1 = ratio1[ha_ii]
     coverage = coverage[ha_ii]
+    orig_fluxes = np.array(nbiadata[ha_ii]['FLUX'])
 
     no_spectra  = np.where((zspec0 <= 0) | (zspec0 > 9))[0]
     yes_spectra = np.where((zspec0 >= 0) & (zspec0 < 9))[0]
@@ -399,10 +405,8 @@ def main():
         massbins_MMT, massbins_Keck, massZbins_MMT, massZbins_Keck, massZlist_filts_MMT, massZlist_filts_Keck)
     tab_yes_spectra = bins_table_no_spectra(yes_spectra, NAME0, AP, stlr_mass, 
         massbins_MMT, massbins_Keck, massZbins_MMT, massZbins_Keck, massZlist_filts_MMT, massZlist_filts_Keck)
-
-
-    # getting fluxes
-    orig_fluxes = np.array(nbiadata[ha_ii]['FLUX'])
+    FILT = consolidate_ns_ys(orig_fluxes, no_spectra, yes_spectra,
+        np.array(tab_no_spectra['filter']), np.array(tab_yes_spectra['filter']))
 
 
     # getting the EBV corrections to use
@@ -424,6 +428,8 @@ def main():
 
 
     # getting filter corrections
+    #   TODO: redo based on FILT array?? 
+    #   TODO: correct nb704/nb711 dual emitters for both?
     NB_flux = np.zeros(len(allcolsdata))
     filtcorr_fluxes = np.zeros(len(allcolsdata))
     for filt in filtarr:
@@ -443,21 +449,21 @@ def main():
 
     # getting nii_ha corrections
     ratio_vs_line = np.array(['']*len(allcolsdata), dtype='|S10')
-    nii_corr = np.zeros(len(allcolsdata))
+    nii_corr_factor = np.zeros(len(allcolsdata))
     nii_ha_corr_factor = np.zeros(len(allcolsdata))
 
     nii_corr0, good_index1 = get_nii_corr(allcolsdata, ratio0, ratio1, coverage)
-    nii_corr1 = get_nii_line_corr(good_index1)
+    nii_corr1 = get_nii_line_corr(good_index1, allcolsdata, stlr_mass, ratio0)
 
     for ii in range(len(nii_corr0)):
         corr_factor = -99
         if nii_corr0[ii] != 0:
             corr_factor = np.log10(1/(1+1.33*nii_corr0[ii]))
-            nii_corr[ii]=nii_corr0[ii]
+            nii_corr_factor[ii]=nii_corr0[ii]
             ratio_vs_line[ii]='ratio'
         else:
             corr_factor = np.log10(1/(1+1.33*nii_corr1[ii]))
-            nii_corr[ii]=nii_corr1[ii]
+            nii_corr_factor[ii]=nii_corr1[ii]
             ratio_vs_line[ii]='line'
         #endif
         nii_ha_corr_factor[ii] = corr_factor
@@ -479,15 +485,12 @@ def main():
         lum_factor_ns, lum_factor_ys)
 
     orig_lums = orig_fluxes + lum_factors
-    # dustcorr_lums = dustcorr_fluxes + lum_factors   ==   orig_lums + dust_corr_factor
 
 
     # # getting SFR
     # #  7.9E-42 is conversion btwn L and SFR based on Kennicutt 1998 for Salpeter IMF. 
     # #  We use 1.8 to convert to Chabrier IMF.
     orig_sfr = np.log10(7.9/1.8) - 42 + orig_lums
-    # dustcorr_sfrs = np.log10(7.9/1.8) - 42 + dustcorr_lums
-    # filtcorr_sfrs = np.log10(7.9/1.8) - 42 + filtcorr_lums
 
 
     #  before table-writing:
@@ -496,12 +499,14 @@ def main():
     #    diff colors to diff ratios
     
     # write some table so that plot_nbia_mainseq.py can read this in
-    # columns:
-    # tab00 = Table([], 
-    #     names=['ID', 'NAME0', 'filt', 'zspec0', 'stlr_mass', 'obs_fluxes', 'obs_lumin', 'obs_sfr',
-    #     'filt_corr_factor', 
-    #     'nii_ha_corr_factor', 'NII_Ha_corr_ratio', 'ratio_vs_line', 
-    #     'A_V', 'EBV', 'dust_corr_factor'])
+    # should be len(allcolsdata) == 1081
+    # UNSURE ABOUT nii_ha_corr_factor vs. nii_corr_factor ????
+    tab00 = Table([ID0, NAME0, FILT, zspec0, stlr_mass, orig_fluxes, orig_lums, orig_sfr, 
+        filt_corr_factor, nii_corr_factor, nii_ha_corr_factor, ratio_vs_line,
+        A_V, EBV_corrs, dust_corr_factor], 
+        names=['ID', 'NAME0', 'filt', 'zspec0', 'stlr_mass', 'obs_fluxes', 'obs_lumin', 'obs_sfr',
+        'filt_corr_factor', 'nii_ha_corr_factor', 'NII_Ha_corr_ratio', 'ratio_vs_line', 
+        'A_V', 'EBV', 'dust_corr_factor'])
 
 
     # TEMP plotting for now
