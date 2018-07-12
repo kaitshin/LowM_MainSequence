@@ -449,7 +449,7 @@ def main():
 
     # getting nii_ha corrections
     ratio_vs_line = np.array(['']*len(allcolsdata), dtype='|S10')
-    nii_corr_factor = np.zeros(len(allcolsdata))
+    nii_ha_ratio = np.zeros(len(allcolsdata))
     nii_ha_corr_factor = np.zeros(len(allcolsdata))
 
     nii_corr0, good_index1 = get_nii_corr(allcolsdata, ratio0, ratio1, coverage)
@@ -459,11 +459,11 @@ def main():
         corr_factor = -99
         if nii_corr0[ii] != 0:
             corr_factor = np.log10(1/(1+1.33*nii_corr0[ii]))
-            nii_corr_factor[ii]=nii_corr0[ii]
+            nii_ha_ratio[ii]=nii_corr0[ii]
             ratio_vs_line[ii]='ratio'
         else:
             corr_factor = np.log10(1/(1+1.33*nii_corr1[ii]))
-            nii_corr_factor[ii]=nii_corr1[ii]
+            nii_ha_ratio[ii]=nii_corr1[ii]
             ratio_vs_line[ii]='line'
         #endif
         nii_ha_corr_factor[ii] = corr_factor
@@ -499,15 +499,14 @@ def main():
     #    diff colors to diff ratios
     
     # write some table so that plot_nbia_mainseq.py can read this in
-    # should be len(allcolsdata) == 1081
-    # UNSURE ABOUT nii_ha_corr_factor vs. nii_corr_factor ????
     tab00 = Table([ID0, NAME0, FILT, zspec0, stlr_mass, orig_fluxes, orig_lums, orig_sfr, 
-        filt_corr_factor, nii_corr_factor, nii_ha_corr_factor, ratio_vs_line,
+        filt_corr_factor, nii_ha_corr_factor, nii_ha_ratio, ratio_vs_line,
         A_V, EBV_corrs, dust_corr_factor], 
         names=['ID', 'NAME0', 'filt', 'zspec0', 'stlr_mass', 'obs_fluxes', 'obs_lumin', 'obs_sfr',
-        'filt_corr_factor', 'nii_ha_corr_factor', 'NII_Ha_corr_ratio', 'ratio_vs_line', 
+        'filt_corr_factor', 'nii_ha_corr_factor', 'NII_Ha_ratio', 'ratio_vs_line', 
         'A_V', 'EBV', 'dust_corr_factor'])
-
+    asc.write(tab00, FULL_PATH+'Main_Sequence/mainseq_corrections_tbl.txt',
+        format='fixed_width_two_line', delimiter=' ')
 
     # TEMP plotting for now
         # defining useful data structs for plotting
