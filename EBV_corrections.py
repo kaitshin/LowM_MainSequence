@@ -6,6 +6,7 @@ import plotting.general_plotting as general_plotting
 
 from analysis.cardelli import *
 from astropy.cosmology import FlatLambdaCDM
+from scipy import stats
 cosmo = FlatLambdaCDM(H0 = 70 * u.km / u.s / u.Mpc, Om0=0.3)
 
 
@@ -49,6 +50,67 @@ def apply_filt_corrs(no_spectra, yes_spectra, ff, zspec0, FLUX_filt_corr):
         #endif
     #endfor
     return FLUX_filt_corr
+
+
+def get_nii_corr(allcolsdata, ratio0, ratio1, coverage):
+    '''
+    Finds the 'good' indexes, where the sources have either full coverage
+    or a limit. Those sources are then added to two different arrays,
+    with the respective ratios added to an array (NII_corr) that is returned
+    at the end.
+
+    The array good_index1 was also returned to show which sources in the
+    returned array had full coverage.
+    '''
+    good_index1 = np.array([])
+    good_index2 = np.array([])
+    for x in range(len(ratio0)):
+        try:
+            num0 = float(ratio0[x])
+            num1 = float(ratio1[x])
+            if num0 != -1. and num0 != 0. and num1 != -1.:
+                if coverage[x] == 0:
+                    good_index1 = np.append(good_index1, x)
+                elif coverage[x] == 1:
+                    good_index2 = np.append(good_index2, x)
+        except ValueError:
+            pass
+    #endfor
+    good_index1 = np.int_(good_index1)
+    good_index2 = np.int_(good_index2)
+
+    NII_corr = np.zeros(len(allcolsdata))
+    NII_corr[good_index1] = np.float_(ratio0[good_index1])
+    NII_corr[good_index2] = np.float_(ratio0[good_index2])
+    return NII_corr, good_index1
+
+
+def get_nii_line_corr(good_index1, allcolsdata, stlr_mass, ratio0):
+    '''
+    Creates the line of best fit that is also plotted in
+    NII_Ha_MMT_scatter.pdf. Using that line of best-fit, depending on the
+    stellar mass of the point, an array of correction factors is returned.
+    '''
+    nii_corr1 = np.zeros(len(allcolsdata))
+    good_stlr = stlr_mass[good_index1]
+    good_ratio = np.log10(np.float_(ratio0[good_index1]))
+    slope, intercept, r_value, p_value, std_err = stats.linregress(good_stlr,
+                                                                   good_ratio)
+    for (x, ii) in zip(stlr_mass, range(len(nii_corr1))):
+        if x >= max(good_stlr):
+            y = slope*max(good_stlr) + intercept
+        elif x <= min(good_stlr):
+            y = slope*min(good_stlr) + intercept
+        else:
+            stlr = np.sort(good_stlr)
+            match_index = np.array([s for s in range(len(stlr)-1)
+                                    if x >= stlr[s] and x <= stlr[s+1]])
+            stlr_val=np.mean((stlr[match_index], stlr[match_index+1]))
+            y = slope*stlr_val + intercept
+        #endif
+        nii_corr1[ii] = y
+    #endfor
+    return 10**nii_corr1
 
 
 def consolidate_ns_ys(orig_fluxes, no_spectra, yes_spectra, data_ns, data_ys):
@@ -249,6 +311,12 @@ def main():
     stlr_mass = np.array(fout['col7'])
     data_dict = create_ordered_AP_arrays(AP_only = True)
     AP = data_dict['AP']
+    NIIB_Ha_ratios = asc.read('Main_Sequence/Catalogs/line_emission_ratios_table.dat',
+        guess=False,Reader=asc.CommentedHeader)
+    ratio0 = np.array(NIIB_Ha_ratios['NII_Ha_ratio'])
+    ratio1 = np.array(NIIB_Ha_ratios['OIIIR_HB_ratio'])
+    coverage = np.array(NIIB_Ha_ratios['POOR_NIIB_COVERAGE'])
+
 
     # defining other useful data structs
     filtarr = np.array(['NB704', 'NB711', 'NB816', 'NB921', 'NB973'])
@@ -280,6 +348,9 @@ def main():
     stlr_mass   = stlr_mass[ha_ii]
     AP          = AP[ha_ii]
     allcolsdata = allcolsdata0[ha_ii]
+    ratio0 = ratio0[ha_ii]
+    ratio1 = ratio1[ha_ii]
+    coverage = coverage[ha_ii]
 
     no_spectra  = np.where((zspec0 <= 0) | (zspec0 > 9))[0]
     yes_spectra = np.where((zspec0 >= 0) & (zspec0 < 9))[0]
@@ -349,6 +420,7 @@ def main():
     k_ha = cardelli(6563.0 * u.Angstrom)
     A_V = k_ha * EBV_corrs 
     dustcorr_fluxes = orig_fluxes + A_V # A_V = A(Ha) = extinction at Ha
+    dust_corr_factor = dustcorr_fluxes - orig_fluxes
 
 
     # getting filter corrections
@@ -366,10 +438,30 @@ def main():
         filtcorr_fluxes = apply_filt_corrs(no_spectra_temp, yes_spectra_temp,
             filt, zspec0, filtcorr_fluxes)
     #endfor
+    filt_corr_factor = filtcorr_fluxes - orig_fluxes
 
 
     # getting nii_ha corrections
-    
+    ratio_vs_line = np.array(['']*len(allcolsdata), dtype='|S10')
+    nii_corr = np.zeros(len(allcolsdata))
+    nii_ha_corr_factor = np.zeros(len(allcolsdata))
+
+    nii_corr0, good_index1 = get_nii_corr(allcolsdata, ratio0, ratio1, coverage)
+    nii_corr1 = get_nii_line_corr(good_index1)
+
+    for ii in range(len(nii_corr0)):
+        corr_factor = -99
+        if nii_corr0[ii] != 0:
+            corr_factor = np.log10(1/(1+1.33*nii_corr0[ii]))
+            nii_corr[ii]=nii_corr0[ii]
+            ratio_vs_line[ii]='ratio'
+        else:
+            corr_factor = np.log10(1/(1+1.33*nii_corr1[ii]))
+            nii_corr[ii]=nii_corr1[ii]
+            ratio_vs_line[ii]='line'
+        #endif
+        nii_ha_corr_factor[ii] = corr_factor
+    #endfor
 
 
     # getting luminosities
@@ -387,8 +479,7 @@ def main():
         lum_factor_ns, lum_factor_ys)
 
     orig_lums = orig_fluxes + lum_factors
-    dustcorr_lums = dustcorr_fluxes + lum_factors
-    filtcorr_lums = filtcorr_fluxes + lum_factors
+    # dustcorr_lums = dustcorr_fluxes + lum_factors   ==   orig_lums + dust_corr_factor
 
 
     # # getting SFR
@@ -406,10 +497,11 @@ def main():
     
     # write some table so that plot_nbia_mainseq.py can read this in
     # columns:
-    #  ID, name, zspec, stlr_mass, orig_fluxes, obs_lumin, obs_sfr,
-    #  filt_corr_factor, nii_ha_corr_factor,
-    #  NII_Ha_corr_ratio, ratio_vs_line, nii_ha_corr_flux, 
-    #  nii_ha_corr_lumin, nii_ha_corr_sfr, A_V, EBV, dustcorr_factor
+    # tab00 = Table([], 
+    #     names=['ID', 'NAME0', 'filt', 'zspec0', 'stlr_mass', 'obs_fluxes', 'obs_lumin', 'obs_sfr',
+    #     'filt_corr_factor', 
+    #     'nii_ha_corr_factor', 'NII_Ha_corr_ratio', 'ratio_vs_line', 
+    #     'A_V', 'EBV', 'dust_corr_factor'])
 
 
     # TEMP plotting for now
