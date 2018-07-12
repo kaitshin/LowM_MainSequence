@@ -330,6 +330,10 @@ def main():
         massbins_MMT, massbins_Keck, massZbins_MMT, massZbins_Keck, massZlist_filts_MMT, massZlist_filts_Keck)
 
 
+    # getting fluxes
+    orig_fluxes = np.array(nbiadata[ha_ii]['FLUX'])
+
+
     # getting the EBV corrections to use
     #  yes_spectra originally gets the no_spectra and then individual ones are applied 
     #  if S/N is large enough
@@ -337,22 +341,15 @@ def main():
         mmt_mz_EBV_hghb, keck_mz, keck_mz_EBV_hahb)
     EBV_corrs_ys = EBV_corrs_no_spectra(tab_yes_spectra, mmt_mz, mmt_mz_EBV_hahb, 
         mmt_mz_EBV_hghb, keck_mz, keck_mz_EBV_hahb)
-
-    # getting fluxes
-    orig_fluxes = np.array(nbiadata[ha_ii]['FLUX'])
-    orig_fluxes_ns = orig_fluxes[no_spectra]
-    orig_fluxes_ys = orig_fluxes[yes_spectra]
+    EBV_corrs = consolidate_ns_ys(orig_fluxes, no_spectra, yes_spectra,
+        EBV_corrs_ns, EBV_corrs_ys)
 
 
     # getting dust extinction corrections
     k_ha = cardelli(6563.0 * u.Angstrom)
-    A_V_ns = k_ha * EBV_corrs_ns
-    dustcorr_fluxes_ns = orig_fluxes_ns + A_V_ns # A_V = A(Ha) = extinction at Ha
-    A_V_ys = k_ha * EBV_corrs_ys
-    dustcorr_fluxes_ys = orig_fluxes_ys + A_V_ys
-    dustcorr_fluxes = consolidate_ns_ys(orig_fluxes, no_spectra, yes_spectra, 
-        dustcorr_fluxes_ns, dustcorr_fluxes_ys)
-    
+    A_V = k_ha * EBV_corrs 
+    dustcorr_fluxes = orig_fluxes + A_V # A_V = A(Ha) = extinction at Ha
+
 
     # getting filter corrections
     NB_flux = np.zeros(len(allcolsdata))
@@ -371,6 +368,10 @@ def main():
     #endfor
 
 
+    # getting nii_ha corrections
+    
+
+
     # getting luminosities
     filt_cen = [7046, 7162, 8150, 9195, 9755] # angstroms
     tempz = np.array([-100.0]*len(no_spectra))
@@ -383,16 +384,17 @@ def main():
     lum_dist_ys = (cosmo.luminosity_distance(zspec0[yes_spectra]).to(u.cm).value)
     lum_factor_ys = np.log10(4*np.pi)+2*np.log10(lum_dist_ys)
     lum_factors = consolidate_ns_ys(orig_fluxes, no_spectra, yes_spectra,
-        lum_factor_ns, filtcorr_lums_ys)
-    
+        lum_factor_ns, lum_factor_ys)
+
+    orig_lums = orig_fluxes + lum_factors
     dustcorr_lums = dustcorr_fluxes + lum_factors
     filtcorr_lums = filtcorr_fluxes + lum_factors
-    
 
 
-    # # getting SFR correction factors
+    # # getting SFR
     # #  7.9E-42 is conversion btwn L and SFR based on Kennicutt 1998 for Salpeter IMF. 
     # #  We use 1.8 to convert to Chabrier IMF.
+    orig_sfr = np.log10(7.9/1.8) - 42 + orig_lums
     # dustcorr_sfrs = np.log10(7.9/1.8) - 42 + dustcorr_lums
     # filtcorr_sfrs = np.log10(7.9/1.8) - 42 + filtcorr_lums
 
@@ -404,11 +406,10 @@ def main():
     
     # write some table so that plot_nbia_mainseq.py can read this in
     # columns:
-    #  ID, name, zspec, stlr_mass, obs_flux, obs_lumin, obs_sfr,
-    #  filt_corr, filt_corr_flux, filt_corr_lumin, filt_corr_sfr,
+    #  ID, name, zspec, stlr_mass, orig_fluxes, obs_lumin, obs_sfr,
+    #  filt_corr_factor, nii_ha_corr_factor,
     #  NII_Ha_corr_ratio, ratio_vs_line, nii_ha_corr_flux, 
-    #  nii_ha_corr_lumin, nii_ha_corr_sfr, A_V, EBV, extinction_corr_factor,
-    #  dust_corr_flux, dust_corr_lumin, dust_corr_sfr
+    #  nii_ha_corr_lumin, nii_ha_corr_sfr, A_V, EBV, dustcorr_factor
 
 
     # TEMP plotting for now
