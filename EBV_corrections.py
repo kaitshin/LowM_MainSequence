@@ -406,7 +406,7 @@ def main():
     tab_yes_spectra = bins_table_no_spectra(yes_spectra, NAME0, AP, stlr_mass, 
         massbins_MMT, massbins_Keck, massZbins_MMT, massZbins_Keck, massZlist_filts_MMT, massZlist_filts_Keck)
     FILT = consolidate_ns_ys(orig_fluxes, no_spectra, yes_spectra,
-        np.array(tab_no_spectra['filter']), np.array(tab_yes_spectra['filter']))
+        np.array(tab_no_spectra['filter']), np.array(tab_yes_spectra['filter']), datatype='str')
 
 
     # getting the EBV corrections to use
@@ -507,21 +507,6 @@ def main():
         'A_V', 'EBV', 'dust_corr_factor'])
     asc.write(tab00, FULL_PATH+'Main_Sequence/mainseq_corrections_tbl.txt',
         format='fixed_width_two_line', delimiter=' ')
-
-    # TEMP plotting for now
-        # defining useful data structs for plotting
-    markarr = np.array(['o', 'o', '^', 'D', '*'])
-
-    # defining an approximate redshift array for plot visualization
-    z_arr0 = np.array([7046.0, 7111.0, 8150.0, 9196.0, 9755.0])/6563.0 - 1
-    z_arr0 = np.around(z_arr0, 2)
-    z_arr  = np.array(z_arr0, dtype='|S4')
-    z_arr  = np.array([x+'0' if len(x)==3 else x for x in z_arr])
-    
-    # title = 'mainseq plot (no_spectra only)'
-    for title in ['mainseq plot']:
-        make_all_graph(stlr_mass, dustcorr_sfrs_ns, dustcorr_sfrs_ys, filtarr, markarr, z_arr, title, 
-            no_spectra, yes_spectra, tab_no_spectra, tab_yes_spectra)
 
 
 if __name__ == '__main__':
