@@ -98,17 +98,13 @@ def get_nii_line_corr(good_index1, allcolsdata, stlr_mass, ratio0):
     good_ratio = np.log10(np.float_(ratio0[good_index1]))
     slope, intercept, r_value, p_value, std_err = stats.linregress(good_stlr,
                                                                    good_ratio)
-    for (x, ii) in zip(stlr_mass, range(len(nii_corr1))):
+    for (x, ii) in zip(stlr_mass, range(len(allcolsdata))):
         if x >= max(good_stlr):
             y = slope*max(good_stlr) + intercept
         elif x <= min(good_stlr):
             y = slope*min(good_stlr) + intercept
         else:
-            stlr = np.sort(good_stlr)
-            match_index = np.array([s for s in range(len(stlr)-1)
-                                    if x >= stlr[s] and x <= stlr[s+1]])
-            stlr_val=np.mean((stlr[match_index], stlr[match_index+1]))
-            y = slope*stlr_val + intercept
+            y = slope*x + intercept
         #endif
         nii_corr1[ii] = y
     #endfor
