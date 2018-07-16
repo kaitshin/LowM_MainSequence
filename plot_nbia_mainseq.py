@@ -139,6 +139,7 @@ def modify_graph(f, ax, labelarr, xlim, ylim, title):
     ax.add_artist(legend2)
 
     ax.minorticks_on()
+    f.tight_layout()
 
     sSFR_lines(f, ax, xlim)
 
@@ -149,10 +150,10 @@ def make_all_graph(stlr_mass, sfr, filtarr, markarr, z_arr, title,
     '''
     color='blue'
     xlim = [4, 11]
-    ylim = [-4, 4]
+    ylim = [-4, 3]
 
     f, ax = plt.subplots()
-    plt.gcf().set_size_inches(10, 8)
+    plt.gcf().set_size_inches(10, 10)
 
     labelarr = np.array([])
     for (ff, mark, avg_z) in zip(filtarr, markarr, z_arr):
