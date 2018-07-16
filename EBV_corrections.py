@@ -34,7 +34,9 @@ def apply_filt_corrs(no_spectra, yes_spectra, ff, zspec0, FLUX_filt_corr):
     yresponse = np.array(response['col2'])
     yresponse = (yresponse/max(yresponse)) #normalize to 1
 
-    FLUX_filt_corr[no_spectra] += np.log10(1.28)
+    filter_stat_corr_dict = {'NB704':1.289439104, 'NB711':1.41022358406, 'NB816':1.29344789854, 'NB921':1.32817034288, 'NB973':1.29673596942}
+
+    FLUX_filt_corr[no_spectra] += np.log10(filter_stat_corr_dict[ff]) # np.log10(1.28)
 
     good_z = zspec0[yes_spectra]
     for ii in range(len(yes_spectra)):            
@@ -43,7 +45,7 @@ def apply_filt_corrs(no_spectra, yes_spectra, ff, zspec0, FLUX_filt_corr):
                          and good_z[ii] < xresponse[x+1]])
 
         if len(temp) == 0:
-            FLUX_filt_corr[yes_spectra[ii]] += np.log10(1.28)
+            FLUX_filt_corr[yes_spectra[ii]] += np.log10(filter_stat_corr_dict[ff]) # np.log10(1.28)
         elif len(temp) > 0:
             avg_y_response = np.mean((yresponse[temp], yresponse[temp+1]))
             FLUX_filt_corr[yes_spectra[ii]] += np.log10(1/avg_y_response)
@@ -116,7 +118,7 @@ def get_nii_line_corr(good_index1, allcolsdata, stlr_mass, ratio0):
 def consolidate_ns_ys(orig_fluxes, no_spectra, yes_spectra, data_ns, data_ys, datatype='num'):
     '''
     consolidates no_spectra and yes_spectra data into a single data_array
-    of shape orig_fluxes
+    of shape orig_fluxes (same as allcolsdata)
     '''
     consod = np.zeros(len(orig_fluxes))
     if datatype == 'str':
@@ -356,7 +358,6 @@ def main():
     ratio0 = ratio0[ha_ii]
     ratio1 = ratio1[ha_ii]
     coverage = coverage[ha_ii]
-    orig_fluxes = np.array(nbiadata[ha_ii]['FLUX'])
 
     no_spectra  = np.where((zspec0 <= 0) | (zspec0 > 9))[0]
     yes_spectra = np.where((zspec0 >= 0) & (zspec0 < 9))[0]
@@ -399,48 +400,28 @@ def main():
     massbins_MMT, massbins_Keck, massZbins_MMT, massZbins_Keck = get_bins(masslist_MMT, 
         masslist_Keck, massZlist_MMT, massZlist_Keck)
 
-
     # getting tables of which bins the sources fall into (for eventual EBV corrections)
     tab_no_spectra = bins_table_no_spectra(no_spectra, NAME0, AP, stlr_mass, 
         massbins_MMT, massbins_Keck, massZbins_MMT, massZbins_Keck, massZlist_filts_MMT, massZlist_filts_Keck)
     tab_yes_spectra = bins_table_no_spectra(yes_spectra, NAME0, AP, stlr_mass, 
         massbins_MMT, massbins_Keck, massZbins_MMT, massZbins_Keck, massZlist_filts_MMT, massZlist_filts_Keck)
-    FILT = consolidate_ns_ys(orig_fluxes, no_spectra, yes_spectra,
+    FILT = consolidate_ns_ys(allcolsdata, no_spectra, yes_spectra,
         np.array(tab_no_spectra['filter']), np.array(tab_yes_spectra['filter']), datatype='str')
-
-
-    # getting the EBV corrections to use
-    #  yes_spectra originally gets the no_spectra and then individual ones are applied 
-    #  if S/N is large enough
-    EBV_corrs_ns = EBV_corrs_no_spectra(tab_no_spectra, mmt_mz, mmt_mz_EBV_hahb,
-        mmt_mz_EBV_hghb, keck_mz, keck_mz_EBV_hahb)
-    EBV_corrs_ys = EBV_corrs_no_spectra(tab_yes_spectra, mmt_mz, mmt_mz_EBV_hahb, 
-        mmt_mz_EBV_hghb, keck_mz, keck_mz_EBV_hahb)
-    EBV_corrs = consolidate_ns_ys(orig_fluxes, no_spectra, yes_spectra,
-        EBV_corrs_ns, EBV_corrs_ys)
-
-
-    # getting dust extinction corrections
-    k_ha = cardelli(6563.0 * u.Angstrom)
-    A_V = k_ha * EBV_corrs 
-    dustcorr_fluxes = orig_fluxes + A_V # A_V = A(Ha) = extinction at Ha
-    dust_corr_factor = dustcorr_fluxes - orig_fluxes
 
 
     # getting filter corrections
     #   TODO: redo based on FILT array?? 
     #   TODO: correct nb704/nb711 dual emitters for both?
-    NB_flux = np.zeros(len(allcolsdata))
+    orig_fluxes = np.zeros(len(allcolsdata))
     filtcorr_fluxes = np.zeros(len(allcolsdata))
     for filt in filtarr:
-        filt_ii = np.array([x for x in range(len(NAME0)) if 'Ha-'+filt 
-            in NAME0[x] and (x in no_spectra or x in yes_spectra)])
+        filt_ii = np.array([x for x in range(len(FILT)) if filt==FILT[x]])
 
         no_spectra_temp  = np.array([x for x in filt_ii if x in no_spectra])
         yes_spectra_temp = np.array([x for x in filt_ii if x in yes_spectra])
 
-        NB_flux[filt_ii] = allcolsdata[filt+'_FLUX'][filt_ii]
-        filtcorr_fluxes[filt_ii] = np.copy(NB_flux[filt_ii])
+        orig_fluxes[filt_ii] = allcolsdata[filt+'_FLUX'][filt_ii]
+        filtcorr_fluxes[filt_ii] = np.copy(orig_fluxes[filt_ii])
         filtcorr_fluxes = apply_filt_corrs(no_spectra_temp, yes_spectra_temp,
             filt, zspec0, filtcorr_fluxes)
     #endfor
@@ -468,6 +449,24 @@ def main():
         #endif
         nii_ha_corr_factor[ii] = corr_factor
     #endfor
+
+
+    # getting the EBV corrections to use
+    #  yes_spectra originally gets the no_spectra and then individual ones are applied 
+    #  if S/N is large enough
+    EBV_corrs_ns = EBV_corrs_no_spectra(tab_no_spectra, mmt_mz, mmt_mz_EBV_hahb,
+        mmt_mz_EBV_hghb, keck_mz, keck_mz_EBV_hahb)
+    EBV_corrs_ys = EBV_corrs_no_spectra(tab_yes_spectra, mmt_mz, mmt_mz_EBV_hahb, 
+        mmt_mz_EBV_hghb, keck_mz, keck_mz_EBV_hahb)
+    EBV_corrs = consolidate_ns_ys(orig_fluxes, no_spectra, yes_spectra,
+        EBV_corrs_ns, EBV_corrs_ys)
+
+
+    # getting dust extinction corrections
+    k_ha = cardelli(6563.0 * u.Angstrom)
+    A_V = k_ha * EBV_corrs 
+    dustcorr_fluxes = orig_fluxes + A_V # A_V = A(Ha) = extinction at Ha
+    dust_corr_factor = dustcorr_fluxes - orig_fluxes
 
 
     # getting luminosities
