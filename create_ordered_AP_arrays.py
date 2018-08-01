@@ -80,7 +80,6 @@ def make_AP_arr_MMT(slit_str0):
     APgood[bad_index] = 'not_MMT'
     
     return APgood
-#enddef
 
 
 def make_AP_arr_DEIMOS(AP, slit_str0):
@@ -122,7 +121,6 @@ def make_AP_arr_DEIMOS(AP, slit_str0):
     AP[temp_index4] = np.array([x[7:13] for x in AP[temp_index4]])
     
     return AP
-#enddef
 
 
 def make_AP_arr_merged(AP, slit_str0):
@@ -158,7 +156,6 @@ def make_AP_arr_merged(AP, slit_str0):
     AP[temp_index3] = np.array([x[:12] for x in AP[temp_index3]])
     
     return AP
-#enddef
 
 
 def make_AP_arr_FOCAS(AP, slit_str0):
@@ -218,7 +215,6 @@ def make_AP_arr_FOCAS(AP, slit_str0):
     AP[temp_index7] = np.array([x[:6] for x in AP[temp_index7]])
     
     return AP
-#enddef
 
 
 def get_LMIN0_LMAX0(all_AP, detect_AP, all_MMT_LMIN0, detect_MMT_LMIN0,
@@ -296,7 +292,41 @@ def get_LMIN0_LMAX0_merged(all_AP, mergedAP, all_MMT_LMIN0, all_MMT_LMAX0, all_K
 
 
     return all_MMT_LMIN0,all_MMT_LMAX0,all_KECK_LMIN0,all_KECK_LMAX0
-#enddef
+
+
+def get_SNRs(all_AP, detect_AP, all_NIIBSNR, detect_NIIBSNR,
+    all_HASNR, detect_HASNR, all_HBSNR, detect_HBSNR,
+    all_HGSNR, detect_HGSNR):
+    '''
+    Accepts, modifies, and returns '<line>_SNR' (passed in as 'all_<__>').
+    'all_AP' is the complete AP column with all the information, while
+    'detect_AP' and every input subsequent until the last four are the arrays
+    specific to the Main_Sequence catalog.
+
+    There are 5 different types of catalogs, so this method is called 5 times.
+
+    This method looks at the indices where the detect_AP is in the all_AP and
+    appends the overlapping indices of the all_AP array. Then, at those
+    overlapping indices, the zero values in all_AP are replaced by the
+    corresponding detected values.
+    '''
+    # indexes of data that correspond to indexes in 9264-AP-ordering
+    index1 = np.array([x for x in range(len(detect_AP)) if detect_AP[x]
+                       in all_AP], dtype=np.int32)
+
+    # indexes of 9264-AP-ordering that correspond to indexes in data
+    index2 = np.array([])
+    for mm in range(len(detect_AP)):
+        index2 = np.append(index2, np.where(all_AP == detect_AP[mm])[0])
+    #endfor
+    index2 = np.array(index2, dtype=np.int32)
+
+    all_NIIBSNR[index2] = detect_NIIBSNR[index1]
+    all_HASNR[index2] = detect_HASNR[index1]
+    all_HBSNR[index2] = detect_HBSNR[index1]
+    all_HGSNR[index2] = detect_HGSNR[index1]
+
+    return all_NIIBSNR,all_HASNR,all_HBSNR,all_HGSNR
 
 
 def create_ordered_AP_arrays(AP_only=False):
@@ -318,24 +348,40 @@ def create_ordered_AP_arrays(AP_only=False):
     MMTallAP = MMTalldata['AP']
     MMTallLMIN0 = MMTalldata['LMIN0']
     MMTallLMAX0 = MMTalldata['LMAX0']
+    MMTallNIIBSNR = MMTalldata['NIIB_SNR']
+    MMTallHASNR = MMTalldata['HA_SNR']
+    MMTallHBSNR = MMTalldata['HB_SNR']
+    MMTallHGSNR = MMTalldata['HG_SNR']
 
     MMTsingle = pyfits.open('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Main_Sequence/Catalogs/MMT/MMT_single_line_fit.fits')
     MMTsingledata = MMTsingle[1].data
     MMTsingleAP = MMTsingledata['AP']
     MMTsingleLMIN0 = MMTsingledata['LMIN0']
     MMTsingleLMAX0 = MMTsingledata['LMAX0']
+    MMTsingleNIIBSNR = MMTsingledata['NIIB_SNR']
+    MMTsingleHASNR = MMTsingledata['HA_SNR']
+    MMTsingleHBSNR = MMTsingledata['HB_SNR']
+    MMTsingleHGSNR = MMTsingledata['HG_SNR']
 
     DEIMOS = pyfits.open('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Main_Sequence/Catalogs/Keck/DEIMOS_single_line_fit.fits')
     DEIMOSdata = DEIMOS[1].data
     DEIMOSAP = DEIMOSdata['AP']
     DEIMOSLMIN0 = DEIMOSdata['LMIN0']
     DEIMOSLMAX0 = DEIMOSdata['LMAX0']
+    DEIMOSNIIBSNR = DEIMOSdata['NIIB_SNR']
+    DEIMOSHASNR = DEIMOSdata['HA_SNR']
+    DEIMOSHBSNR = DEIMOSdata['HB_SNR']
+    DEIMOSHGSNR = DEIMOSdata['HG_SNR']
 
     DEIMOS00=pyfits.open('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Main_Sequence/Catalogs/Keck/DEIMOS_00_all_line_fit.fits')
     DEIMOS00data = DEIMOS00[1].data
     DEIMOS00AP = DEIMOS00data['AP']
     DEIMOS00LMIN0 = DEIMOS00data['LMIN0']
     DEIMOS00LMAX0 = DEIMOS00data['LMAX0']
+    DEIMOS00NIIBSNR = DEIMOS00data['NIIB_SNR']
+    DEIMOS00HASNR = DEIMOS00data['HA_SNR']
+    DEIMOS00HBSNR = DEIMOS00data['HB_SNR']
+    DEIMOS00HGSNR = DEIMOS00data['HG_SNR']
 
     merged = pyfits.open('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Main_Sequence/Catalogs/merged/MMT_Keck_line_fit.fits')
     mergeddata = merged[1].data
@@ -344,6 +390,11 @@ def create_ordered_AP_arrays(AP_only=False):
     mergedLMAX0_MMT = mergeddata['MMT_LMAX0']
     mergedLMIN0_KECK = mergeddata['KECK_LMIN0']
     mergedLMAX0_KECK = mergeddata['KECK_LMAX0']
+    mergedNIIBSNR = mergeddata['NIIB_SNR']
+    mergedHASNR = mergeddata['HA_SNR']
+    mergedHBSNR = mergeddata['HB_SNR']
+    mergedHGSNR = mergeddata['HG_SNR']
+
     #end inputs
     print '### done reading input files'
 
@@ -367,7 +418,7 @@ def create_ordered_AP_arrays(AP_only=False):
         return {'AP': AP}
     #endif 
 
-    print '### creating ordered LMIN0/LMAX0 arr'
+    print '### creating ordered LMIN0/LMAX0 arrs'
     MMT_LMIN0 = np.array([-99.99999]*len(AP))
     MMT_LMAX0 = np.array([-99.99999]*len(AP))
     KECK_LMIN0 = np.array([-99.99999]*len(AP))
@@ -386,13 +437,30 @@ def create_ordered_AP_arrays(AP_only=False):
         DEIMOS00AP, DEIMOS00LMIN0, DEIMOS00LMAX0)
     print '### done creating ordered LMIN0/LMAX0 arr'
 
+    print '### creating ordered SNR arrs'
+    NIIB_SNR = np.array([-99.99999]*len(AP))
+    HA_SNR = np.array([-99.99999]*len(AP))
+    HB_SNR = np.array([-99.99999]*len(AP))
+    HG_SNR = np.array([-99.99999]*len(AP))
+    NIIB_SNR, HA_SNR, HB_SNR, HG_SNR = get_SNRs(AP, MMTallAP, NIIB_SNR, MMTallNIIBSNR, 
+        HA_SNR, MMTallHASNR, HB_SNR, MMTallHBSNR, HG_SNR, MMTallHGSNR)
+    NIIB_SNR, HA_SNR, HB_SNR, HG_SNR = get_SNRs(AP, MMTsingleAP, NIIB_SNR, MMTsingleNIIBSNR, 
+        HA_SNR, MMTsingleHASNR, HB_SNR, MMTsingleHBSNR, HG_SNR, MMTsingleHGSNR)
+    NIIB_SNR, HA_SNR, HB_SNR, HG_SNR = get_SNRs(AP, DEIMOSAP, NIIB_SNR, DEIMOSNIIBSNR, 
+        HA_SNR, DEIMOSHASNR, HB_SNR, DEIMOSHBSNR, HG_SNR, DEIMOSHGSNR)
+    NIIB_SNR, HA_SNR, HB_SNR, HG_SNR = get_SNRs(AP, DEIMOS00AP, NIIB_SNR, DEIMOS00NIIBSNR, 
+        HA_SNR, DEIMOS00HASNR, HB_SNR, DEIMOS00HBSNR, HG_SNR, DEIMOS00HGSNR)
+    NIIB_SNR, HA_SNR, HB_SNR, HG_SNR = get_SNRs(AP, mergedAP, NIIB_SNR, mergedNIIBSNR, 
+        HA_SNR, mergedHASNR, HB_SNR, mergedHBSNR, HG_SNR, mergedHGSNR)
+    print '### done creating ordered SNR arrs'
+
     MMTall.close()
     MMTsingle.close()
     DEIMOS.close()
     DEIMOS00.close()
     merged.close()
 
-    return {'AP': AP, 'MMT_LMIN0': MMT_LMIN0, 'MMT_LMAX0': MMT_LMAX0, 'KECK_LMIN0': KECK_LMIN0, 'KECK_LMAX0': KECK_LMAX0}
+    return {'AP': AP, 'MMT_LMIN0': MMT_LMIN0, 'MMT_LMAX0': MMT_LMAX0, 'KECK_LMIN0': KECK_LMIN0, 'KECK_LMAX0': KECK_LMAX0, 'NIIB_SNR': NIIB_SNR, 'HA_SNR': HA_SNR, 'HB_SNR': HB_SNR, 'HG_SNR': HG_SNR}
 
 
 def main():
