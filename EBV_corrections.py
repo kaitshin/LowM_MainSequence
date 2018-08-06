@@ -7,51 +7,61 @@ import plotting.general_plotting as general_plotting
 from analysis.cardelli import *
 from astropy.cosmology import FlatLambdaCDM
 from scipy import stats
+from scipy.interpolate import interp1d
 cosmo = FlatLambdaCDM(H0 = 70 * u.km / u.s / u.Mpc, Om0=0.3)
 
 
 FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
 
 
-def apply_filt_corrs(no_spectra, yes_spectra, ff, zspec0, FLUX_filt_corr):
+def apply_filt_corrs_interp(ff, filt_corrs, zspec0, bad_z, good_z, AP, allcolsdata):
     '''
     Applies the filter-based correction.
 
-    Accepts only no/yes_spectra sources with filter matches (based on NAME0).
+    Accepts only no/yes_spectra sources with filter matches.
 
-    For the sources with no_spectra, a log correction factor of 1.28 was added.
-    For the ones with a yes_spectra, the relevant filter response .dat file
-    was read in to try and find what kind of flux a source with that zspec
-    would have in the filter response; a log correction factor of 1 over
-    that ratio was then added, with the filter-corrected flux returned.
+    For the sources with no_spectra (bad_z), a statistical correction based on
+    the filter response profile was provided.
+    For the ones with a yes_spectra (good_z), the relevant filter response .dat file
+    was read in and interpolated to try and find what kind of flux a source 
+    with that zspec would have in the filter response. the flux filter correction
+    factor was returned.
+
+    (filt_corrs = filter_corrected_fluxes - orig_NB_flux_from_allcolsdata)
     '''
-    print ff, len(no_spectra)+len(yes_spectra)
+    print ff, len(bad_z)+len(good_z)
     # reading data
     response = asc.read(FULL_PATH+'Filters/'+ff+'response.dat',guess=False,
                     Reader=asc.NoHeader)
-    xresponse = np.array(response['col1'])
-    xresponse = (xresponse/6563.0)-1                    
+    z_filt = response['col1'].data/6562.8 - 1
     yresponse = np.array(response['col2'])
-    yresponse = (yresponse/max(yresponse)) #normalize to 1
 
     filter_stat_corr_dict = {'NB704':1.289439104, 'NB711':1.41022358406, 'NB816':1.29344789854, 'NB921':1.32817034288, 'NB973':1.29673596942}
+    filt_corrs[bad_z] = np.log10(filter_stat_corr_dict[ff]) # np.log10(1.28)
+    
+    f = interp1d(z_filt, response['col2'])
 
-    FLUX_filt_corr[no_spectra] += np.log10(filter_stat_corr_dict[ff]) # np.log10(1.28)
+    if max(zspec0[good_z]) > max(z_filt):
+        print 'Source above filter profile range (', ff, '|| z =', max(zspec0[good_z]), ')'
+        bad_z0 = np.array([x for x in good_z if zspec0[x] == max(zspec0[good_z])])
+        DEIMOS = pyfits.open('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Main_Sequence/Catalogs/Keck/DEIMOS_single_line_fit.fits')
+        DEIMOSdata = DEIMOS[1].data
+        print 'Source name:', AP[bad_z0]
+        ii = np.where(DEIMOSdata['AP']==AP[bad_z0])[0]
+        keck_flux = np.log10(DEIMOSdata['HA_FLUX_MOD'][ii])
+        filtcorr_bflux = np.log10(10**keck_flux + 0.8e-17*1.33)
+        print '>>>>>>> Filter-corrected excess flux:', filtcorr_bflux
+        jj = np.where(zspec0==max(zspec0[good_z]))[0]
+        filt_corrs[bad_z0] = filtcorr_bflux - allcolsdata[ff+'_FLUX'][jj]
 
-    good_z = zspec0[yes_spectra]
-    for ii in range(len(yes_spectra)):            
-        temp = np.array([x for x in range(len(xresponse)-1)
-                         if good_z[ii] > xresponse[x]
-                         and good_z[ii] < xresponse[x+1]])
+        good_z = np.array([x for x in good_z if zspec0[x] != max(zspec0[good_z])])
 
-        if len(temp) == 0:
-            FLUX_filt_corr[yes_spectra[ii]] += np.log10(filter_stat_corr_dict[ff]) # np.log10(1.28)
-        elif len(temp) > 0:
-            avg_y_response = np.mean((yresponse[temp], yresponse[temp+1]))
-            FLUX_filt_corr[yes_spectra[ii]] += np.log10(1/avg_y_response)
-        #endif
-    #endfor
-    return FLUX_filt_corr
+        DEIMOS.close()
+
+    filt_corrs[good_z] = np.log10(1.0/(f(zspec0[good_z])/max(yresponse)))
+
+    # these are the filter correction factors
+    return filt_corrs
 
 
 def get_nii_corr(allcolsdata, ratio0, ratio1, coverage):
@@ -405,11 +415,10 @@ def main():
         np.array(tab_no_spectra['filter']), np.array(tab_yes_spectra['filter']), datatype='str')
 
 
-    # getting filter corrections
-    #   TODO: redo based on FILT array?? 
+    print '### obtaining filter corrections'
     #   TODO: correct nb704/nb711 dual emitters for both?
     orig_fluxes = np.zeros(len(allcolsdata))
-    filtcorr_fluxes = np.zeros(len(allcolsdata))
+    filt_corr_factor = np.zeros(len(allcolsdata))
     for filt in filtarr:
         filt_ii = np.array([x for x in range(len(FILT)) if filt==FILT[x]])
 
@@ -417,14 +426,12 @@ def main():
         yes_spectra_temp = np.array([x for x in filt_ii if x in yes_spectra])
 
         orig_fluxes[filt_ii] = allcolsdata[filt+'_FLUX'][filt_ii]
-        filtcorr_fluxes[filt_ii] = np.copy(orig_fluxes[filt_ii])
-        filtcorr_fluxes = apply_filt_corrs(no_spectra_temp, yes_spectra_temp,
-            filt, zspec0, filtcorr_fluxes)
+        filt_corr_factor = apply_filt_corrs_interp(filt, filt_corr_factor, zspec0, 
+            no_spectra_temp, yes_spectra_temp, AP, allcolsdata)
     #endfor
-    filt_corr_factor = filtcorr_fluxes - orig_fluxes
 
 
-    # getting nii_ha corrections
+    print '### obtaining nii_ha corrections'
     ratio_vs_line = np.array(['']*len(allcolsdata), dtype='|S10')
     nii_ha_ratio = np.zeros(len(allcolsdata))
     nii_ha_corr_factor = np.zeros(len(allcolsdata))
@@ -494,6 +501,7 @@ def main():
     #    diff colors to diff ratios
     
     # write some table so that plot_nbia_mainseq.py can read this in
+    ## TODO(add in an instr. column?)
     tab00 = Table([ID0, NAME0, FILT, zspec0, stlr_mass, orig_fluxes, orig_lums, orig_sfr, 
         filt_corr_factor, nii_ha_corr_factor, nii_ha_ratio, ratio_vs_line,
         A_V, EBV_corrs, dust_corr_factor], 
