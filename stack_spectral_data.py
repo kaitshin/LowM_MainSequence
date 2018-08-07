@@ -887,7 +887,8 @@ def plot_Keck_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass'):
                     ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, tol, subplot_index+i)
                 pos_flux_list.append(pos_flux)
                 flux_list.append(flux)
-            except ValueError:
+            except IndexError:
+                print '(!!) There\'s some unexpected exception or another.'
                 continue
             finally:
                 (ew, ew_emission, ew_absorption, median, pos_amplitude, 

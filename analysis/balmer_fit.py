@@ -104,9 +104,9 @@ def get_best_fit2(xval, yval, peakxval, label):
 
     NII 6583 (6583.6 A)
     '''
-    med0 = np.median(yval)
+    med0 = max(1e-20, np.median(yval))  # ensures a positive median guess
     err = np.repeat(1.0e-18, len(xval))
-    p0 = [yval[find_nearest(xval, peakxval)], peakxval, 1.10, med0]
+    p0 = [np.abs(yval[find_nearest(xval, peakxval)]), peakxval, 1.10, med0]
 
     param_bounds = ((0, -np.inf, 0.1, 0),
         (5e-17, np.inf, np.inf, med0+0.05*np.abs(med0)))
