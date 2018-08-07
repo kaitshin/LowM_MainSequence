@@ -108,7 +108,11 @@ def get_best_fit2(xval, yval, peakxval, label):
     err = np.repeat(1.0e-18, len(xval))
     p0 = [yval[find_nearest(xval, peakxval)], peakxval, 1.10, med0]
 
-    o1,o2 = optimization.curve_fit(func, xval, yval, p0, err, maxfev=2000)
+    param_bounds = ((0, -np.inf, 0.1, 0),
+        (5e-17, np.inf, np.inf, med0+0.05*np.abs(med0)))
+
+    o1,o2 = optimization.curve_fit(func, xval, yval, p0, err, maxfev=2000, bounds=param_bounds)
+
     return o1
 #enddef
 
