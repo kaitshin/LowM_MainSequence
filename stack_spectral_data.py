@@ -9,18 +9,31 @@ PURPOSE:
     Specific to SDF data.
 
 INPUTS:
-    'Catalogs/python_outputs/nbia_all_nsource.fits'
+    'Catalogs/NB_IA_emitters.nodup.colorrev.fix.fits'
     'Catalogs/nb_ia_zspec.txt'
+    'FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast.fout'
     'Spectra/spectral_MMT_grid_data.txt'
     'Spectra/spectral_MMT_grid.fits'
+    'Spectra/spectral_Keck_grid_data.txt'
+    'Spectra/spectral_Keck_grid.fits'
 
 OUTPUTS:
-    'Spectra/Ha_MMT_stacked_ew.txt'
-    'Spectra/Ha_MMT_stacked_fluxes.txt'
-    'Spectra/Ha_MMT_stacked.pdf'
-    'Spectra/Ha_Keck_stacked_ew.txt'
-    'Spectra/Ha_Keck_stacked_fluxes.txt'
-    'Spectra/Ha_Keck_stacked.pdf'
+    'Composite_Spectra/Redshift/MMT_spectra_vals/'+subtitle+'.txt''
+    'Composite_Spectra/Redshift/MMT_stacked_spectra_data.txt'
+    'Composite_Spectra/StellarMass/MMT_spectra_vals/'+subtitle[10:]+'.txt'
+    'Composite_Spectra/StellarMass/MMT_all_five_data.txt'
+    'Composite_Spectra/StellarMassZ/MMT_stlrmassZ_data.txt'
+    'Composite_Spectra/Redshift/Keck_spectra_vals/'+subtitle+'.txt'
+    'Composite_Spectra/Redshift/Keck_stacked_spectra_data.txt'
+    'Composite_Spectra/StellarMass/Keck_spectra_vals/'+subtitle[10:]+'.txt'
+    'Composite_Spectra/StellarMass/Keck_all_five_data.txt'
+    'Composite_Spectra/StellarMassZ/Keck_stlrmassZ_data.txt'
+    'Composite_Spectra/Redshift/MMT_stacked_spectra.pdf'
+    'Composite_Spectra/StellarMass/MMT_all_five.pdf'
+    'Composite_Spectra/StellarMassZ/MMT_stlrmassZ.pdf'
+    'Composite_Spectra/Redshift/Keck_stacked_spectra.pdf'
+    'Composite_Spectra/StellarMass/Keck_all_five.pdf'
+    'Composite_Spectra/StellarMassZ/Keck_stlrmassZ.pdf'
 """
 
 import numpy as np, numpy.ma as ma, matplotlib.pyplot as plt
@@ -1060,8 +1073,8 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr, fill_value=np.nan)
 
 print '### plotting MMT_Ha'
-# plot_MMT_Ha()
-# plot_MMT_Ha_stlrmass()
+plot_MMT_Ha()
+plot_MMT_Ha_stlrmass()
 plot_MMT_Ha_stlrmass_z()
 grid.close()
 
@@ -1086,9 +1099,9 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 
 print '### plotting Keck_Ha'
-# plot_Keck_Ha()
-# plot_Keck_Ha_stlrmass()
-# plot_Keck_Ha_stlrmass_z()
+plot_Keck_Ha()
+plot_Keck_Ha_stlrmass()
+plot_Keck_Ha_stlrmass_z()
 grid.close()
 
 nbia.close()
