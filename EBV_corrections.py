@@ -507,10 +507,10 @@ def main():
     
     # write some table so that plot_nbia_mainseq.py can read this in
     ## TODO(add in an instr. column?)
-    tab00 = Table([ID0, NAME0, FILT, zspec0, stlr_mass, orig_fluxes, orig_lums, orig_sfr, 
+    tab00 = Table([ID0, NAME0, FILT, inst_str0, zspec0, stlr_mass, orig_fluxes, orig_lums, orig_sfr, 
         filt_corr_factor, nii_ha_corr_factor, nii_ha_ratio, ratio_vs_line,
         A_V, EBV_corrs, dust_corr_factor], 
-        names=['ID', 'NAME0', 'filt', 'zspec0', 'stlr_mass', 'obs_fluxes', 'obs_lumin', 'obs_sfr',
+        names=['ID', 'NAME0', 'filt', 'inst_str0', 'zspec0', 'stlr_mass', 'obs_fluxes', 'obs_lumin', 'obs_sfr',
         'filt_corr_factor', 'nii_ha_corr_factor', 'NII_Ha_ratio', 'ratio_vs_line', 
         'A_V', 'EBV', 'dust_corr_factor'])
     asc.write(tab00, FULL_PATH+'Main_Sequence/mainseq_corrections_tbl.txt',
