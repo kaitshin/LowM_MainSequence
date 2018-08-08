@@ -321,8 +321,9 @@ def main():
     fout  = asc.read(FULL_PATH+'FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast.fout',
                      guess=False,Reader=asc.NoHeader)
     stlr_mass = np.array(fout['col7'])
-    data_dict = create_ordered_AP_arrays(AP_only = True)
+    data_dict = create_ordered_AP_arrays()
     AP = data_dict['AP']
+    NIIB_SNR = data_dict['NIIB_SNR']
     NIIB_Ha_ratios = asc.read(FULL_PATH+'Main_Sequence/Catalogs/line_emission_ratios_table.dat',
         guess=False,Reader=asc.CommentedHeader)
     ratio0 = np.array(NIIB_Ha_ratios['NII_Ha_ratio'])
@@ -351,7 +352,10 @@ def main():
     # getting rid of a source w/o flux (yes_spectra):
     no_flux_gal = np.where(NAME0=='Ha-NB921_069950')[0]
 
-    bad_sources = np.concatenate( [bad_highz_gal, bad_HbNB704_SIINB973_gals, no_flux_gal])
+    # getting rid of a source w/ atypical SFR behavior we don't understand
+    weird_SFR_gal = np.where(NAME0=='OIII-NB704_063543_Ha-NB816_086540')[0]
+
+    bad_sources = np.concatenate([bad_highz_gal, bad_HbNB704_SIINB973_gals, no_flux_gal, weird_SFR_gal])
     ha_ii = np.delete(ha_ii, bad_sources)
     NAME0 = np.delete(NAME0, bad_sources)
 
@@ -360,6 +364,7 @@ def main():
     inst_str0   = inst_str0[ha_ii]
     stlr_mass   = stlr_mass[ha_ii]
     AP          = AP[ha_ii]
+    NIIB_SNR    = NIIB_SNR[ha_ii]
     allcolsdata = allcolsdata0[ha_ii]
     ratio0 = ratio0[ha_ii]
     ratio1 = ratio1[ha_ii]
