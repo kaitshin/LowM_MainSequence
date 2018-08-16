@@ -21,7 +21,7 @@ def main():
         guess=False, format='fixed_width_two_line', delimiter=' ')
     keck_mz = asc.read(FULL_PATH+'Composite_Spectra/StellarMassZ/Keck_stlrmassZ_data.txt',
         guess=False, format='fixed_width_two_line', delimiter=' ')
-    mainseq_corrs = asc.read(FULL_PATH+'Main_Sequence/mainseq_corrections_tbl.txt',
+    mainseq_corrs = asc.read(FULL_PATH+'Main_Sequence/mainseq_corrections_tbl_ref.txt',
         guess=False, format='fixed_width_two_line', delimiter=' ')
 
     stlr_mass = np.array(mainseq_corrs['stlr_mass'])
@@ -47,15 +47,6 @@ def main():
     nii_flux_arr = np.concatenate((mmt_mz['NII_6583_flux'][aa], keck_mz['NII_6583_flux']))
     ha_flux_arr  = np.concatenate((mmt_mz['HA_flux'][aa], keck_mz['HA_flux']))
 
-    # ratios for individual sources
-    BIG_FLUX_RAT = NIIB_FLUX*1.33/HA_FLUX
-
-    # ratios for composites
-    flux_rat_arr = nii_flux_arr*1.33/ha_flux_arr
-
-    # limits for individual sources
-    LIMIT_arr = 2/HA_SNR * 1.33
-
 
     ## SNR >= 2 detections
     # getting indexes
@@ -65,12 +56,15 @@ def main():
     i1 = [x for x in range(len(big_good_nii)) if 'Keck' in inst_str0[big_good_nii][x]]
     i2 = [x for x in range(len(big_good_nii)) if 'merged' in inst_str0[big_good_nii][x]]
 
+    # ratios for individual sources
+    BIG_FLUX_RAT = NIIB_FLUX[big_good_nii]*1.33/HA_FLUX[big_good_nii]
+
     # plotting
-    plt.plot(stlr_mass[big_good_nii][i0], BIG_FLUX_RAT[big_good_nii][i0], 
+    plt.plot(stlr_mass[big_good_nii][i0], BIG_FLUX_RAT[i0], 
              color='blue', mec='blue', marker='*', lw=0, label='MMT')
-    plt.plot(stlr_mass[big_good_nii][i1], BIG_FLUX_RAT[big_good_nii][i1], 
+    plt.plot(stlr_mass[big_good_nii][i1], BIG_FLUX_RAT[i1], 
              color='lightblue', mec='lightblue', marker='s', lw=0, label='Keck')
-    plt.plot(stlr_mass[big_good_nii][i2], BIG_FLUX_RAT[big_good_nii][i2], 
+    plt.plot(stlr_mass[big_good_nii][i2], BIG_FLUX_RAT[i2], 
              color='purple', mec='purple', marker='o', lw=0, label='merged')
 
 
@@ -83,16 +77,22 @@ def main():
     j1 = [x for x in range(len(lil_good_nii)) if 'Keck' in inst_str0[lil_good_nii][x]]
     j2 = [x for x in range(len(lil_good_nii)) if 'merged' in inst_str0[lil_good_nii][x]]
 
+    # limits for individual sources
+    LIMIT_arr = 2/HA_SNR[lil_good_nii] * 1.33
+
     # plotting
-    plt.plot(stlr_mass[lil_good_nii][j0], LIMIT_arr[lil_good_nii][j0],
+    plt.plot(stlr_mass[lil_good_nii][j0], LIMIT_arr[j0],
              linestyle='none', marker=u'$\u2193$', markersize=10, color='blue', mec='blue', mew=2)
-    plt.plot(stlr_mass[lil_good_nii][j1], LIMIT_arr[lil_good_nii][j1],
+    plt.plot(stlr_mass[lil_good_nii][j1], LIMIT_arr[j1],
              linestyle='none', marker=u'$\u2193$', markersize=10, color='lightblue', mec='lightblue', mew=2)
-    plt.plot(stlr_mass[lil_good_nii][j2], LIMIT_arr[lil_good_nii][j2],
+    plt.plot(stlr_mass[lil_good_nii][j2], LIMIT_arr[j2],
              linestyle='none', marker=u'$\u2193$', markersize=10, color='purple', mec='purple', mew=2)
 
 
     ## composites
+    # ratios for composites
+    flux_rat_arr = nii_flux_arr*1.33/ha_flux_arr
+
     # plotting
     plt.plot(avgm_arr[:9], flux_rat_arr[:9], color='limegreen', lw=0, label='MMT composites', marker='*', mew=0)
     plt.plot(avgm_arr[9:], flux_rat_arr[9:], color='darkgreen', lw=0, label='Keck composites', marker='s', mew=0)
@@ -130,18 +130,18 @@ def main():
 
 
     ## making the y axis a log10 scale as well
-    plt.plot(stlr_mass[big_good_nii][i0], np.log10(BIG_FLUX_RAT[big_good_nii][i0]), 
+    plt.plot(stlr_mass[big_good_nii][i0], np.log10(BIG_FLUX_RAT[i0]), 
              color='blue', mec='blue', marker='*', lw=0, label='MMT')
-    plt.plot(stlr_mass[big_good_nii][i1], np.log10(BIG_FLUX_RAT[big_good_nii][i1]), 
+    plt.plot(stlr_mass[big_good_nii][i1], np.log10(BIG_FLUX_RAT[i1]), 
              color='lightblue', mec='lightblue', marker='s', lw=0, label='Keck')
-    plt.plot(stlr_mass[big_good_nii][i2], np.log10(BIG_FLUX_RAT[big_good_nii][i2]), 
+    plt.plot(stlr_mass[big_good_nii][i2], np.log10(BIG_FLUX_RAT[i2]), 
              color='purple', mec='purple', marker='o', lw=0, label='merged')
 
-    plt.plot(stlr_mass[lil_good_nii][j0], np.log10(LIMIT_arr[lil_good_nii][j0]),
+    plt.plot(stlr_mass[lil_good_nii][j0], np.log10(LIMIT_arr[j0]),
              linestyle='none', marker=u'$\u2193$', markersize=10, color='blue', mec='blue', mew=2)
-    plt.plot(stlr_mass[lil_good_nii][j1], np.log10(LIMIT_arr[lil_good_nii][j1]),
+    plt.plot(stlr_mass[lil_good_nii][j1], np.log10(LIMIT_arr[j1]),
              linestyle='none', marker=u'$\u2193$', markersize=10, color='lightblue', mec='lightblue', mew=2)
-    plt.plot(stlr_mass[lil_good_nii][j2], np.log10(LIMIT_arr[lil_good_nii][j2]),
+    plt.plot(stlr_mass[lil_good_nii][j2], np.log10(LIMIT_arr[j2]),
              linestyle='none', marker=u'$\u2193$', markersize=10, color='purple', mec='purple', mew=2)
 
     plt.plot(avgm_arr[:9], np.log10(flux_rat_arr[:9]), color='limegreen', lw=0, label='MMT composites', marker='*', mew=0)
