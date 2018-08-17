@@ -3,6 +3,7 @@ from astropy.table import Table
 from create_ordered_AP_arrays import create_ordered_AP_arrays
 import numpy as np, matplotlib.pyplot as plt
 import plotting.general_plotting as general_plotting
+import plotting_NII_Ha_ratios
 
 from analysis.cardelli import *
 from astropy.cosmology import FlatLambdaCDM
@@ -62,63 +63,6 @@ def apply_filt_corrs_interp(ff, filt_corrs, zspec0, bad_z, good_z, AP, allcolsda
 
     # these are the filter correction factors
     return filt_corrs
-
-
-def get_nii_corr(allcolsdata, ratio0, ratio1, coverage):
-    '''
-    Finds the 'good' indexes, where the sources have either full coverage
-    or a limit. Those sources are then added to two different arrays,
-    with the respective ratios added to an array (NII_corr) that is returned
-    at the end.
-
-    The array good_index1 was also returned to show which sources in the
-    returned array had full coverage.
-    '''
-    good_index1 = np.array([])
-    good_index2 = np.array([])
-    for x in range(len(ratio0)):
-        try:
-            num0 = float(ratio0[x])
-            num1 = float(ratio1[x])
-            if num0 != -1. and num0 != 0. and num1 != -1.:
-                if coverage[x] == 0:
-                    good_index1 = np.append(good_index1, x)
-                elif coverage[x] == 1:
-                    good_index2 = np.append(good_index2, x)
-        except ValueError:
-            pass
-    #endfor
-    good_index1 = np.int_(good_index1)
-    good_index2 = np.int_(good_index2)
-
-    NII_corr = np.zeros(len(allcolsdata))
-    NII_corr[good_index1] = np.float_(ratio0[good_index1])
-    NII_corr[good_index2] = np.float_(ratio0[good_index2])
-    return NII_corr, good_index1
-
-
-def get_nii_line_corr(good_index1, allcolsdata, stlr_mass, ratio0):
-    '''
-    Creates the line of best fit that is also plotted in
-    NII_Ha_MMT_scatter.pdf. Using that line of best-fit, depending on the
-    stellar mass of the point, an array of correction factors is returned.
-    '''
-    nii_corr1 = np.zeros(len(allcolsdata))
-    good_stlr = stlr_mass[good_index1]
-    good_ratio = np.log10(np.float_(ratio0[good_index1]))
-    slope, intercept, r_value, p_value, std_err = stats.linregress(good_stlr,
-                                                                   good_ratio)
-    for (x, ii) in zip(stlr_mass, range(len(allcolsdata))):
-        if x >= max(good_stlr):
-            y = slope*max(good_stlr) + intercept
-        elif x <= min(good_stlr):
-            y = slope*min(good_stlr) + intercept
-        else:
-            y = slope*x + intercept
-        #endif
-        nii_corr1[ii] = y
-    #endfor
-    return 10**nii_corr1
 
 
 def consolidate_ns_ys(orig_fluxes, no_spectra, yes_spectra, data_ns, data_ys, datatype='num'):
@@ -323,7 +267,9 @@ def main():
     stlr_mass = np.array(fout['col7'])
     data_dict = create_ordered_AP_arrays()
     AP = data_dict['AP']
-    NIIB_SNR = data_dict['NIIB_SNR']
+    HA_FLUX   = data_dict['HA_FLUX']
+    NIIB_FLUX = data_dict['NIIB_FLUX']
+    NIIB_SNR  = data_dict['NIIB_SNR']
     NIIB_Ha_ratios = asc.read(FULL_PATH+'Main_Sequence/Catalogs/line_emission_ratios_table.dat',
         guess=False,Reader=asc.CommentedHeader)
     ratio0 = np.array(NIIB_Ha_ratios['NII_Ha_ratio'])
@@ -364,6 +310,8 @@ def main():
     inst_str0   = inst_str0[ha_ii]
     stlr_mass   = stlr_mass[ha_ii]
     AP          = AP[ha_ii]
+    HA_FLUX     = HA_FLUX[ha_ii]
+    NIIB_FLUX   = NIIB_FLUX[ha_ii]
     NIIB_SNR    = NIIB_SNR[ha_ii]
     allcolsdata = allcolsdata0[ha_ii]
     ratio0 = ratio0[ha_ii]
@@ -437,26 +385,29 @@ def main():
 
 
     print '### obtaining nii_ha corrections'
-    ratio_vs_line = np.array(['']*len(allcolsdata), dtype='|S10')
+    linedict = plotting_NII_Ha_ratios.main()
+    C = linedict['C']
+    b = linedict['b']
+    m = linedict['m']
+
     nii_ha_ratio = np.zeros(len(allcolsdata))
-    nii_ha_corr_factor = np.zeros(len(allcolsdata))
+    ratio_vs_line = np.array(['']*len(allcolsdata), dtype='|S5')
 
-    nii_corr0, good_index1 = get_nii_corr(allcolsdata, ratio0, ratio1, coverage)
-    nii_corr1 = get_nii_line_corr(good_index1, allcolsdata, stlr_mass, ratio0)
+    # NIIB_SNR >= 2
+    highSNR = np.array([x for x in range(len(NIIB_SNR)) 
+        if (NIIB_SNR[x] >= 2 and NIIB_FLUX[x] != 0 and HA_FLUX[x] < 99)])
+    nii_ha_ratio[highSNR] = 1.33*NIIB_FLUX[highSNR]/HA_FLUX[highSNR]
+    ratio_vs_line[highSNR] = 'ratio'
 
-    for ii in range(len(nii_corr0)):
-        corr_factor = -99
-        if nii_corr0[ii] != 0:
-            corr_factor = np.log10(1/(1+1.33*nii_corr0[ii]))
-            nii_ha_ratio[ii]=nii_corr0[ii]
-            ratio_vs_line[ii]='ratio'
-        else:
-            corr_factor = np.log10(1/(1+1.33*nii_corr1[ii]))
-            nii_ha_ratio[ii]=nii_corr1[ii]
-            ratio_vs_line[ii]='line'
-        #endif
-        nii_ha_corr_factor[ii] = corr_factor
-    #endfor
+    # NIIB_SNR < 2
+    lowSNR = np.array([x for x in range(len(NIIB_SNR)) if x not in highSNR])
+    ratio_vs_line[lowSNR] = 'line'
+    llow_m  = np.array([x for x in range(len(lowSNR)) if stlr_mass[lowSNR][x] <= 8])
+    lhigh_m = np.array([x for x in range(len(lowSNR)) if stlr_mass[lowSNR][x] > 8])
+    nii_ha_ratio[lowSNR[llow_m]] = C
+    nii_ha_ratio[lowSNR[lhigh_m]] = m*(stlr_mass[lowSNR[lhigh_m]])+b
+
+    nii_ha_corr_factor = np.log10(1/(1+nii_ha_ratio))
 
 
     # getting the EBV corrections to use
