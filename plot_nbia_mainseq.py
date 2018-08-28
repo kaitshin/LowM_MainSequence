@@ -1,3 +1,20 @@
+"""
+NAME:
+    plot_nbia_mainseq.py
+
+PURPOSE:
+    
+
+INPUTS:
+    'Main_Sequence/Berg2012_table.clean.txt'
+    'Main_Sequence/Noeske07_fig1_z1.txt'
+    'Main_Sequence/mainseq_corrections_tbl.txt'
+
+OUTPUTS:
+    'Plots/main_sequence/'+title+'.pdf'
+    
+"""
+
 import numpy as np, astropy.units as u, matplotlib.pyplot as plt, sys
 from astropy.io import fits as pyfits, ascii as asc
 from astropy.table import Table
