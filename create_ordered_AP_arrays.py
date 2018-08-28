@@ -294,11 +294,11 @@ def get_LMIN0_LMAX0_merged(all_AP, mergedAP, all_MMT_LMIN0, all_MMT_LMAX0, all_K
     return all_MMT_LMIN0,all_MMT_LMAX0,all_KECK_LMIN0,all_KECK_LMAX0
 
 
-def get_SNRs(all_AP, detect_AP, all_NIIBSNR, detect_NIIBSNR,
-    all_HASNR, detect_HASNR, all_HBSNR, detect_HBSNR,
-    all_HGSNR, detect_HGSNR):
+def get_SNRs_FLUXs(all_AP, detect_AP, all_NIIBSNR_FLUX, detect_NIIBSNR_FLUX,
+    all_HASNR_FLUX, detect_HASNR_FLUX, all_HBSNR_FLUX, detect_HBSNR_FLUX,
+    all_HGSNR_FLUX, detect_HGSNR_FLUX):
     '''
-    Accepts, modifies, and returns '<line>_SNR' (passed in as 'all_<__>').
+    Accepts, modifies, and returns '<line>_SNR' or '<line>_FLUX' (passed in as 'all_<__>').
     'all_AP' is the complete AP column with all the information, while
     'detect_AP' and every input subsequent until the last four are the arrays
     specific to the Main_Sequence catalog.
@@ -321,12 +321,12 @@ def get_SNRs(all_AP, detect_AP, all_NIIBSNR, detect_NIIBSNR,
     #endfor
     index2 = np.array(index2, dtype=np.int32)
 
-    all_NIIBSNR[index2] = detect_NIIBSNR[index1]
-    all_HASNR[index2] = detect_HASNR[index1]
-    all_HBSNR[index2] = detect_HBSNR[index1]
-    all_HGSNR[index2] = detect_HGSNR[index1]
+    all_NIIBSNR_FLUX[index2] = detect_NIIBSNR_FLUX[index1]
+    all_HASNR_FLUX[index2] = detect_HASNR_FLUX[index1]
+    all_HBSNR_FLUX[index2] = detect_HBSNR_FLUX[index1]
+    all_HGSNR_FLUX[index2] = detect_HGSNR_FLUX[index1]
 
-    return all_NIIBSNR,all_HASNR,all_HBSNR,all_HGSNR
+    return all_NIIBSNR_FLUX,all_HASNR_FLUX,all_HBSNR_FLUX,all_HGSNR_FLUX
 
 
 def create_ordered_AP_arrays(AP_only=False):
@@ -352,6 +352,10 @@ def create_ordered_AP_arrays(AP_only=False):
     MMTallHASNR = MMTalldata['HA_SNR']
     MMTallHBSNR = MMTalldata['HB_SNR']
     MMTallHGSNR = MMTalldata['HG_SNR']
+    MMTallNIIBFLUX = MMTalldata['NIIB_FLUX_MOD']
+    MMTallHAFLUX = MMTalldata['HA_FLUX_MOD']
+    MMTallHBFLUX = MMTalldata['HB_FLUX_MOD']
+    MMTallHGFLUX = MMTalldata['HG_FLUX_MOD']
 
     MMTsingle = pyfits.open('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Main_Sequence/Catalogs/MMT/MMT_single_line_fit.fits')
     MMTsingledata = MMTsingle[1].data
@@ -362,6 +366,10 @@ def create_ordered_AP_arrays(AP_only=False):
     MMTsingleHASNR = MMTsingledata['HA_SNR']
     MMTsingleHBSNR = MMTsingledata['HB_SNR']
     MMTsingleHGSNR = MMTsingledata['HG_SNR']
+    MMTsingleNIIBFLUX = MMTsingledata['NIIB_FLUX_MOD']
+    MMTsingleHAFLUX = MMTsingledata['HA_FLUX_MOD']
+    MMTsingleHBFLUX = MMTsingledata['HB_FLUX_MOD']
+    MMTsingleHGFLUX = MMTsingledata['HG_FLUX_MOD']
 
     DEIMOS = pyfits.open('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Main_Sequence/Catalogs/Keck/DEIMOS_single_line_fit.fits')
     DEIMOSdata = DEIMOS[1].data
@@ -372,6 +380,10 @@ def create_ordered_AP_arrays(AP_only=False):
     DEIMOSHASNR = DEIMOSdata['HA_SNR']
     DEIMOSHBSNR = DEIMOSdata['HB_SNR']
     DEIMOSHGSNR = DEIMOSdata['HG_SNR']
+    DEIMOSNIIBFLUX = DEIMOSdata['NIIB_FLUX_MOD']
+    DEIMOSHAFLUX = DEIMOSdata['HA_FLUX_MOD']
+    DEIMOSHBFLUX = DEIMOSdata['HB_FLUX_MOD']
+    DEIMOSHGFLUX = DEIMOSdata['HG_FLUX_MOD']
 
     DEIMOS00=pyfits.open('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Main_Sequence/Catalogs/Keck/DEIMOS_00_all_line_fit.fits')
     DEIMOS00data = DEIMOS00[1].data
@@ -382,6 +394,10 @@ def create_ordered_AP_arrays(AP_only=False):
     DEIMOS00HASNR = DEIMOS00data['HA_SNR']
     DEIMOS00HBSNR = DEIMOS00data['HB_SNR']
     DEIMOS00HGSNR = DEIMOS00data['HG_SNR']
+    DEIMOS00NIIBFLUX = DEIMOS00data['NIIB_FLUX_MOD']
+    DEIMOS00HAFLUX = DEIMOS00data['HA_FLUX_MOD']
+    DEIMOS00HBFLUX = DEIMOS00data['HB_FLUX_MOD']
+    DEIMOS00HGFLUX = DEIMOS00data['HG_FLUX_MOD']
 
     merged = pyfits.open('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Main_Sequence/Catalogs/merged/MMT_Keck_line_fit.fits')
     mergeddata = merged[1].data
@@ -394,6 +410,10 @@ def create_ordered_AP_arrays(AP_only=False):
     mergedHASNR = mergeddata['HA_SNR']
     mergedHBSNR = mergeddata['HB_SNR']
     mergedHGSNR = mergeddata['HG_SNR']
+    mergedNIIBFLUX = mergeddata['NIIB_FLUX_MOD']
+    mergedHAFLUX = mergeddata['HA_FLUX_MOD']
+    mergedHBFLUX = mergeddata['HB_FLUX_MOD']
+    mergedHGFLUX = mergeddata['HG_FLUX_MOD']
 
     #end inputs
     print '### done reading input files'
@@ -442,17 +462,34 @@ def create_ordered_AP_arrays(AP_only=False):
     HA_SNR = np.array([-99.99999]*len(AP))
     HB_SNR = np.array([-99.99999]*len(AP))
     HG_SNR = np.array([-99.99999]*len(AP))
-    NIIB_SNR, HA_SNR, HB_SNR, HG_SNR = get_SNRs(AP, MMTallAP, NIIB_SNR, MMTallNIIBSNR, 
+    NIIB_SNR, HA_SNR, HB_SNR, HG_SNR = get_SNRs_FLUXs(AP, MMTallAP, NIIB_SNR, MMTallNIIBSNR, 
         HA_SNR, MMTallHASNR, HB_SNR, MMTallHBSNR, HG_SNR, MMTallHGSNR)
-    NIIB_SNR, HA_SNR, HB_SNR, HG_SNR = get_SNRs(AP, MMTsingleAP, NIIB_SNR, MMTsingleNIIBSNR, 
+    NIIB_SNR, HA_SNR, HB_SNR, HG_SNR = get_SNRs_FLUXs(AP, MMTsingleAP, NIIB_SNR, MMTsingleNIIBSNR, 
         HA_SNR, MMTsingleHASNR, HB_SNR, MMTsingleHBSNR, HG_SNR, MMTsingleHGSNR)
-    NIIB_SNR, HA_SNR, HB_SNR, HG_SNR = get_SNRs(AP, DEIMOSAP, NIIB_SNR, DEIMOSNIIBSNR, 
+    NIIB_SNR, HA_SNR, HB_SNR, HG_SNR = get_SNRs_FLUXs(AP, DEIMOSAP, NIIB_SNR, DEIMOSNIIBSNR, 
         HA_SNR, DEIMOSHASNR, HB_SNR, DEIMOSHBSNR, HG_SNR, DEIMOSHGSNR)
-    NIIB_SNR, HA_SNR, HB_SNR, HG_SNR = get_SNRs(AP, DEIMOS00AP, NIIB_SNR, DEIMOS00NIIBSNR, 
+    NIIB_SNR, HA_SNR, HB_SNR, HG_SNR = get_SNRs_FLUXs(AP, DEIMOS00AP, NIIB_SNR, DEIMOS00NIIBSNR, 
         HA_SNR, DEIMOS00HASNR, HB_SNR, DEIMOS00HBSNR, HG_SNR, DEIMOS00HGSNR)
-    NIIB_SNR, HA_SNR, HB_SNR, HG_SNR = get_SNRs(AP, mergedAP, NIIB_SNR, mergedNIIBSNR, 
+    NIIB_SNR, HA_SNR, HB_SNR, HG_SNR = get_SNRs_FLUXs(AP, mergedAP, NIIB_SNR, mergedNIIBSNR, 
         HA_SNR, mergedHASNR, HB_SNR, mergedHBSNR, HG_SNR, mergedHGSNR)
     print '### done creating ordered SNR arrs'
+
+    print '### creating ordered FLUX arrs'
+    NIIB_FLUX = np.array([-99.99999]*len(AP))
+    HA_FLUX = np.array([-99.99999]*len(AP))
+    HB_FLUX = np.array([-99.99999]*len(AP))
+    HG_FLUX = np.array([-99.99999]*len(AP))
+    NIIB_FLUX, HA_FLUX, HB_FLUX, HG_FLUX = get_SNRs_FLUXs(AP, MMTallAP, NIIB_FLUX, MMTallNIIBFLUX, 
+        HA_FLUX, MMTallHAFLUX, HB_FLUX, MMTallHBFLUX, HG_FLUX, MMTallHGFLUX)
+    NIIB_FLUX, HA_FLUX, HB_FLUX, HG_FLUX = get_SNRs_FLUXs(AP, MMTsingleAP, NIIB_FLUX, MMTsingleNIIBFLUX, 
+        HA_FLUX, MMTsingleHAFLUX, HB_FLUX, MMTsingleHBFLUX, HG_FLUX, MMTsingleHGFLUX)
+    NIIB_FLUX, HA_FLUX, HB_FLUX, HG_FLUX = get_SNRs_FLUXs(AP, DEIMOSAP, NIIB_FLUX, DEIMOSNIIBFLUX, 
+        HA_FLUX, DEIMOSHAFLUX, HB_FLUX, DEIMOSHBFLUX, HG_FLUX, DEIMOSHGFLUX)
+    NIIB_FLUX, HA_FLUX, HB_FLUX, HG_FLUX = get_SNRs_FLUXs(AP, DEIMOS00AP, NIIB_FLUX, DEIMOS00NIIBFLUX, 
+        HA_FLUX, DEIMOS00HAFLUX, HB_FLUX, DEIMOS00HBFLUX, HG_FLUX, DEIMOS00HGFLUX)
+    NIIB_FLUX, HA_FLUX, HB_FLUX, HG_FLUX = get_SNRs_FLUXs(AP, mergedAP, NIIB_FLUX, mergedNIIBFLUX, 
+        HA_FLUX, mergedHAFLUX, HB_FLUX, mergedHBFLUX, HG_FLUX, mergedHGFLUX)
+    print '### done creating ordered FLUX arrs'
 
     MMTall.close()
     MMTsingle.close()
@@ -460,7 +497,10 @@ def create_ordered_AP_arrays(AP_only=False):
     DEIMOS00.close()
     merged.close()
 
-    return {'AP': AP, 'MMT_LMIN0': MMT_LMIN0, 'MMT_LMAX0': MMT_LMAX0, 'KECK_LMIN0': KECK_LMIN0, 'KECK_LMAX0': KECK_LMAX0, 'NIIB_SNR': NIIB_SNR, 'HA_SNR': HA_SNR, 'HB_SNR': HB_SNR, 'HG_SNR': HG_SNR}
+    return ({'AP': AP, 'MMT_LMIN0': MMT_LMIN0, 'MMT_LMAX0': MMT_LMAX0, 
+        'KECK_LMIN0': KECK_LMIN0, 'KECK_LMAX0': KECK_LMAX0, 
+        'NIIB_SNR': NIIB_SNR, 'HA_SNR': HA_SNR, 'HB_SNR': HB_SNR, 'HG_SNR': HG_SNR,
+        'NIIB_FLUX': NIIB_FLUX, 'HA_FLUX': HA_FLUX, 'HB_FLUX': HB_FLUX, 'HG_FLUX': HG_FLUX})
 
 
 def main():
