@@ -1,3 +1,33 @@
+"""
+NAME:
+    EBV_corrections.py
+
+PURPOSE:
+    Applies filter, nii, and dust corrections to all valid Ha emitting 
+    sources and outputs corrections to a table
+
+    Table is then used to graph the main sequence plots in
+    plot_nbia_mainseq.py
+
+INPUTS:
+    'Catalogs/NB_IA_emitters.nodup.colorrev.fix.fits'
+    'Catalogs/NB_IA_emitters.allcols.colorrev.fits'
+    'Catalogs/nb_ia_zspec.txt'
+    'FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast.fout'
+    'Main_Sequence/Catalogs/line_emission_ratios_table.dat'
+    'Composite_Spectra/Redshift/MMT_stacked_spectra_data.txt'
+    'Composite_Spectra/Redshift/Keck_stacked_spectra_data.txt'
+    'Composite_Spectra/StellarMass/MMT_all_five_data.txt'
+    'Composite_Spectra/StellarMass/Keck_all_five_data.txt'
+    'Composite_Spectra/StellarMassZ/MMT_stlrmassZ_data.txt'
+    'Composite_Spectra/StellarMassZ/Keck_stlrmassZ_data.txt'
+    'Main_Sequence/Catalogs/Keck/DEIMOS_single_line_fit.fits'
+    'Filters/'+ff+'response.dat'
+
+OUTPUTS:
+    'Main_Sequence/mainseq_corrections_tbl.txt'
+"""
+
 from astropy.io import fits as pyfits, ascii as asc
 from astropy.table import Table
 from create_ordered_AP_arrays import create_ordered_AP_arrays
@@ -250,6 +280,24 @@ def EBV_corrs_no_spectra(tab_no_spectra, mmt_mz, mmt_mz_EBV_hahb, mmt_mz_EBV_hgh
     return EBV_corrs
 
 
+def EBV_corrs_yes_spectra(EBV_corrs_ys, yes_spectra, HA_FLUX, HB_FLUX, HB_SNR):
+    '''
+    '''
+    k_hb = cardelli(4861 * u.Angstrom)
+    k_ha = cardelli(6563 * u.Angstrom)
+    
+    gooddata_iis = np.where((HB_SNR[yes_spectra] >= 5) & (HA_FLUX[yes_spectra] > 1e-20) & (HA_FLUX[yes_spectra] < 99))[0]
+    good_EBV_iis = yes_spectra[gooddata_iis]
+
+    hahb = HA_FLUX[good_EBV_iis]/HB_FLUX[good_EBV_iis]
+    hahb = np.array([2.86 if (x < 2.86 and x > 0) else x for x in hahb])
+    EBV_hahb = np.log10((hahb)/2.86)/(-0.4*(k_ha - k_hb))
+    
+    EBV_corrs_ys[gooddata_iis] = EBV_hahb
+    
+    return EBV_corrs_ys
+
+
 def main():
     # reading in data
     nbia = pyfits.open(FULL_PATH+'Catalogs/NB_IA_emitters.nodup.colorrev.fix.fits')
@@ -268,6 +316,8 @@ def main():
     data_dict = create_ordered_AP_arrays()
     AP = data_dict['AP']
     HA_FLUX   = data_dict['HA_FLUX']
+    HB_FLUX   = data_dict['HB_FLUX']
+    HB_SNR    = data_dict['HB_SNR']
     NIIB_FLUX = data_dict['NIIB_FLUX']
     NIIB_SNR  = data_dict['NIIB_SNR']
     NIIB_Ha_ratios = asc.read(FULL_PATH+'Main_Sequence/Catalogs/line_emission_ratios_table.dat',
@@ -311,6 +361,8 @@ def main():
     stlr_mass   = stlr_mass[ha_ii]
     AP          = AP[ha_ii]
     HA_FLUX     = HA_FLUX[ha_ii]
+    HB_FLUX     = HB_FLUX[ha_ii]
+    HB_SNR      = HB_SNR[ha_ii]
     NIIB_FLUX   = NIIB_FLUX[ha_ii]
     NIIB_SNR    = NIIB_SNR[ha_ii]
     allcolsdata = allcolsdata0[ha_ii]
@@ -417,6 +469,8 @@ def main():
         mmt_mz_EBV_hghb, keck_mz, keck_mz_EBV_hahb)
     EBV_corrs_ys = EBV_corrs_no_spectra(tab_yes_spectra, mmt_mz, mmt_mz_EBV_hahb, 
         mmt_mz_EBV_hghb, keck_mz, keck_mz_EBV_hahb)
+    EBV_corrs_ys = EBV_corrs_yes_spectra(EBV_corrs_ys, yes_spectra, HA_FLUX, HB_FLUX, HB_SNR)
+    
     EBV_corrs = consolidate_ns_ys(orig_fluxes, no_spectra, yes_spectra,
         EBV_corrs_ns, EBV_corrs_ys)
 
