@@ -92,7 +92,6 @@ def HA_HB_EBV(ha, hb, instr, bintype='redshift', filt='N/A'):
     hahb = np.array([2.86 if (x < 2.86 and x > 0) else x for x in ha/hb])
     EBV_hahb = np.log10((hahb)/2.86)/(-0.4*(k_ha - k_hb))
     if instr=='MMT' and bintype=='redshift':
-        EBV_hahb[-2] = -99.0 #unreliable nb921 halpha
         EBV_hahb[-1] = -99.0 #no nb973 halpha
     elif instr=='MMT' and bintype=='StellarMassZ' and 'NB9' in filt:
         EBV_hahb[:] = -99.0 #unreliable nb921 halpha; no nb973 halpha
@@ -162,8 +161,8 @@ def plot_MMT_Ha():
         HG_EW_abs, HB_EW_abs, HG_continuum, HB_continuum, HA_continuum,
         HG_pos_amplitude, HB_pos_amplitude, HA_pos_amplitude,
         HG_neg_amplitude, HB_neg_amplitude) = table_arrays
-    (num_sources, num_stack_HG, num_stack_HB, num_stack_HA, avgz_arr, minz_arr, maxz_arr,
-        IDs_arr) = ([], [], [], [], [], [], [], [])
+    (HB_N921_flux, num_sources, num_stack_HG, num_stack_HB, num_stack_HA, avgz_arr, minz_arr, maxz_arr,
+        IDs_arr) = ([], [], [], [], [], [], [], [], [])
     index_list = general_plotting.get_index_list(NAME0, inst_str0, inst_dict, 'MMT')
     (xmin_list, xmax_list, label_list, 
         subtitle_list) = general_plotting.get_iter_lists('MMT')
@@ -181,6 +180,7 @@ def plot_MMT_Ha():
         if len(input_index) < 2: 
             print 'Not enough sources to stack (less than two)'
             [arr.append(0) for arr in table_arrays]
+            HB_N921_flux.append(0)
             num_sources.append(0)
             num_stack_HG.append(0)
             num_stack_HB.append(0)
@@ -331,17 +331,23 @@ def plot_MMT_Ha():
     plt.close()
 
     EBV_hghb = HG_HB_EBV(HG_flux, HB_flux)
-    EBV_hahb = HA_HB_EBV(HA_flux, HB_flux, 'MMT')
+
+    if subtitle=='NB921':
+        HB_N921_flux = 7.45220333092e-16
+        EBV_hahb = HA_HB_EBV(HA_flux, HB_N921_flux, 'MMT')
+    else:
+        HB_N921_flux = HB_flux
+        EBV_hahb = HA_HB_EBV(HA_flux, HB_flux, 'MMT')
 
     table00 = Table([subtitle_list, num_sources, num_stack_HG, num_stack_HB, num_stack_HA,
         avgz_arr, minz_arr, maxz_arr, 
-        HG_flux, HB_flux, HA_flux, NII_6548_flux, 
+        HG_flux, HB_flux, HB_N921_flux, HA_flux, NII_6548_flux, 
         NII_6583_flux, HG_EW, HB_EW, HA_EW, HG_EW_corr, HB_EW_corr, HA_EW_corr, HG_EW_abs, HB_EW_abs,
         HG_continuum, HB_continuum, HA_continuum, HG_pos_amplitude, HB_pos_amplitude, HA_pos_amplitude,
         HG_neg_amplitude, HB_neg_amplitude, EBV_hghb, EBV_hahb], # IDs_arr
         names=['filter', 'num_sources', 'num_stack_HG', 'num_stack_HB', 'num_stack_HA',
         'avgz', 'minz', 'maxz',
-        'HG_flux', 'HB_flux', 'HA_flux', 'NII_6548_flux', 
+        'HG_flux', 'HB_flux', 'HB_N921_flux', 'HA_flux', 'NII_6548_flux', 
         'NII_6583_flux', 'HG_EW', 'HB_EW', 'HA_EW', 'HG_EW_corr', 'HB_EW_corr', 'HA_EW_corr', 'HG_EW_abs', 'HB_EW_abs',
         'HG_continuum', 'HB_continuum', 'HA_continuum', 'HG_pos_amplitude', 'HB_pos_amplitude', 'HA_pos_amplitude',
         'HG_neg_amplitude', 'HB_neg_amplitude', 'E(B-V)_hghb', 'E(B-V)_hahb']) # IDs
@@ -368,9 +374,9 @@ def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass'):
         HG_EW_abs, HB_EW_abs, HG_continuum, HB_continuum, HA_continuum,
         HG_pos_amplitude, HB_pos_amplitude, HA_pos_amplitude,
         HG_neg_amplitude, HB_neg_amplitude) = table_arrays
-    (num_sources, num_bad_NB921_sources, num_stack_HG, num_stack_HB, num_stack_HA, avgz_arr, minz_arr, maxz_arr,
+    (num_sources, num_stack_HG, num_stack_HB, num_stack_HA, avgz_arr, minz_arr, maxz_arr,
         stlrmass_bin_arr, avg_stlrmass_arr, min_stlrmass_arr, max_stlrmass_arr,
-        IDs_arr) = ([], [], [], [], [], [], [], [], [], [], [], [], [])
+        IDs_arr) = ([], [], [], [], [], [], [], [], [], [], [], [])
     if index_list == []:
         index_list = general_plotting.get_index_list2(NAME0, stlr_mass, inst_str0, zspec0, inst_dict, 'MMT')
     (xmin_list, xmax_list, label_list, 
@@ -387,7 +393,6 @@ def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass'):
             print 'this is an empty bin'
             [arr.append(0) for arr in table_arrays]
             num_sources.append(0)
-            num_bad_NB921_sources.append(0)
             num_stack_HG.append(0)
             num_stack_HB.append(0)
             num_stack_HA.append(0)
@@ -419,7 +424,6 @@ def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass'):
         xval, yval, len_input_index, stacked_indexes, avgz, minz, maxz = stack_data(grid_ndarr, gridz, input_index,
             x0, 3700, 6700, instr='MMT')
         num_sources.append(len_input_index[0])
-        num_bad_NB921_sources.append(len_input_index[1])
         avgz_arr.append(avgz)
         minz_arr.append(minz)
         maxz_arr.append(maxz)
@@ -528,13 +532,13 @@ def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass'):
     EBV_hghb = HG_HB_EBV(HG_flux, HB_flux)
     EBV_hahb = HA_HB_EBV(HA_flux, HB_flux, 'MMT', bintype, title)
 
-    table00 = Table([subtitle_list, stlrmass_bin_arr, num_sources, num_bad_NB921_sources, num_stack_HG, num_stack_HB, num_stack_HA,
+    table00 = Table([subtitle_list, stlrmass_bin_arr, num_sources, num_stack_HG, num_stack_HB, num_stack_HA,
         avgz_arr, minz_arr, maxz_arr, 
         avg_stlrmass_arr, min_stlrmass_arr, max_stlrmass_arr, HG_flux, HB_flux, HA_flux, NII_6548_flux, 
         NII_6583_flux, HG_EW, HB_EW, HA_EW, HG_EW_corr, HB_EW_corr, HA_EW_corr, HG_EW_abs, HB_EW_abs,
         HG_continuum, HB_continuum, HA_continuum, HG_pos_amplitude, HB_pos_amplitude, HA_pos_amplitude,
         HG_neg_amplitude, HB_neg_amplitude, EBV_hghb, EBV_hahb], # IDs_arr
-        names=['filter', 'stlrmass_bin', 'num_sources', 'num_bad_MMT_Halpha_NB921', 'num_stack_HG', 'num_stack_HB', 'num_stack_HA',
+        names=['filter', 'stlrmass_bin', 'num_sources', 'num_stack_HG', 'num_stack_HB', 'num_stack_HA',
         'avgz', 'minz', 'maxz',
         'avg_stlrmass', 'min_stlrmass', 'max_stlrmass', 'HG_flux', 'HB_flux', 'HA_flux', 'NII_6548_flux', 
         'NII_6583_flux', 'HG_EW', 'HB_EW', 'HA_EW', 'HG_EW_corr', 'HB_EW_corr', 'HA_EW_corr', 'HG_EW_abs', 'HB_EW_abs',
@@ -1054,8 +1058,8 @@ grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr, fill_value=np.nan)
 
 print '### plotting MMT_Ha'
 plot_MMT_Ha()
-# plot_MMT_Ha_stlrmass()
-# plot_MMT_Ha_stlrmass_z()
+plot_MMT_Ha_stlrmass()
+plot_MMT_Ha_stlrmass_z()
 grid.close()
 
 print '### looking at the Keck grid'
