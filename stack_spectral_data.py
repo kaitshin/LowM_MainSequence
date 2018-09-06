@@ -43,6 +43,7 @@ import plotting.general_plotting as general_plotting
 import writing_tables.hg_hb_ha_tables as MMT_twriting
 import writing_tables.hb_ha_tables as Keck_twriting
 import writing_tables.general_tables as general_twriting
+from analysis.balmer_fit import get_best_fit
 from analysis.sdf_stack_data import stack_data
 from astropy.io import fits as pyfits, ascii as asc
 from astropy.table import Table, vstack
@@ -84,13 +85,54 @@ def HG_HB_EBV(hg, hb):
     return EBV_hghb
 #enddef
 
+def get_HB_NB921_flux():
+    '''
+    '''
+    cvg = asc.read(full_path+'Composite_Spectra/MMT_spectral_coverage.txt')    
+    nb921 = np.array([x for x in range(len(cvg)) if cvg['filter'][x]=='NB921' and cvg['HB_cvg'][x]=='YES'])
+    nb921_ha = np.array([x for x in range(len(nb921)) if cvg['HA_cvg'][nb921][x] == 'YES'])
+
+    i0 = np.array([x for x in range(len(gridap)) if gridap[x] in cvg['AP'][nb921[nb921_ha]]])
+    xval, yval, len_input_index, stacked_indexes, avgz, minz, maxz = stack_data(grid_ndarr, gridz, i0,
+        x0, 3700, 6700, instr='MMT')
+
+    # calculating flux for subtitle=='NB921' NII emissions
+    zs = np.array(gridz[i0])
+    good_z2 = np.where(zs < 0.6)[0]
+    zs = np.average(zs[good_z2])
+    dlambda = (x0[1]-x0[0])/(1+zs)
+
+    i = 2
+    len_ii = len_input_index[2]  #ha
+    xmin0 = 6503
+    xmax0 = 6623
+
+    good_ii = np.array([x for x in range(len(xval)) if xval[x] >= xmin0 and xval[x] <= xmax0])
+    xval = xval[good_ii]
+    yval = yval[good_ii]
+
+    good_ii = [ii for ii in range(len(yval)) if not np.isnan(yval[ii])] # not NaN
+    xval = xval[good_ii]
+    yval = yval[good_ii]
+
+    o1 = get_best_fit(xval, yval, r'H$\alpha$')
+    flux = np.sum(dlambda * (o1[0]*np.exp(-0.5*((xval-o1[1])/o1[2])**2)))
+
+    return flux
+#enddef
+
 def HA_HB_EBV(ha, hb, instr, bintype='redshift', filt='N/A'):
     '''
     '''
     ha = np.array(ha)
     hb = np.array(hb)
+
     hahb = np.array([2.86 if (x < 2.86 and x > 0) else x for x in ha/hb])
+    print 'HA:', ha
+    print 'HB:', hb
+    print 'HA/HB:', hahb
     EBV_hahb = np.log10((hahb)/2.86)/(-0.4*(k_ha - k_hb))
+
     if instr=='MMT' and bintype=='redshift':
         EBV_hahb[-1] = -99.0 #no nb973 halpha
     elif instr=='MMT' and bintype=='StellarMassZ' and 'NB9' in filt:
@@ -99,6 +141,7 @@ def HA_HB_EBV(ha, hb, instr, bintype='redshift', filt='N/A'):
         EBV_hahb[0] = -99.0 #no nb816 hbeta
 
     EBV_hahb = np.array([-99.0 if np.isnan(x) else x for x in EBV_hahb])
+    print 'EBV_HAHB', EBV_hahb
     return EBV_hahb
 #enddef
 
@@ -161,12 +204,13 @@ def plot_MMT_Ha():
         HG_EW_abs, HB_EW_abs, HG_continuum, HB_continuum, HA_continuum,
         HG_pos_amplitude, HB_pos_amplitude, HA_pos_amplitude,
         HG_neg_amplitude, HB_neg_amplitude) = table_arrays
-    (HB_N921_flux, num_sources, num_stack_HG, num_stack_HB, num_stack_HA, avgz_arr, minz_arr, maxz_arr,
+    (HB_NB921_flux, num_sources, num_stack_HG, num_stack_HB, num_stack_HA, avgz_arr, minz_arr, maxz_arr,
         IDs_arr) = ([], [], [], [], [], [], [], [], [])
     index_list = general_plotting.get_index_list(NAME0, inst_str0, inst_dict, 'MMT')
     (xmin_list, xmax_list, label_list, 
         subtitle_list) = general_plotting.get_iter_lists('MMT')
-    
+    EBV_hahb = np.array([])
+
     f, axarr = plt.subplots(5, 3)
     f.set_size_inches(8, 11)
     ax_list = np.ndarray.flatten(axarr)
@@ -180,7 +224,7 @@ def plot_MMT_Ha():
         if len(input_index) < 2: 
             print 'Not enough sources to stack (less than two)'
             [arr.append(0) for arr in table_arrays]
-            HB_N921_flux.append(0)
+            HB_NB921_flux.append(0)
             num_sources.append(0)
             num_stack_HG.append(0)
             num_stack_HB.append(0)
@@ -324,30 +368,29 @@ def plot_MMT_Ha():
             except IndexError: # assuming there's no pos_flux or flux value
                 ax = MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index)
             subplot_index+=1
-        #endfor
+        #endfor 
     #endfor
+
     f = general_plotting.final_plot_setup(f, r'MMT detections of H$\alpha$ emitters')
     plt.savefig(full_path+'Composite_Spectra/Redshift/MMT_stacked_spectra.pdf')
     plt.close()
 
     EBV_hghb = HG_HB_EBV(HG_flux, HB_flux)
-
-    if subtitle=='NB921':
-        HB_N921_flux = 7.45220333092e-16
-        EBV_hahb = HA_HB_EBV(HA_flux, HB_N921_flux, 'MMT')
-    else:
-        HB_N921_flux = HB_flux
-        EBV_hahb = HA_HB_EBV(HA_flux, HB_flux, 'MMT')
+    
+    HB_NB921_flux = np.copy(HB_flux)
+    print 'HB_FLUX ORIGINALLY', HB_flux
+    HB_NB921_flux[-2] = get_HB_NB921_flux()
+    EBV_hahb = HA_HB_EBV(HA_flux, HB_NB921_flux, 'MMT')
 
     table00 = Table([subtitle_list, num_sources, num_stack_HG, num_stack_HB, num_stack_HA,
         avgz_arr, minz_arr, maxz_arr, 
-        HG_flux, HB_flux, HB_N921_flux, HA_flux, NII_6548_flux, 
+        HG_flux, HB_flux, HB_NB921_flux, HA_flux, NII_6548_flux, 
         NII_6583_flux, HG_EW, HB_EW, HA_EW, HG_EW_corr, HB_EW_corr, HA_EW_corr, HG_EW_abs, HB_EW_abs,
         HG_continuum, HB_continuum, HA_continuum, HG_pos_amplitude, HB_pos_amplitude, HA_pos_amplitude,
         HG_neg_amplitude, HB_neg_amplitude, EBV_hghb, EBV_hahb], # IDs_arr
         names=['filter', 'num_sources', 'num_stack_HG', 'num_stack_HB', 'num_stack_HA',
         'avgz', 'minz', 'maxz',
-        'HG_flux', 'HB_flux', 'HB_N921_flux', 'HA_flux', 'NII_6548_flux', 
+        'HG_flux', 'HB_flux', 'HB_NB921_flux', 'HA_flux', 'NII_6548_flux', 
         'NII_6583_flux', 'HG_EW', 'HB_EW', 'HA_EW', 'HG_EW_corr', 'HB_EW_corr', 'HA_EW_corr', 'HG_EW_abs', 'HB_EW_abs',
         'HG_continuum', 'HB_continuum', 'HA_continuum', 'HG_pos_amplitude', 'HB_pos_amplitude', 'HA_pos_amplitude',
         'HG_neg_amplitude', 'HB_neg_amplitude', 'E(B-V)_hghb', 'E(B-V)_hahb']) # IDs
@@ -1058,8 +1101,8 @@ grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr, fill_value=np.nan)
 
 print '### plotting MMT_Ha'
 plot_MMT_Ha()
-plot_MMT_Ha_stlrmass()
-plot_MMT_Ha_stlrmass_z()
+# plot_MMT_Ha_stlrmass()
+# plot_MMT_Ha_stlrmass_z()
 grid.close()
 
 print '### looking at the Keck grid'
