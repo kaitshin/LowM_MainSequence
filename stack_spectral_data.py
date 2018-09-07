@@ -43,7 +43,7 @@ import plotting.general_plotting as general_plotting
 import writing_tables.hg_hb_ha_tables as MMT_twriting
 import writing_tables.hb_ha_tables as Keck_twriting
 import writing_tables.general_tables as general_twriting
-from analysis.balmer_fit import get_best_fit
+from analysis.balmer_fit import get_best_fit3
 from analysis.sdf_stack_data import stack_data
 from astropy.io import fits as pyfits, ascii as asc
 from astropy.table import Table, vstack
@@ -123,9 +123,9 @@ def get_HB_NB921_flux(bintype='redshift'):
         zs = np.average(zs[good_z2])
         dlambda = (x0[1]-x0[0])/(1+zs)
 
-        len_ii = len_input_index[2]  #ha
-        xmin0 = 6503
-        xmax0 = 6623
+        len_ii = len_input_index[1]
+        xmin0 = 4801
+        xmax0 = 4921
 
         good_ii = np.array([x for x in range(len(xval)) if xval[x] >= xmin0 and xval[x] <= xmax0])
         xval = xval[good_ii]
@@ -135,8 +135,11 @@ def get_HB_NB921_flux(bintype='redshift'):
         xval = xval[good_ii]
         yval = yval[good_ii]
 
-        o1 = get_best_fit(xval, yval, r'H$\alpha$')
-        flux = np.sum(dlambda * (o1[0]*np.exp(-0.5*((xval-o1[1])/o1[2])**2)))
+        o1 = get_best_fit3(xval, yval, r'H$\beta$')
+        pos0 = o1[6]+o1[0]*np.exp(-0.5*((xval-o1[1])/o1[2])**2)
+        neg0 = o1[3]*np.exp(-0.5*((xval-o1[4])/o1[5])**2)
+        idx_small = np.where(np.absolute(xval - o1[1]) <= 2.5*o1[2])[0]
+        flux = np.sum(dlambda * (pos0[idx_small] - o1[6] - neg0[idx_small]))
         
         flux_arr[i] = flux
 
