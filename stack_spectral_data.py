@@ -85,40 +85,62 @@ def HG_HB_EBV(hg, hb):
     return EBV_hghb
 #enddef
 
-def get_HB_NB921_flux():
+def get_HB_NB921_flux(bintype='redshift'):
     '''
     '''
-    cvg = asc.read(full_path+'Composite_Spectra/MMT_spectral_coverage.txt')    
+    cvg = asc.read(full_path+'Composite_Spectra/MMT_spectral_coverage.txt')
     nb921 = np.array([x for x in range(len(cvg)) if cvg['filter'][x]=='NB921' and cvg['HB_cvg'][x]=='YES'])
     nb921_ha = np.array([x for x in range(len(nb921)) if cvg['HA_cvg'][nb921][x] == 'YES'])
 
-    i0 = np.array([x for x in range(len(gridap)) if gridap[x] in cvg['AP'][nb921[nb921_ha]]])
-    xval, yval, len_input_index, stacked_indexes, avgz, minz, maxz = stack_data(grid_ndarr, gridz, i0,
-        x0, 3700, 6700, instr='MMT')
+    if bintype=='redshift':
+        flux_arr = np.array([-99.0])
+    else:
+        flux_arr = np.array([-99.0]*5)
 
-    # calculating flux for subtitle=='NB921' NII emissions
-    zs = np.array(gridz[i0])
-    good_z2 = np.where(zs < 0.6)[0]
-    zs = np.average(zs[good_z2])
-    dlambda = (x0[1]-x0[0])/(1+zs)
+    for i in range(len(flux_arr)):
+        # i = index of array (0-indexed)
+        i0 = np.array([])
+        if bintype == 'StellarMassZ':
+            # i+1 = index of bin (1-indexed)
+            bin_i = np.array([x for x in range(len(nb921_ha)) if str(i+1)+'-' in cvg['stlrmassZbin'][nb921[nb921_ha]].data[x]])
+            if len(bin_i) < 2:
+                continue
+            i0 = np.array([x for x in range(len(gridap)) if gridap[x] in cvg['AP'][nb921[nb921_ha[bin_i]]]])
+        elif bintype == 'StlrMass':
+            bin_i = np.array([x for x in range(len(nb921_ha)) if i+1==cvg['stlrmassbin'][nb921[nb921_ha]].data[x]])
+            if len(bin_i) < 2:
+                continue
+            i0 = np.array([x for x in range(len(gridap)) if gridap[x] in cvg['AP'][nb921[nb921_ha[bin_i]]]])
+        else:
+            i0 = np.array([x for x in range(len(gridap)) if gridap[x] in cvg['AP'][nb921[nb921_ha]]])
+        
+        xval, yval, len_input_index, stacked_indexes, avgz, minz, maxz = stack_data(grid_ndarr, gridz, i0,
+            x0, 3700, 6700, instr='MMT')
+        
+        # calculating flux for subtitle=='NB921' NII emissions
+        zs = np.array(gridz[i0])
+        good_z2 = np.where(zs < 0.6)[0]
+        zs = np.average(zs[good_z2])
+        dlambda = (x0[1]-x0[0])/(1+zs)
 
-    i = 2
-    len_ii = len_input_index[2]  #ha
-    xmin0 = 6503
-    xmax0 = 6623
+        len_ii = len_input_index[2]  #ha
+        xmin0 = 6503
+        xmax0 = 6623
 
-    good_ii = np.array([x for x in range(len(xval)) if xval[x] >= xmin0 and xval[x] <= xmax0])
-    xval = xval[good_ii]
-    yval = yval[good_ii]
+        good_ii = np.array([x for x in range(len(xval)) if xval[x] >= xmin0 and xval[x] <= xmax0])
+        xval = xval[good_ii]
+        yval = yval[good_ii]
 
-    good_ii = [ii for ii in range(len(yval)) if not np.isnan(yval[ii])] # not NaN
-    xval = xval[good_ii]
-    yval = yval[good_ii]
+        good_ii = [ii for ii in range(len(yval)) if not np.isnan(yval[ii])] # not NaN
+        xval = xval[good_ii]
+        yval = yval[good_ii]
 
-    o1 = get_best_fit(xval, yval, r'H$\alpha$')
-    flux = np.sum(dlambda * (o1[0]*np.exp(-0.5*((xval-o1[1])/o1[2])**2)))
+        o1 = get_best_fit(xval, yval, r'H$\alpha$')
+        flux = np.sum(dlambda * (o1[0]*np.exp(-0.5*((xval-o1[1])/o1[2])**2)))
+        
+        flux_arr[i] = flux
 
-    return flux
+    return flux_arr
 #enddef
 
 def HA_HB_EBV(ha, hb, instr, bintype='redshift', filt='N/A'):
@@ -128,20 +150,17 @@ def HA_HB_EBV(ha, hb, instr, bintype='redshift', filt='N/A'):
     hb = np.array(hb)
 
     hahb = np.array([2.86 if (x < 2.86 and x > 0) else x for x in ha/hb])
-    print 'HA:', ha
-    print 'HB:', hb
-    print 'HA/HB:', hahb
     EBV_hahb = np.log10((hahb)/2.86)/(-0.4*(k_ha - k_hb))
 
     if instr=='MMT' and bintype=='redshift':
         EBV_hahb[-1] = -99.0 #no nb973 halpha
-    elif instr=='MMT' and bintype=='StellarMassZ' and 'NB9' in filt:
-        EBV_hahb[:] = -99.0 #unreliable nb921 halpha; no nb973 halpha
+    elif instr=='MMT' and bintype=='StellarMassZ' and filt=='NB973':
+        EBV_hahb[:] = -99.0 #no nb973 halpha
     elif instr=='Keck' and bintype=='redshift':
         EBV_hahb[0] = -99.0 #no nb816 hbeta
 
     EBV_hahb = np.array([-99.0 if np.isnan(x) else x for x in EBV_hahb])
-    print 'EBV_HAHB', EBV_hahb
+
     return EBV_hahb
 #enddef
 
@@ -263,7 +282,6 @@ def plot_MMT_Ha():
             continue
         #endtry
 
-        # print len_input_index[0], len(stacked_indexes)
         num_sources.append(len_input_index[0])
         avgz_arr.append(avgz)
         minz_arr.append(minz)
@@ -272,8 +290,6 @@ def plot_MMT_Ha():
         # appending to the ID columns
         mm0 = [x for x in range(len(AP)) if any(y in AP[x][:5] for y in gridap[stacked_indexes])] # gridap ordering -> NBIA ordering
         IDs_arr.append(','.join(NAME0[mm0]))
-
-        # print '>>', NAME0[mm0]
 
         # writing the spectra table
         table0 = Table([xval, yval/1E-17], names=['xval','yval/1E-17'])
@@ -378,7 +394,6 @@ def plot_MMT_Ha():
     EBV_hghb = HG_HB_EBV(HG_flux, HB_flux)
     
     HB_NB921_flux = np.copy(HB_flux)
-    print 'HB_FLUX ORIGINALLY', HB_flux
     HB_NB921_flux[-2] = get_HB_NB921_flux()
     EBV_hahb = HA_HB_EBV(HA_flux, HB_NB921_flux, 'MMT')
 
@@ -573,17 +588,22 @@ def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass'):
     plt.close()
 
     EBV_hghb = HG_HB_EBV(HG_flux, HB_flux)
-    EBV_hahb = HA_HB_EBV(HA_flux, HB_flux, 'MMT', bintype, title)
+
+    HB_NB921_flux = np.copy(HB_flux)
+    if title=='NB921' or bintype=='StlrMass':
+        HB_NB921_flux = get_HB_NB921_flux(bintype=bintype)
+
+    EBV_hahb = HA_HB_EBV(HA_flux, HB_NB921_flux, 'MMT', bintype, title)
 
     table00 = Table([subtitle_list, stlrmass_bin_arr, num_sources, num_stack_HG, num_stack_HB, num_stack_HA,
         avgz_arr, minz_arr, maxz_arr, 
-        avg_stlrmass_arr, min_stlrmass_arr, max_stlrmass_arr, HG_flux, HB_flux, HA_flux, NII_6548_flux, 
+        avg_stlrmass_arr, min_stlrmass_arr, max_stlrmass_arr, HG_flux, HB_flux, HB_NB921_flux, HA_flux, NII_6548_flux, 
         NII_6583_flux, HG_EW, HB_EW, HA_EW, HG_EW_corr, HB_EW_corr, HA_EW_corr, HG_EW_abs, HB_EW_abs,
         HG_continuum, HB_continuum, HA_continuum, HG_pos_amplitude, HB_pos_amplitude, HA_pos_amplitude,
         HG_neg_amplitude, HB_neg_amplitude, EBV_hghb, EBV_hahb], # IDs_arr
         names=['filter', 'stlrmass_bin', 'num_sources', 'num_stack_HG', 'num_stack_HB', 'num_stack_HA',
         'avgz', 'minz', 'maxz',
-        'avg_stlrmass', 'min_stlrmass', 'max_stlrmass', 'HG_flux', 'HB_flux', 'HA_flux', 'NII_6548_flux', 
+        'avg_stlrmass', 'min_stlrmass', 'max_stlrmass', 'HG_flux', 'HB_flux', 'HB_NB921_flux', 'HA_flux', 'NII_6548_flux', 
         'NII_6583_flux', 'HG_EW', 'HB_EW', 'HA_EW', 'HG_EW_corr', 'HB_EW_corr', 'HA_EW_corr', 'HG_EW_abs', 'HB_EW_abs',
         'HG_continuum', 'HB_continuum', 'HA_continuum', 'HG_pos_amplitude', 'HB_pos_amplitude', 'HA_pos_amplitude',
         'HG_neg_amplitude', 'HB_neg_amplitude', 'E(B-V)_hghb', 'E(B-V)_hahb']) # IDs
@@ -603,7 +623,7 @@ def plot_MMT_Ha_stlrmass_z():
     print '>MMT STELLARMASS+REDSHIFT STACKING'
     pp = PdfPages(full_path+'Composite_Spectra/StellarMassZ/MMT_stlrmassZ.pdf')
     table00 = None
-    
+
     mmt_ii = np.array([x for x in range(len(NAME0)) if 
         ('Ha-NB' in NAME0[x] and inst_str0[x] in inst_dict['MMT'] 
             and stlr_mass[x] > 0 and (zspec0[x] > 0 and zspec0[x] < 9))])
@@ -705,7 +725,7 @@ def plot_Keck_Ha():
         
         # appending to the ID columns
         tempgridapstacked_ii = [str(y) for y in gridap[stacked_indexes]]
-        print 'gridap[stacked_indexes]', gridap[stacked_indexes]
+
         mm0 = []
         for x in range(len(AP)):
             for y in tempgridapstacked_ii:
@@ -1101,8 +1121,8 @@ grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr, fill_value=np.nan)
 
 print '### plotting MMT_Ha'
 plot_MMT_Ha()
-# plot_MMT_Ha_stlrmass()
-# plot_MMT_Ha_stlrmass_z()
+plot_MMT_Ha_stlrmass()
+plot_MMT_Ha_stlrmass_z()
 grid.close()
 
 print '### looking at the Keck grid'
