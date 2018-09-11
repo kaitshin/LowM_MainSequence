@@ -15,13 +15,13 @@ OUTPUTS:
 
 import numpy as np
 from scipy.interpolate import interp1d
-def stack(ndarr_in, zspec_in, index, x0, xmin, xmax, ff=''):
+def stack(ndarr_in, zspec_in, index, x0, xmin, xmax, dlambda, ff=''):
     ndarr = ndarr_in[index]
     zspec = zspec_in[index]
 
     ndarr[np.where(ndarr.mask==True)] = np.nan
     
-    x_rest   = np.arange(xmin, xmax, 0.1)
+    x_rest   = np.arange(xmin, xmax, dlambda)
     new_grid = np.ndarray(shape=(len(ndarr), len(x_rest)))
     
     avgz = np.mean([x for x in zspec if (x > 0 and x < 9)])

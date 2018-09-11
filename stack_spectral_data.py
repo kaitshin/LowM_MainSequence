@@ -8,6 +8,8 @@ PURPOSE:
     plotted in a 'de-redshifted' frame.
     Specific to SDF data.
 
+    Depends on combine_spectral_data.py and create_ordered_AP_arrays.py
+
 INPUTS:
     'Catalogs/NB_IA_emitters.nodup.colorrev.fix.fits'
     'Catalogs/nb_ia_zspec.txt'
@@ -92,6 +94,8 @@ def get_HB_NB921_flux(bintype='redshift'):
     nb921 = np.array([x for x in range(len(cvg)) if cvg['filter'][x]=='NB921' and cvg['HB_cvg'][x]=='YES'])
     nb921_ha = np.array([x for x in range(len(nb921)) if cvg['HA_cvg'][nb921][x] == 'YES'])
 
+    # print '>>>>>>>HB IDs:', cvg['ID'][nb921].data ##PRINT STATEMENT
+
     if bintype=='redshift':
         flux_arr = np.array([-99.0])
     else:
@@ -113,17 +117,22 @@ def get_HB_NB921_flux(bintype='redshift'):
             i0 = np.array([x for x in range(len(gridap)) if gridap[x] in cvg['AP'][nb921[nb921_ha[bin_i]]]])
         else:
             i0 = np.array([x for x in range(len(gridap)) if gridap[x] in cvg['AP'][nb921[nb921_ha]]])
+            # print '>>>>>>>GRIDAP INDICES:', i0 ##PRINT STATEMENT
+            # print '>>>>>>>NAMES:', cvg['NAME'][nb921[nb921_ha]].data ##PRINT STATEMENT
+            # print '>>>>>>>IDs:', cvg['ID'][nb921[nb921_ha]].data ##PRINT STATEMENT
+
+        # print '>>>>>>>LENGTH OF HB_NB921_flux ARRAY:', len(i0) ##PRINT STATEMENT
+        # print '>>>>>>>APs:', gridap[i0] ##PRINT STATEMENT
         
-        xval, yval, len_input_index, stacked_indexes, avgz, minz, maxz = stack_data(grid_ndarr, gridz, i0,
-            x0, 3700, 6700, instr='MMT')
-        
-        # calculating flux for subtitle=='NB921' NII emissions
         zs = np.array(gridz[i0])
-        good_z2 = np.where(zs < 0.6)[0]
+        good_z2 = np.where((zs >= 0.385) & (zs <= 0.429))[0]
         zs = np.average(zs[good_z2])
         dlambda = (x0[1]-x0[0])/(1+zs)
 
-        len_ii = len_input_index[1]
+        xval, yval, len_input_index, stacked_indexes, avgz, minz, maxz = stack_data(grid_ndarr, gridz, i0,
+            x0, 3700, 6700, dlambda, ff='NB921', instr='MMT')
+
+        # calculating flux for subtitle=='NB921' emissions
         xmin0 = 4801
         xmax0 = 4921
 
@@ -243,6 +252,20 @@ def plot_MMT_Ha():
         AP_match = correct_instr_AP(AP[match_index], inst_str0[match_index], 'MMT')
         input_index = np.array([x for x in range(len(gridap)) if gridap[x] in
                                 AP_match],dtype=np.int32)
+
+        zs = np.array(gridz[input_index])
+        if subtitle=='NB704' or subtitle=='NB711':
+            good_z = np.where((zs >= 0.05) & (zs <= 0.1))[0]
+        elif subtitle=='NB816':
+            good_z = np.where((zs >= 0.21) & (zs <= 0.26))[0]
+        elif subtitle=='NB921':
+            good_z = np.where((zs >= 0.385) & (zs <= 0.429))[0]
+        else:
+            good_z = np.where((zs >= 0.45) & (zs <= 0.52))[0]
+        #endif
+        zs = np.average(zs[good_z])
+        dlambda = (x0[1]-x0[0])/(1+zs)
+
         if len(input_index) < 2: 
             print 'Not enough sources to stack (less than two)'
             [arr.append(0) for arr in table_arrays]
@@ -265,7 +288,7 @@ def plot_MMT_Ha():
 
         try:
             xval, yval, len_input_index, stacked_indexes, avgz, minz, maxz = stack_data(grid_ndarr, gridz, input_index,
-                x0, 3700, 6700, ff=subtitle, instr='MMT')
+                x0, 3700, 6700, dlambda, ff=subtitle, instr='MMT')
         except AttributeError:
             print 'Not enough sources to stack (less than two)'
             [arr.append(0) for arr in table_arrays]
@@ -291,6 +314,7 @@ def plot_MMT_Ha():
         maxz_arr.append(maxz)
 
         # appending to the ID columns
+        # print '#####STACKED INDEXES???', stacked_indexes ##PRINT STATEMENT
         mm0 = [x for x in range(len(AP)) if any(y in AP[x][:5] for y in gridap[stacked_indexes])] # gridap ordering -> NBIA ordering
         IDs_arr.append(','.join(NAME0[mm0]))
 
@@ -298,21 +322,8 @@ def plot_MMT_Ha():
         table0 = Table([xval, yval/1E-17], names=['xval','yval/1E-17'])
         spectra_file_path = full_path+'Composite_Spectra/Redshift/MMT_spectra_vals/'+subtitle+'.txt'
         asc.write(table0, spectra_file_path, format='fixed_width', delimiter=' ')
-        
-        # calculating flux for NII emissions
-        zs = np.array(gridz[input_index])
-        if subtitle=='NB704' or subtitle=='NB711':
-            good_z = np.where(zs < 0.1)[0]
-        elif subtitle=='NB816':
-            good_z = np.where(zs < 0.3)[0]
-        elif subtitle=='NB921':
-            good_z = np.where(zs < 0.6)[0]
-        else:
-            good_z = np.where(zs < 0.6)[0]
-        #endif
-        zs = np.average(zs[good_z])
-        dlambda = (x0[1]-x0[0])/(1+zs)
 
+        # calculating flux for NII emissions
         pos_flux_list = []
         flux_list = []
         pos_amplitude_list = []
@@ -326,7 +337,6 @@ def plot_MMT_Ha():
             ax = ax_list[subplot_index+i]
             label = label_list[i]
             len_ii = len_input_index[i]
-            print '>>>>>>>>>>>>>>>>>>>>>>>>>>>', label, subtitle, len_ii
 
             try:
                 ax, flux, flux2, flux3, pos_flux, o1 = MMT_plotting.subplots_plotting(
@@ -482,8 +492,11 @@ def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass'):
         avg_stlrmass_arr.append(np.mean(stlr_mass[match_index]))
         min_stlrmass_arr.append(np.min(stlr_mass[match_index]))
         max_stlrmass_arr.append(np.max(stlr_mass[match_index]))
+
+        dlambda = 0.1 # xval[1] - xval[0]
+
         xval, yval, len_input_index, stacked_indexes, avgz, minz, maxz = stack_data(grid_ndarr, gridz, input_index,
-            x0, 3700, 6700, instr='MMT')
+            x0, 3700, 6700, dlambda, instr='MMT')
         num_sources.append(len_input_index[0])
         avgz_arr.append(avgz)
         minz_arr.append(minz)
@@ -501,8 +514,6 @@ def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass'):
             format='fixed_width', delimiter=' ')
 
         # calculating flux for NII emissions
-        dlambda = xval[1] - xval[0]
-
         pos_flux_list = []
         flux_list = []
         pos_amplitude_list = []
@@ -718,8 +729,19 @@ def plot_Keck_Ha():
         input_index = np.array([x for x in range(len(gridap)) if gridap[x] in
                                 AP_match and gridz[x] != 0],dtype=np.int32)
 
+        zs = np.array(gridz[input_index])
+        if subtitle=='NB816':
+            good_z = np.where((zs >= 0.21) & (zs <= 0.26))[0]
+        elif subtitle=='NB921':
+            good_z = np.where((zs >= 0.385) & (zs <= 0.429))[0]
+        else:
+            good_z = np.where((zs >= 0.45) & (zs <= 0.52))[0]
+        #endif
+        zs = np.average(zs[good_z])
+        dlambda = (x0[1]-x0[0])/(1+zs)
+
         xval, yval, len_input_index, stacked_indexes, avgz, minz, maxz = stack_data(grid_ndarr, gridz, input_index,
-            x0, 3800, 6700, ff=subtitle, instr='Keck')
+            x0, 3800, 6700, dlambda, ff=subtitle, instr='Keck')
 
         num_sources.append(len_input_index[0])
         avgz_arr.append(avgz)
@@ -745,17 +767,6 @@ def plot_Keck_Ha():
         asc.write(table0, spectra_file_path, format='fixed_width', delimiter=' ')
 
         # calculating flux for NII emissions
-        zs = np.array(gridz[input_index])
-        if subtitle=='NB816':
-            good_z = np.where(zs < 0.3)[0]
-        elif subtitle=='NB921':
-            good_z = np.where(zs < 0.6)[0]
-        else:
-            good_z = np.where(zs < 0.6)[0]
-        #endif
-        zs = np.average(zs[good_z])
-        dlambda = (x0[1]-x0[0])/(1+zs)
-
         pos_flux_list = []
         flux_list = []
         pos_amplitude_list = []
@@ -890,8 +901,11 @@ def plot_Keck_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass'):
         avg_stlrmass_arr.append(np.mean(stlr_mass[match_index]))
      	min_stlrmass_arr.append(np.min(stlr_mass[match_index]))
      	max_stlrmass_arr.append(np.max(stlr_mass[match_index]))
+
+        dlambda = 0.1 # xval[1] - xval[0]
+
         xval, yval, len_input_index, stacked_indexes, avgz, minz, maxz = stack_data(grid_ndarr, gridz, input_index,
-            x0, 3800, 6700, instr='Keck')
+            x0, 3800, 6700, dlambda, instr='Keck')
         num_sources.append(len_input_index[0])
         avgz_arr.append(avgz)
         minz_arr.append(minz)
@@ -917,8 +931,6 @@ def plot_Keck_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass'):
             format='fixed_width', delimiter=' ')
 
         # calculating flux for NII emissions
-        dlambda = xval[1] - xval[0]
-
         pos_flux_list = []
         flux_list = []
         pos_amplitude_list = []
@@ -1149,9 +1161,9 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 
 print '### plotting Keck_Ha'
-# plot_Keck_Ha()
-# plot_Keck_Ha_stlrmass()
-# plot_Keck_Ha_stlrmass_z()
+plot_Keck_Ha()
+plot_Keck_Ha_stlrmass()
+plot_Keck_Ha_stlrmass_z()
 grid.close()
 
 nbia.close()

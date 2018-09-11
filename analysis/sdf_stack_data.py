@@ -15,7 +15,7 @@ OUTPUTS:
 
 import numpy as np
 from stack_data import stack
-def stack_data(ndarr, zspec, index, x0, xmin, xmax, ff='', instr=''):
+def stack_data(ndarr, zspec, index, x0, xmin, xmax, dlambda, ff='', instr=''):
     '''
     TODO(document)
     '''
@@ -43,12 +43,12 @@ def stack_data(ndarr, zspec, index, x0, xmin, xmax, ff='', instr=''):
             # return stack(ndarr, zspec, index[good_z], x0, xmin, xmax, ff=ff)
             # print 'sdf_stack_data goodz length:', len(good_z), good_z
             x_rest, plot_grid_avg, index, avgz, minz, maxz, new_grid = stack(ndarr, 
-                zspec, index[good_z], x0, xmin, xmax)
+                zspec, index[good_z], x0, xmin, xmax, dlambda)
 
             # looks for # sources stacked @ nearest emission line by finding nearest idx 
             ma = np.isnan(new_grid)
             new_grid2 = np.ma.array(new_grid, mask=ma)
-            x_rest = np.arange(xmin, xmax, 0.1)
+            x_rest = np.arange(xmin, xmax, dlambda)
             idx0 = (np.abs(x_rest-4341.0)).argmin()
             idx1 = (np.abs(x_rest-4861.0)).argmin()
             idx2 = (np.abs(x_rest-6563.0)).argmin()
@@ -59,7 +59,7 @@ def stack_data(ndarr, zspec, index, x0, xmin, xmax, ff='', instr=''):
             return x_rest, plot_grid_avg, [good_hg_num, good_hb_num, good_ha_num], index, avgz, minz, maxz
         else: # instr == 'Keck'
             x_rest, plot_grid_avg, index, avgz, minz, maxz, new_grid = stack(ndarr, 
-                zspec, index[good_z], x0, xmin, xmax)
+                zspec, index[good_z], x0, xmin, xmax, dlambda)
 
             # looks for # sources stacked @ nearest emission line by finding nearest idx 
             ma = np.isnan(new_grid)
@@ -75,12 +75,12 @@ def stack_data(ndarr, zspec, index, x0, xmin, xmax, ff='', instr=''):
     else: # instr == 'Keck'
         good_z = np.where((plot_zspec >= 0) & (plot_zspec <= 9))[0]
         x_rest, plot_grid_avg, index, avgz, minz, maxz, new_grid = stack(ndarr, 
-            zspec, index[good_z], x0, xmin, xmax)
+            zspec, index[good_z], x0, xmin, xmax, dlambda)
 
         # looks for # sources stacked @ nearest emission line by finding nearest idx 
         ma = np.isnan(new_grid)
         new_grid2 = np.ma.array(new_grid, mask=ma)
-        x_rest = np.arange(xmin, xmax, 0.1)
+        x_rest = np.arange(xmin, xmax, dlambda)
         idx0 = (np.abs(x_rest-4861.0)).argmin()
         idx1 = (np.abs(x_rest-6563.0)).argmin()
         good_hb_num = np.ma.count(new_grid2, axis=0)[idx0]
