@@ -1,3 +1,27 @@
+"""
+NAME:
+    write_spectral_coverage_table.py
+
+PURPOSE:
+    This code 
+
+    Depends on combine_spectral_data.py and stack_spectral_data.py
+
+INPUTS:
+    FULL_PATH+'Spectra/spectral_MMT_grid_data.txt'
+    FULL_PATH+'Spectra/spectral_MMT_grid.fits'
+    FULL_PATH+'Composite_Spectra/StellarMass/MMT_all_five_data.txt'
+    FULL_PATH+'Composite_Spectra/StellarMassZ/MMT_stlrmassZ_data.txt'
+    FULL_PATH+'Spectra/spectral_Keck_grid_data.txt'
+    FULL_PATH+'Spectra/spectral_Keck_grid.fits'
+    FULL_PATH+'Composite_Spectra/StellarMass/Keck_all_five_data.txt'
+    FULL_PATH+'Composite_Spectra/StellarMassZ/Keck_stlrmassZ_data.txt'
+
+OUTPUTS:
+    FULL_PATH+'Composite_Spectra/MMT_spectral_coverage.txt'
+    FULL_PATH+'Composite_Spectra/Keck_spectral_coverage.txt'
+"""
+
 import numpy as np, re
 import plotting.general_plotting as general_plotting
 from astropy.io import fits as pyfits, ascii as asc
@@ -148,13 +172,13 @@ def write_MMT_table(inst_str0, ID, zspec0, NAME0, AP, stlr_mass, filt_arr,
     MMT_LMAX0 = MMT_LMAX0[mmt_ii]
 
     # getting stlrmassbin cols for the table
-    tab0 = asc.read('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Composite_Spectra/StellarMass/MMT_all_five_data.txt')
+    tab0 = asc.read(FULL_PATH+'Composite_Spectra/StellarMass/MMT_all_five_data.txt')
     min_mass = np.array(tab0['min_stlrmass'])
     max_mass = np.array(tab0['max_stlrmass'])
     stlrmassbin = get_stlrmassbin_arr(stlr_mass, min_mass, max_mass)
 
     # getting stlrmassZbin cols for the table
-    tab1 = asc.read('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Composite_Spectra/StellarMassZ/MMT_stlrmassZ_data.txt')
+    tab1 = asc.read(FULL_PATH+'Composite_Spectra/StellarMassZ/MMT_stlrmassZ_data.txt')
     stlrmassbinZ = stlrmassbinZ = get_stlrmassbinZ_arr(filt_arr, stlr_mass, tab1, 'MMT')
     
     # setting 'YES' and 'NO' and 'MASK' coverage values
@@ -224,13 +248,13 @@ def write_Keck_table(inst_str0, ID, zspec0, NAME0, AP, stlr_mass, filt_arr,
     AP = np.array([x if len(x) == 6 else x[6:] for x in AP], dtype=np.float64)
 
     # getting stlrmassbin cols for the table
-    tab0 = asc.read('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Composite_Spectra/StellarMass/Keck_all_five_data.txt')
+    tab0 = asc.read(FULL_PATH+'Composite_Spectra/StellarMass/Keck_all_five_data.txt')
     min_mass = np.array(tab0['min_stlrmass'])
     max_mass = np.array(tab0['max_stlrmass'])
     stlrmassbin = get_stlrmassbin_arr(stlr_mass, min_mass, max_mass)
 
     # getting stlrmassZbin cols for the table
-    tab1 = asc.read('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Composite_Spectra/StellarMassZ/Keck_stlrmassZ_data.txt')
+    tab1 = asc.read(FULL_PATH+'Composite_Spectra/StellarMassZ/Keck_stlrmassZ_data.txt')
     stlrmassbinZ = get_stlrmassbinZ_arr(filt_arr, stlr_mass, tab1, 'Keck')
 
     # setting 'YES' and 'NO' and 'MASK' coverage values
