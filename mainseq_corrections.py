@@ -320,11 +320,6 @@ def main():
     HB_SNR    = data_dict['HB_SNR']
     NIIB_FLUX = data_dict['NIIB_FLUX']
     NIIB_SNR  = data_dict['NIIB_SNR']
-    NIIB_Ha_ratios = asc.read(FULL_PATH+'Main_Sequence/Catalogs/line_emission_ratios_table.dat',
-        guess=False,Reader=asc.CommentedHeader)
-    ratio0 = np.array(NIIB_Ha_ratios['NII_Ha_ratio'])
-    ratio1 = np.array(NIIB_Ha_ratios['OIIIR_HB_ratio'])
-    coverage = np.array(NIIB_Ha_ratios['POOR_NIIB_COVERAGE'])
 
 
     # defining other useful data structs
@@ -368,7 +363,6 @@ def main():
     allcolsdata = allcolsdata0[ha_ii]
     ratio0 = ratio0[ha_ii]
     ratio1 = ratio1[ha_ii]
-    coverage = coverage[ha_ii]
 
     no_spectra  = np.where((zspec0 <= 0) | (zspec0 > 9))[0]
     yes_spectra = np.where((zspec0 >= 0) & (zspec0 < 9))[0]
