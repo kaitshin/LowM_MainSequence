@@ -361,8 +361,6 @@ def main():
     NIIB_FLUX   = NIIB_FLUX[ha_ii]
     NIIB_SNR    = NIIB_SNR[ha_ii]
     allcolsdata = allcolsdata0[ha_ii]
-    ratio0 = ratio0[ha_ii]
-    ratio1 = ratio1[ha_ii]
 
     no_spectra  = np.where((zspec0 <= 0) | (zspec0 > 9))[0]
     yes_spectra = np.where((zspec0 >= 0) & (zspec0 < 9))[0]
