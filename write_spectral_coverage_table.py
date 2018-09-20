@@ -28,6 +28,11 @@ from astropy.io import fits as pyfits, ascii as asc
 from astropy.table import Table
 from create_ordered_AP_arrays import create_ordered_AP_arrays
 
+FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
+HG_VAL = 4341
+HB_VAL = 4861
+HA_VAL = 6563
+
 def get_filt_arr(NAME0):
     '''
     '''
@@ -77,15 +82,14 @@ def get_stlrmassbinZ_arr(filt_arr, stlr_mass, tab1, instr):
     for ff, m in zip(filt_arr, stlr_mass):
         if instr=='Keck' and ff=='NB816':
             stlrmassZbin = np.append(stlrmassZbin, 'N/A')
-        elif instr=='MMT' and ff=='NB704,NB711,':
+        elif instr=='MMT' and 'NB7' in ff:
             assigned_bin = ''
-            for ff0 in ['NB704', 'NB711']:
-                good_filt_iis = np.array([x for x in range(len(tab1)) if tab1['filter'][x]==ff0])
-                min_mass = np.array(tab1['min_stlrmass'][good_filt_iis])
-                max_mass = np.array(tab1['max_stlrmass'][good_filt_iis])
-                for ii in range(len(good_filt_iis)):
-                    if m >= min_mass[ii] and m <= max_mass[ii]:
-                        assigned_bin += str(ii+1)+'-'+ff0+','
+            good_filt_iis = np.array([x for x in range(len(tab1)) if tab1['filter'][x]=='NB704+NB711'])
+            min_mass = np.array(tab1['min_stlrmass'][good_filt_iis])
+            max_mass = np.array(tab1['max_stlrmass'][good_filt_iis])
+            for ii in range(len(good_filt_iis)):
+                if m >= min_mass[ii] and m <= max_mass[ii]:
+                    assigned_bin += str(ii+1)+'-NB704+NB711'
             stlrmassZbin = np.append(stlrmassZbin, assigned_bin)
         else:
             good_filt_iis = np.array([x for x in range(len(tab1)) if tab1['filter'][x]==ff])
@@ -179,7 +183,7 @@ def write_MMT_table(inst_str0, ID, zspec0, NAME0, AP, stlr_mass, filt_arr,
 
     # getting stlrmassZbin cols for the table
     tab1 = asc.read(FULL_PATH+'Composite_Spectra/StellarMassZ/MMT_stlrmassZ_data.txt')
-    stlrmassbinZ = stlrmassbinZ = get_stlrmassbinZ_arr(filt_arr, stlr_mass, tab1, 'MMT')
+    stlrmassbinZ = get_stlrmassbinZ_arr(filt_arr, stlr_mass, tab1, 'MMT')
     
     # setting 'YES' and 'NO' and 'MASK' coverage values
     match_ii = np.array([])
@@ -267,12 +271,6 @@ def write_Keck_table(inst_str0, ID, zspec0, NAME0, AP, stlr_mass, filt_arr,
 
 
 def main():
-    global FULL_PATH, HG_VAL, HB_VAL, HA_VAL
-    FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
-    HG_VAL = 4341
-    HB_VAL = 4861
-    HA_VAL = 6563
-
     inst_dict = {} ##used
     inst_dict['MMT'] = ['MMT,FOCAS,','MMT,','merged,','MMT,Keck,']
     inst_dict['Keck'] = ['merged,','Keck,','Keck,Keck,','Keck,FOCAS,',
