@@ -14,7 +14,6 @@ INPUTS:
     'Catalogs/NB_IA_emitters.allcols.colorrev.fits'
     'Catalogs/nb_ia_zspec.txt'
     'FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast.fout'
-    'Main_Sequence/Catalogs/line_emission_ratios_table.dat'
     'Composite_Spectra/Redshift/MMT_stacked_spectra_data.txt'
     'Composite_Spectra/Redshift/Keck_stacked_spectra_data.txt'
     'Composite_Spectra/StellarMass/MMT_all_five_data.txt'
@@ -167,6 +166,8 @@ def bins_table_no_spectra(indexes, NAME0, AP, stlr_mass, massbins_MMT, massbins_
     masses = stlr_mass[indexes]
 
     # get redshift bins
+    #  ensures that dual NB704+NB711 emitters are treated as NB704-only emitters
+    #  purely for the purpose of more convenient filter corrections
     filts = np.array([x[x.find('Ha-')+3:x.find('Ha-')+8] for x in names])
     
     # this ensures that NB704+NB921 dual emitters will be placed in Ha-NB921 bins
@@ -189,10 +190,10 @@ def bins_table_no_spectra(indexes, NAME0, AP, stlr_mass, massbins_MMT, massbins_
     ii1 = 0
     massZs_MMT = np.array(['UNFILLED']*len(indexes))
     massZs_Keck = np.array(['UNFILLED']*len(indexes))
-    for ff in ['NB704','NB711','NB816','NB921','NB973']:
+    for ff in ['NB704+NB711','NB816','NB921','NB973']:
         jj = len(np.where(ff==massZlist_filts_MMT)[0])        
         
-        good_filt_iis = np.array([x for x in range(len(filts)) if filts[x]==ff])
+        good_filt_iis = np.array([x for x in range(len(filts)) if filts[x] in ff])
         
         if ff=='NB973':
             jj += 1
@@ -240,7 +241,7 @@ def EBV_corrs_no_spectra(tab_no_spectra, mmt_mz, mmt_mz_EBV_hahb, mmt_mz_EBV_hgh
 
         if ff=='NB704' or ff=='NB711' or ff=='NB816':
             tab_filt_iis = np.array([x for x in range(len(mmt_mz)) if 
-                (mmt_mz['filter'][x]==ff and mmt_mz['stlrmass_bin'][x] != 'N/A')])
+                (ff in mmt_mz['filter'][x] and mmt_mz['stlrmass_bin'][x] != 'N/A')])
             m_bin = np.array([int(x[0])-1 for x in tab_no_spectra['stlrmassZbin_MMT'][bin_filt_iis]])
 
             for ii, m_i in enumerate(m_bin):
@@ -413,7 +414,8 @@ def main():
 
 
     print '### obtaining filter corrections'
-    #   TODO: correct nb704/nb711 dual emitters for both?
+    # dual nb704/nb711 emitters are corrected w/ only nb704 as the dual emitters
+    #  fall more centrally within the nb704 filter profile
     orig_fluxes = np.zeros(len(allcolsdata))
     filt_corr_factor = np.zeros(len(allcolsdata))
     for filt in filtarr:
