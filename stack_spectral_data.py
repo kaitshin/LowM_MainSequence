@@ -644,7 +644,7 @@ def plot_MMT_Ha_stlrmass_z():
     bins_ii_tbl = np.ndarray((5,5), dtype=object)
 
     bins_ii_tbl_temp = np.ndarray((5,5), dtype=object)
-    for ff, ii in zip(['NB704', 'NB711', 'NB816', 'NB921', 'NB973'], [0,1,2,3,4]):
+    for ff, ii in zip(['NB7', 'NB816', 'NB921', 'NB973'], [0,1,2,3]):
         filt_ii = np.array([x for x in range(len(mmt_ii)) if 'Ha-'+ff in NAME0[mmt_ii][x]])
         filt_masses = stlr_mass[mmt_ii][filt_ii]
         for n in [5, 4, 3, 2]:
@@ -657,7 +657,10 @@ def plot_MMT_Ha_stlrmass_z():
         for jj in range(len(bins_ii)):
             bins_ii_tbl_temp[ii][jj] = mmt_ii[filt_ii][bins_ii_tbl[ii][jj]]
 
-        title=ff
+        if ff=='NB7':
+            title='NB704+NB711'
+        else:
+            title=ff
         print '>>>', title
 
         pp, table_data = plot_MMT_Ha_stlrmass(bins_ii_tbl_temp[ii], pp, title, 'StellarMassZ')
@@ -1135,9 +1138,9 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr, fill_value=np.nan)
 
 print '### plotting MMT_Ha'
-plot_MMT_Ha()
+# plot_MMT_Ha()
 # plot_MMT_Ha_stlrmass()
-# plot_MMT_Ha_stlrmass_z()
+plot_MMT_Ha_stlrmass_z()
 grid.close()
 
 print '### looking at the Keck grid'
