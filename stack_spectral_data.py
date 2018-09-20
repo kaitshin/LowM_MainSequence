@@ -242,7 +242,7 @@ def plot_MMT_Ha():
         subtitle_list) = general_plotting.get_iter_lists('MMT')
     EBV_hahb = np.array([])
 
-    f, axarr = plt.subplots(5, 3)
+    f, axarr = plt.subplots(4, 3)
     f.set_size_inches(8, 11)
     ax_list = np.ndarray.flatten(axarr)
     
@@ -254,7 +254,7 @@ def plot_MMT_Ha():
                                 AP_match],dtype=np.int32)
 
         zs = np.array(gridz[input_index])
-        if subtitle=='NB704' or subtitle=='NB711':
+        if subtitle=='NB704+NB711':
             good_z = np.where((zs >= 0.05) & (zs <= 0.1))[0]
         elif subtitle=='NB816':
             good_z = np.where((zs >= 0.21) & (zs <= 0.26))[0]
@@ -1136,8 +1136,8 @@ grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr, fill_value=np.nan)
 
 print '### plotting MMT_Ha'
 plot_MMT_Ha()
-plot_MMT_Ha_stlrmass()
-plot_MMT_Ha_stlrmass_z()
+# plot_MMT_Ha_stlrmass()
+# plot_MMT_Ha_stlrmass_z()
 grid.close()
 
 print '### looking at the Keck grid'
@@ -1161,9 +1161,9 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 
 print '### plotting Keck_Ha'
-plot_Keck_Ha()
-plot_Keck_Ha_stlrmass()
-plot_Keck_Ha_stlrmass_z()
+# plot_Keck_Ha()
+# plot_Keck_Ha_stlrmass()
+# plot_Keck_Ha_stlrmass_z()
 grid.close()
 
 nbia.close()

@@ -31,16 +31,14 @@ def get_index_list(NAME0, inst_str0, inst_dict, instr):
     '''
     if instr=='MMT':
         index_0 = get_name_index_matches(NAME0, inst_str0, inst_dict, 
-            namematch='Ha-NB704',instr=instr)
+            namematch='Ha-NB7',instr=instr)
         index_1 = get_name_index_matches(NAME0, inst_str0, inst_dict, 
-            namematch='Ha-NB711',instr=instr)
-        index_2 = get_name_index_matches(NAME0, inst_str0, inst_dict, 
             namematch='Ha-NB816',instr=instr)
-        index_3 = get_name_index_matches(NAME0, inst_str0, inst_dict, 
+        index_2 = get_name_index_matches(NAME0, inst_str0, inst_dict, 
             namematch='Ha-NB921',instr=instr)
-        index_4 = get_name_index_matches(NAME0, inst_str0, inst_dict, 
+        index_3 = get_name_index_matches(NAME0, inst_str0, inst_dict, 
             namematch='Ha-NB973',instr=instr)        
-        return [index_0]+[index_1]+[index_2]+[index_3]+[index_4]
+        return [index_0]+[index_1]+[index_2]+[index_3]
     elif instr=='Keck':
         index_0 = get_name_index_matches(NAME0, inst_str0, inst_dict, 
             namematch='Ha-NB816',instr=instr)
@@ -61,6 +59,9 @@ def get_index_list2(NAME0, stlr_mass, inst_str0, zspec0, inst_dict, instr):
 
     Considers by-stellarmass. For now, goes in 20% percentile bins.
     Only considers valid redshifts.
+
+    Note: stlrmass+z composites use dynamic stlrmass binning such 
+    that the bins have as even a number of sources as possible 
     '''
     if instr=='Keck':
         good_iis = np.array([x for x in range(len(stlr_mass)) if 
@@ -124,7 +125,7 @@ def get_iter_lists(instr, stlr=False):
         xmin_list = np.array([4341,4861,6563])-60
         xmax_list = np.array([4341,4861,6563])+60
         label_list=[r'H$\gamma$',r'H$\beta$',r'H$\alpha$']
-        subtitle_list = ['NB704']+['NB711']+['NB816']+['NB921']+['NB973']
+        subtitle_list = ['NB704+NB711']+['NB816']+['NB921']+['NB973']
         return (xmin_list, xmax_list, label_list, subtitle_list)
     elif instr=='Keck':
         xmin_list = np.array([4861,6563])-60

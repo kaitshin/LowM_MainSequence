@@ -25,7 +25,7 @@ def stack_data(ndarr, zspec, index, x0, xmin, xmax, dlambda, ff='', instr=''):
     # this is stacking data in filter
     if ff!='':
         good_z = []
-        if ff=='NB704' or ff=='NB711':
+        if ff=='NB704+NB711':
             good_z = np.where((plot_zspec >= 0.05) & (plot_zspec <= 0.1))[0]
         elif ff=='NB816':
             good_z = np.where((plot_zspec >= 0.21) & (plot_zspec <= 0.26))[0]
