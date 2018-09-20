@@ -418,6 +418,9 @@ def main():
     #  fall more centrally within the nb704 filter profile
     orig_fluxes = np.zeros(len(allcolsdata))
     filt_corr_factor = np.zeros(len(allcolsdata))
+    SN = np.zeros(len(allcolsdata))
+    sigma = np.zeros(len(allcolsdata))
+    flux_3sigcutoffs = {'NB704':np.log10(5.453739e-18), 'NB711':np.log10(6.303345e-18), 'NB816':np.log10(4.403077e-18), 'NB921':np.log10(4.106405e-17), 'NB973':np.log10(6.790696e-17)}
     for filt in filtarr:
         filt_ii = np.array([x for x in range(len(FILT)) if filt==FILT[x]])
 
@@ -425,6 +428,9 @@ def main():
         yes_spectra_temp = np.array([x for x in filt_ii if x in yes_spectra])
 
         orig_fluxes[filt_ii] = allcolsdata[filt+'_FLUX'][filt_ii]
+        SN[filt_ii] = orig_fluxes[filt_ii] - allcolsdata[filt+'_EXCESS'][filt_ii] ### obtaining sigmas
+        sigma[filt_ii] = 10**(SN[filt_ii] - flux_3sigcutoffs[filt] + np.log10(3))
+
         filt_corr_factor = apply_filt_corrs_interp(filt, filt_corr_factor, zspec0, 
             no_spectra_temp, yes_spectra_temp, AP, allcolsdata)
     #endfor
@@ -472,7 +478,7 @@ def main():
     # getting dust extinction corrections
     k_ha = cardelli(6563.0 * u.Angstrom)
     A_V = k_ha * EBV_corrs 
-    dustcorr_fluxes = orig_fluxes + A_V # A_V = A(Ha) = extinction at Ha
+    dustcorr_fluxes = orig_fluxes + 0.4*A_V # A_V = A(Ha) = extinction at Ha
     dust_corr_factor = dustcorr_fluxes - orig_fluxes
 
 
@@ -506,10 +512,10 @@ def main():
     
     # write some table so that plot_nbia_mainseq.py can read this in
     ## TODO(add in an instr. column?)
-    tab00 = Table([ID0, NAME0, FILT, inst_str0, zspec0, stlr_mass, orig_fluxes, orig_lums, orig_sfr, 
+    tab00 = Table([ID0, NAME0, FILT, inst_str0, zspec0, stlr_mass, sigma, orig_fluxes, orig_lums, orig_sfr, 
         filt_corr_factor, nii_ha_corr_factor, nii_ha_ratio, ratio_vs_line,
         A_V, EBV_corrs, dust_corr_factor], 
-        names=['ID', 'NAME0', 'filt', 'inst_str0', 'zspec0', 'stlr_mass', 'obs_fluxes', 'obs_lumin', 'obs_sfr',
+        names=['ID', 'NAME0', 'filt', 'inst_str0', 'zspec0', 'stlr_mass', 'flux_sigma', 'obs_fluxes', 'obs_lumin', 'obs_sfr',
         'filt_corr_factor', 'nii_ha_corr_factor', 'NII_Ha_ratio', 'ratio_vs_line', 
         'A_V', 'EBV', 'dust_corr_factor'])
     asc.write(tab00, FULL_PATH+'Main_Sequence/mainseq_corrections_tbl.txt',
