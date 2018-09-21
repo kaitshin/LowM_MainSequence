@@ -390,8 +390,12 @@ def plot_MMT_Ha():
                     pos_sigma = pos_sigma_list[i]
                     neg_sigma = neg_sigma_list[i]
                     median = median_list[i]
+                    if subtitle=='NB921' and i==1:
+                        hb_nb921_flux = get_HB_NB921_flux()[0]
+                    else:
+                        hb_nb921_flux = 0
                     ax = MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index, pos_flux, flux,
-                        pos_amplitude, neg_amplitude, pos_sigma, neg_sigma, median)
+                        pos_amplitude, neg_amplitude, pos_sigma, neg_sigma, median, hb_nb921_flux)
                 else:
                     ax = MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index, pos_flux, flux)
             except IndexError: # assuming there's no pos_flux or flux value
@@ -579,8 +583,12 @@ def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass'):
                     pos_sigma = pos_sigma_list[i]
                     neg_sigma = neg_sigma_list[i]
                     median = median_list[i]
+                    if title=='NB921' and i==1:
+                        hb_nb921_flux = get_HB_NB921_flux(bintype=bintype)[subplot_index/3]
+                    else:
+                        hb_nb921_flux = 0
                     ax = MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index, pos_flux, flux,
-                        pos_amplitude, neg_amplitude, pos_sigma, neg_sigma, median, bintype=bintype, ftitle=title)
+                        pos_amplitude, neg_amplitude, pos_sigma, neg_sigma, median, hb_nb921_flux, bintype=bintype, ftitle=title)
                 else:
                     ax = MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index, pos_flux, flux, bintype=bintype, ftitle=title)
             except IndexError: # assuming there's no pos_flux or flux value

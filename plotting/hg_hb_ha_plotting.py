@@ -11,7 +11,7 @@ from analysis.balmer_fit import find_nearest, get_best_fit, get_best_fit2, get_b
 import numpy as np
 
 def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0, 
-    pos_amp=0, neg_amp=0, pos_sigma=0, neg_sigma=0, continuum=0, bintype='N/A', ftitle=''):
+    pos_amp=0, neg_amp=0, pos_sigma=0, neg_sigma=0, continuum=0, hb_nb921_flux=0, bintype='N/A', ftitle=''):
     '''
     Sets up the subplots for Hg/Hb/Ha. Adds emission lines for each subplot
     and sets the ylimits for each row. Also adds flux labels to each subplot.
@@ -19,13 +19,23 @@ def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0,
     ax.text(0.03,0.97,label,transform=ax.transAxes,fontsize=7,ha='left',
             va='top')
     if num%3!=2:
-        ax.text(0.97,0.97,'flux='+'{:.3f}'.format((pos_flux/1E-17))+
-            '\nflux_corr='+'{:.3f}'.format((flux/1E-17))+
-            '\nA'+r'$+$'+'='+'{:.3f}'.format((pos_amp/1E-17))+
-            '\nA'+r'$-$'+'='+'{:.3f}'.format((neg_amp/1E-17))+
-            '\n'+r'$\sigma+$'+'='+'{:.3f}'.format((pos_sigma))+
-            '\n'+r'$\sigma-$'+'='+'{:.3f}'.format((neg_sigma))+
-            '\ncontinuum='+'{:.3f}'.format((continuum/1E-17)),transform=ax.transAxes,fontsize=5,ha='right',va='top')
+        if (subtitle=='NB921' or ftitle=='NB921') and num%3==1 and hb_nb921_flux > 0:
+            ax.text(0.97,0.97,'flux='+'{:.3f}'.format((pos_flux/1E-17))+
+                '\nflux_corr='+'{:.3f}'.format((flux/1E-17))+
+                '\nflux_yes_ha='+'{:.3f}'.format((hb_nb921_flux/1E-17))+
+                '\nA'+r'$+$'+'='+'{:.3f}'.format((pos_amp/1E-17))+
+                '\nA'+r'$-$'+'='+'{:.3f}'.format((neg_amp/1E-17))+
+                '\n'+r'$\sigma+$'+'='+'{:.3f}'.format((pos_sigma))+
+                '\n'+r'$\sigma-$'+'='+'{:.3f}'.format((neg_sigma))+
+                '\ncontinuum='+'{:.3f}'.format((continuum/1E-17)),transform=ax.transAxes,fontsize=5,ha='right',va='top')
+        else:
+            ax.text(0.97,0.97,'flux='+'{:.3f}'.format((pos_flux/1E-17))+
+                '\nflux_corr='+'{:.3f}'.format((flux/1E-17))+
+                '\nA'+r'$+$'+'='+'{:.3f}'.format((pos_amp/1E-17))+
+                '\nA'+r'$-$'+'='+'{:.3f}'.format((neg_amp/1E-17))+
+                '\n'+r'$\sigma+$'+'='+'{:.3f}'.format((pos_sigma))+
+                '\n'+r'$\sigma-$'+'='+'{:.3f}'.format((neg_sigma))+
+                '\ncontinuum='+'{:.3f}'.format((continuum/1E-17)),transform=ax.transAxes,fontsize=5,ha='right',va='top')
     if num%3==0:
         ax.set_title(subtitle,fontsize=8,loc='left')
     elif num%3==2 and subtitle!='NB973':
