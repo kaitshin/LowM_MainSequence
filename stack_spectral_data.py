@@ -532,7 +532,7 @@ def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass'):
                 pos_flux_list.append(pos_flux)
                 flux_list.append(flux)
             except IndexError:
-                print 'There\'s an exception'
+                print 'Not enough sources to stack (less than two)'
                 continue
             finally:
                 (ew, ew_emission, ew_absorption, median, pos_amplitude, 
@@ -580,11 +580,11 @@ def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass'):
                     neg_sigma = neg_sigma_list[i]
                     median = median_list[i]
                     ax = MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index, pos_flux, flux,
-                        pos_amplitude, neg_amplitude, pos_sigma, neg_sigma, median)
+                        pos_amplitude, neg_amplitude, pos_sigma, neg_sigma, median, bintype=bintype, ftitle=title)
                 else:
-                    ax = MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index, pos_flux, flux)
+                    ax = MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index, pos_flux, flux, bintype=bintype, ftitle=title)
             except IndexError: # assuming there's no pos_flux or flux value
-                ax = MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index)
+                ax = MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index, bintype=bintype, ftitle=title)
             subplot_index+=1
         #endfor
     #endfor
