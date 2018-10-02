@@ -418,18 +418,17 @@ def main():
     #  fall more centrally within the nb704 filter profile
     orig_fluxes = np.zeros(len(allcolsdata))
     filt_corr_factor = np.zeros(len(allcolsdata))
-    SN = np.zeros(len(allcolsdata))
     sigma = np.zeros(len(allcolsdata))
-    flux_3sigcutoffs = {'NB704':np.log10(5.453739e-18), 'NB711':np.log10(6.303345e-18), 'NB816':np.log10(4.403077e-18), 'NB921':np.log10(4.106405e-17), 'NB973':np.log10(6.790696e-17)}
+    flux_3sigcutoffs = {'NB704':np.log10(5.453739e-18), 'NB711':np.log10(6.303345e-18), 
+         'NB816':np.log10(4.403077e-18), 'NB921':np.log10(5.823993e-18), 'NB973':np.log10(1.692677e-17)}
     for filt in filtarr:
-        filt_ii = np.array([x for x in range(len(FILT)) if filt==FILT[x]])
+        filt_ii = np.array([x for x in range(len(FILT)) if filt in FILT[x]])
 
         no_spectra_temp  = np.array([x for x in filt_ii if x in no_spectra])
         yes_spectra_temp = np.array([x for x in filt_ii if x in yes_spectra])
 
         orig_fluxes[filt_ii] = allcolsdata[filt+'_FLUX'][filt_ii]
-        SN[filt_ii] = orig_fluxes[filt_ii] - allcolsdata[filt+'_EXCESS'][filt_ii] ### obtaining sigmas
-        sigma[filt_ii] = 10**(SN[filt_ii] - flux_3sigcutoffs[filt] + np.log10(3))
+        sigma[filt_ii] = 3*10**(orig_fluxes[filt_ii] - flux_3sigcutoffs[filt])
 
         filt_corr_factor = apply_filt_corrs_interp(filt, filt_corr_factor, zspec0, 
             no_spectra_temp, yes_spectra_temp, AP, allcolsdata)
@@ -477,7 +476,7 @@ def main():
 
     # getting dust extinction corrections
     k_ha = cardelli(6563.0 * u.Angstrom)
-    A_V = k_ha * EBV_corrs 
+    A_V = k_ha * EBV_corrs
     dustcorr_fluxes = orig_fluxes + 0.4*A_V # A_V = A(Ha) = extinction at Ha
     dust_corr_factor = dustcorr_fluxes - orig_fluxes
 
