@@ -3,7 +3,17 @@ NAME:
     plotting_NII_Ha_ratios.py
 
 PURPOSE:
-    
+
+    depends on mainseq_corrections.py, stack_spectral_data.py
+
+INPUTS:
+    FULL_PATH+'Composite_Spectra/StellarMassZ/MMT_stlrmassZ_data.txt'
+    FULL_PATH+'Composite_Spectra/StellarMassZ/Keck_stlrmassZ_data.txt'
+    FULL_PATH+'Main_Sequence/mainseq_corrections_tbl_ref.txt'
+
+OUTPUTS:
+    FULL_PATH+'Plots/main_sequence/NII_Ha_scatter.pdf'
+    FULL_PATH+'Plots/main_sequence/NII_Ha_scatter_log.pdf'
 """
 
 from astropy.io import fits as pyfits, ascii as asc
@@ -16,6 +26,11 @@ FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
 def main():
     '''
     '''
+    # latex backend for mpl
+    import matplotlib
+    matplotlib.rcParams['text.usetex'] = True
+    matplotlib.rcParams['text.latex.unicode'] = True
+
     # reading data in
     mmt_mz  = asc.read(FULL_PATH+'Composite_Spectra/StellarMassZ/MMT_stlrmassZ_data.txt',
         guess=False, format='fixed_width_two_line', delimiter=' ')
@@ -88,7 +103,6 @@ def main():
     plt.plot(stlr_mass[lil_good_nii][j2], LIMIT_arr[j2],
              linestyle='none', marker=u'$\u2193$', markersize=10, color='purple', mec='purple', mew=2)
 
-
     ## composites
     # ratios for composites
     flux_rat_arr = nii_flux_arr*1.33/ha_flux_arr
@@ -99,6 +113,9 @@ def main():
     plt.errorbar(avgm_arr[:9], flux_rat_arr[:9], xerr=np.array([avgm_arr[:9]-minm_arr[:9], maxm_arr[:9]-avgm_arr[:9]]), fmt='none', ecolor='limegreen')
     plt.errorbar(avgm_arr[9:], flux_rat_arr[9:], xerr=np.array([avgm_arr[9:]-minm_arr[9:], maxm_arr[9:]-avgm_arr[9:]]), fmt='none', ecolor='darkgreen')
 
+    # legend 1
+    legendAA = plt.legend(loc='best', fontsize=12)
+    ax = plt.gca().add_artist(legendAA)
 
     ## fitting 
     lowm_ii = np.array([x for x in range(len(avgm_arr)) if avgm_arr[x]<8])
@@ -115,16 +132,23 @@ def main():
     print 'm =',coeffs1[0], '& b =', coeffs1[0]*-8+const
 
     # plotting
-    plt.plot(np.arange(6.0,8.1,0.1), np.array([const]*len(np.arange(6.0,8.1,0.1))), 'r--', lw=2)
-    plt.plot(np.arange(8.0,10.6,0.1), line2(np.arange(8.0,10.6,0.1), *coeffs1), 'r--', lw=2)
+    lineA, = plt.plot(np.arange(6.0,8.1,0.1), np.array([const]*len(np.arange(6.0,8.1,0.1))), 
+        'r--', lw=2, label='C = '+str(np.around(const,3)))
+    lineB, = plt.plot(np.arange(8.0,10.6,0.1), line2(np.arange(8.0,10.6,0.1), *coeffs1), 
+        'r--', lw=2, label='m = '+str(np.around(coeffs1[0],3))+', b = '+str(np.around(coeffs1[0]*-8+const,3)))
 
+    # legend2
+    legendAB = plt.gca().legend(handles=[lineA, lineB], loc='lower right', fontsize=11)
+    plt.gca().add_artist(legendAB)
 
     ## finishing touches
-    plt.xlabel('M*')
-    plt.ylabel('1.33*NIIB/Ha')
-    plt.ylim(ymax=1.3)
-    plt.legend(loc='best')
-    plt.gcf().set_size_inches(10,8)
+    plt.xlabel(r'$M_*$', size=16)
+    plt.ylabel('1.33 ['+r'\textsc{N ii}]$\lambda$6583/H$\alpha$', size=16)
+    a = [tick.label.set_fontsize(14) for tick in plt.gca().xaxis.get_major_ticks()]
+    b = [tick.label.set_fontsize(14) for tick in plt.gca().yaxis.get_major_ticks()]
+    plt.ylim(ymax=1.1)
+    plt.gcf().set_size_inches(10,6)
+    plt.tight_layout()
     plt.savefig(FULL_PATH+'Plots/main_sequence/NII_Ha_scatter.pdf')
     plt.close()
 
