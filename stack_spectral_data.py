@@ -176,6 +176,18 @@ def HA_HB_EBV(ha, hb, instr, bintype='redshift', filt='N/A'):
     return EBV_hahb
 #enddef
 
+def Hn_HB_EBV_RMS(Hn, HB, Hn_rms, HB_rms):
+    '''
+    EBV rms calculated as according to mstar_vs_ebv.ipynb
+
+    Hn is either HA or HB
+    '''
+    hnhb = Hn/HB
+    hnhb_rms = hnhb * np.sqrt((Hn_rms/Hn)**2 + (HB_rms/HB)**2)
+
+    return hnhb_rms/(hnhb * np.log(10))
+#enddef
+
 def split_into_bins(masses, n):
     '''
     '''
@@ -624,19 +636,21 @@ def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass'):
         HB_NB921_flux = get_HB_NB921_flux(bintype=bintype)
 
     EBV_hahb = HA_HB_EBV(HA_flux, HB_NB921_flux, 'MMT', bintype, title)
+    EBV_hahb_rms = Hn_HB_EBV_RMS(np.array(HA_flux), np.array(HB_flux), np.array(HA_RMS), np.array(HB_RMS))
+    EBV_hghb_rms = Hn_HB_EBV_RMS(np.array(HG_flux), np.array(HB_flux), np.array(HG_RMS), np.array(HB_RMS))
 
     table00 = Table([subtitle_list, stlrmass_bin_arr, num_sources, num_stack_HG, num_stack_HB, num_stack_HA,
         avgz_arr, minz_arr, maxz_arr, 
         avg_stlrmass_arr, min_stlrmass_arr, max_stlrmass_arr, HG_flux, HB_flux, HB_NB921_flux, HA_flux, NII_6548_flux, 
         NII_6583_flux, HG_EW, HB_EW, HA_EW, HG_EW_corr, HB_EW_corr, HA_EW_corr, HG_EW_abs, HB_EW_abs,
         HG_continuum, HB_continuum, HA_continuum, HG_RMS, HB_RMS, HA_RMS, HG_pos_amplitude, HB_pos_amplitude, HA_pos_amplitude,
-        HG_neg_amplitude, HB_neg_amplitude, EBV_hghb, EBV_hahb], # IDs_arr
+        HG_neg_amplitude, HB_neg_amplitude, EBV_hghb, EBV_hahb, EBV_hghb_rms, EBV_hahb_rms], # IDs_arr
         names=['filter', 'stlrmass_bin', 'num_sources', 'num_stack_HG', 'num_stack_HB', 'num_stack_HA',
         'avgz', 'minz', 'maxz',
         'avg_stlrmass', 'min_stlrmass', 'max_stlrmass', 'HG_flux', 'HB_flux', 'HB_NB921_flux', 'HA_flux', 'NII_6548_flux', 
         'NII_6583_flux', 'HG_EW', 'HB_EW', 'HA_EW', 'HG_EW_corr', 'HB_EW_corr', 'HA_EW_corr', 'HG_EW_abs', 'HB_EW_abs',
         'HG_continuum', 'HB_continuum', 'HA_continuum', 'HG_RMS', 'HB_RMS', 'HA_RMS', 'HG_pos_amplitude', 'HB_pos_amplitude', 'HA_pos_amplitude',
-        'HG_neg_amplitude', 'HB_neg_amplitude', 'E(B-V)_hghb', 'E(B-V)_hahb']) # IDs
+        'HG_neg_amplitude', 'HB_neg_amplitude', 'E(B-V)_hghb', 'E(B-V)_hahb', 'E(B-V)_hghb_rms', 'E(B-V)_hahb_rms']) # IDs
 
     if pp != None: return pp, table00
 
@@ -1032,19 +1046,20 @@ def plot_Keck_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass'):
     plt.close()
 
     EBV_hahb = HA_HB_EBV(HA_flux, HB_flux, 'Keck', 'stlrmass')
+    EBV_hahb_rms = Hn_HB_EBV_RMS(np.array(HA_flux), np.array(HB_flux), np.array(HA_RMS), np.array(HB_RMS))
 
     table00 = Table([subtitle_list, stlrmass_bin_arr, num_sources, num_stack_HB, num_stack_HA,
         avgz_arr, minz_arr, maxz_arr, 
         avg_stlrmass_arr, min_stlrmass_arr, max_stlrmass_arr, HB_flux, HA_flux, NII_6548_flux, 
         NII_6583_flux, HB_EW, HA_EW, HB_EW_corr, HA_EW_corr, HB_EW_abs,
         HB_continuum, HA_continuum, HB_RMS, HA_RMS, HB_pos_amplitude, HA_pos_amplitude,
-        HB_neg_amplitude, EBV_hahb], # IDs_arr
+        HB_neg_amplitude, EBV_hahb, EBV_hahb_rms], # IDs_arr
         names=['filter', 'stlrmass_bin', 'num_sources', 'num_stack_HB', 'num_stack_HA',
         'avgz', 'minz', 'maxz',
         'avg_stlrmass', 'min_stlrmass', 'max_stlrmass', 'HB_flux', 'HA_flux', 'NII_6548_flux', 
         'NII_6583_flux', 'HB_EW', 'HA_EW', 'HB_EW_corr', 'HA_EW_corr', 'HB_EW_abs',
         'HB_continuum', 'HA_continuum', 'HB_RMS', 'HA_RMS', 'HB_pos_amplitude', 'HA_pos_amplitude',
-        'HB_neg_amplitude', 'E(B-V)_hahb']) # 'IDs'
+        'HB_neg_amplitude', 'E(B-V)_hahb', 'E(B-V)_hahb_rms']) # 'IDs'
 
     if pp != None: return pp, table00
 
@@ -1160,7 +1175,7 @@ grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr, fill_value=np.nan)
 print '### plotting MMT_Ha'
 # plot_MMT_Ha()
 # plot_MMT_Ha_stlrmass()
-# plot_MMT_Ha_stlrmass_z()
+plot_MMT_Ha_stlrmass_z()
 grid.close()
 
 print '### looking at the Keck grid'
