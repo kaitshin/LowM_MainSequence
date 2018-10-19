@@ -46,6 +46,7 @@ import writing_tables.hg_hb_ha_tables as MMT_twriting
 import writing_tables.hb_ha_tables as Keck_twriting
 import writing_tables.general_tables as general_twriting
 from analysis.balmer_fit import get_best_fit3
+from analysis.balmer_fit import get_baseline_median
 from analysis.sdf_stack_data import stack_data
 from astropy.io import fits as pyfits, ascii as asc
 from astropy.table import Table, vstack
@@ -56,6 +57,8 @@ from astropy import units as u
 
 MIN_NUM_PER_BIN = 10
 MAX_NUM_OF_BINS = 5
+
+full_path = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
 
 def correct_instr_AP(indexed_AP, indexed_inst_str0, instr):
     '''
@@ -117,12 +120,6 @@ def get_HB_NB921_flux(bintype='redshift'):
             i0 = np.array([x for x in range(len(gridap)) if gridap[x] in cvg['AP'][nb921[nb921_ha[bin_i]]]])
         else:
             i0 = np.array([x for x in range(len(gridap)) if gridap[x] in cvg['AP'][nb921[nb921_ha]]])
-            # print '>>>>>>>GRIDAP INDICES:', i0 ##PRINT STATEMENT
-            # print '>>>>>>>NAMES:', cvg['NAME'][nb921[nb921_ha]].data ##PRINT STATEMENT
-            # print '>>>>>>>IDs:', cvg['ID'][nb921[nb921_ha]].data ##PRINT STATEMENT
-
-        # print '>>>>>>>LENGTH OF HB_NB921_flux ARRAY:', len(i0) ##PRINT STATEMENT
-        # print '>>>>>>>APs:', gridap[i0] ##PRINT STATEMENT
         
         zs = np.array(gridz[i0])
         good_z2 = np.where((zs >= 0.385) & (zs <= 0.429))[0]
@@ -454,7 +451,7 @@ def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass'):
         HG_neg_amplitude, HB_neg_amplitude) = table_arrays
     (num_sources, num_stack_HG, num_stack_HB, num_stack_HA, avgz_arr, minz_arr, maxz_arr,
         stlrmass_bin_arr, avg_stlrmass_arr, min_stlrmass_arr, max_stlrmass_arr,
-        IDs_arr) = ([], [], [], [], [], [], [], [], [], [], [], [])
+        IDs_arr, HA_RMS, HB_RMS, HG_RMS) = ([], [], [], [], [], [], [], [], [], [], [], [], [], [], [])
     if index_list == []:
         index_list = general_plotting.get_index_list2(NAME0, stlr_mass, inst_str0, zspec0, inst_dict, 'MMT')
     (xmin_list, xmax_list, label_list, 
@@ -482,6 +479,9 @@ def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass'):
             avg_stlrmass_arr.append(0)
             min_stlrmass_arr.append(0)
             max_stlrmass_arr.append(0)
+            HA_RMS.append(0)
+            HB_RMS.append(0)
+            HG_RMS.append(0)
             for i in range(2):
                 ax = ax_list[subplot_index]
                 label = label_list[i]
@@ -519,7 +519,7 @@ def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass'):
         spectra_file_path = full_path+'Composite_Spectra/StellarMass/MMT_spectra_vals/'+subtitle[10:]+'.txt'
         asc.write(table0, spectra_file_path, format='fixed_width', delimiter=' ', overwrite=True)
 
-        # calculating flux for NII emissions
+        # calculating flux for NII emissions & rms of the emission lines
         pos_flux_list = []
         flux_list = []
         pos_amplitude_list = []
@@ -527,7 +527,7 @@ def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass'):
         pos_sigma_list = []
         neg_sigma_list = []
         median_list = []
-        for i in range(3):
+        for i, arr in zip(range(3), [HG_RMS, HB_RMS, HA_RMS]):
             xmin0 = xmin_list[i]
             xmax0 = xmax_list[i]
             ax = ax_list[subplot_index+i]
@@ -537,8 +537,11 @@ def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass'):
                     ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, tol, len_input_index[i])
                 pos_flux_list.append(pos_flux)
                 flux_list.append(flux)
+                med0, std0 = get_baseline_median(xval, yval, label)
+                arr.append(std0 * np.sqrt(NAXIS1) * dlambda)
             except IndexError:
                 print 'Not enough sources to stack (less than two)'
+                arr.append(0)
                 continue
             finally:
                 (ew, ew_emission, ew_absorption, median, pos_amplitude, 
@@ -626,13 +629,13 @@ def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass'):
         avgz_arr, minz_arr, maxz_arr, 
         avg_stlrmass_arr, min_stlrmass_arr, max_stlrmass_arr, HG_flux, HB_flux, HB_NB921_flux, HA_flux, NII_6548_flux, 
         NII_6583_flux, HG_EW, HB_EW, HA_EW, HG_EW_corr, HB_EW_corr, HA_EW_corr, HG_EW_abs, HB_EW_abs,
-        HG_continuum, HB_continuum, HA_continuum, HG_pos_amplitude, HB_pos_amplitude, HA_pos_amplitude,
+        HG_continuum, HB_continuum, HA_continuum, HG_RMS, HB_RMS, HA_RMS, HG_pos_amplitude, HB_pos_amplitude, HA_pos_amplitude,
         HG_neg_amplitude, HB_neg_amplitude, EBV_hghb, EBV_hahb], # IDs_arr
         names=['filter', 'stlrmass_bin', 'num_sources', 'num_stack_HG', 'num_stack_HB', 'num_stack_HA',
         'avgz', 'minz', 'maxz',
         'avg_stlrmass', 'min_stlrmass', 'max_stlrmass', 'HG_flux', 'HB_flux', 'HB_NB921_flux', 'HA_flux', 'NII_6548_flux', 
         'NII_6583_flux', 'HG_EW', 'HB_EW', 'HA_EW', 'HG_EW_corr', 'HB_EW_corr', 'HA_EW_corr', 'HG_EW_abs', 'HB_EW_abs',
-        'HG_continuum', 'HB_continuum', 'HA_continuum', 'HG_pos_amplitude', 'HB_pos_amplitude', 'HA_pos_amplitude',
+        'HG_continuum', 'HB_continuum', 'HA_continuum', 'HG_RMS', 'HB_RMS', 'HA_RMS', 'HG_pos_amplitude', 'HB_pos_amplitude', 'HA_pos_amplitude',
         'HG_neg_amplitude', 'HB_neg_amplitude', 'E(B-V)_hghb', 'E(B-V)_hahb']) # IDs
 
     if pp != None: return pp, table00
@@ -1103,7 +1106,6 @@ def plot_Keck_Ha_stlrmass_z():
 # o Then calls plot_*_Ha.
 # o Done for both MMT and Keck data.
 #----------------------------------------------------------------------------#
-full_path = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
 inst_dict = {} ##used
 inst_dict['MMT'] = ['MMT,FOCAS,','MMT,','merged,','MMT,Keck,','merged,FOCAS,']
 inst_dict['Keck'] = ['merged,','Keck,','Keck,Keck,','Keck,FOCAS,',
@@ -1141,7 +1143,7 @@ grid_ndarr = grid[0].data ##used
 grid_hdr   = grid[0].header
 CRVAL1 = grid_hdr['CRVAL1']
 CDELT1 = grid_hdr['CDELT1']
-NAXIS1 = grid_hdr['NAXIS1']
+NAXIS1 = grid_hdr['NAXIS1'] #npix
 x0 = np.arange(CRVAL1, CDELT1*NAXIS1+CRVAL1, CDELT1) ##used
 # mask spectra that doesn't exist or lacks coverage in certain areas
 ndarr_zeros = np.where(grid_ndarr == 0)
@@ -1155,7 +1157,7 @@ grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr, fill_value=np.nan)
 print '### plotting MMT_Ha'
 # plot_MMT_Ha()
 # plot_MMT_Ha_stlrmass()
-# plot_MMT_Ha_stlrmass_z()
+plot_MMT_Ha_stlrmass_z()
 grid.close()
 
 print '### looking at the Keck grid'
@@ -1167,7 +1169,7 @@ grid_ndarr = grid[0].data ##used
 grid_hdr   = grid[0].header
 CRVAL1 = grid_hdr['CRVAL1']
 CDELT1 = grid_hdr['CDELT1']
-NAXIS1 = grid_hdr['NAXIS1']
+NAXIS1 = grid_hdr['NAXIS1'] #npix
 x0 = np.arange(CRVAL1, CDELT1*NAXIS1+CRVAL1, CDELT1) ##used
 # mask spectra that doesn't exist or lacks coverage in certain areas
 ndarr_zeros = np.where(grid_ndarr == 0)
@@ -1181,7 +1183,7 @@ grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 print '### plotting Keck_Ha'
 # plot_Keck_Ha()
 # plot_Keck_Ha_stlrmass()
-plot_Keck_Ha_stlrmass_z()
+# plot_Keck_Ha_stlrmass_z()
 grid.close()
 
 nbia.close()
