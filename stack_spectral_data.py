@@ -896,7 +896,7 @@ def plot_Keck_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass'):
         HB_neg_amplitude) = table_arrays
     (num_sources, num_stack_HG, num_stack_HB, num_stack_HA, avgz_arr, minz_arr, maxz_arr,
         stlrmass_bin_arr, avg_stlrmass_arr, min_stlrmass_arr, max_stlrmass_arr,
-        IDs_arr) = ([], [], [], [], [], [], [], [], [], [], [], [])
+        IDs_arr, HA_RMS, HB_RMS) = ([], [], [], [], [], [], [], [], [], [], [], [], [], [])
     if index_list == []:
         index_list = general_plotting.get_index_list2(NAME0, stlr_mass, inst_str0, zspec0, inst_dict, 'Keck')
     (xmin_list, xmax_list, label_list, 
@@ -948,7 +948,7 @@ def plot_Keck_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass'):
         spectra_file_path = full_path+'Composite_Spectra/StellarMass/Keck_spectra_vals/'+subtitle[10:]+'.txt'
         asc.write(table0, spectra_file_path, format='fixed_width', delimiter=' ', overwrite=True)
 
-        # calculating flux for NII emissions
+        # calculating flux for NII emissions & rms of the emission lines
         pos_flux_list = []
         flux_list = []
         pos_amplitude_list = []
@@ -956,7 +956,7 @@ def plot_Keck_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass'):
         pos_sigma_list = []
         neg_sigma_list = []
         median_list = []
-        for i in range(2):
+        for i, arr in zip(range(2), [HB_RMS, HA_RMS]):
             xmin0 = xmin_list[i]
             xmax0 = xmax_list[i]
             ax = ax_list[subplot_index+i]
@@ -966,8 +966,11 @@ def plot_Keck_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass'):
                     ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, tol, subplot_index+i)
                 pos_flux_list.append(pos_flux)
                 flux_list.append(flux)
+                med0, std0 = get_baseline_median(xval, yval, label)
+                arr.append(std0 * np.sqrt(NAXIS1) * dlambda)
             except IndexError:
                 print '(!!) There\'s some unexpected exception or another.'
+                arr.append(0)
                 continue
             finally:
                 (ew, ew_emission, ew_absorption, median, pos_amplitude, 
@@ -1034,13 +1037,13 @@ def plot_Keck_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass'):
         avgz_arr, minz_arr, maxz_arr, 
         avg_stlrmass_arr, min_stlrmass_arr, max_stlrmass_arr, HB_flux, HA_flux, NII_6548_flux, 
         NII_6583_flux, HB_EW, HA_EW, HB_EW_corr, HA_EW_corr, HB_EW_abs,
-        HB_continuum, HA_continuum, HB_pos_amplitude, HA_pos_amplitude,
+        HB_continuum, HA_continuum, HB_RMS, HA_RMS, HB_pos_amplitude, HA_pos_amplitude,
         HB_neg_amplitude, EBV_hahb], # IDs_arr
         names=['filter', 'stlrmass_bin', 'num_sources', 'num_stack_HB', 'num_stack_HA',
         'avgz', 'minz', 'maxz',
         'avg_stlrmass', 'min_stlrmass', 'max_stlrmass', 'HB_flux', 'HA_flux', 'NII_6548_flux', 
         'NII_6583_flux', 'HB_EW', 'HA_EW', 'HB_EW_corr', 'HA_EW_corr', 'HB_EW_abs',
-        'HB_continuum', 'HA_continuum', 'HB_pos_amplitude', 'HA_pos_amplitude',
+        'HB_continuum', 'HA_continuum', 'HB_RMS', 'HA_RMS', 'HB_pos_amplitude', 'HA_pos_amplitude',
         'HB_neg_amplitude', 'E(B-V)_hahb']) # 'IDs'
 
     if pp != None: return pp, table00
@@ -1157,7 +1160,7 @@ grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr, fill_value=np.nan)
 print '### plotting MMT_Ha'
 # plot_MMT_Ha()
 # plot_MMT_Ha_stlrmass()
-plot_MMT_Ha_stlrmass_z()
+# plot_MMT_Ha_stlrmass_z()
 grid.close()
 
 print '### looking at the Keck grid'
@@ -1183,7 +1186,7 @@ grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 print '### plotting Keck_Ha'
 # plot_Keck_Ha()
 # plot_Keck_Ha_stlrmass()
-# plot_Keck_Ha_stlrmass_z()
+plot_Keck_Ha_stlrmass_z()
 grid.close()
 
 nbia.close()
