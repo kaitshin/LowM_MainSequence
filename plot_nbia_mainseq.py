@@ -15,13 +15,11 @@ OUTPUTS:
     
 """
 
-import numpy as np, astropy.units as u, matplotlib.pyplot as plt, sys
-from astropy.io import fits as pyfits, ascii as asc
-from astropy.table import Table
-from astropy.cosmology import FlatLambdaCDM
-cosmo = FlatLambdaCDM(H0 = 70 * u.km / u.s / u.Mpc, Om0=0.3)
+import numpy as np, matplotlib.pyplot as plt
+from astropy.io import ascii as asc
 
 FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
+CUTOFF_SIGMA = 4.0
 
 def whitaker_2014():
     '''
@@ -162,7 +160,7 @@ def modify_graph(f, ax, labelarr, xlim, ylim, title):
 
 
 def make_all_graph(stlr_mass, sfr, filtarr, markarr, z_arr, title,
-    no_spectra, yes_spectra, filts):
+    no_spectra, yes_spectra, filts, good_sig_iis):
     '''
     '''
     color='blue'
@@ -174,8 +172,10 @@ def make_all_graph(stlr_mass, sfr, filtarr, markarr, z_arr, title,
 
     labelarr = np.array([])
     for (ff, mark, avg_z) in zip(filtarr, markarr, z_arr):
-        filt_index_n = np.array([x for x in range(len(no_spectra)) if ff==filts[no_spectra][x]])
-        filt_index_y = np.array([x for x in range(len(yes_spectra)) if ff==filts[yes_spectra][x]])
+        filt_index_n = np.array([x for x in range(len(no_spectra)) if ff==filts[no_spectra][x] 
+            and no_spectra[x] in good_sig_iis])
+        filt_index_y = np.array([x for x in range(len(yes_spectra)) if ff==filts[yes_spectra][x]
+            and yes_spectra[x] in good_sig_iis])
 
 
         temp = plt.scatter(stlr_mass[yes_spectra][filt_index_y],
@@ -222,12 +222,15 @@ def main():
     z_arr0 = np.around(z_arr0, 2)
     z_arr  = np.array(z_arr0, dtype='|S4')
     z_arr  = np.array([x+'0' if len(x)==3 else x for x in z_arr])
+
+    # defining a flux sigma cutoff
+    good_sig_iis = np.where(corr_tbl['flux_sigma'] >= CUTOFF_SIGMA)[0]
     
     for title, corrs in zip(['mainseq_no_corrs', 'mainseq_filt_corrs', 'mainseq_filt_nii_corrs', 'mainseq_filt_nii_dust_corrs'], 
         [np.zeros(len(corr_tbl)), filt_corr_factor, filt_corr_factor+nii_ha_corr_factor, filt_corr_factor+nii_ha_corr_factor+dust_corr_factor]):
         #  should pass in e.g., "obs_sfr + corrs" to plot applied corrs
         make_all_graph(stlr_mass, obs_sfr+corrs, filtarr, markarr, z_arr, title, 
-            no_spectra, yes_spectra, filts)
+            no_spectra, yes_spectra, filts, good_sig_iis)
         print 'done plotting', title
 
 
