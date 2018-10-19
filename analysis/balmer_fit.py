@@ -11,6 +11,8 @@ import numpy as np, math
 import scipy.optimize as optimization
 from astropy.stats import sigma_clipped_stats
 
+ctr_arr = {r'H$\gamma$':4341, r'H$\beta$':4861, r'H$\alpha$':6563}
+
 def find_nearest(array,value):
     '''
     Uses np.searchsorted to find the array index closest to the input
@@ -23,24 +25,25 @@ def find_nearest(array,value):
         return idx
 #enddef
 
-
 def get_baseline_median(xval, yval, label):
     '''
     Returns the median of the baseline of the spectrum, masking out the
     emission peaks
+
+    Also returns the stdev of the continuum
     '''
     if 'gamma' in label:
         peak_l = find_nearest(xval, 4341-8)
         peak_r = find_nearest(xval, 4341+8)
 
         temparr = np.concatenate([yval[:peak_l], yval[peak_r:]], axis=0)
-        return np.median(temparr)
+        return np.median(temparr), np.nanstd(temparr)
     if 'beta' in label:
         peak_l = find_nearest(xval, 4861-8)
         peak_r = find_nearest(xval, 4861+8)
 
         temparr = np.concatenate([yval[:peak_l], yval[peak_r:]], axis=0)
-        return np.median(temparr)
+        return np.median(temparr), np.nanstd(temparr)
     if 'alpha' in label:
         nii_1l = find_nearest(xval, 6548.1-5)
         nii_1r = find_nearest(xval, 6548.1+5)
@@ -53,7 +56,7 @@ def get_baseline_median(xval, yval, label):
 
         temparr = np.concatenate([yval[:nii_1l], yval[nii_1r:peak_l],
                                   yval[peak_r:nii_2l], yval[nii_2r:]], axis=0)
-        return np.median(temparr)
+        return np.median(temparr), np.nanstd(temparr)
     else:
         print 'error!'
         return 0
@@ -86,9 +89,9 @@ def get_best_fit(xval, yval, label):
 
     Ha absorption spectra
     '''
-    med0 = get_baseline_median(xval, yval, label)
+    med0, std0 = get_baseline_median(xval, yval, label)
     err = np.repeat(1.0e-18, len(xval))
-    p0 = [np.max(yval)-med0, xval[np.argmax(yval)], 1.10, med0]
+    p0 = [np.max(yval)-med0, ctr_arr[label], 1.10, med0]
     
     o1,o2 = optimization.curve_fit(func, xval, yval, p0, err)
     return o1
@@ -125,9 +128,9 @@ def get_best_fit3(xval, yval, label):
     Hg and Hb absorption spectra
     '''
     yval = yval/1e-17
-    med0 = get_baseline_median(xval, yval, label)
+    med0, std0 = get_baseline_median(xval, yval, label)
     err = np.repeat(1.0e-18, len(xval))
-    p0 = [np.max(yval)-med0, xval[np.argmax(yval)], 1.10, -0.05*(np.max(yval)-med0), xval[np.argmax(yval)], 2.20, med0]
+    p0 = [np.max(yval)-med0, ctr_arr[label], 1.10, -0.05*(np.max(yval)-med0), ctr_arr[label], 4.40, med0]
 
     param_bounds = ((0, xval[np.argmax(yval)]-3, 0, -0.1*np.max(yval), xval[np.argmax(yval)]-3, 0, med0-0.05*np.abs(med0)),
         (1e-15/1e-17, xval[np.argmax(yval)]+3, 10, 0, xval[np.argmax(yval)]+3, 10, med0+0.05*np.abs(med0)))
