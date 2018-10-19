@@ -171,6 +171,9 @@ def HA_HB_EBV(ha, hb, instr, bintype='redshift', filt='N/A'):
     elif instr=='Keck' and bintype=='redshift':
         EBV_hahb[0] = -99.0 #no nb816 hbeta
 
+    if instr=='MMT' and bintype=='StellarMassZ' and filt=='NB921':
+        print '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', EBV_hahb
+
     EBV_hahb = np.array([-99.0 if np.isnan(x) else x for x in EBV_hahb])
 
     return EBV_hahb
@@ -321,7 +324,7 @@ def plot_MMT_Ha():
         # writing the spectra table
         table0 = Table([xval, yval/1E-17], names=['xval','yval/1E-17'])
         spectra_file_path = full_path+'Composite_Spectra/Redshift/MMT_spectra_vals/'+subtitle+'.txt'
-        asc.write(table0, spectra_file_path, format='fixed_width', delimiter=' ')
+        asc.write(table0, spectra_file_path, format='fixed_width', delimiter=' ', overwrite=True)
 
         # calculating flux for NII emissions
         pos_flux_list = []
@@ -428,7 +431,7 @@ def plot_MMT_Ha():
         'HG_neg_amplitude', 'HB_neg_amplitude', 'E(B-V)_hghb', 'E(B-V)_hahb']) # IDs
 
     asc.write(table00, full_path+'Composite_Spectra/Redshift/MMT_stacked_spectra_data.txt',
-        format='fixed_width_two_line', delimiter=' ')
+        format='fixed_width_two_line', delimiter=' ', overwrite=True)
 #enddef
 
 def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass'):
@@ -514,8 +517,7 @@ def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass'):
         # writing the spectra table
         table0 = Table([xval, yval/1E-17], names=['xval','yval/1E-17'])
         spectra_file_path = full_path+'Composite_Spectra/StellarMass/MMT_spectra_vals/'+subtitle[10:]+'.txt'
-        asc.write(table0, spectra_file_path,
-            format='fixed_width', delimiter=' ')
+        asc.write(table0, spectra_file_path, format='fixed_width', delimiter=' ', overwrite=True)
 
         # calculating flux for NII emissions
         pos_flux_list = []
@@ -601,6 +603,9 @@ def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass'):
     else:
         f = general_plotting.final_plot_setup(f, title)
 
+    plt.subplots_adjust(hspace=0)
+    plt.subplots_adjust(wspace=0)
+
     if pp == None:
         plt.savefig(full_path+'Composite_Spectra/StellarMass/MMT_all_five.pdf')
         subtitle_list = np.array(['all']*len(stlrmass_bin_arr))
@@ -633,7 +638,7 @@ def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass'):
     if pp != None: return pp, table00
 
     asc.write(table00, full_path+'Composite_Spectra/StellarMass/MMT_all_five_data.txt',
-        format='fixed_width_two_line', delimiter=' ')
+        format='fixed_width_two_line', delimiter=' ', overwrite=True)
 #enddef
 
 def plot_MMT_Ha_stlrmass_z():
@@ -680,7 +685,7 @@ def plot_MMT_Ha_stlrmass_z():
     #endfor
 
     asc.write(table00, full_path+'Composite_Spectra/StellarMassZ/MMT_stlrmassZ_data.txt',
-        format='fixed_width_two_line', delimiter=' ')
+        format='fixed_width_two_line', delimiter=' ', overwrite=True)
     pp.close()
 #enddef
 
@@ -775,7 +780,7 @@ def plot_Keck_Ha():
         # writing the spectra table
         table0 = Table([xval, yval/1E-17], names=['xval','yval/1E-17'])
         spectra_file_path = full_path+'Composite_Spectra/Redshift/Keck_spectra_vals/'+subtitle+'.txt'
-        asc.write(table0, spectra_file_path, format='fixed_width', delimiter=' ')
+        asc.write(table0, spectra_file_path, format='fixed_width', delimiter=' ', overwrite=True)
 
         # calculating flux for NII emissions
         pos_flux_list = []
@@ -867,7 +872,7 @@ def plot_Keck_Ha():
         'HB_neg_amplitude', 'E(B-V)_hahb']) # IDs
 
     asc.write(table00, full_path+'Composite_Spectra/Redshift/Keck_stacked_spectra_data.txt',
-            format='fixed_width_two_line', delimiter=' ')
+            format='fixed_width_two_line', delimiter=' ', overwrite=True)
 #enddef
 
 def plot_Keck_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass'):
@@ -895,7 +900,7 @@ def plot_Keck_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass'):
         subtitle_list) = general_plotting.get_iter_lists('Keck', stlr=True)
 
     f, axarr = plt.subplots(5, 2)
-    f.set_size_inches(8, 11)
+    f.set_size_inches(6, 11)
     ax_list = np.ndarray.flatten(axarr)
 
     subplot_index=0
@@ -938,8 +943,7 @@ def plot_Keck_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass'):
         # writing the spectra table
         table0 = Table([xval, yval/1E-17], names=['xval','yval/1E-17'])
         spectra_file_path = full_path+'Composite_Spectra/StellarMass/Keck_spectra_vals/'+subtitle[10:]+'.txt'
-        asc.write(table0, spectra_file_path,
-            format='fixed_width', delimiter=' ')
+        asc.write(table0, spectra_file_path, format='fixed_width', delimiter=' ', overwrite=True)
 
         # calculating flux for NII emissions
         pos_flux_list = []
@@ -1010,6 +1014,9 @@ def plot_Keck_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass'):
     else:
         f = general_plotting.final_plot_setup(f, title)
 
+    plt.subplots_adjust(hspace=0)
+    plt.subplots_adjust(wspace=0)
+
     if pp == None:
         plt.savefig(full_path+'Composite_Spectra/StellarMass/Keck_all_five.pdf')
         subtitle_list = np.array(['all']*len(stlrmass_bin_arr))
@@ -1036,7 +1043,7 @@ def plot_Keck_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass'):
     if pp != None: return pp, table00
 
     asc.write(table00, full_path+'Composite_Spectra/StellarMass/Keck_all_five_data.txt',
-            format='fixed_width_two_line', delimiter=' ')
+            format='fixed_width_two_line', delimiter=' ', overwrite=True)
 #enddef
 
 def plot_Keck_Ha_stlrmass_z():
@@ -1080,7 +1087,7 @@ def plot_Keck_Ha_stlrmass_z():
     #endfor
     
     asc.write(table00, full_path+'Composite_Spectra/StellarMassZ/Keck_stlrmassZ_data.txt',
-        format='fixed_width_two_line', delimiter=' ')
+        format='fixed_width_two_line', delimiter=' ', overwrite=True)
     pp.close()
 #enddef
 
@@ -1148,7 +1155,7 @@ grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr, fill_value=np.nan)
 print '### plotting MMT_Ha'
 # plot_MMT_Ha()
 # plot_MMT_Ha_stlrmass()
-plot_MMT_Ha_stlrmass_z()
+# plot_MMT_Ha_stlrmass_z()
 grid.close()
 
 print '### looking at the Keck grid'
@@ -1174,7 +1181,7 @@ grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 print '### plotting Keck_Ha'
 # plot_Keck_Ha()
 # plot_Keck_Ha_stlrmass()
-# plot_Keck_Ha_stlrmass_z()
+plot_Keck_Ha_stlrmass_z()
 grid.close()
 
 nbia.close()

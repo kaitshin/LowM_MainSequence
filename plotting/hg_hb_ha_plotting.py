@@ -8,6 +8,7 @@ PURPOSE:
 """
 
 from analysis.balmer_fit import find_nearest, get_best_fit, get_best_fit2, get_best_fit3
+from matplotlib.ticker import MaxNLocator
 import numpy as np
 
 def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0, 
@@ -37,7 +38,8 @@ def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0,
                 '\n'+r'$\sigma-$'+'='+'{:.3f}'.format((neg_sigma))+
                 '\ncontinuum='+'{:.3f}'.format((continuum/1E-17)),transform=ax.transAxes,fontsize=5,ha='right',va='top')
     if num%3==0:
-        ax.set_title(subtitle,fontsize=8,loc='left')
+        ax.set_ylabel(r'M$_*$'+subtitle[8:],fontsize=8)
+        ax.yaxis.set_major_locator(MaxNLocator(nbins=5))
     elif num%3==2 and subtitle!='NB973':
         ymaxval = max(ax.get_ylim())
         if bintype!='StellarMassZ' or ftitle!='NB973':
@@ -64,8 +66,19 @@ def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0,
         ax_list[num-1].plot([4341,4341],[0,ymaxval],'k',alpha=0.7,zorder=1)
         ax_list[num-1].plot([4363,4363],[0,ymaxval],'k:',alpha=0.4,zorder=1)
         ax_list[num].plot([4861,4861],[0,ymaxval],'k',alpha=0.7,zorder=1)
+    if num%3!=0:
+        ax.set_yticklabels([])
+    if num<12:
+        ax.set_xticklabels([])
+    if num%3==2 and flux==0:
+        if num<3: 
+            ymaxval = 0.7
+        else: 
+            ymaxval = 0.8
+            ax_list[num-2].yaxis.set_major_locator(MaxNLocator(prune='upper', nbins=5))
+        if bintype!='StellarMassZ' or ftitle!='NB973':
+            [a.set_ylim(ymax=ymaxval) for a in ax_list[num-2:num]]
     #endif
-
     return ax
 #enddef
 
@@ -77,6 +90,7 @@ def subplots_plotting(ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, to
     '''
     # within range
     if len_ii < 2:
+        ax.set_xlim(xmin0, xmax0)
         raise IndexError('Not enough sources to stack (less than two)')
         
     good_ii = np.array([x for x in range(len(xval)) if xval[x] >= xmin0 and xval[x] <= xmax0])

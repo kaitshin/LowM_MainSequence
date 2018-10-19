@@ -8,6 +8,7 @@ PURPOSE:
 """
 
 from analysis.balmer_fit import find_nearest, get_best_fit, get_best_fit2, get_best_fit3
+from matplotlib.ticker import MaxNLocator
 import numpy as np
 
 def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0, 
@@ -20,7 +21,6 @@ def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0,
         va='top')
     
     if num%2==0:
-        ax.set_title(subtitle,fontsize=8,loc='left')
         if subtitle != 'NB816':
             ax.text(0.97,0.97,'flux='+'{:.3f}'.format((pos_flux/1E-17))+
                 '\nflux_corr='+'{:.3f}'.format((flux/1E-17))+
@@ -29,7 +29,10 @@ def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0,
                 '\n'+r'$\sigma+$'+'='+'{:.3f}'.format((pos_sigma))+
                 '\n'+r'$\sigma-$'+'='+'{:.3f}'.format((neg_sigma))+
                 '\ncontinuum='+'{:.3f}'.format((continuum/1E-17)),transform=ax.transAxes,fontsize=5,ha='right',va='top')
+        ax.set_ylabel(r'M$_*$'+subtitle[8:],fontsize=8)
+        ax.yaxis.set_major_locator(MaxNLocator(nbins=5))
     elif num%2==1:
+        ax.set_yticklabels([])
         ymaxval = max(ax.get_ylim())
         [a.set_ylim(ymax=ymaxval) for a in ax_list[num-1:num]]
         ax.text(0.97,0.97,'flux='+'{:.3f}'.format((pos_flux/1E-17))+
@@ -43,6 +46,8 @@ def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0,
         ax_list[num].plot([6548,6548],[0,ymaxval], 'k:',alpha=0.4,zorder=1)
         ax_list[num].plot([6583,6583],[0,ymaxval], 'k:',alpha=0.4,zorder=1)
     #endif
+    if num<8:
+        ax.set_xticklabels([])
     return ax
 #enddef
 
