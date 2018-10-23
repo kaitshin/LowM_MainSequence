@@ -17,6 +17,11 @@ def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0,
     Sets up the subplots for Hg/Hb/Ha. Adds emission lines for each subplot
     and sets the ylimits for each row. Also adds flux labels to each subplot.
     '''
+    if flux==0 and pos_flux==0 and pos_amp==0 and neg_amp==0 and pos_sigma==0 and neg_sigma==0 and continuum==0:
+        # this part only really works for mmt m+z nb921,973
+        ax.set_axis_off()
+        return ax
+
     ax.text(0.03,0.97,label,transform=ax.transAxes,fontsize=7,ha='left',
             va='top')
     if num%3!=2:
@@ -40,6 +45,15 @@ def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0,
     if num%3==0:
         ax.set_ylabel(r'M$_*$'+subtitle[8:],fontsize=8)
         ax.yaxis.set_major_locator(MaxNLocator(nbins=5))
+    elif ftitle=='NB921' and num%3==1 and subtitle[10] != '8':
+        ymaxval = max(ax.get_ylim())
+        ax_list[num-1].plot([4341,4341],[-1,ymaxval],'k',alpha=0.7,zorder=1)
+        ax_list[num-1].plot([4363,4363],[-1,ymaxval],'k:',alpha=0.4,zorder=1)
+        ax_list[num].plot([4861,4861],[-1,ymaxval],'k',alpha=0.7,zorder=1)
+        if subtitle[10]=='6':
+            [a.set_ylim([-0.05, ymaxval]) for a in ax_list[num-1:num+1]]
+        elif subtitle[10]=='7':
+            [a.set_ylim([0, ymaxval]) for a in ax_list[num-1:num+1]]
     elif num%3==2 and subtitle!='NB973':
         ymaxval = max(ax.get_ylim())
         if bintype!='StellarMassZ' or ftitle!='NB973':
@@ -91,6 +105,7 @@ def subplots_plotting(ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, to
     # within range
     if len_ii < 2:
         ax.set_xlim(xmin0, xmax0)
+        # ax.set_axis_off()
         raise IndexError('Not enough sources to stack (less than two)')
         
     good_ii = np.array([x for x in range(len(xval)) if xval[x] >= xmin0 and xval[x] <= xmax0])
