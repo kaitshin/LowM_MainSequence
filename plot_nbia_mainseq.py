@@ -94,8 +94,8 @@ def noeske_2007():
              zorder=1)
     plt.plot(logM, logSFR_high, color='orange', marker='', linestyle='',
              zorder=1)
-    plt.fill_between(logM, logSFR_low, logSFR_high, color='none',
-                     hatch=10*'.', edgecolor='orange', linewidth=0.0,
+    plt.fill_between(logM, logSFR_low, logSFR_high, facecolor='none',
+                     hatch=3*'.', edgecolor='orange', linewidth=0.0,
                      zorder=1)
     noeske, = plt.plot(logM, logSFR, color='orange', marker='+',
                        linestyle='', label='Noeske+07 (0.20<z<0.40)',
