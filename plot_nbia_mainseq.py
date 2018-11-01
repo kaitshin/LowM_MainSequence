@@ -218,7 +218,7 @@ def main():
     markarr = np.array(['o', 'o', '^', 'D', '*'])
 
     # defining an approximate redshift array for plot visualization
-    z_arr0 = np.array([7046.0, 7111.0, 8150.0, 9196.0, 9755.0])/6563.0 - 1
+    z_arr0 = np.array([7045.0, 7126.0, 8152.0, 9193.0, 9749.0])/6563.0 - 1
     z_arr0 = np.around(z_arr0, 2)
     z_arr  = np.array(z_arr0, dtype='|S4')
     z_arr  = np.array([x+'0' if len(x)==3 else x for x in z_arr])
