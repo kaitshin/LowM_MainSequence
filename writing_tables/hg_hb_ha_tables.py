@@ -29,24 +29,24 @@ def Hg_Hb_Ha_tables(label, flux, o1, xval, pos_flux, dlambda):
         pos_amplitude = o1[0]
         neg_amplitude = 0
     else:
-        pos0 = o1[6]+o1[0]*np.exp(-0.5*((xval-o1[1])/o1[2])**2)
-        neg0 = o1[3]*np.exp(-0.5*((xval-o1[4])/o1[5])**2)
+        pos0 = o1[5]+o1[0]*np.exp(-0.5*((xval-o1[1])/o1[2])**2)
+        neg0 = o1[3]*np.exp(-0.5*((xval-o1[1])/o1[4])**2)
 
-        ew = flux/o1[6]
-        median = o1[6]
+        ew = flux/o1[5]
+        median = o1[5]
         pos_amplitude = o1[0]
         neg_amplitude = o1[3]
 
         if (neg_amplitude > 0): 
             neg_amplitude = 0
-            ew = pos_flux/o1[6]
+            ew = pos_flux/o1[5]
             ew_emission = ew
         else:
             idx_small = np.where(np.absolute(xval - o1[1]) <= 2.5*o1[2])[0]
-            pos_corr = np.sum(dlambda * (pos0[idx_small] - o1[6]))
-            ew_emission = pos_corr / o1[6]
+            pos_corr = np.sum(dlambda * (pos0[idx_small] - o1[5]))
+            ew_emission = pos_corr / o1[5]
             neg_corr = np.sum(dlambda * neg0[idx_small])
-            ew_absorption = neg_corr / o1[6]
+            ew_absorption = neg_corr / o1[5]
     #endif
 
     return (ew, ew_emission, ew_absorption, median, pos_amplitude, neg_amplitude)

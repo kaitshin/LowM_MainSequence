@@ -142,10 +142,10 @@ def get_HB_NB921_flux(bintype='redshift'):
         yval = yval[good_ii]
 
         o1 = get_best_fit3(xval, yval, r'H$\beta$')
-        pos0 = o1[6]+o1[0]*np.exp(-0.5*((xval-o1[1])/o1[2])**2)
-        neg0 = o1[3]*np.exp(-0.5*((xval-o1[4])/o1[5])**2)
+        pos0 = o1[5]+o1[0]*np.exp(-0.5*((xval-o1[1])/o1[2])**2)
+        neg0 = o1[3]*np.exp(-0.5*((xval-o1[1])/o1[4])**2)
         idx_small = np.where(np.absolute(xval - o1[1]) <= 2.5*o1[2])[0]
-        flux = np.sum(dlambda * (pos0[idx_small] - o1[6] - neg0[idx_small]))
+        flux = np.sum(dlambda * (pos0[idx_small] - o1[5] - neg0[idx_small]))
         
         flux_arr[i] = flux
 
@@ -1175,7 +1175,7 @@ grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr, fill_value=np.nan)
 print '### plotting MMT_Ha'
 # plot_MMT_Ha()
 # plot_MMT_Ha_stlrmass()
-# plot_MMT_Ha_stlrmass_z()
+plot_MMT_Ha_stlrmass_z()
 grid.close()
 
 print '### looking at the Keck grid'
@@ -1201,7 +1201,7 @@ grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 print '### plotting Keck_Ha'
 # plot_Keck_Ha()
 # plot_Keck_Ha_stlrmass()
-plot_Keck_Ha_stlrmass_z()
+# plot_Keck_Ha_stlrmass_z()
 grid.close()
 
 nbia.close()
