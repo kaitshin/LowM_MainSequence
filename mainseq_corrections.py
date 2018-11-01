@@ -482,7 +482,7 @@ def main():
 
 
     # getting luminosities
-    filt_cen = [7046, 7162, 8150, 9195, 9755] # angstroms
+    filt_cen = [7045, 7126, 8152, 9193, 9749] # angstroms, from the response files
     tempz = np.array([-100.0]*len(no_spectra))
     for ff, ii in zip(filtarr, range(len(filt_cen))):
         filt_match = np.array([x for x in range(len(no_spectra)) if tab_no_spectra['filter'][x]==ff])
