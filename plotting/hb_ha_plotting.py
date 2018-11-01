@@ -102,17 +102,17 @@ def subplots_plotting(ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, to
         ax.plot(xval3, (o3[3]+o3[0]*np.exp(-0.5*((xval3-o3[1])/o3[2])**2))/1E-17, 'g,', zorder=3)
     elif 'beta' in label and subtitle!='NB816':
         o1 = get_best_fit3(xval, yval, label)
-        pos0 = o1[6]+o1[0]*np.exp(-0.5*((xval-o1[1])/o1[2])**2)
-        neg0 = o1[3]*np.exp(-0.5*((xval-o1[4])/o1[5])**2)
+        pos0 = o1[5]+o1[0]*np.exp(-0.5*((xval-o1[1])/o1[2])**2)
+        neg0 = o1[3]*np.exp(-0.5*((xval-o1[1])/o1[4])**2)
         func0 = pos0 + neg0
         ax.plot(xval, func0/1E-17, 'r--', zorder=3)
         ax.plot(xval, pos0/1E-17, 'c--', zorder=2)
-        ax.plot(xval, (o1[6]+neg0)/1E-17, 'orange', ls='--', zorder=2)
+        ax.plot(xval, (o1[5]+neg0)/1E-17, 'orange', ls='--', zorder=2)
 
         idx_small = np.where(np.absolute(xval - o1[1]) <= 2.5*o1[2])[0]
 
-        pos_flux = np.sum(dlambda * (pos0[idx_small] - o1[6]))
-        flux = np.sum(dlambda * (pos0[idx_small] - o1[6] - neg0[idx_small]))
+        pos_flux = np.sum(dlambda * (pos0[idx_small] - o1[5]))
+        flux = np.sum(dlambda * (pos0[idx_small] - o1[5] - neg0[idx_small]))
         flux2 = 0
         flux3 = 0
     #endif
