@@ -128,8 +128,8 @@ def get_iter_lists(instr, stlr=False):
         subtitle_list = ['NB704+NB711']+['NB816']+['NB921']+['NB973']
         return (xmin_list, xmax_list, label_list, subtitle_list)
     elif instr=='Keck':
-        xmin_list = np.array([4861,6563])-60
-        xmax_list = np.array([4861,6563])+60
+        xmin_list = np.array([4861,6563])-30
+        xmax_list = np.array([4861,6563])+30
         label_list=[r'H$\beta$',r'H$\alpha$']
         subtitle_list = ['NB816']+['NB921']+['NB973']
         return (xmin_list, xmax_list, label_list, subtitle_list)

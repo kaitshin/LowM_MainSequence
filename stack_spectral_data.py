@@ -917,7 +917,7 @@ def plot_Keck_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass'):
         subtitle_list) = general_plotting.get_iter_lists('Keck', stlr=True)
 
     f, axarr = plt.subplots(5, 2)
-    f.set_size_inches(6, 11)
+    f.set_size_inches(5, 11)
     ax_list = np.ndarray.flatten(axarr)
 
     subplot_index=0
