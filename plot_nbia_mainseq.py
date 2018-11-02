@@ -138,7 +138,7 @@ def modify_graph(f, ax, labelarr, xlim, ylim, title):
     ax.set_xlim(xlim)
     ax.set_ylim(ylim)
     ax.set_xlabel('log(M/M'+r'$_{\odot}$'+')')
-    ax.set_ylabel('log(SFR[H'+r'$\alpha$'+']/M'+r'$_{\odot}$'+'yr'+r'$^{-1}$'+')')
+    ax.set_ylabel('log(SFR[H'+r'$\alpha$'+']/M'+r'$_{\odot}$'+' yr'+r'$^{-1}$'+')')
     ax.set_title(title)
     
     noeske = noeske_2007()
@@ -159,33 +159,41 @@ def modify_graph(f, ax, labelarr, xlim, ylim, title):
     sSFR_lines(f, ax, xlim)
 
 
-def make_all_graph(stlr_mass, sfr, filtarr, markarr, z_arr, title,
+def make_all_graph(stlr_mass, sfr, filtarr, markarr, z_arr, sizearr, title,
     no_spectra, yes_spectra, filts, good_sig_iis):
     '''
     '''
     color='blue'
     xlim = [4, 11]
-    ylim = [-4, 3]
+    ylim = [-4, 2]
 
     f, ax = plt.subplots()
-    plt.gcf().set_size_inches(10, 10)
+    plt.gcf().set_size_inches(8,6)
 
     labelarr = np.array([])
-    for (ff, mark, avg_z) in zip(filtarr, markarr, z_arr):
-        filt_index_n = np.array([x for x in range(len(no_spectra)) if ff==filts[no_spectra][x] 
-            and no_spectra[x] in good_sig_iis])
-        filt_index_y = np.array([x for x in range(len(yes_spectra)) if ff==filts[yes_spectra][x]
-            and yes_spectra[x] in good_sig_iis])
+    for (ff, mark, avg_z, size) in zip(filtarr, markarr, z_arr, sizearr):
+        if 'NB7' in ff:
+            filt_index_n = np.array([x for x in range(len(no_spectra)) if ff[:3] in filts[no_spectra][x] 
+                and no_spectra[x] in good_sig_iis])
+            filt_index_y = np.array([x for x in range(len(yes_spectra)) if ff[:3] in filts[yes_spectra][x]
+                and yes_spectra[x] in good_sig_iis])
+        else:
+            filt_index_n = np.array([x for x in range(len(no_spectra)) if ff==filts[no_spectra][x] 
+                and no_spectra[x] in good_sig_iis])
+            filt_index_y = np.array([x for x in range(len(yes_spectra)) if ff==filts[yes_spectra][x]
+                and yes_spectra[x] in good_sig_iis])
 
+        print '>>>', ff, avg_z
 
         temp = plt.scatter(stlr_mass[yes_spectra][filt_index_y],
-                           sfr[yes_spectra][filt_index_y], marker=mark,
-                           facecolors=color, edgecolors='none', alpha=0.3,
-                           zorder=3, label='z~'+np.str(avg_z)+' ('+ff+')')
+                       sfr[yes_spectra][filt_index_y], marker=mark,
+                       facecolors=color, edgecolors='none', alpha=0.3,
+                       zorder=3, label='z~'+np.str(avg_z)+' ('+ff+')', s=size)
+
         plt.scatter(stlr_mass[no_spectra][filt_index_n], 
-                    sfr[no_spectra][filt_index_n],
-                    marker=mark, facecolors='none', edgecolors=color, alpha=0.3, 
-                    linewidth=0.5, zorder=3, label='z~'+np.str(avg_z)+' ('+ff+')')
+                        sfr[no_spectra][filt_index_n],
+                        marker=mark, facecolors='none', edgecolors=color, alpha=0.3, 
+                        linewidth=0.5, zorder=3, label='z~'+np.str(avg_z)+' ('+ff+')', s=size)
         
         labelarr = np.append(labelarr, temp)
     #endfor
@@ -214,13 +222,16 @@ def main():
 
 
     # defining useful data structs for plotting
-    filtarr = np.array(['NB704', 'NB711', 'NB816', 'NB921', 'NB973'])
-    markarr = np.array(['o', 'o', '^', 'D', '*'])
+    filtarr = np.array(['NB704,NB711', 'NB816', 'NB921', 'NB973'])
+    markarr = np.array(['o', '^', 'D', '*'])
+    sizearr = np.array([6.0, 6.0, 6.0, 9.0])**2
 
     # defining an approximate redshift array for plot visualization
     z_arr0 = np.array([7045.0, 7126.0, 8152.0, 9193.0, 9749.0])/6563.0 - 1
     z_arr0 = np.around(z_arr0, 2)
-    z_arr  = np.array(z_arr0, dtype='|S4')
+    z_arr  = np.array(z_arr0, dtype='|S9')
+    z_arr[0] = ",".join(z_arr[:2])
+    z_arr = np.delete(z_arr, 1)
     z_arr  = np.array([x+'0' if len(x)==3 else x for x in z_arr])
 
     # defining a flux sigma cutoff
@@ -229,7 +240,7 @@ def main():
     for title, corrs in zip(['mainseq_no_corrs', 'mainseq_filt_corrs', 'mainseq_filt_nii_corrs', 'mainseq_filt_nii_dust_corrs'], 
         [np.zeros(len(corr_tbl)), filt_corr_factor, filt_corr_factor+nii_ha_corr_factor, filt_corr_factor+nii_ha_corr_factor+dust_corr_factor]):
         #  should pass in e.g., "obs_sfr + corrs" to plot applied corrs
-        make_all_graph(stlr_mass, obs_sfr+corrs, filtarr, markarr, z_arr, title, 
+        make_all_graph(stlr_mass, obs_sfr+corrs, filtarr, markarr, z_arr, sizearr, title, 
             no_spectra, yes_spectra, filts, good_sig_iis)
         print 'done plotting', title
 
