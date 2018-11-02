@@ -619,7 +619,7 @@ def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass'):
         f = general_plotting.final_plot_setup(f, title)
 
     plt.subplots_adjust(hspace=0)
-    plt.subplots_adjust(wspace=0)
+    plt.subplots_adjust(wspace=0.05)
 
     if pp == None:
         plt.savefig(full_path+'Composite_Spectra/StellarMass/MMT_all_five.pdf')
@@ -1175,7 +1175,7 @@ grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr, fill_value=np.nan)
 print '### plotting MMT_Ha'
 # plot_MMT_Ha()
 # plot_MMT_Ha_stlrmass()
-plot_MMT_Ha_stlrmass_z()
+# plot_MMT_Ha_stlrmass_z()
 grid.close()
 
 print '### looking at the Keck grid'
@@ -1201,7 +1201,7 @@ grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 print '### plotting Keck_Ha'
 # plot_Keck_Ha()
 # plot_Keck_Ha_stlrmass()
-# plot_Keck_Ha_stlrmass_z()
+plot_Keck_Ha_stlrmass_z()
 grid.close()
 
 nbia.close()

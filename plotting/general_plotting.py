@@ -148,9 +148,7 @@ def final_plot_setup(f, title):
     [a.tick_params(axis='both', labelsize='6') for a in f.axes[:]]
     [a.minorticks_on() for a in f.axes[:]]
 
-    f.suptitle(title, size=15)    
-    f.subplots_adjust(wspace=0.2)
-    f.subplots_adjust(hspace=0.2)
+    f.suptitle(title, size=15)
     
     return f
 #enddef

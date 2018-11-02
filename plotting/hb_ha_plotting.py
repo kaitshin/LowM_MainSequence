@@ -100,6 +100,10 @@ def subplots_plotting(ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, to
             o3 = [0,0,0,0]
         flux3 = np.sum(dlambda * (o3[0]*np.exp(-0.5*((xval3-o3[1])/o3[2])**2)))
         ax.plot(xval3, (o3[3]+o3[0]*np.exp(-0.5*((xval3-o3[1])/o3[2])**2))/1E-17, 'g,', zorder=3)
+
+        idx_small = np.where(np.absolute(xval - o1[1]) <= 2.5*o1[2])[0]
+        func0 = o1[3]+o1[0]*np.exp(-0.5*((xval-o1[1])/o1[2])**2)
+        ax.plot(xval[idx_small], (yval[idx_small] - func0[idx_small] + o1[3])/1E-17, color='#1f77b4', ls=':', alpha=0.5)
     elif 'beta' in label and subtitle!='NB816':
         o1 = get_best_fit3(xval, yval, label)
         pos0 = o1[5]+o1[0]*np.exp(-0.5*((xval-o1[1])/o1[2])**2)
@@ -115,6 +119,8 @@ def subplots_plotting(ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, to
         flux = np.sum(dlambda * (pos0[idx_small] - o1[5] - neg0[idx_small]))
         flux2 = 0
         flux3 = 0
+
+        ax.plot(xval[idx_small], (yval[idx_small] - func0[idx_small] + o1[5])/1E-17, color='#1f77b4', ls=':', alpha=0.5)
     #endif
 
     ax.set_xlim(xmin0, xmax0)
