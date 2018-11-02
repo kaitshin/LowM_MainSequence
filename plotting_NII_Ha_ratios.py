@@ -76,11 +76,11 @@ def main():
 
     # plotting
     plt.plot(stlr_mass[big_good_nii][i0], BIG_FLUX_RAT[i0], 
-             color='blue', mec='blue', marker='*', lw=0, label='MMT')
+             color='blue', mec='blue', marker='*', lw=0, label='MMT', ms=10, alpha=0.8)
     plt.plot(stlr_mass[big_good_nii][i1], BIG_FLUX_RAT[i1], 
-             color='lightblue', mec='lightblue', marker='s', lw=0, label='Keck')
+             color='lightblue', mec='lightblue', marker='s', lw=0, label='Keck', alpha=0.8)
     plt.plot(stlr_mass[big_good_nii][i2], BIG_FLUX_RAT[i2], 
-             color='purple', mec='purple', marker='o', lw=0, label='merged')
+             color='purple', mec='purple', marker='o', lw=0, label='merged', alpha=0.8)
 
 
     ## SNR < 2 limits
@@ -97,21 +97,21 @@ def main():
 
     # plotting
     plt.plot(stlr_mass[lil_good_nii][j0], LIMIT_arr[j0],
-             linestyle='none', marker=u'$\u2193$', markersize=10, color='blue', mec='blue', mew=2)
+             linestyle='none', marker=u'$\u2193$', markersize=10, color='blue', mec='blue', mew=2, alpha=0.8)
     plt.plot(stlr_mass[lil_good_nii][j1], LIMIT_arr[j1],
-             linestyle='none', marker=u'$\u2193$', markersize=10, color='lightblue', mec='lightblue', mew=2)
+             linestyle='none', marker=u'$\u2193$', markersize=10, color='lightblue', mec='lightblue', mew=2, alpha=0.8)
     plt.plot(stlr_mass[lil_good_nii][j2], LIMIT_arr[j2],
-             linestyle='none', marker=u'$\u2193$', markersize=10, color='purple', mec='purple', mew=2)
+             linestyle='none', marker=u'$\u2193$', markersize=10, color='purple', mec='purple', mew=2, alpha=0.8)
 
     ## composites
     # ratios for composites
     flux_rat_arr = nii_flux_arr*1.33/ha_flux_arr
 
     # plotting
-    plt.plot(avgm_arr[:9], flux_rat_arr[:9], color='limegreen', lw=0, label='MMT composites', marker='*', mew=0)
-    plt.plot(avgm_arr[9:], flux_rat_arr[9:], color='darkgreen', lw=0, label='Keck composites', marker='s', mew=0)
-    plt.errorbar(avgm_arr[:9], flux_rat_arr[:9], xerr=np.array([avgm_arr[:9]-minm_arr[:9], maxm_arr[:9]-avgm_arr[:9]]), fmt='none', ecolor='limegreen')
-    plt.errorbar(avgm_arr[9:], flux_rat_arr[9:], xerr=np.array([avgm_arr[9:]-minm_arr[9:], maxm_arr[9:]-avgm_arr[9:]]), fmt='none', ecolor='darkgreen')
+    plt.plot(avgm_arr[:9], flux_rat_arr[:9], color='limegreen', mec='limegreen', lw=0, label='MMT composites', marker='*', ms=10, alpha=0.8)
+    plt.plot(avgm_arr[9:], flux_rat_arr[9:], color='darkgreen', mec='darkgreen', lw=0, label='Keck composites', marker='s', alpha=0.8)
+    plt.errorbar(avgm_arr[:9], flux_rat_arr[:9], xerr=np.array([avgm_arr[:9]-minm_arr[:9], maxm_arr[:9]-avgm_arr[:9]]), fmt='none', ecolor='limegreen', alpha=0.8)
+    plt.errorbar(avgm_arr[9:], flux_rat_arr[9:], xerr=np.array([avgm_arr[9:]-minm_arr[9:], maxm_arr[9:]-avgm_arr[9:]]), fmt='none', ecolor='darkgreen', alpha=0.8)
 
     # legend 1
     legendAA = plt.legend(loc='best', fontsize=12)
@@ -138,12 +138,12 @@ def main():
         'r--', lw=2, label='m = '+str(np.around(coeffs1[0],3))+', b = '+str(np.around(coeffs1[0]*-8+const,3)))
 
     # legend2
-    legendAB = plt.gca().legend(handles=[lineA, lineB], loc='lower right', fontsize=11)
-    plt.gca().add_artist(legendAB)
+    # legendAB = plt.gca().legend(handles=[lineA, lineB], loc='lower right', fontsize=11)
+    # plt.gca().add_artist(legendAB)
 
     ## finishing touches
     plt.xlabel(r'$\log_{10}(M_*/M_\odot)$', size=16)
-    plt.ylabel('1.33 ['+r'\textsc{N ii}]$\lambda$6583/H$\alpha$', size=16)
+    plt.ylabel('['+r'\textsc{N ii}]$\lambda\lambda$6548,6583/H$\alpha$', size=16)
     a = [tick.label.set_fontsize(14) for tick in plt.gca().xaxis.get_major_ticks()]
     b = [tick.label.set_fontsize(14) for tick in plt.gca().yaxis.get_major_ticks()]
     plt.ylim(ymax=1.1)
