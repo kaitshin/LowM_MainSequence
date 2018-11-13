@@ -12,7 +12,7 @@ from matplotlib.ticker import MaxNLocator
 import numpy as np
 
 def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0, 
-    pos_amp=0, neg_amp=0, pos_sigma=0, neg_sigma=0, continuum=0, hb_nb921_flux=0, bintype='N/A', ftitle=''):
+    pos_amp=0, neg_amp=0, pos_sigma=0, neg_sigma=0, continuum=0, hb_nb921_flux=0, bintype='N/A', ftitle='', publ=True):
     '''
     Sets up the subplots for Hg/Hb/Ha. Adds emission lines for each subplot
     and sets the ylimits for each row. Also adds flux labels to each subplot.
@@ -26,22 +26,30 @@ def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0,
             va='top')
     if num%3!=2:
         if (subtitle=='NB921' or ftitle=='NB921') and num%3==1 and hb_nb921_flux > 0:
-            ax.text(0.97,0.97,'flux='+'{:.3f}'.format((pos_flux/1E-17))+
-                '\nflux_corr='+'{:.3f}'.format((flux/1E-17))+
-                '\nflux_yes_ha='+'{:.3f}'.format((hb_nb921_flux/1E-17))+
-                '\nA'+r'$+$'+'='+'{:.3f}'.format((pos_amp/1E-17))+
-                '\nA'+r'$-$'+'='+'{:.3f}'.format((neg_amp/1E-17))+
-                '\n'+r'$\sigma+$'+'='+'{:.3f}'.format((pos_sigma))+
-                '\n'+r'$\sigma-$'+'='+'{:.3f}'.format((neg_sigma))+
-                '\ncontinuum='+'{:.3f}'.format((continuum/1E-17)),transform=ax.transAxes,fontsize=5,ha='right',va='top')
+            if publ==True:
+                ax.text(0.97,0.97,'flux='+'{:.3f}'.format((flux/1E-17))+
+                    '\nEW_corr='+'{:.3f}'.format(flux/continuum),transform=ax.transAxes,fontsize=5,ha='right',va='top')
+            else:
+                ax.text(0.97,0.97,'flux='+'{:.3f}'.format((pos_flux/1E-17))+
+                    '\nflux_corr='+'{:.3f}'.format((flux/1E-17))+
+                    '\nflux_yes_ha='+'{:.3f}'.format((hb_nb921_flux/1E-17))+
+                    '\nA'+r'$+$'+'='+'{:.3f}'.format((pos_amp/1E-17))+
+                    '\nA'+r'$-$'+'='+'{:.3f}'.format((neg_amp/1E-17))+
+                    '\n'+r'$\sigma+$'+'='+'{:.3f}'.format((pos_sigma))+
+                    '\n'+r'$\sigma-$'+'='+'{:.3f}'.format((neg_sigma))+
+                    '\ncontinuum='+'{:.3f}'.format((continuum/1E-17)),transform=ax.transAxes,fontsize=5,ha='right',va='top')
         else:
-            ax.text(0.97,0.97,'flux='+'{:.3f}'.format((pos_flux/1E-17))+
-                '\nflux_corr='+'{:.3f}'.format((flux/1E-17))+
-                '\nA'+r'$+$'+'='+'{:.3f}'.format((pos_amp/1E-17))+
-                '\nA'+r'$-$'+'='+'{:.3f}'.format((neg_amp/1E-17))+
-                '\n'+r'$\sigma+$'+'='+'{:.3f}'.format((pos_sigma))+
-                '\n'+r'$\sigma-$'+'='+'{:.3f}'.format((neg_sigma))+
-                '\ncontinuum='+'{:.3f}'.format((continuum/1E-17)),transform=ax.transAxes,fontsize=5,ha='right',va='top')
+            if publ==True:
+                ax.text(0.97,0.97,'flux='+'{:.3f}'.format((flux/1E-17))+
+                    '\nEW_corr='+'{:.3f}'.format(flux/continuum),transform=ax.transAxes,fontsize=5,ha='right',va='top')
+            else:
+                ax.text(0.97,0.97,'flux='+'{:.3f}'.format((pos_flux/1E-17))+
+                    '\nflux_corr='+'{:.3f}'.format((flux/1E-17))+
+                    '\nA'+r'$+$'+'='+'{:.3f}'.format((pos_amp/1E-17))+
+                    '\nA'+r'$-$'+'='+'{:.3f}'.format((neg_amp/1E-17))+
+                    '\n'+r'$\sigma+$'+'='+'{:.3f}'.format((pos_sigma))+
+                    '\n'+r'$\sigma-$'+'='+'{:.3f}'.format((neg_sigma))+
+                    '\ncontinuum='+'{:.3f}'.format((continuum/1E-17)),transform=ax.transAxes,fontsize=5,ha='right',va='top')
     if num%3==0:
         ax.set_ylabel(r'M$_*$'+subtitle[8:],fontsize=8)
         ax.yaxis.set_major_locator(MaxNLocator(nbins=5))
@@ -64,10 +72,14 @@ def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0,
         ax_list[num].plot([6563,6563], [0,ymaxval],'k',alpha=0.7,zorder=1)
         ax_list[num].plot([6548,6548],[0,ymaxval], 'k:',alpha=0.4,zorder=1)
         ax_list[num].plot([6583,6583],[0,ymaxval], 'k:',alpha=0.4,zorder=1)
-        ax.text(0.97,0.97,'flux='+'{:.3f}'.format((pos_flux/1E-17))+
-            '\nA'+r'$+$'+'='+'{:.3f}'.format((pos_amp/1E-17))+
-            '\n'+r'$\sigma+$'+'='+'{:.3f}'.format((pos_sigma))+
-            '\ncontinuum='+'{:.3f}'.format((continuum/1E-17)),transform=ax.transAxes,fontsize=5,ha='right',va='top')
+        if publ==True:
+            ax.text(0.97,0.97,'flux='+'{:.3f}'.format((pos_flux/1E-17)),
+                transform=ax.transAxes,fontsize=5,ha='right',va='top')
+        else:
+            ax.text(0.97,0.97,'flux='+'{:.3f}'.format((pos_flux/1E-17))+
+                '\nA'+r'$+$'+'='+'{:.3f}'.format((pos_amp/1E-17))+
+                '\n'+r'$\sigma+$'+'='+'{:.3f}'.format((pos_sigma))+
+                '\ncontinuum='+'{:.3f}'.format((continuum/1E-17)),transform=ax.transAxes,fontsize=5,ha='right',va='top')
     elif subtitle=='NB973' and num%3==1:
         ymaxval = max(ax.get_ylim())
         [a.set_ylim(ymax=ymaxval) for a in ax_list[num-1:num]]
@@ -161,7 +173,7 @@ def subplots_plotting(ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, to
 
         idx_small = np.where(np.absolute(xval - o1[1]) <= 2.5*o1[2])[0]
         func0 = o1[3]+o1[0]*np.exp(-0.5*((xval-o1[1])/o1[2])**2)
-        ax.plot(xval[idx_small], (yval[idx_small] - func0[idx_small] + o1[3])/1E-17, c='#1f77b4', ls=':', alpha=0.5)
+        ax.plot(xval[idx_small], (yval[idx_small] - func0[idx_small] + o1[3])/1E-17, c='#1f77b4', ls='--', alpha=0.5)
     else:
         o1 = get_best_fit3(xval, yval, label)
         pos0 = o1[5]+o1[0]*np.exp(-0.5*((xval-o1[1])/o1[2])**2)
@@ -178,7 +190,7 @@ def subplots_plotting(ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, to
         flux2 = 0
         flux3 = 0
 
-        ax.plot(xval[idx_small], (yval[idx_small] - func0[idx_small] + o1[5])/1E-17, color='#1f77b4', ls=':', alpha=0.5)
+        ax.plot(xval[idx_small], (yval[idx_small] - func0[idx_small] + o1[5])/1E-17, color='#1f77b4', ls='--', alpha=0.5)
     #endif
 
     ax.set_xlim(xmin0, xmax0)

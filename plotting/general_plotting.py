@@ -145,7 +145,8 @@ def final_plot_setup(f, title):
 
     Works for both Hg/Hb/Ha and Hb/Ha plots
     '''
-    [a.tick_params(axis='both', labelsize='6') for a in f.axes[:]]
+    [a.tick_params(axis='both', labelsize='6', which='both', direction='in') for a in f.axes[:]]
+    [a.tick_params(axis='x', which='both', bottom=False) for a in f.axes[:-2]]
     [a.minorticks_on() for a in f.axes[:]]
 
     f.suptitle(title, size=15)
