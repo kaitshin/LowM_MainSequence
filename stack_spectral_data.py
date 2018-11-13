@@ -494,10 +494,10 @@ def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass'):
             HA_RMS.append(0)
             HB_RMS.append(0)
             HG_RMS.append(0)
-            for i in range(2):
+            for i in range(3):
                 ax = ax_list[subplot_index]
                 label = label_list[i]
-                Keck_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index)
+                MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index)
                 subplot_index += 1
             continue
         #endif
@@ -1175,7 +1175,7 @@ grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr, fill_value=np.nan)
 print '### plotting MMT_Ha'
 # plot_MMT_Ha()
 # plot_MMT_Ha_stlrmass()
-# plot_MMT_Ha_stlrmass_z()
+plot_MMT_Ha_stlrmass_z()
 grid.close()
 
 print '### looking at the Keck grid'
