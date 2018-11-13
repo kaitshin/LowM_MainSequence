@@ -13,7 +13,7 @@ INPUTS:
     'Catalogs/NB_IA_emitters.nodup.colorrev.fix.fits'
     'Catalogs/NB_IA_emitters.allcols.colorrev.fits'
     'Catalogs/nb_ia_zspec.txt'
-    'FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast.fout'
+    'FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast.GALEX.fout'
     'Composite_Spectra/Redshift/MMT_stacked_spectra_data.txt'
     'Composite_Spectra/Redshift/Keck_stacked_spectra_data.txt'
     'Composite_Spectra/StellarMass/MMT_all_five_data.txt'
@@ -135,15 +135,21 @@ def fix_masses_out_of_range(masses_MMT_ii, masses_Keck_ii, masstype):
     Fixes masses that were not put into bins because they were too low.
     Reassigns them to the lowest mass bin. 
 
+    Fixes masses that were not put into bins because they were too high.
+    Reassigns them to the highest mass bin.  (only relevant for nb973 keck_m/z)
+
     Does this for both stlrmass bins and stlrmassZ bins.
     '''
     if masstype=='stlrmass':
         masses_MMT_ii = np.array([1 if x==0 else x for x in masses_MMT_ii])
         masses_Keck_ii = np.array([1 if x==0 else x for x in masses_Keck_ii])
+        masses_Keck_ii = np.array([5 if x==6 else x for x in masses_Keck_ii])
     else: #=='stlrmassZ'
         masses_MMT_ii = np.array(['1'+x[1:] if x[0]=='0' else x for x in masses_MMT_ii])
         masses_Keck_ii = np.array(['1'+x[1:] if x[0]=='0' else x for x in masses_Keck_ii])
+        masses_Keck_ii = np.array(['5'+x[1:] if x[0]=='6' else x for x in masses_Keck_ii])
 
+    assert (6 not in masses_MMT_ii) and (6 not in masses_Keck_ii)
     return masses_MMT_ii, masses_Keck_ii
 
 
@@ -191,7 +197,7 @@ def bins_table_no_spectra(indexes, NAME0, AP, stlr_mass, massbins_MMT, massbins_
     massZs_MMT = np.array(['UNFILLED']*len(indexes))
     massZs_Keck = np.array(['UNFILLED']*len(indexes))
     for ff in ['NB704+NB711','NB816','NB921','NB973']:
-        jj = len(np.where(ff==massZlist_filts_MMT)[0])        
+        jj = len(np.where(ff==massZlist_filts_MMT)[0])
         
         good_filt_iis = np.array([x for x in range(len(filts)) if filts[x] in ff])
         
@@ -208,7 +214,7 @@ def bins_table_no_spectra(indexes, NAME0, AP, stlr_mass, massbins_MMT, massbins_
 
             if ff=='NB973':
                 kk += 1
-                
+
             mass_Keck_iis  = np.digitize(masses[good_filt_iis], massZbins_Keck[ii1:ii1+kk], right=True)
             massZ_Keck_iis = np.array([str(x)+'-'+ff for x in mass_Keck_iis])
             massZs_Keck[good_filt_iis] = massZ_Keck_iis
@@ -311,7 +317,7 @@ def main():
                      Reader=asc.CommentedHeader)
     zspec0 = np.array(zspec['zspec0'])
     inst_str0 = np.array(zspec['inst_str0'])
-    fout  = asc.read(FULL_PATH+'FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast.fout',
+    fout  = asc.read(FULL_PATH+'FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast.GALEX.fout',
                      guess=False,Reader=asc.NoHeader)
     stlr_mass = np.array(fout['col7'])
     data_dict = create_ordered_AP_arrays()
