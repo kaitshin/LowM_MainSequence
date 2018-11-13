@@ -1035,7 +1035,7 @@ def plot_Keck_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass'):
         f = general_plotting.final_plot_setup(f, title)
 
     plt.subplots_adjust(hspace=0)
-    plt.subplots_adjust(wspace=0)
+    plt.subplots_adjust(wspace=0.05)
 
     if pp == None:
         plt.savefig(full_path+'Composite_Spectra/StellarMass/Keck_all_five.pdf')
