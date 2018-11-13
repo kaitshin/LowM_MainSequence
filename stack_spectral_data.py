@@ -9,11 +9,12 @@ PURPOSE:
     Specific to SDF data.
 
     Depends on combine_spectral_data.py and create_ordered_AP_arrays.py
+    Depends on write_spectral_coverage_table.py for easy MMT Ha-NB921 coverage info
 
 INPUTS:
     'Catalogs/NB_IA_emitters.nodup.colorrev.fix.fits'
     'Catalogs/nb_ia_zspec.txt'
-    'FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast.fout'
+    'FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast.GALEX.fout'
     'Spectra/spectral_MMT_grid_data.txt'
     'Spectra/spectral_MMT_grid.fits'
     'Spectra/spectral_Keck_grid_data.txt'
@@ -1143,7 +1144,7 @@ zspec = asc.read(full_path+'Catalogs/nb_ia_zspec.txt',guess=False,
 zspec0 = np.array(zspec['zspec0'])
 inst_str0 = np.array(zspec['inst_str0']) ##used
 
-fout  = asc.read(full_path+'FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast.fout',
+fout  = asc.read(full_path+'FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast.GALEX.fout',
                  guess=False,Reader=asc.NoHeader)
 stlr_mass = np.array(fout['col7']) ##used
 nan_stlr_mass = np.copy(stlr_mass)
@@ -1173,8 +1174,8 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr, fill_value=np.nan)
 
 print '### plotting MMT_Ha'
-# plot_MMT_Ha()
-# plot_MMT_Ha_stlrmass()
+plot_MMT_Ha()
+plot_MMT_Ha_stlrmass()
 plot_MMT_Ha_stlrmass_z()
 grid.close()
 
@@ -1199,8 +1200,8 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 
 print '### plotting Keck_Ha'
-# plot_Keck_Ha()
-# plot_Keck_Ha_stlrmass()
+plot_Keck_Ha()
+plot_Keck_Ha_stlrmass()
 plot_Keck_Ha_stlrmass_z()
 grid.close()
 
