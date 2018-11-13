@@ -8,6 +8,9 @@ PURPOSE:
     Depends on combine_spectral_data.py and stack_spectral_data.py
 
 INPUTS:
+    FULL_PATH+'Catalogs/NB_IA_emitters.nodup.colorrev.fix.fits'
+    FULL_PATH+'Catalogs/nb_ia_zspec.txt'
+    FULL_PATH+'FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast.GALEX.fout'
     FULL_PATH+'Spectra/spectral_MMT_grid_data.txt'
     FULL_PATH+'Spectra/spectral_MMT_grid.fits'
     FULL_PATH+'Composite_Spectra/StellarMass/MMT_all_five_data.txt'
@@ -196,7 +199,7 @@ def write_MMT_table(inst_str0, ID, zspec0, NAME0, AP, stlr_mass, filt_arr,
     # creating/writing the table
     tt_mmt = Table([ID, NAME0, AP, zspec0, filt_arr, stlr_mass, stlrmassbin, stlrmassbinZ, HG_cvg, HB_cvg, HA_cvg, MMT_LMIN0, MMT_LMAX0], 
         names=['ID', 'NAME', 'AP', 'z', 'filter', 'stlrmass', 'stlrmassbin', 'stlrmassZbin', 'HG_cvg', 'HB_cvg', 'HA_cvg', 'LMIN0', 'LMAX0']) 
-    asc.write(tt_mmt, FULL_PATH+'Composite_Spectra/MMT_spectral_coverage.txt', format='fixed_width', delimiter=' ')
+    asc.write(tt_mmt, FULL_PATH+'Composite_Spectra/MMT_spectral_coverage.txt', format='fixed_width', delimiter=' ', overwrite=True)
 
 
 def get_spectral_cvg_Keck(KECK_LMIN0, KECK_LMAX0):
@@ -267,7 +270,7 @@ def write_Keck_table(inst_str0, ID, zspec0, NAME0, AP, stlr_mass, filt_arr,
     # creating/writing the table
     tt_keck = Table([ID, NAME0, AP, zspec0, filt_arr, stlr_mass, stlrmassbin, stlrmassbinZ, HB_cvg, HA_cvg, KECK_LMIN0, KECK_LMAX0], 
         names=['ID', 'NAME', 'AP', 'z', 'filter', 'stlrmass', 'stlrmassbin', 'stlrmassZbin', 'HB_cvg', 'HA_cvg', 'LMIN0', 'LMAX0']) 
-    asc.write(tt_keck, FULL_PATH+'Composite_Spectra/Keck_spectral_coverage.txt', format='fixed_width', delimiter=' ')
+    asc.write(tt_keck, FULL_PATH+'Composite_Spectra/Keck_spectral_coverage.txt', format='fixed_width', delimiter=' ', overwrite=True)
 
 
 def main():
@@ -293,7 +296,7 @@ def main():
     inst_str0_orig = np.array(zspec['inst_str0'])
     inst_str0 = inst_str0_orig[ha_ii]
 
-    fout  = asc.read(FULL_PATH+'FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast.fout',
+    fout  = asc.read(FULL_PATH+'FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast.GALEX.fout',
                      guess=False,Reader=asc.NoHeader)
     stlr_mass_orig = np.array(fout['col7'])
     stlr_mass = stlr_mass_orig[ha_ii]
