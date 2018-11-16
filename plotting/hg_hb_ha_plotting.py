@@ -24,11 +24,13 @@ def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0,
 
     ax.text(0.03,0.97,label,transform=ax.transAxes,fontsize=7,ha='left',
             va='top')
-    if num%3!=2:
+    if num%3!=2: #Hg or Hb
         if (subtitle=='NB921' or ftitle=='NB921') and num%3==1 and hb_nb921_flux > 0:
             if publ==True:
-                ax.text(0.97,0.97,'flux='+'{:.3f}'.format((flux/1E-17))+
-                    '\nEW_corr='+'{:.3f}'.format(flux/continuum),transform=ax.transAxes,fontsize=5,ha='right',va='top')
+                ax.text(0.97,0.97,'Flux='+'{:.3f}'.format((flux/1E-17))+
+                    '\nEW='+'{:.3f}'.format(flux/continuum)+
+                    '\nEW_abs='+'{:.3f}'.format((flux - pos_flux)/continuum),
+                    transform=ax.transAxes,fontsize=5,ha='right',va='top')
             else:
                 ax.text(0.97,0.97,'flux='+'{:.3f}'.format((pos_flux/1E-17))+
                     '\nflux_corr='+'{:.3f}'.format((flux/1E-17))+
@@ -40,8 +42,10 @@ def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0,
                     '\ncontinuum='+'{:.3f}'.format((continuum/1E-17)),transform=ax.transAxes,fontsize=5,ha='right',va='top')
         else:
             if publ==True:
-                ax.text(0.97,0.97,'flux='+'{:.3f}'.format((flux/1E-17))+
-                    '\nEW_corr='+'{:.3f}'.format(flux/continuum),transform=ax.transAxes,fontsize=5,ha='right',va='top')
+                ax.text(0.97,0.97,'Flux='+'{:.3f}'.format((flux/1E-17))+
+                    '\nEW='+'{:.3f}'.format(flux/continuum)+
+                    '\nEW_abs='+'{:.3f}'.format((flux - pos_flux)/continuum),
+                    transform=ax.transAxes,fontsize=5,ha='right',va='top')
             else:
                 ax.text(0.97,0.97,'flux='+'{:.3f}'.format((pos_flux/1E-17))+
                     '\nflux_corr='+'{:.3f}'.format((flux/1E-17))+
@@ -62,7 +66,7 @@ def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0,
             [a.set_ylim([-0.05, ymaxval]) for a in ax_list[num-1:num+1]]
         elif subtitle[10]=='7':
             [a.set_ylim([0, ymaxval]) for a in ax_list[num-1:num+1]]
-    elif num%3==2 and subtitle!='NB973':
+    elif num%3==2 and subtitle!='NB973': #Ha
         ymaxval = max(ax.get_ylim())
         if bintype!='StellarMassZ' or ftitle!='NB973':
             [a.set_ylim(ymax=ymaxval) for a in ax_list[num-2:num]]
@@ -73,7 +77,8 @@ def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0,
         ax_list[num].plot([6548,6548],[0,ymaxval], 'k:',alpha=0.4,zorder=1)
         ax_list[num].plot([6583,6583],[0,ymaxval], 'k:',alpha=0.4,zorder=1)
         if publ==True:
-            ax.text(0.97,0.97,'flux='+'{:.3f}'.format((pos_flux/1E-17)),
+            ax.text(0.97,0.97,'Flux='+'{:.3f}'.format((pos_flux/1E-17))+
+                '\nEW='+'{:.3f}'.format(flux/continuum),
                 transform=ax.transAxes,fontsize=5,ha='right',va='top')
         else:
             ax.text(0.97,0.97,'flux='+'{:.3f}'.format((pos_flux/1E-17))+

@@ -24,8 +24,10 @@ def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0,
         if subtitle != 'NB816':
             if publ==True:
                 # continuum/1E-17
-                ax.text(0.97,0.97,'flux='+'{:.3f}'.format((flux/1E-17))+
-                    '\nEW_corr='+'{:.3f}'.format(flux/continuum),transform=ax.transAxes,fontsize=5,ha='right',va='top')
+                ax.text(0.97,0.97,'Flux='+'{:.3f}'.format((flux/1E-17))+
+                    '\nEW='+'{:.3f}'.format(flux/continuum)+
+                    '\nEW_abs='+'{:.3f}'.format((flux - pos_flux)/continuum),
+                    transform=ax.transAxes,fontsize=5,ha='right',va='top')
             else: #publ==False:
                 ax.text(0.97,0.97,'flux='+'{:.3f}'.format((pos_flux/1E-17))+
                     '\nflux_corr='+'{:.3f}'.format((flux/1E-17))+
@@ -33,7 +35,8 @@ def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0,
                     '\nA'+r'$-$'+'='+'{:.3f}'.format((neg_amp/1E-17))+
                     '\n'+r'$\sigma+$'+'='+'{:.3f}'.format((pos_sigma))+
                     '\n'+r'$\sigma-$'+'='+'{:.3f}'.format((neg_sigma))+
-                    '\ncontinuum='+'{:.3f}'.format((continuum/1E-17)),transform=ax.transAxes,fontsize=5,ha='right',va='top')
+                    '\ncontinuum='+'{:.3f}'.format((continuum/1E-17)),
+                    transform=ax.transAxes,fontsize=5,ha='right',va='top')
         ax.set_ylabel(r'M$_*$'+subtitle[8:],fontsize=8)
         ax.yaxis.set_major_locator(MaxNLocator(nbins=5))
     elif num%2==1:
@@ -41,7 +44,8 @@ def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0,
         ymaxval = max(ax.get_ylim())
         [a.set_ylim(ymax=ymaxval) for a in ax_list[num-1:num]]
         if publ==True:
-            ax.text(0.97,0.97,'flux='+'{:.3f}'.format((pos_flux/1E-17)),
+            ax.text(0.97,0.97,'Flux='+'{:.3f}'.format((pos_flux/1E-17))+
+                '\nEW='+'{:.3f}'.format(flux/continuum),
                 transform=ax.transAxes,fontsize=5,ha='right',va='top')
         else: # publ==False
             ax.text(0.97,0.97,'flux='+'{:.3f}'.format((pos_flux/1E-17))+
