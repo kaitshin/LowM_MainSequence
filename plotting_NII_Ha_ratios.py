@@ -142,12 +142,12 @@ def main():
     # plt.gca().add_artist(legendAB)
 
     ## finishing touches
-    plt.xlabel(r'$\log_{10}(M_*/M_\odot)$', size=16)
+    plt.xlabel(r'$\log_{10}(M_\star/M_\odot)$', size=16)
     plt.ylabel('['+r'\textsc{N ii}]$\lambda\lambda$6548,6583/H$\alpha$', size=16)
     a = [tick.label.set_fontsize(14) for tick in plt.gca().xaxis.get_major_ticks()]
     b = [tick.label.set_fontsize(14) for tick in plt.gca().yaxis.get_major_ticks()]
     plt.ylim(ymax=1.1)
-    plt.gcf().set_size_inches(10,6)
+    plt.gcf().set_size_inches(8,7)
     plt.tight_layout()
     plt.savefig(FULL_PATH+'Plots/main_sequence/NII_Ha_scatter.pdf')
     plt.close()
@@ -176,8 +176,8 @@ def main():
     plt.plot(np.arange(6.0,8.1,0.1), np.log10(np.array([const]*len(np.arange(6.0,8.1,0.1)))), 'r--', lw=2)
     plt.plot(np.arange(8.0,10.6,0.1), np.log10(line2(np.arange(8.0,10.6,0.1), *coeffs1)), 'r--', lw=2)
 
-    plt.xlabel('M*')
-    plt.ylabel('log10[1.33*NIIB/Ha]')
+    plt.xlabel(r'M$_{\star}$')
+    plt.ylabel('log[1.33*NIIB/Ha]')
     plt.xlim([4, 11])
     plt.ylim([-2.5, 1.0])
     plt.legend(loc='best')
