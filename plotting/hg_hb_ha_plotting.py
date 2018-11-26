@@ -185,7 +185,7 @@ def subplots_plotting(ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, to
         neg0 = o1[3]*np.exp(-0.5*((xval-o1[1])/o1[4])**2)
         func0 = pos0 + neg0
         ax.plot(xval, func0/1E-17, 'r--', zorder=3)
-        ax.plot(xval, pos0/1E-17, 'c--', zorder=2)
+        # ax.plot(xval, pos0/1E-17, 'c--', zorder=2)
         ax.plot(xval, (o1[5]+neg0)/1E-17, 'orange', ls='--', zorder=2)
         
         idx_small = np.where(np.absolute(xval - o1[1]) <= 2.5*o1[2])[0]
