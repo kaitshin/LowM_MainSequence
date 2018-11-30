@@ -1,27 +1,10 @@
-"""
-NAME:
-    plot_nbia_mainseq.py
-
-PURPOSE:
-    
-
-INPUTS:
-    'Main_Sequence/Berg2012_table.clean.txt'
-    'Main_Sequence/Noeske07_fig1_z1.txt'
-    'Main_Sequence/mainseq_corrections_tbl.txt'
-
-OUTPUTS:
-    'Plots/main_sequence/'+title+'.pdf'
-    
-"""
-
 import numpy as np, matplotlib.pyplot as plt
 from astropy.io import ascii as asc
 
 FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
 CUTOFF_SIGMA = 4.0
 
-def whitaker_2014():
+def whitaker_2014(ax):
     '''
     Plots the log(M*)-log(SFR) relation from Whitaker+14 in red.
     '''
@@ -30,13 +13,13 @@ def whitaker_2014():
     xarr1 = np.arange(xmin, 10.2+0.01, 0.01)
     xarr2 = np.arange(10.2, xmax+0.01, 0.01)
 
-    plt.plot(xarr1, 0.94 * (xarr1 - 10.2) + 1.11, 'r--')
-    whitaker, = plt.plot(xarr2, 0.14 * (xarr2 - 10.2) + 1.11, 'r--',
-                         label='Whitaker+14 (0.5<z<1.0)', zorder=6)
+    ax.plot(xarr1, 0.94 * (xarr1 - 10.2) + 1.11, 'r--', lw=2)
+    whitaker, = ax.plot(xarr2, 0.14 * (xarr2 - 10.2) + 1.11, 'r--',
+                         label='Whitaker+14 (0.5<z<1.0)', zorder=6, lw=2)
     return whitaker
 
 
-def delosreyes_2015():
+def delosreyes_2015(ax):
     '''
     Plots the z~0.8 data points from de Los Reyes+15 in cyan.
     '''
@@ -44,13 +27,13 @@ def delosreyes_2015():
     yarr = np.array([0.06, 0.27, 0.43, 0.83, 1.05, 1.18, 1.50, 1.54])
     yerr = np.array([0.454, 0.313, 0.373, 0.329, 0.419, 0.379, 0.337, 0.424])
 
-    plt.errorbar(xarr, yarr, yerr, fmt='c', ecolor='c', zorder=2) 
-    delosreyes = plt.scatter(xarr, yarr, color='c', marker='s',
+    ax.errorbar(xarr, yarr, yerr, fmt='c', ecolor='c', zorder=2) 
+    delosreyes = ax.scatter(xarr, yarr, color='c', marker='s',
                              label='de los Reyes+15 (z~0.8)', zorder=2)
     return delosreyes
 
 
-def salim_2007():
+def salim_2007(ax):
     '''
     Plots the log(M*)-log(SFR) relation from Salim+07 in black.
     '''
@@ -58,12 +41,12 @@ def salim_2007():
     xmax = 11.2
 
     xarr = np.arange(xmin, xmax+0.01, 0.01)
-    salim, = plt.plot(xarr, (-0.35 * (xarr - 10.0) - 9.83) + xarr, 'k-',
+    salim, = ax.plot(xarr, (-0.35 * (xarr - 10.0) - 9.83) + xarr, 'k-',
                       label='Salim+07 (z~0)', zorder=5)
     return salim
 
 
-def berg_2012():
+def berg_2012(ax):
     '''
     Plots the log(M*)-log(SFR) relation from Berg+12 in green. (ASCII file
     provided by Chun Ly)
@@ -73,12 +56,12 @@ def berg_2012():
     berg_stlr = np.array(berg['log(M*)'])
     berg_sfr  = np.log10(np.array(berg['SFR']))
 
-    berg = plt.scatter(berg_stlr, berg_sfr, color='g', marker='x',
+    berg = ax.scatter(berg_stlr, berg_sfr, color='g', marker='x',
                         label='Berg+12 (z<0.01)', zorder=4)
     return berg
 
 
-def noeske_2007():
+def noeske_2007(ax):
     '''
     Plots the data points from Noeske+07 in orange. (ASCII file provided by
     Chun Ly)
@@ -90,20 +73,19 @@ def noeske_2007():
     logSFR_low  = np.array(noeske['col3'])
     logSFR_high = np.array(noeske['col4'])
 
-    plt.plot(logM, logSFR_low, color='orange', marker='', linestyle='',
+    ax.plot(logM, logSFR_low, color='orange', marker='', linestyle='',
              zorder=1)
-    plt.plot(logM, logSFR_high, color='orange', marker='', linestyle='',
+    ax.plot(logM, logSFR_high, color='orange', marker='', linestyle='',
              zorder=1)
-    plt.fill_between(logM, logSFR_low, logSFR_high, facecolor='none',
+    ax.fill_between(logM, logSFR_low, logSFR_high, facecolor='none',
                      hatch=3*'.', edgecolor='orange', linewidth=0.0,
                      zorder=1)
-    noeske, = plt.plot(logM, logSFR, color='orange', marker='+',
-                       linestyle='', label='Noeske+07 (0.20<z<0.40)',
-                       zorder=1)
+    noeske, = ax.plot(logM, logSFR, color='orange', marker='+', #linestyle='', 
+                       label='Noeske+07 (0.20<z<0.40)',zorder=1, mew=2, markersize=11)
     return noeske
 
 
-def sSFR_lines(f, ax, xlim):
+def sSFR_lines(ax, xlim):
     '''
     Creates the three dotted sSFR^-1 lines: 1, 10, and 100 Gyr
     '''
@@ -121,7 +103,7 @@ def sSFR_lines(f, ax, xlim):
              alpha=1, fontsize=9)
     
 
-def modify_graph(f, ax, labelarr, xlim, ylim, title):
+def modify_graph(ax, labelarr, xlim, ylim, title, i):
     '''
     Modifies the graph (gives it limits, labels, a title, etc.)
     
@@ -133,42 +115,50 @@ def modify_graph(f, ax, labelarr, xlim, ylim, title):
     Two legends are created - one for the shapes and one for the different
     literature/data points. Then minor ticks were added.
     '''
-    legend1 = ax.legend(handles=list(labelarr), loc='upper left', frameon=False,
-                         fontsize=9, scatterpoints=1, numpoints=1)
     ax.set_xlim(xlim)
     ax.set_ylim(ylim)
-    ax.set_xlabel('log(M/M'+r'$_{\odot}$'+')')
-    ax.set_ylabel('log(SFR[H'+r'$\alpha$'+']/M'+r'$_{\odot}$'+' yr'+r'$^{-1}$'+')')
-    ax.set_title(title)
     
-    noeske = noeske_2007()
-    delosreyes = delosreyes_2015()
-    whitaker = whitaker_2014()
-    salim = salim_2007()
-    berg = berg_2012()
+    if i>1:
+        ax.set_xlabel('log(M'+r'$_\bigstar$'+'/M'+r'$_{\odot}$'+')', size=14)
+    if i%2==0:
+        ax.set_ylabel('log(SFR[H'+r'$\alpha$'+']/M'+r'$_{\odot}$'+' yr'+r'$^{-1}$'+')', size=14)
+    if i%2==1:
+        ax.set_yticklabels([])
+    if i<2:
+        ax.set_xticklabels([])
+    ax.text(0.05, 0.95, title, transform=ax.transAxes, color='k', fontsize=14, fontweight='bold')
+    
+    noeske = noeske_2007(ax)
+    delosreyes = delosreyes_2015(ax)
+    whitaker = whitaker_2014(ax)
+    salim = salim_2007(ax)
+    berg = berg_2012(ax)
     
     labelarr2 = np.array([whitaker, delosreyes, noeske, salim, berg])
-    legend2 = ax.legend(handles=list(labelarr2), loc='lower right', frameon=False,
+
+    if i==0:
+        legend1 = ax.legend(handles=list(labelarr), loc=(0.01, 0.81), frameon=False,
+                         fontsize=10, scatterpoints=1, numpoints=1)
+        ax.add_artist(legend1)
+    if i==3:
+        legend2 = ax.legend(handles=list(labelarr2), loc='lower right', frameon=False,
                          fontsize=9, scatterpoints=1, numpoints=1)
-    ax.add_artist(legend1)
-    ax.add_artist(legend2)
+        ax.add_artist(legend2)
 
     ax.minorticks_on()
-    f.tight_layout()
-
-    sSFR_lines(f, ax, xlim)
+    sSFR_lines(ax, xlim)
 
 
 def make_all_graph(stlr_mass, sfr, filtarr, markarr, z_arr, sizearr, title,
-    no_spectra, yes_spectra, filts, good_sig_iis):
+    no_spectra, yes_spectra, filts, good_sig_iis, ax, i):
     '''
     '''
     color='blue'
     xlim = [4, 11]
-    ylim = [-4, 2]
+    ylim = [-3.75, 2]
 
-    f, ax = plt.subplots()
-    plt.gcf().set_size_inches(8,6)
+#     f, ax = plt.subplots()
+#     plt.gcf().set_size_inches(7,6)
 
     labelarr = np.array([])
     for (ff, mark, avg_z, size) in zip(filtarr, markarr, z_arr, sizearr):
@@ -185,12 +175,12 @@ def make_all_graph(stlr_mass, sfr, filtarr, markarr, z_arr, sizearr, title,
 
         print '>>>', ff, avg_z
 
-        temp = plt.scatter(stlr_mass[yes_spectra][filt_index_y],
+        temp = ax.scatter(stlr_mass[yes_spectra][filt_index_y],
                        sfr[yes_spectra][filt_index_y], marker=mark,
                        facecolors=color, edgecolors='none', alpha=0.3,
                        zorder=3, label='z~'+np.str(avg_z)+' ('+ff+')', s=size)
 
-        plt.scatter(stlr_mass[no_spectra][filt_index_n], 
+        ax.scatter(stlr_mass[no_spectra][filt_index_n], 
                         sfr[no_spectra][filt_index_n],
                         marker=mark, facecolors='none', edgecolors=color, alpha=0.3, 
                         linewidth=0.5, zorder=3, label='z~'+np.str(avg_z)+' ('+ff+')', s=size)
@@ -198,9 +188,9 @@ def make_all_graph(stlr_mass, sfr, filtarr, markarr, z_arr, sizearr, title,
         labelarr = np.append(labelarr, temp)
     #endfor
 
-    modify_graph(f, ax, labelarr, xlim, ylim, title)
-    plt.savefig(FULL_PATH+'Plots/main_sequence/'+title+'.pdf')
-    plt.close()
+    modify_graph(ax, labelarr, xlim, ylim, title, i)
+#     plt.savefig(FULL_PATH+'Plots/main_sequence/'+title+'.pdf')
+#     plt.close()
 
 
 def main():
@@ -237,12 +227,22 @@ def main():
     # defining a flux sigma cutoff
     good_sig_iis = np.where(corr_tbl['flux_sigma'] >= CUTOFF_SIGMA)[0]
     
-    for title, corrs in zip(['mainseq_no_corrs', 'mainseq_filt_corrs', 'mainseq_filt_nii_corrs', 'mainseq_filt_nii_dust_corrs'], 
-        [np.zeros(len(corr_tbl)), filt_corr_factor, filt_corr_factor+nii_ha_corr_factor, filt_corr_factor+nii_ha_corr_factor+dust_corr_factor]):
+    f_all, ax_all = plt.subplots(2,2)
+    axarr = np.ndarray.flatten(ax_all)
+    f_all.set_size_inches(14,14)
+    for title, corrs, ax, i in zip(['(A) Observed', '(B) Filter-corrected', 
+                             '(C) NII-corrected', '(D) Dust-corrected'], 
+                            [np.zeros(len(corr_tbl)), filt_corr_factor, filt_corr_factor+nii_ha_corr_factor, 
+                             filt_corr_factor+nii_ha_corr_factor+dust_corr_factor], axarr, range(4)):
         #  should pass in e.g., "obs_sfr + corrs" to plot applied corrs
         make_all_graph(stlr_mass, obs_sfr+corrs, filtarr, markarr, z_arr, sizearr, title, 
-            no_spectra, yes_spectra, filts, good_sig_iis)
+            no_spectra, yes_spectra, filts, good_sig_iis, ax, i)
         print 'done plotting', title
+
+    [a.tick_params(axis='both', labelsize='10', which='both', direction='in') for a in f_all.axes[:]]
+    plt.subplots_adjust(hspace=0.01, wspace=0.01, left=0.04, right=0.99, top=0.99, bottom=0.04)
+    plt.savefig(FULL_PATH+'Plots/main_sequence/ALL.pdf')
+    plt.close()
 
 
 if __name__ == '__main__':
