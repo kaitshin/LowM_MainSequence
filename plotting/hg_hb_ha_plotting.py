@@ -29,8 +29,8 @@ def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0,
         if (subtitle=='NB921' or ftitle=='NB921') and num%3==1 and hb_nb921_flux > 0:
             if publ==True:
                 ax.text(0.97,0.97,'Flux='+'{:.3f}'.format((flux/1E-17))+
-                    '\nEW='+'{:.3f}'.format(ew)+
-                    '\nEW_abs='+'{:.3f}'.format(ew_abs),
+                    '\nEW='+'{:.3f}'.format(ew)[:4]+
+                    '\nEW_abs='+'{:.3f}'.format(ew_abs)[:4],
                     # '\nEW='+'{:.3f}'.format(flux/continuum)+
                     # '\nEW_abs='+'{:.3f}'.format((flux - pos_flux)/continuum),
                     transform=ax.transAxes,fontsize=5,ha='right',va='top')
@@ -46,8 +46,8 @@ def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0,
         else:
             if publ==True:
                 ax.text(0.97,0.97,'Flux='+'{:.3f}'.format((flux/1E-17))+
-                    '\nEW='+'{:.3f}'.format(ew)+
-                    '\nEW_abs='+'{:.3f}'.format(ew_abs),
+                    '\nEW='+'{:.3f}'.format(ew)[:4]+
+                    '\nEW_abs='+'{:.3f}'.format(ew_abs)[:4],
                     # '\nEW='+'{:.3f}'.format(flux/continuum)+
                     # '\nEW_abs='+'{:.3f}'.format((flux - pos_flux)/continuum),
                     transform=ax.transAxes,fontsize=5,ha='right',va='top')
@@ -83,7 +83,7 @@ def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0,
         ax_list[num].plot([6583,6583],[0,ymaxval], 'k:',alpha=0.4,zorder=1)
         if publ==True:
             ax.text(0.97,0.97,'Flux='+'{:.3f}'.format((pos_flux/1E-17))+
-                '\nEW='+'{:.3f}'.format(ew),
+                '\nEW='+'{:.3f}'.format(ew)[:4],
                 # '\nEW='+'{:.3f}'.format(flux/continuum),
                 transform=ax.transAxes,fontsize=5,ha='right',va='top')
         else:
