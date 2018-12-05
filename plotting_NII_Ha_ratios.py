@@ -27,9 +27,9 @@ def main():
     '''
     '''
     # latex backend for mpl
-    import matplotlib
-    matplotlib.rcParams['text.usetex'] = True
-    matplotlib.rcParams['text.latex.unicode'] = True
+    # import matplotlib
+    # matplotlib.rcParams['text.usetex'] = True
+    # matplotlib.rcParams['text.latex.unicode'] = True
 
     # reading data in
     mmt_mz  = asc.read(FULL_PATH+'Composite_Spectra/StellarMassZ/MMT_stlrmassZ_data.txt',
@@ -114,7 +114,7 @@ def main():
     plt.errorbar(avgm_arr[9:], flux_rat_arr[9:], xerr=np.array([avgm_arr[9:]-minm_arr[9:], maxm_arr[9:]-avgm_arr[9:]]), fmt='none', ecolor='darkgreen', alpha=0.8)
 
     # legend 1
-    legendAA = plt.legend(loc='best', fontsize=12)
+    legendAA = plt.legend(loc='best', fontsize=11)
     ax = plt.gca().add_artist(legendAA)
 
     ## fitting 
@@ -142,8 +142,9 @@ def main():
     # plt.gca().add_artist(legendAB)
 
     ## finishing touches
-    plt.xlabel(r'$\log(M_\star/M_\odot)$', size=16)
-    plt.ylabel('['+r'\textsc{N ii}]$\lambda\lambda$6548,6583/H$\alpha$', size=16)
+    plt.xlabel(r'$\log(M_\bigstar/M_\odot)$', size=16)
+    plt.ylabel('[N II]'+r'$\lambda\lambda$6548,6583/H$\alpha$', size=16)
+    # plt.ylabel('['+r'\textsc{N ii}]$\lambda\lambda$6548,6583/H$\alpha$', size=16)
     a = [tick.label.set_fontsize(14) for tick in plt.gca().xaxis.get_major_ticks()]
     b = [tick.label.set_fontsize(14) for tick in plt.gca().yaxis.get_major_ticks()]
     plt.ylim(ymax=1.1)
