@@ -101,8 +101,8 @@ def scatter_data(ID_num, axis):
     axis.scatter(x_input, corr_factor*y_model, color='#1f77b4', facecolor='none', zorder=3, s=26)  # default is 36
     
     
-    axis.scatter(x_input, y_input, c='k', edgecolors='none', zorder=5)
-    axis.errorbar(x_input, y_input, yerr=yerr_arr, fmt='none',ecolor='k', zorder=4, s=26)
+    axis.scatter(x_input, y_input, c='k', edgecolors='none', zorder=5, alpha=0.75)
+    axis.errorbar(x_input, y_input, yerr=yerr_arr, fmt='none',ecolor='k', zorder=4, s=26, alpha=0.75)
 
     
     shade_index = np.array([y for y in range(len(y_input))
@@ -149,8 +149,8 @@ def create_SED_fits(match_index, filename):
         if num%5==0: #first on the page
             f, (ax0, ax1, ax2, ax3, ax4) = plt.subplots(5, sharex=True,
                                                         sharey=True)
-            f.set_size_inches(6,8.5)
-            f.subplots_adjust(hspace=0.1)
+            f.set_size_inches(6,9)
+            f.subplots_adjust(hspace=0.05, left=0.1, right=0.99, top=0.99, bottom=0.06)
             plt.xlim(10**3.0, 10**4.5)
             plt.xlabel('Observed Wavelength ('+r'$\AA$'+')', fontsize=12)
             plt.tick_params(labelsize=9)
@@ -163,6 +163,8 @@ def create_SED_fits(match_index, filename):
         plot_dotted_lines(zs, zp, current_axis, min(current_axis.get_ylim()),
                           max(current_axis.get_ylim()))
         scatter_data(ID_num, current_axis)
+
+        [a.tick_params(axis='both', labelsize='6', which='both', direction='in') for a in f.axes[:]]
         
         if num==2:
             current_axis.set_ylabel('Flux ('+r'$\mu$'+'Jy)', fontsize=12)
