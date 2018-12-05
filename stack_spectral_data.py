@@ -535,6 +535,8 @@ def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', p
         # calculating flux for NII emissions & rms of the emission lines
         pos_flux_list = []
         flux_list = []
+        ew_list = []
+        ew_abs_list = []
         pos_amplitude_list = []
         neg_amplitude_list = []
         pos_sigma_list = []
@@ -563,6 +565,8 @@ def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', p
                 table_arrays = general_twriting.table_arr_appends(i, subtitle,
                     table_arrays, flux, flux2, flux3, ew, ew_emission, ew_absorption, 
                     median, pos_amplitude, neg_amplitude, 'MMT')
+                ew_list.append(ew)
+                ew_abs_list.append(ew_absorption)
                 if not (subtitle=='NB973' and i==2):
                     pos_amplitude_list.append(pos_amplitude)
                     neg_amplitude_list.append(neg_amplitude)
@@ -595,6 +599,8 @@ def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', p
             try:
                 pos_flux = pos_flux_list[i]
                 flux = flux_list[i]
+                ew = ew_list[i]
+                ew_abs = ew_abs_list[i]
                 if not (subtitle=='NB973' and i==2) and len_input_index[i] > 1:
                     pos_amplitude = pos_amplitude_list[i]
                     neg_amplitude = neg_amplitude_list[i]
@@ -606,9 +612,11 @@ def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', p
                     else:
                         hb_nb921_flux = 0
                     ax = MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index, pos_flux, flux,
-                        pos_amplitude, neg_amplitude, pos_sigma, neg_sigma, median, hb_nb921_flux, bintype=bintype, ftitle=title)
+                        pos_amplitude, neg_amplitude, pos_sigma, neg_sigma, median, hb_nb921_flux, 
+                        ew=ew, ew_abs=ew_abs, bintype=bintype, ftitle=title)
                 else:
-                    ax = MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index, pos_flux, flux, bintype=bintype, ftitle=title)
+                    ax = MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index, pos_flux, flux, 
+                        ew=ew, ew_abs=ew_abs, bintype=bintype, ftitle=title)
             except IndexError: # assuming there's no pos_flux or flux value
                 ax = MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index, bintype=bintype, ftitle=title)
             subplot_index+=1
@@ -965,6 +973,8 @@ def plot_Keck_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', 
         # calculating flux for NII emissions & rms of the emission lines
         pos_flux_list = []
         flux_list = []
+        ew_list = []
+        ew_abs_list = []
         pos_amplitude_list = []
         neg_amplitude_list = []
         pos_sigma_list = []
@@ -993,7 +1003,9 @@ def plot_Keck_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', 
                 table_arrays = general_twriting.table_arr_appends(i, subtitle,
                   table_arrays, flux, flux2, flux3, ew, ew_emission, ew_absorption, 
                   median, pos_amplitude, neg_amplitude, 'Keck')
-                
+                ew_list.append(ew)
+                ew_abs_list.append(ew_absorption)
+
                 pos_amplitude_list.append(pos_amplitude)
                 neg_amplitude_list.append(neg_amplitude)
                 pos_sigma_list.append(o1[2])
@@ -1016,6 +1028,8 @@ def plot_Keck_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', 
             try:
                 pos_flux = pos_flux_list[i]
                 flux = flux_list[i]
+                ew = ew_list[i]
+                ew_abs = ew_abs_list[i]
 
                 pos_amplitude = pos_amplitude_list[i]
                 neg_amplitude = neg_amplitude_list[i]
@@ -1023,7 +1037,7 @@ def plot_Keck_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', 
                 neg_sigma = neg_sigma_list[i]
                 median = median_list[i]
                 ax = Keck_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index, pos_flux, flux,
-                    pos_amplitude, neg_amplitude, pos_sigma, neg_sigma, median)
+                    pos_amplitude, neg_amplitude, pos_sigma, neg_sigma, median, ew=ew, ew_abs=ew_abs)
             except IndexError: # assuming there's no pos_flux or flux value
                 ax = Keck_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index)
             subplot_index+=1
@@ -1172,8 +1186,8 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr, fill_value=np.nan)
 
 print '### plotting MMT_Ha'
-plot_MMT_Ha()
-plot_MMT_Ha_stlrmass()
+# plot_MMT_Ha()
+# plot_MMT_Ha_stlrmass()
 plot_MMT_Ha_stlrmass_z()
 grid.close()
 
@@ -1198,8 +1212,8 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 
 print '### plotting Keck_Ha'
-plot_Keck_Ha()
-plot_Keck_Ha_stlrmass()
+# plot_Keck_Ha()
+# plot_Keck_Ha_stlrmass()
 plot_Keck_Ha_stlrmass_z()
 grid.close()
 

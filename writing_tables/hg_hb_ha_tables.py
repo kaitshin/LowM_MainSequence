@@ -46,7 +46,7 @@ def Hg_Hb_Ha_tables(label, flux, o1, xval, pos_flux, dlambda):
             pos_corr = np.sum(dlambda * (pos0[idx_small] - o1[5]))
             ew_emission = pos_corr / o1[5]
             neg_corr = np.sum(dlambda * neg0[idx_small])
-            ew_absorption = neg_corr / o1[5]
+            ew_absorption = -neg_corr / o1[5] # flux = pos_corr - neg_corr
     #endif
 
     return (ew, ew_emission, ew_absorption, median, pos_amplitude, neg_amplitude)
