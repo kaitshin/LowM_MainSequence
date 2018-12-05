@@ -142,7 +142,7 @@ def main():
     # plt.gca().add_artist(legendAB)
 
     ## finishing touches
-    plt.xlabel(r'$\log_{10}(M_\star/M_\odot)$', size=16)
+    plt.xlabel(r'$\log(M_\star/M_\odot)$', size=16)
     plt.ylabel('['+r'\textsc{N ii}]$\lambda\lambda$6548,6583/H$\alpha$', size=16)
     a = [tick.label.set_fontsize(14) for tick in plt.gca().xaxis.get_major_ticks()]
     b = [tick.label.set_fontsize(14) for tick in plt.gca().yaxis.get_major_ticks()]
