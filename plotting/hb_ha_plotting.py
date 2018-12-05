@@ -87,7 +87,12 @@ def subplots_plotting(ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, to
     if 'alpha' in label:
         o1 = get_best_fit(xval, yval, label)
         ax.plot(xval, (o1[3]+o1[0]*np.exp(-0.5*((xval-o1[1])/o1[2])**2))/1E-17, 'r--', zorder=3)
-        flux = np.sum(dlambda * (o1[0]*np.exp(-0.5*((xval-o1[1])/o1[2])**2)))
+
+        peak_idx1_left  = find_nearest(xval, 6563-tol)
+        peak_idx1_right = find_nearest(xval, 6563+tol)
+        xval1=xval[peak_idx1_left:peak_idx1_right]
+        flux = np.sum(dlambda * (o1[0]*np.exp(-0.5*((xval1-o1[1])/o1[2])**2)))
+        # flux = np.sum(dlambda * (o1[0]*np.exp(-0.5*((xval-o1[1])/o1[2])**2)))
         pos_flux = flux
 
         peak_idx2_left  = find_nearest(xval, 6548.1-tol)
