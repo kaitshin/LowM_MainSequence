@@ -444,7 +444,7 @@ def plot_MMT_Ha():
         format='fixed_width_two_line', delimiter=' ', overwrite=True)
 #enddef
 
-def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass'):
+def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', publ=True, instr00='MMT'):
     '''
     TODO(document)
     TODO(implement flexible stellar mass bin-readings)
@@ -617,10 +617,9 @@ def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass'):
     if title=='':
         f = general_plotting.final_plot_setup(f, r'MMT detections of H$\alpha$ emitters')
     else:
-        f = general_plotting.final_plot_setup(f, title)
+        f = general_plotting.final_plot_setup(f, title, publ, instr00)
 
-    plt.subplots_adjust(hspace=0)
-    plt.subplots_adjust(wspace=0.05)
+    plt.subplots_adjust(hspace=0, wspace=0.05)
 
     if pp == None:
         plt.savefig(full_path+'Composite_Spectra/StellarMass/MMT_all_five.pdf')
@@ -893,7 +892,7 @@ def plot_Keck_Ha():
             format='fixed_width_two_line', delimiter=' ', overwrite=True)
 #enddef
 
-def plot_Keck_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass'):
+def plot_Keck_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', publ=True, instr00='Keck'):
     '''
     TODO(document)
     TODO(implement flexible stellar mass bin-readings)
@@ -1033,10 +1032,9 @@ def plot_Keck_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass'):
     if title=='':
         f = general_plotting.final_plot_setup(f, r'Keck detections of H$\alpha$ emitters')
     else:
-        f = general_plotting.final_plot_setup(f, title)
+        f = general_plotting.final_plot_setup(f, title, publ, instr00)
 
-    plt.subplots_adjust(hspace=0)
-    plt.subplots_adjust(wspace=0.05)
+    plt.subplots_adjust(hspace=0, wspace=0.05)
 
     if pp == None:
         plt.savefig(full_path+'Composite_Spectra/StellarMass/Keck_all_five.pdf')

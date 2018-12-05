@@ -138,7 +138,7 @@ def get_iter_lists(instr, stlr=False):
         return 0
 #enddef
 
-def final_plot_setup(f, title):
+def final_plot_setup(f, title, publ=False, instr00='MMT'):
     '''
     For the passed in figure, adjusts tick parameter sizes,
     adds minorticks and a suptitle, and adjusts spacing
@@ -149,7 +149,14 @@ def final_plot_setup(f, title):
     [a.tick_params(axis='x', which='both', bottom=False) for a in f.axes[:-2]]
     [a.minorticks_on() for a in f.axes[:]]
 
-    f.suptitle(title, size=15)
+    if publ==True and title=='NB921':
+        if instr00=='MMT':
+            f.subplots_adjust(left=0.07, right=0.99, top=0.99, bottom=0.02, hspace=0, wspace=0.05)
+        elif instr00=='Keck':
+            f.subplots_adjust(left=0.1, right=0.99, top=0.99, bottom=0.02, hspace=0, wspace=0.05)
+    else:
+        f.suptitle(title, size=15)
+    
     
     return f
 #enddef

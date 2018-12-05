@@ -132,7 +132,7 @@ def get_best_fit3(xval, yval, label):
     Hg and Hb absorption spectra
     '''
     yval = yval/1e-17
-    med0, std0 = get_baseline_median(xval, yval, label)
+    med0, std0 = get_baseline_median(xval, yval, label) # multiply by  dlambda dx sqrt(npix)  to convert to right units
     err = np.repeat(1.0e-18, len(xval))
     p0 = [np.max(yval)-med0, ctr_arr[label], 1.10, -0.05*(np.max(yval)-med0), 4.40, med0]
 
