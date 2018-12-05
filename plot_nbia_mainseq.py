@@ -126,7 +126,7 @@ def modify_graph(ax, labelarr, xlim, ylim, title, i):
         ax.set_yticklabels([])
     if i<2:
         ax.set_xticklabels([])
-    ax.text(0.05, 0.95, title, transform=ax.transAxes, color='k', fontsize=14, fontweight='bold')
+    ax.text(0.02, 0.95, title, transform=ax.transAxes, color='k', fontsize=14, fontweight='bold')
     
     noeske = noeske_2007(ax)
     delosreyes = delosreyes_2015(ax)
@@ -137,13 +137,16 @@ def modify_graph(ax, labelarr, xlim, ylim, title, i):
     labelarr2 = np.array([whitaker, delosreyes, noeske, salim, berg])
 
     if i==0:
-        legend1 = ax.legend(handles=list(labelarr), loc=(0.01, 0.81), frameon=False,
-                         fontsize=10, scatterpoints=1, numpoints=1)
+        legend1 = ax.legend(handles=list(labelarr), loc=(0.01, 0.78), frameon=False,
+                         fontsize=11, scatterpoints=1, numpoints=1)
         ax.add_artist(legend1)
-    if i==3:
         legend2 = ax.legend(handles=list(labelarr2), loc='lower right', frameon=False,
-                         fontsize=9, scatterpoints=1, numpoints=1)
+                         fontsize=11, scatterpoints=1, numpoints=1)
         ax.add_artist(legend2)
+    # if i==3:
+    #     legend2 = ax.legend(handles=list(labelarr2), loc='lower right', frameon=False,
+    #                      fontsize=9, scatterpoints=1, numpoints=1)
+    #     ax.add_artist(legend2)
 
     ax.minorticks_on()
     sSFR_lines(ax, xlim)
@@ -154,7 +157,7 @@ def make_all_graph(stlr_mass, sfr, filtarr, markarr, z_arr, sizearr, title,
     '''
     '''
     color='blue'
-    xlim = [4, 11]
+    xlim = [4, 11.15]
     ylim = [-3.75, 2]
 
 #     f, ax = plt.subplots()
@@ -230,8 +233,8 @@ def main():
     f_all, ax_all = plt.subplots(2,2)
     axarr = np.ndarray.flatten(ax_all)
     f_all.set_size_inches(14,14)
-    for title, corrs, ax, i in zip(['(A) Observed', '(B) Filter-corrected', 
-                             '(C) NII-corrected', '(D) Dust-corrected'], 
+    for title, corrs, ax, i in zip(['(a) Observed', '(b) Filter-corrected', 
+                             '(c) Filter+NII', '(d) Filter+NII+Dust Attenuation'], 
                             [np.zeros(len(corr_tbl)), filt_corr_factor, filt_corr_factor+nii_ha_corr_factor, 
                              filt_corr_factor+nii_ha_corr_factor+dust_corr_factor], axarr, range(4)):
         #  should pass in e.g., "obs_sfr + corrs" to plot applied corrs
