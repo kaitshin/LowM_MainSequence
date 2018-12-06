@@ -535,6 +535,7 @@ def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', p
         # calculating flux for NII emissions & rms of the emission lines
         pos_flux_list = []
         flux_list = []
+        flux_niib_list = []
         ew_list = []
         ew_abs_list = []
         pos_amplitude_list = []
@@ -552,8 +553,22 @@ def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', p
                     ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, tol, len_input_index[i])
                 pos_flux_list.append(pos_flux)
                 flux_list.append(flux)
-                med0, std0 = get_baseline_median(xval, yval, label)
-                arr.append(std0 * np.sqrt(NAXIS1) * dlambda)
+                flux_niib_list.append(flux3)
+
+                good_ii = np.array([x for x in range(len(xval)) if xval[x] >= xmin0 and xval[x] <= xmax0
+                    and not np.isnan(yval[x])])
+                med0, std0 = get_baseline_median(xval[good_ii], yval[good_ii], label)
+                if i==0: #hg rms
+                    npix = len(np.array([x for x in xval if 
+                        (x>=xmin0 and x<=4341-8) or (x>=4341+8 and x<=xmax0)]))
+                elif i==1: # hb rms
+                    npix = len(np.array([x for x in xval if 
+                        (x>=xmin0 and x<=4861-8) or (x>=4861+8 and x<=xmax0)]))
+                else: # ha rms
+                    npix = len(np.array([x for x in xval if 
+                        (x>=xmin0 and x<=6548.1-5) or (x>=6548.1+5 and x<=6563-8) or
+                        (x>=6563+8 and x<=6583.6-5) or (x>=6583.6+5 and x<=xmax0)]))
+                arr.append(std0 * np.sqrt(npix) * dlambda)
             except IndexError:
                 print 'Not enough sources to stack (less than two)'
                 arr.append(0)
@@ -586,7 +601,7 @@ def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', p
             #endtry
         #endfor
         
-        for i in range(3):
+        for i, arr in zip(range(3), [HG_RMS, HB_RMS, HA_RMS]):
             label = label_list[i] + ' ('+str(len_input_index[i])+')'
             if i == 0:
                 num_stack_HG.append(int(len_input_index[i]))
@@ -599,8 +614,11 @@ def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', p
             try:
                 pos_flux = pos_flux_list[i]
                 flux = flux_list[i]
+                rms = arr[subplot_index/3]
+                flux_niib = flux_niib_list[i]
                 ew = ew_list[i]
                 ew_abs = ew_abs_list[i]
+
                 if not (subtitle=='NB973' and i==2) and len_input_index[i] > 1:
                     pos_amplitude = pos_amplitude_list[i]
                     neg_amplitude = neg_amplitude_list[i]
@@ -613,10 +631,10 @@ def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', p
                         hb_nb921_flux = 0
                     ax = MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index, pos_flux, flux,
                         pos_amplitude, neg_amplitude, pos_sigma, neg_sigma, median, hb_nb921_flux, 
-                        ew=ew, ew_abs=ew_abs, bintype=bintype, ftitle=title)
+                        ew=ew, ew_abs=ew_abs, flux_niib=flux_niib, rms=rms, bintype=bintype, ftitle=title)
                 else:
                     ax = MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index, pos_flux, flux, 
-                        ew=ew, ew_abs=ew_abs, bintype=bintype, ftitle=title)
+                        ew=ew, ew_abs=ew_abs, flux_niib=flux_niib, rms=rms, bintype=bintype, ftitle=title)
             except IndexError: # assuming there's no pos_flux or flux value
                 ax = MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index, bintype=bintype, ftitle=title)
             subplot_index+=1
@@ -636,6 +654,12 @@ def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', p
         pp.savefig()
         subtitle_list = np.array([title]*len(stlrmass_bin_arr))
     plt.close()
+
+    if title=='NB921':
+        HA_flux = np.array(HA_flux)
+        HA_flux[:2] = -99
+    elif title=='NB973':
+        HA_flux = np.array([-99]*5)
 
     EBV_hghb = HG_HB_EBV(HG_flux, HB_flux)
 
@@ -944,7 +968,7 @@ def plot_Keck_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', 
      	max_stlrmass_arr.append(np.max(stlr_mass[match_index]))
 
         dlambda = 0.1 # xval[1] - xval[0]
-
+        x_rest = np.arange(3800, 6700+dlambda, dlambda)
         xval, yval, len_input_index, stacked_indexes, avgz, minz, maxz = stack_data(grid_ndarr, gridz, input_index,
             x0, 3800, 6700, dlambda, instr='Keck')
         num_sources.append(len_input_index[0])
@@ -973,6 +997,7 @@ def plot_Keck_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', 
         # calculating flux for NII emissions & rms of the emission lines
         pos_flux_list = []
         flux_list = []
+        flux_niib_list = []
         ew_list = []
         ew_abs_list = []
         pos_amplitude_list = []
@@ -990,8 +1015,20 @@ def plot_Keck_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', 
                     ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, tol, subplot_index+i)
                 pos_flux_list.append(pos_flux)
                 flux_list.append(flux)
-                med0, std0 = get_baseline_median(xval, yval, label)
-                arr.append(std0 * np.sqrt(NAXIS1) * dlambda)
+                flux_niib_list.append(flux3)
+
+                good_ii = np.array([x for x in range(len(xval)) if xval[x] >= xmin0 and xval[x] <= xmax0
+                    and not np.isnan(yval[x])])
+                med0, std0 = get_baseline_median(xval[good_ii], yval[good_ii], label)
+                if i==0: # hb rms
+                    npix = len(np.array([x for x in xval if 
+                        (x>=xmin0 and x<=4861-8) or (x>=4861+8 and x<=xmax0)]))
+                else: # ha rms
+                    npix = len(np.array([x for x in xval if 
+                        (x>=xmin0 and x<=6548.1-5) or (x>=6548.1+5 and x<=6563-8) or
+                        (x>=6563+8 and x<=6583.6-5) or (x>=6583.6+5 and x<=xmax0)]))
+                # print '..........................', i, std0, npix, xmin0, xmax0
+                arr.append(std0 * np.sqrt(npix) * dlambda)
             except IndexError:
                 print '(!!) There\'s some unexpected exception or another.'
                 arr.append(0)
@@ -1017,7 +1054,7 @@ def plot_Keck_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', 
             #endtry
         #endfor
 
-        for i in range(2):
+        for i, arr in zip(range(2), [HB_RMS, HA_RMS]):
             label = label_list[i] + ' ('+str(len_input_index[i])+')'
             if i == 0:
                 num_stack_HB.append(int(len_input_index[i]))
@@ -1028,6 +1065,8 @@ def plot_Keck_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', 
             try:
                 pos_flux = pos_flux_list[i]
                 flux = flux_list[i]
+                rms = arr[subplot_index/2]
+                flux_niib = flux_niib_list[i]
                 ew = ew_list[i]
                 ew_abs = ew_abs_list[i]
 
@@ -1037,7 +1076,8 @@ def plot_Keck_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', 
                 neg_sigma = neg_sigma_list[i]
                 median = median_list[i]
                 ax = Keck_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index, pos_flux, flux,
-                    pos_amplitude, neg_amplitude, pos_sigma, neg_sigma, median, ew=ew, ew_abs=ew_abs)
+                    pos_amplitude, neg_amplitude, pos_sigma, neg_sigma, median, 
+                    ew=ew, ew_abs=ew_abs, flux_niib=flux_niib, rms=rms)
             except IndexError: # assuming there's no pos_flux or flux value
                 ax = Keck_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index)
             subplot_index+=1

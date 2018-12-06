@@ -12,7 +12,8 @@ from matplotlib.ticker import MaxNLocator
 import numpy as np
 
 def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0, 
-    pos_amp=0, neg_amp=0, pos_sigma=0, neg_sigma=0, continuum=0, ew=0, ew_abs=0, publ=True):
+    pos_amp=0, neg_amp=0, pos_sigma=0, neg_sigma=0, continuum=0, ew=0, ew_abs=0, 
+    flux_niib=0, rms=0, publ=True):
     '''
     Sets up the subplots for Hb/Ha. Adds emission lines for each subplot
     and sets the ylimits for each row. Also adds flux labels to each subplot.
@@ -25,6 +26,7 @@ def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0,
             if publ==True:
                 # continuum/1E-17
                 ax.text(0.97,0.97,'Flux='+'{:.3f}'.format((flux/1E-17))+
+                    '\nRMS='+'{:.3f}'.format((rms/1E-17))+
                     '\nEW='+'{:.3f}'.format(ew)[:4]+
                     '\nEW_abs='+'{:.3f}'.format(ew_abs)[:4],
                     # '\nEW='+'{:.3f}'.format(flux/continuum)+
@@ -47,6 +49,8 @@ def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0,
         [a.set_ylim(ymax=ymaxval) for a in ax_list[num-1:num]]
         if publ==True:
             ax.text(0.97,0.97,'Flux='+'{:.3f}'.format((pos_flux/1E-17))+
+                '\nFlux_NIIB='+'{:.3f}'.format((flux_niib/1E-17))+
+                '\nRMS='+'{:.3f}'.format((rms/1E-17))+
                 '\nEW='+'{:.3f}'.format(ew)[:4],
                 # '\nEW='+'{:.3f}'.format(flux/continuum),
                 transform=ax.transAxes,fontsize=5,ha='right',va='top')
