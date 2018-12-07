@@ -24,7 +24,7 @@ INPUTS:
     'Filters/'+ff+'response.dat'
 
 OUTPUTS:
-    'Main_Sequence/mainseq_corrections_tbl.txt'
+    FULL_PATH+'Main_Sequence/mainseq_corrections_tbl.txt'
 """
 
 from astropy.io import fits as pyfits, ascii as asc
@@ -32,7 +32,7 @@ from astropy.table import Table
 from create_ordered_AP_arrays import create_ordered_AP_arrays
 import numpy as np, matplotlib.pyplot as plt
 import plotting.general_plotting as general_plotting
-import plotting_NII_Ha_ratios
+import plot_NII_Ha_ratios
 
 from analysis.cardelli import *
 from astropy.cosmology import FlatLambdaCDM
@@ -442,7 +442,7 @@ def main():
 
 
     print '### obtaining nii_ha corrections'
-    linedict = plotting_NII_Ha_ratios.main()
+    linedict = plot_NII_Ha_ratios.main()
     C = linedict['C']
     b = linedict['b']
     m = linedict['m']
