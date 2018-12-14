@@ -58,6 +58,11 @@ def main(filter, NB, sig_NB, excess, sig_excess, silent=False, verbose=True):
 
     if silent == False: log.info('### Begin main : '+systime())
 
+    filt_ref= ['NB704', 'NB711', 'NB816', 'IA598', 'IA679','NB921','NB973']
+    dNB     = [  100.0,    72.0,   120.0,   303.0,   340.0,  132.0,  200.0]
+    lambdac = [ 7046.0,  7111.0,  8150.0,  6007.0,  6780.0, 9196.0, 9755.0]
+    dBB     = [ 1110.0,  1110.0,  1419.0,   885.0,  1110.0,  956.0,  956.0] # R R i, V, R
+
     
     if silent == False: log.info('### End main : '+systime())
 #enddef
