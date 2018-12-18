@@ -16,6 +16,13 @@ import numpy as np
 
 from astropy import log
 
+m_AB = 48.6
+def fluxline(y, fNB, dNB, dBB):
+  '''RETURNS emission-line flux in erg/s/cm^2'''
+
+  return dNB*fNB*(1.0 - y)/(1.0-dNB/dBB)
+#enddef
+
 def main(filter, NB, sig_NB, excess, sig_excess, silent=False, verbose=True):
 
     '''
