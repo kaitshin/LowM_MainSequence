@@ -23,6 +23,12 @@ def fluxline(y, fNB, dNB, dBB):
   return dNB*fNB*(1.0 - y)/(1.0-dNB/dBB)
 #enddef
 
+def mag_combine(m1, m2, epsilon):
+  cont_flux = epsilon * 10**(-0.4*(m1+m_AB)) + (1-epsilon)*10**(-0.4*(m2+m_AB))
+  cont_mag  = -2.5*np.log10(cont_flux) - m_AB
+  return cont_mag
+#enddef
+
 def main(filter, NB, sig_NB, excess, sig_excess, silent=False, verbose=True):
 
     '''
