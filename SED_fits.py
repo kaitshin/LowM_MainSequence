@@ -1,3 +1,24 @@
+"""
+NAME:
+    SED_fits.py
+
+PURPOSE:
+
+    depends on 
+
+INPUTS:
+    FULL_PATH+'FAST/outputs/BEST_FITS/NB_IA_emitters_allphot.emagcorr.ACpsf_fast'+fileend+'_'+str(ID_num)+'.input_res.fit'
+    FULL_PATH+'FAST/outputs/BEST_FITS/NB_IA_emitters_allphot.emagcorr.ACpsf_fast'+fileend+'_'+str(ID_num)+'.fit'
+    FULL_PATH+'Catalogs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast'+fileend+'.cat'
+    FULL_PATH+'FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast'+fileend+'.fout'
+    FULL_PATH+'Catalogs/nb_ia_zspec.txt'
+    FULL_PATH+'Catalogs/NB_IA_emitters.nodup.colorrev.fix.fits'
+    FULL_PATH+'Main_Sequence/Catalogs/mainseq_Ha_corrections'+fileend+'.fits'
+
+OUTPUTS:
+    FULL_PATH+'Plots/SED_fits/'+filename+'.pdf'
+"""
+
 import numpy as np, matplotlib.pyplot as plt
 from astropy.io import ascii as asc, fits as pyfits
 from astropy import constants
@@ -237,8 +258,7 @@ nbiadata = nbia[1].data
 names = nbiadata['NAME']
 
 #+170815
-Ha_corrs = pyfits.open(FULL_PATH+'Main_Sequence/Catalogs/mainseq_Ha_corrections'
-                       +fileend+'.fits')
+Ha_corrs = pyfits.open(FULL_PATH+'Main_Sequence/Catalogs/mainseq_Ha_corrections'+fileend+'.fits')
 corrdata = Ha_corrs[1].data
 ha_id = corrdata['ID']
 dust_lumin0 = corrdata['dust_corr_lumin']
