@@ -1,3 +1,20 @@
+"""
+NAME:
+    plot_nbia_mainseq.py
+
+PURPOSE:
+
+    depends on 
+
+INPUTS:
+    FULL_PATH+'Main_Sequence/Berg2012_table.clean.txt'
+    FULL_PATH+'Main_Sequence/Noeske07_fig1_z1.txt'
+    FULL_PATH+'Main_Sequence/mainseq_corrections_tbl.txt'
+
+OUTPUTS:
+    FULL_PATH+'Plots/main_sequence/ALL.pdf'
+"""
+
 import numpy as np, matplotlib.pyplot as plt
 from astropy.io import ascii as asc
 
