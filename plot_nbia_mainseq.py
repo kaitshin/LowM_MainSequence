@@ -110,13 +110,13 @@ def sSFR_lines(ax, xlim):
     xmax = max(xlim)
     xarr = np.arange(xmin, xmax, 0.01)
     ax.plot(xarr, xarr - 9, 'k:',zorder=8)#, alpha=.6)
-    ax.text(5, -2.9, 'sSFR=(1.0 Gyr)'+r'$^{-1}$', rotation=35, color='k',
+    ax.text(5.2, -2.9, 'sSFR=(1.0 Gyr)'+r'$^{-1}$', rotation=50, color='k',
              alpha=1, fontsize=9)
     ax.plot(xarr, xarr - 10, 'k:')#, alpha=.5)
-    ax.text(6, -2.8, 'sSFR=(10.0 Gyr)'+r'$^{-1}$', rotation=35, color='k',
+    ax.text(6.25, -2.8, 'sSFR=(10.0 Gyr)'+r'$^{-1}$', rotation=50, color='k',
              alpha=1, fontsize=9)
     ax.plot(xarr, xarr - 11, 'k:')#, alpha=.5)
-    ax.text(7, -2.7, 'sSFR=(100.0 Gyr)'+r'$^{-1}$', rotation=35, color='k',
+    ax.text(7.3, -2.7, 'sSFR=(100.0 Gyr)'+r'$^{-1}$', rotation=50, color='k',
              alpha=1, fontsize=9)
     
 
