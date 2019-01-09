@@ -13,6 +13,17 @@ INPUTS:
 
 OUTPUTS:
     FULL_PATH+'Plots/main_sequence/mstar_vs_ebv.pdf'
+
+NOTES:
+    for the garn & best scaling, the following was done.
+    1. we plotted mass vs reddening as usual
+    2. for the RHS subplot, we created a twinx().twiny() axis called "ax2"
+    3. for ax2, we manually relabeled the ticks such that A(Ha) = k_ha * E(B-V)
+    4. we plotted the garn & best line according to the equation given in the paper.
+       however, plotting that line as-is shows the g&b line on the E(B-V) scale (i.e., 
+       at M=8.5, E(B-V) shows as 0.3 when it should be A(Ha) that is 0.3). therefore,
+       we divided the g&b line by k_ha such that the g&b line is plotted on the A(Ha) scale.
+       (for further clarification, look at troubleshooting notes 1/8)
 """
 
 from astropy.io import fits as pyfits, ascii as asc
@@ -98,7 +109,7 @@ def main():
 
     x_arr = np.arange(8.5, 10.6, 0.1)
     gb2010 = 0.91 + 0.77*(x_arr-10) + 0.11*(x_arr-10)**2 - 0.09*(x_arr-10)**3
-    f, axarr = plt.subplots(1,2)
+    f, axarr = plt.subplots(1,2, sharex=True, sharey=True)
 
     for ff, cc in zip(['NB704+NB711','NB816','NB921','NB973'], ['blue','green','orange','red']):
         yz_fmatch = np.array([x for x in range(len(corr_tbl)) if corr_tbl['filt'][x] in ff and 
@@ -145,25 +156,35 @@ def main():
                                             maxm_arr[yz_fmatch[inst_match]]-mstar]),
                              yerr=EBV_rms[yz_fmatch[inst_match]],
                              fmt='none', ecolor=cc, alpha=0.5)
-            axarr[ax_ii].set_ylim(ymin=-0.1)
+            axarr[ax_ii].tick_params(axis='both', which='both', direction='in')
 
     # set axis props
     for ax, ii in zip(axarr, range(2)):
-        ax.set_xlabel('log10(M'+r'$_\bigstar$'+')', size=14)
+        ax.set_xlabel('log10(M'+r'$_\bigstar$'+'/M'+r'$_\odot$'+')', size=14)
 
-        ax.text(9.85, 0.61, 'Garn & Best 2010', rotation=36, color='k',
+        ax.plot(x_arr, gb2010/k_ha, 'k--', lw=3, label='Garn & Best (2010)')
+        ax.text(9.78, 0.48, 'Garn & Best (2010)', rotation=33, color='k',
              alpha=1, fontsize=10, fontweight='bold')
 
-        ax2 = ax.twinx()
-        if ii==1:
-            ax.set_yticklabels([])
-            ax2.set_ylabel(r'A(H$\alpha$)', size=14)
-        else:
-            ax2.set_yticklabels([])
+        if ii==0:
             ax.set_ylabel('E(B-V)', size=14)
-        ntexts = np.array([np.around(k_ha*x,2) for x in ax.get_yticks()[:-1]])
-        line2, = ax2.plot(x_arr, gb2010, 'k--', lw=3, label='Garn & Best 2010')
-        ax2.set_ylim(min(ntexts), max(ntexts))
+        else: #ii==1
+            ax.yaxis.set_tick_params(size=0)
+
+
+    # creating a twin axis for the second subplot
+    ax2 = axarr[1].twiny().twinx()
+    axarr[1].get_shared_x_axes().join(axarr[0], axarr[1], ax2)
+    axarr[1].get_shared_y_axes().join(axarr[0], axarr[1], ax2)
+    ax2.set_ylabel(r'A(H$\alpha$)', size=14)
+    ax2.tick_params(axis='y', which='both', direction='in')
+    ax2.set_yticks(axarr[0].get_yticks())
+    ax2.set_yticklabels(np.round(k_ha*axarr[0].get_yticks(),2))
+    ax2.set_xticks([])
+
+    axarr[0].set_ylim(-0.1, 1.45)
+
+
 
 
     b_patch = mpatches.Patch(color='b', label='NB704,NB711')
@@ -173,14 +194,17 @@ def main():
 
     mmt = mlines.Line2D([], [], color='white', mec='k', marker='o', markersize=15, label='MMT')
     keck = mlines.Line2D([], [], color='white', mec='k', marker='*', markersize=15, label='Keck')
-    mrgd = mlines.Line2D([], [], color='white', mec='k', marker='s', markersize=15, label='Merged')
+    mrgd = mlines.Line2D([], [], color='white', mec='k', marker='s', markersize=15, label='MMT+Keck')
 
-    legend1 = axarr[0].legend(handles=[b_patch, g_patch, o_patch, r_patch], ncol=4, fontsize=13,
-                         loc='upper left', bbox_to_anchor=(0, 0.995))
-    axarr[0].add_artist(legend1)
-    legend2 = axarr[0].legend(handles=[mmt, keck, mrgd], ncol=3, fontsize=13, 
+    legend1 = axarr[1].legend(handles=[b_patch, g_patch, o_patch, r_patch], ncol=4, fontsize=13,
+                         loc='upper left', bbox_to_anchor=(-0.45, 1.0), facecolor='white', frameon=1)
+    axarr[1].add_artist(legend1)
+    legend2 = axarr[0].legend(handles=[mmt, mrgd], ncol=3, fontsize=13, 
                          loc='upper left', bbox_to_anchor=(0, 0.935))
     axarr[0].add_artist(legend2)
+    legend3 = axarr[1].legend(handles=[keck, mrgd], ncol=3, fontsize=13, 
+                         loc='upper left', bbox_to_anchor=(0, 0.935))
+    axarr[1].add_artist(legend3)
 
     # need to label composites
 
