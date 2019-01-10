@@ -58,8 +58,22 @@ def salim_2007(ax):
     xmax = 11.2
 
     xarr = np.arange(xmin, xmax+0.01, 0.01)
-    salim, = ax.plot(xarr, (-0.35 * (xarr - 10.0) - 9.83) + xarr, 'k-',
+    
+    def salim_line(xarr):
+        return (-0.35 * (xarr - 10.0) - 9.83) + xarr
+    lowlim = salim_line(xarr) - np.array([0.2]*len(xarr))
+    uplim = salim_line(xarr) + np.array([0.2]*len(xarr))
+
+    # ax.plot(xarr, lowlim, color='gray', marker='', linestyle='', zorder=1)
+    # ax.plot(xarr, uplim, color='gray', marker='', linestyle='', zorder=1)
+    # ax.fill_between(xarr, lowlim, uplim, facecolor='none',
+    #                  hatch=3*'.', edgecolor='gray', linewidth=0.0, alpha=0.2,
+    #                  zorder=1)
+    ax.fill_between(xarr, lowlim, uplim, color='gray', alpha=0.2)
+    salim, = ax.plot(xarr, salim_line(xarr), 'k-',
                       label='Salim+07 (z~0)', zorder=5)
+    # salim, = ax.plot(xarr, (-0.35 * (xarr - 10.0) - 9.83) + xarr, 'k-',
+    #                   label='Salim+07 (z~0)', zorder=5)
     return salim
 
 
