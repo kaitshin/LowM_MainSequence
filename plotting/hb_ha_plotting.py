@@ -49,7 +49,7 @@ def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0,
         [a.set_ylim(ymax=ymaxval) for a in ax_list[num-1:num]]
         if publ==True:
             ax.text(0.97,0.97,'Flux='+'{:.3f}'.format((pos_flux/1E-17))+
-                '\nFlux_NIIB='+'{:.3f}'.format((flux_niib/1E-17))+
+                '\n[N II]='+'{:.3f}'.format((flux_niib/pos_flux))+ # [N II] is the flux of [N II]lambda6583/Ha
                 '\nRMS='+'{:.3f}'.format((rms/1E-17))+
                 '\nEW='+'{:.3f}'.format(ew)[:4],
                 # '\nEW='+'{:.3f}'.format(flux/continuum),
