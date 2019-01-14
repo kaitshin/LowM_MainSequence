@@ -158,10 +158,10 @@ def main():
 
     # labeling axes and plotting garn & best (2010)
     for ax, ii in zip(axarr, range(2)):
-        ax.set_xlabel('log10(M'+r'$_\bigstar$'+'/M'+r'$_\odot$'+')', size=14)
+        ax.set_xlabel('log(M'+r'$_\bigstar$'+'/M'+r'$_\odot$'+')', size=14)
 
         ax.plot(x_arr, gb2010/k_ha, 'k--', lw=3, label='Garn & Best (2010)')
-        ax.text(9.78, 0.48, 'Garn & Best (2010)', rotation=33, color='k',
+        ax.text(9.65, 0.47, 'Garn & Best (2010)', rotation=33, color='k',
              alpha=1, fontsize=10, fontweight='bold')
 
         if ii==0:
@@ -195,19 +195,16 @@ def main():
 
     # adding filter and instrument legends
     legend1 = axarr[1].legend(handles=[b_patch, g_patch, o_patch, r_patch], ncol=4, fontsize=13,
-                         loc='upper left', bbox_to_anchor=(-0.45, 1.0), facecolor='white', frameon=1)
+                         loc='upper left', bbox_to_anchor=(-0.45, 1.18))#, facecolor='white', frameon=1)
     axarr[1].add_artist(legend1)
-    legend2 = axarr[0].legend(handles=[mmt, mrgd], ncol=3, fontsize=13, 
-                         loc='upper left', bbox_to_anchor=(0, 0.935))
+    legend2 = axarr[0].legend(handles=[mmt, keck, mrgd], ncol=3, fontsize=13, 
+                         loc='upper left', bbox_to_anchor=(0.69, 1.1))
     axarr[0].add_artist(legend2)
-    legend3 = axarr[1].legend(handles=[keck, mrgd], ncol=3, fontsize=13, 
-                         loc='upper left', bbox_to_anchor=(0, 0.935))
-    axarr[1].add_artist(legend3)
 
 
     # finishing touches
-    f.set_size_inches(17,6)
-    f.subplots_adjust(wspace=0, left=0.04, right=0.95, top=0.99, bottom=0.09)
+    f.set_size_inches(15,6)
+    f.subplots_adjust(wspace=0, left=0.04, right=0.95, top=0.86, bottom=0.09)
 
     plt.savefig(FULL_PATH+'Plots/main_sequence/mstar_vs_ebv.pdf')
 
