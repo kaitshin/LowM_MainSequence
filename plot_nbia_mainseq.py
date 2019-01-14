@@ -69,9 +69,11 @@ def salim_2007(ax):
     # ax.fill_between(xarr, lowlim, uplim, facecolor='none',
     #                  hatch=3*'.', edgecolor='gray', linewidth=0.0, alpha=0.2,
     #                  zorder=1)
-    ax.fill_between(xarr, lowlim, uplim, color='gray', alpha=0.2)
+    ax.plot(xarr, lowlim, 'k--', zorder=1)
+    ax.plot(xarr, uplim, 'k--', zorder=1)
+    ax.fill_between(xarr, lowlim, uplim, color='gray', alpha=0.4)
     salim, = ax.plot(xarr, salim_line(xarr), 'k-',
-                      label='Salim+07 (z~0)', zorder=5)
+                      label='Salim+07 (z~0)', zorder=1)
     # salim, = ax.plot(xarr, (-0.35 * (xarr - 10.0) - 9.83) + xarr, 'k-',
     #                   label='Salim+07 (z~0)', zorder=5)
     return salim
@@ -265,7 +267,7 @@ def main():
     axarr = np.ndarray.flatten(ax_all)
     f_all.set_size_inches(14,14)
     for title, corrs, ax, i in zip(['(a) Observed', '(b) Filter-corrected', 
-                             '(c) Filter+NII', '(d) Filter+NII+Dust Attenuation'], 
+                             '(c) Filter+[N II]', '(d) Filter+[N II]+Dust Attenuation'], 
                             [np.zeros(len(corr_tbl)), filt_corr_factor, filt_corr_factor+nii_ha_corr_factor, 
                              filt_corr_factor+nii_ha_corr_factor+dust_corr_factor], axarr, range(4)):
         #  should pass in e.g., "obs_sfr + corrs" to plot applied corrs
