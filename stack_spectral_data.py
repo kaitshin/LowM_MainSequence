@@ -48,6 +48,7 @@ import writing_tables.hb_ha_tables as Keck_twriting
 import writing_tables.general_tables as general_twriting
 from analysis.balmer_fit import get_best_fit3
 from analysis.balmer_fit import get_baseline_median
+from analysis.composite_errors import composite_errors
 from analysis.sdf_stack_data import stack_data
 from astropy.io import fits as pyfits, ascii as asc
 from astropy.table import Table, vstack
@@ -58,6 +59,7 @@ from astropy import units as u
 
 MIN_NUM_PER_BIN = 10
 MAX_NUM_OF_BINS = 5
+SEED_ORIG = 19823
 
 full_path = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
 
@@ -169,8 +171,12 @@ def HA_HB_EBV(ha, hb, instr, bintype='redshift', filt='N/A'):
     elif instr=='Keck' and bintype=='redshift':
         EBV_hahb[0] = -99.0 #no nb816 hbeta
 
-    if instr=='MMT' and bintype=='StellarMassZ' and filt=='NB921':
-        print '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', EBV_hahb
+    # print '\n@@@@@@@@@@@@@', instr, bintype, filt
+    # if instr=='MMT' and bintype=='StellarMassZ' and filt=='NB921':
+    #     print '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>F_HA', ha/1E-18
+    #     print '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>F_HB', hb/1E-18
+    #     print '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', hahb
+    #     print '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', EBV_hahb
 
     EBV_hahb = np.array([-99.0 if np.isnan(x) else x for x in EBV_hahb])
 
@@ -464,7 +470,8 @@ def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', p
         HG_neg_amplitude, HB_neg_amplitude) = table_arrays
     (num_sources, num_stack_HG, num_stack_HB, num_stack_HA, avgz_arr, minz_arr, maxz_arr,
         stlrmass_bin_arr, avg_stlrmass_arr, min_stlrmass_arr, max_stlrmass_arr,
-        IDs_arr, HA_RMS, HB_RMS, HG_RMS) = ([], [], [], [], [], [], [], [], [], [], [], [], [], [], [])
+        IDs_arr, HA_RMS, HB_RMS, HG_RMS, 
+        HA_ERR, HB_ERR, HG_ERR) = ([], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [])
     if index_list == []:
         index_list = general_plotting.get_index_list2(NAME0, stlr_mass, inst_str0, zspec0, inst_dict, 'MMT')
     (xmin_list, xmax_list, label_list, 
@@ -495,6 +502,9 @@ def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', p
             HA_RMS.append(0)
             HB_RMS.append(0)
             HG_RMS.append(0)
+            HA_ERR.append(np.zeros((1,2))[0])
+            HB_ERR.append(np.zeros((1,2))[0])
+            HG_ERR.append(np.zeros((1,2))[0])
             for i in range(3):
                 ax = ax_list[subplot_index]
                 label = label_list[i]
@@ -532,7 +542,6 @@ def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', p
         spectra_file_path = full_path+'Composite_Spectra/StellarMass/MMT_spectra_vals/'+subtitle[10:]+'.txt'
         asc.write(table0, spectra_file_path, format='fixed_width', delimiter=' ', overwrite=True)
 
-        # calculating flux for NII emissions & rms of the emission lines
         pos_flux_list = []
         flux_list = []
         flux_niib_list = []
@@ -543,7 +552,8 @@ def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', p
         pos_sigma_list = []
         neg_sigma_list = []
         median_list = []
-        for i, arr in zip(range(3), [HG_RMS, HB_RMS, HA_RMS]):
+        # calculating flux for NII emissions & rms of the emission lines
+        for i, rms_arr, err_arr in zip(range(3), [HG_RMS, HB_RMS, HA_RMS], [HG_ERR, HB_ERR, HA_ERR]):
             xmin0 = xmin_list[i]
             xmax0 = xmax_list[i]
             ax = ax_list[subplot_index+i]
@@ -555,23 +565,31 @@ def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', p
                 flux_list.append(flux)
                 flux_niib_list.append(flux3)
 
+                # rms calculations
                 good_ii = np.array([x for x in range(len(xval)) if xval[x] >= xmin0 and xval[x] <= xmax0
                     and not np.isnan(yval[x])])
                 med0, std0 = get_baseline_median(xval[good_ii], yval[good_ii], label)
-                if i==0: #hg rms
+                if i==0: #hg
                     npix = len(np.array([x for x in xval if 
                         (x>=xmin0 and x<=4341-8) or (x>=4341+8 and x<=xmax0)]))
-                elif i==1: # hb rms
+                elif i==1: # hb
                     npix = len(np.array([x for x in xval if 
                         (x>=xmin0 and x<=4861-8) or (x>=4861+8 and x<=xmax0)]))
-                else: # ha rms
+                else: # ha
                     npix = len(np.array([x for x in xval if 
                         (x>=xmin0 and x<=6548.1-5) or (x>=6548.1+5 and x<=6563-8) or
                         (x>=6563+8 and x<=6583.6-5) or (x>=6583.6+5 and x<=xmax0)]))
-                arr.append(std0 * np.sqrt(npix) * dlambda)
+                rms = std0 * dlambda * np.sqrt(npix)   # = std0 * dlambda instead?? 
+                rms_arr.append(rms)                
+
+                ## calculating composites error bars
+                flux_err = composite_errors(flux, rms, label, seed_i=SEED_ORIG+subplot_index)
+                err_arr.append(flux_err[0])
+                # print label, 'errs/1E-18:', flux_err[0]/1E-18
             except IndexError:
                 print 'Not enough sources to stack (less than two)'
-                arr.append(0)
+                rms_arr.append(0)
+                err_arr.append(np.zeros((1,2))[0])
                 continue
             finally:
                 (ew, ew_emission, ew_absorption, median, pos_amplitude, 
@@ -601,6 +619,7 @@ def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', p
             #endtry
         #endfor
         
+        # plotting the emission line spectra (w/ relevant information) for the mass bin
         for i, arr in zip(range(3), [HG_RMS, HB_RMS, HA_RMS]):
             label = label_list[i] + ' ('+str(len_input_index[i])+')'
             if i == 0:
@@ -661,28 +680,57 @@ def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', p
     elif title=='NB973':
         HA_flux = np.array([-99]*5)
 
+    # assigning pos/neg errs to separate cols
+    HG_errs_neg = np.array(HG_ERR)[:,0]
+    HG_errs_pos = np.array(HG_ERR)[:,1]
+    HB_errs_neg = np.array(HB_ERR)[:,0]
+    HB_errs_pos = np.array(HB_ERR)[:,1]
+    HA_errs_neg = np.array(HA_ERR)[:,0]
+    HA_errs_pos = np.array(HA_ERR)[:,1]
+
+    # getting EBV and EBV errs
     EBV_hghb = HG_HB_EBV(HG_flux, HB_flux)
+    flux_hghb_errs = composite_errors([HG_flux, HB_flux], [HG_RMS, HB_RMS], 'HG/HB', seed_i=SEED_ORIG+subplot_index)
+    EBV_hghb_errs = flux_hghb_errs # FOR NOW
+    EBV_hghb_errs_neg = EBV_hghb_errs[:,0]
+    EBV_hghb_errs_pos = EBV_hghb_errs[:,1]
 
     HB_NB921_flux = np.copy(HB_flux)
     if title=='NB921' or bintype=='StlrMass':
         HB_NB921_flux = get_HB_NB921_flux(bintype=bintype)
 
     EBV_hahb = HA_HB_EBV(HA_flux, HB_NB921_flux, 'MMT', bintype, title)
-    EBV_hahb_rms = Hn_HB_EBV_RMS(np.array(HA_flux), np.array(HB_flux), np.array(HA_RMS), np.array(HB_RMS))
-    EBV_hghb_rms = Hn_HB_EBV_RMS(np.array(HG_flux), np.array(HB_flux), np.array(HG_RMS), np.array(HB_RMS))
+    flux_hahb_errs = composite_errors([HA_flux, HB_NB921_flux], [HA_RMS, HB_RMS], 'HA/HB', seed_i=SEED_ORIG+subplot_index)
+    # EBV_hahb_errs = flux_hahb_errs # FOR NOW
+    EBV_hahb_errs = np.log10((flux_hahb_errs)/2.86)/(-0.4*(k_ha - k_hb))
+    EBV_hahb_errs_neg = EBV_hahb_errs[:,0]
+    EBV_hahb_errs_pos = EBV_hahb_errs[:,1]
+    # EBV_hahb_rms = Hn_HB_EBV_RMS(np.array(HA_flux), np.array(HB_flux), np.array(HA_RMS), np.array(HB_RMS))
+    # EBV_hghb_rms = Hn_HB_EBV_RMS(np.array(HG_flux), np.array(HB_flux), np.array(HG_RMS), np.array(HB_RMS))
+    # print 'old ebv_hahb:', EBV_hahb_rms
+    # print 'new ebv_hahb:', ebv_hahb_errs    
+    # print 'old ebv_hghb:', EBV_hghb_rms
+    # print 'new ebv_hghb:', ebv_hghb_errs, '\n\n\n'
+
 
     table00 = Table([subtitle_list, stlrmass_bin_arr, num_sources, num_stack_HG, num_stack_HB, num_stack_HA,
         avgz_arr, minz_arr, maxz_arr, 
         avg_stlrmass_arr, min_stlrmass_arr, max_stlrmass_arr, HG_flux, HB_flux, HB_NB921_flux, HA_flux, NII_6548_flux, 
         NII_6583_flux, HG_EW, HB_EW, HA_EW, HG_EW_corr, HB_EW_corr, HA_EW_corr, HG_EW_abs, HB_EW_abs,
-        HG_continuum, HB_continuum, HA_continuum, HG_RMS, HB_RMS, HA_RMS, HG_pos_amplitude, HB_pos_amplitude, HA_pos_amplitude,
-        HG_neg_amplitude, HB_neg_amplitude, EBV_hghb, EBV_hahb, EBV_hghb_rms, EBV_hahb_rms], # IDs_arr
+        HG_continuum, HB_continuum, HA_continuum, HG_RMS, HB_RMS, HA_RMS, 
+        HG_errs_neg, HG_errs_pos, HB_errs_neg, HB_errs_pos, HA_errs_neg, HA_errs_pos,
+        HG_pos_amplitude, HB_pos_amplitude, HA_pos_amplitude,
+        HG_neg_amplitude, HB_neg_amplitude, EBV_hghb, EBV_hahb, 
+        EBV_hghb_errs_neg, EBV_hghb_errs_pos, EBV_hahb_errs_neg, EBV_hahb_errs_pos], # IDs_arr
         names=['filter', 'stlrmass_bin', 'num_sources', 'num_stack_HG', 'num_stack_HB', 'num_stack_HA',
         'avgz', 'minz', 'maxz',
         'avg_stlrmass', 'min_stlrmass', 'max_stlrmass', 'HG_flux', 'HB_flux', 'HB_NB921_flux', 'HA_flux', 'NII_6548_flux', 
         'NII_6583_flux', 'HG_EW', 'HB_EW', 'HA_EW', 'HG_EW_corr', 'HB_EW_corr', 'HA_EW_corr', 'HG_EW_abs', 'HB_EW_abs',
-        'HG_continuum', 'HB_continuum', 'HA_continuum', 'HG_RMS', 'HB_RMS', 'HA_RMS', 'HG_pos_amplitude', 'HB_pos_amplitude', 'HA_pos_amplitude',
-        'HG_neg_amplitude', 'HB_neg_amplitude', 'E(B-V)_hghb', 'E(B-V)_hahb', 'E(B-V)_hghb_rms', 'E(B-V)_hahb_rms']) # IDs
+        'HG_continuum', 'HB_continuum', 'HA_continuum', 'HG_RMS', 'HB_RMS', 'HA_RMS', 
+        'HG_errs_neg', 'HG_errs_pos', 'HB_errs_neg', 'HB_errs_pos', 'HA_errs_neg', 'HA_errs_pos',
+        'HG_pos_amplitude', 'HB_pos_amplitude', 'HA_pos_amplitude',
+        'HG_neg_amplitude', 'HB_neg_amplitude', 'E(B-V)_hghb', 'E(B-V)_hahb', 
+        'E(B-V)_hghb_errs_neg', 'E(B-V)_hghb_errs_pos', 'E(B-V)_hahb_errs_neg', 'E(B-V)_hahb_errs_pos']) # IDs
 
     if pp != None: return pp, table00
 
@@ -942,7 +990,7 @@ def plot_Keck_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', 
         HB_neg_amplitude) = table_arrays
     (num_sources, num_stack_HG, num_stack_HB, num_stack_HA, avgz_arr, minz_arr, maxz_arr,
         stlrmass_bin_arr, avg_stlrmass_arr, min_stlrmass_arr, max_stlrmass_arr,
-        IDs_arr, HA_RMS, HB_RMS) = ([], [], [], [], [], [], [], [], [], [], [], [], [], [])
+        IDs_arr, HA_RMS, HB_RMS, HA_ERR, HB_ERR) = ([], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [])
     if index_list == []:
         index_list = general_plotting.get_index_list2(NAME0, stlr_mass, inst_str0, zspec0, inst_dict, 'Keck')
     (xmin_list, xmax_list, label_list, 
@@ -1005,7 +1053,7 @@ def plot_Keck_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', 
         pos_sigma_list = []
         neg_sigma_list = []
         median_list = []
-        for i, arr in zip(range(2), [HB_RMS, HA_RMS]):
+        for i, arr, err_arr in zip(range(2), [HB_RMS, HA_RMS], [HB_ERR, HA_ERR]):
             xmin0 = xmin_list[i]
             xmax0 = xmax_list[i]
             ax = ax_list[subplot_index+i]
@@ -1017,21 +1065,27 @@ def plot_Keck_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', 
                 flux_list.append(flux)
                 flux_niib_list.append(flux3)
 
+                # rms calculations
                 good_ii = np.array([x for x in range(len(xval)) if xval[x] >= xmin0 and xval[x] <= xmax0
                     and not np.isnan(yval[x])])
                 med0, std0 = get_baseline_median(xval[good_ii], yval[good_ii], label)
-                if i==0: # hb rms
+                if i==0: # hb
                     npix = len(np.array([x for x in xval if 
                         (x>=xmin0 and x<=4861-8) or (x>=4861+8 and x<=xmax0)]))
-                else: # ha rms
+                else: # ha
                     npix = len(np.array([x for x in xval if 
                         (x>=xmin0 and x<=6548.1-5) or (x>=6548.1+5 and x<=6563-8) or
                         (x>=6563+8 and x<=6583.6-5) or (x>=6583.6+5 and x<=xmax0)]))
-                # print '..........................', i, std0, npix, xmin0, xmax0
-                arr.append(std0 * np.sqrt(npix) * dlambda)
+                rms = std0 * np.sqrt(npix) * dlambda
+                arr.append(rms)
+
+                ## calcluating composites error bars
+                flux_err = composite_errors(flux, rms, label, seed_i=SEED_ORIG+subplot_index)
+                err_arr.append(flux_err[0])
             except IndexError:
                 print '(!!) There\'s some unexpected exception or another.'
                 arr.append(0)
+                err_arr.append(np.zeros((1,2))[0])
                 continue
             finally:
                 (ew, ew_emission, ew_absorption, median, pos_amplitude, 
@@ -1098,21 +1152,36 @@ def plot_Keck_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', 
         subtitle_list = np.array([title]*len(stlrmass_bin_arr))
     plt.close()
 
+    # assigning pos/neg errs to separate cols
+    HB_errs_neg = np.array(HB_ERR)[:,0]
+    HB_errs_pos = np.array(HB_ERR)[:,1]
+    HA_errs_neg = np.array(HA_ERR)[:,0]
+    HA_errs_pos = np.array(HA_ERR)[:,1]
+
+    # getting EBV and EBV errs
     EBV_hahb = HA_HB_EBV(HA_flux, HB_flux, 'Keck', 'stlrmass')
-    EBV_hahb_rms = Hn_HB_EBV_RMS(np.array(HA_flux), np.array(HB_flux), np.array(HA_RMS), np.array(HB_RMS))
+    # EBV_hahb_rms = Hn_HB_EBV_RMS(np.array(HA_flux), np.array(HB_flux), np.array(HA_RMS), np.array(HB_RMS))
+    flux_hahb_errs = composite_errors([HA_flux, HB_flux], [HA_RMS, HB_RMS], 'HA/HB', seed_i=SEED_ORIG+subplot_index)
+    EBV_hahb_errs = np.log10((flux_hahb_errs)/2.86)/(-0.4*(k_ha - k_hb))
+    EBV_hahb_errs_neg = EBV_hahb_errs[:,0]
+    EBV_hahb_errs_pos = EBV_hahb_errs[:,1]
 
     table00 = Table([subtitle_list, stlrmass_bin_arr, num_sources, num_stack_HB, num_stack_HA,
         avgz_arr, minz_arr, maxz_arr, 
         avg_stlrmass_arr, min_stlrmass_arr, max_stlrmass_arr, HB_flux, HA_flux, NII_6548_flux, 
         NII_6583_flux, HB_EW, HA_EW, HB_EW_corr, HA_EW_corr, HB_EW_abs,
-        HB_continuum, HA_continuum, HB_RMS, HA_RMS, HB_pos_amplitude, HA_pos_amplitude,
-        HB_neg_amplitude, EBV_hahb, EBV_hahb_rms], # IDs_arr
+        HB_continuum, HA_continuum, 
+        HB_RMS, HA_RMS, HB_errs_neg, HB_errs_pos, HA_errs_neg, HA_errs_pos,
+        HB_pos_amplitude, HA_pos_amplitude, HB_neg_amplitude, 
+        EBV_hahb, EBV_hahb_errs_neg, EBV_hahb_errs_pos], # IDs_arr
         names=['filter', 'stlrmass_bin', 'num_sources', 'num_stack_HB', 'num_stack_HA',
         'avgz', 'minz', 'maxz',
         'avg_stlrmass', 'min_stlrmass', 'max_stlrmass', 'HB_flux', 'HA_flux', 'NII_6548_flux', 
         'NII_6583_flux', 'HB_EW', 'HA_EW', 'HB_EW_corr', 'HA_EW_corr', 'HB_EW_abs',
-        'HB_continuum', 'HA_continuum', 'HB_RMS', 'HA_RMS', 'HB_pos_amplitude', 'HA_pos_amplitude',
-        'HB_neg_amplitude', 'E(B-V)_hahb', 'E(B-V)_hahb_rms']) # 'IDs'
+        'HB_continuum', 'HA_continuum', 
+        'HB_RMS', 'HA_RMS', 'HB_errs_neg', 'HB_errs_pos', 'HA_errs_neg', 'HA_errs_pos', 
+        'HB_pos_amplitude', 'HA_pos_amplitude', 'HB_neg_amplitude', 
+        'E(B-V)_hahb', 'E(B-V)_hahb_errs_neg', 'E(B-V)_hahb_errs_pos']) # 'IDs'
 
     if pp != None: return pp, table00
 
@@ -1228,7 +1297,7 @@ grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr, fill_value=np.nan)
 print '### plotting MMT_Ha'
 # plot_MMT_Ha()
 # plot_MMT_Ha_stlrmass()
-plot_MMT_Ha_stlrmass_z()
+# plot_MMT_Ha_stlrmass_z()
 grid.close()
 
 print '### looking at the Keck grid'
