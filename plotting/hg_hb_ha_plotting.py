@@ -29,7 +29,8 @@ def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0,
         if (subtitle=='NB921' or ftitle=='NB921') and num%3==1 and hb_nb921_flux > 0:
             if publ==True:
                 ax.text(0.97,0.97,'Flux='+'{:.3f}'.format((flux/1E-17))+
-                    '\nRMS='+'{:.3f}'.format((rms/1E-17))+
+                    # '\nRMS='+'{:.3f}'.format((rms/1E-17))+
+                    '\nS/N='+'{:.3f}'.format(flux/rms)+
                     '\nEW='+'{:.3f}'.format(ew)[:4]+
                     '\nEW_abs='+'{:.3f}'.format(ew_abs)[:4],
                     # '\nEW='+'{:.3f}'.format(flux/continuum)+
@@ -47,7 +48,8 @@ def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0,
         else:
             if publ==True:
                 ax.text(0.97,0.97,'Flux='+'{:.3f}'.format((flux/1E-17))+
-                    '\nRMS='+'{:.3f}'.format((rms/1E-17))+
+                    # '\nRMS='+'{:.3f}'.format((rms/1E-17))+
+                    '\nS/N='+'{:.3f}'.format(flux/rms)+
                     '\nEW='+'{:.3f}'.format(ew)[:4]+
                     '\nEW_abs='+'{:.3f}'.format(ew_abs)[:4],
                     # '\nEW='+'{:.3f}'.format(flux/continuum)+
@@ -86,7 +88,8 @@ def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0,
         if publ==True:
             ax.text(0.97,0.97,'Flux='+'{:.3f}'.format((pos_flux/1E-17))+
                 '\n[N II]='+'{:.3f}'.format((flux_niib/pos_flux))+ # [N II] is the flux of [N II]lambda6583/Ha
-                '\nRMS='+'{:.3f}'.format((rms/1E-17))+
+                # '\nRMS='+'{:.3f}'.format((rms/1E-17))+
+                '\nS/N='+'{:.3f}'.format(pos_flux/rms)+
                 '\nEW='+'{:.3f}'.format(ew)[:4],
                 # '\nEW='+'{:.3f}'.format(flux/continuum),
                 transform=ax.transAxes,fontsize=5,ha='right',va='top')
