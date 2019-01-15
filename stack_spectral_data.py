@@ -523,7 +523,11 @@ def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', p
         min_stlrmass_arr.append(np.min(stlr_mass[match_index]))
         max_stlrmass_arr.append(np.max(stlr_mass[match_index]))
 
-        dlambda = 0.1 # xval[1] - xval[0]
+        if bintype=='StellarMassZ':
+            zs = np.mean(zspec0[match_index]) # avgz
+            dlambda = (x0[1]-x0[0])/(1+zs)  #  < -- avgz changes for ea. redshift sample
+        else: # bintype = 'StlrMass'
+            dlambda = 0.1
 
         xval, yval, len_input_index, stacked_indexes, avgz, minz, maxz = stack_data(grid_ndarr, gridz, input_index,
             x0, 3700, 6700, dlambda, instr='MMT')
@@ -565,20 +569,23 @@ def plot_MMT_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', p
                 flux_list.append(flux)
                 flux_niib_list.append(flux3)
 
-                # rms calculations
+                # rms calculations for the flux for +/- 2.5sigma
                 good_ii = np.array([x for x in range(len(xval)) if xval[x] >= xmin0 and xval[x] <= xmax0
                     and not np.isnan(yval[x])])
                 med0, std0 = get_baseline_median(xval[good_ii], yval[good_ii], label)
                 if i==0: #hg
-                    npix = len(np.array([x for x in xval if 
-                        (x>=xmin0 and x<=4341-8) or (x>=4341+8 and x<=xmax0)]))
+                    # npix = len(np.array([x for x in xval if 
+                    #     (x>=xmin0 and x<=4341-8) or (x>=4341+8 and x<=xmax0)]))
+                    npix = 5*o1[2]/dlambda  # o1[2] is the emission gaussian
                 elif i==1: # hb
-                    npix = len(np.array([x for x in xval if 
-                        (x>=xmin0 and x<=4861-8) or (x>=4861+8 and x<=xmax0)]))
+                    # npix = len(np.array([x for x in xval if 
+                    #     (x>=xmin0 and x<=4861-8) or (x>=4861+8 and x<=xmax0)]))
+                    npix = 5*o1[2]/dlambda  # o1[2] is the emission gaussian
                 else: # ha
-                    npix = len(np.array([x for x in xval if 
-                        (x>=xmin0 and x<=6548.1-5) or (x>=6548.1+5 and x<=6563-8) or
-                        (x>=6563+8 and x<=6583.6-5) or (x>=6583.6+5 and x<=xmax0)]))
+                    # npix = len(np.array([x for x in xval if 
+                    #     (x>=xmin0 and x<=6548.1-5) or (x>=6548.1+5 and x<=6563-8) or
+                    #     (x>=6563+8 and x<=6583.6-5) or (x>=6583.6+5 and x<=xmax0)]))
+                    npix = 5*o1[2]/dlambda  # o1[2] is the emission gaussian
                 rms = std0 * dlambda * np.sqrt(npix)   # = std0 * dlambda instead?? 
                 rms_arr.append(rms)                
 
@@ -1015,8 +1022,12 @@ def plot_Keck_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', 
      	min_stlrmass_arr.append(np.min(stlr_mass[match_index]))
      	max_stlrmass_arr.append(np.max(stlr_mass[match_index]))
 
-        dlambda = 0.1 # xval[1] - xval[0]
-        x_rest = np.arange(3800, 6700+dlambda, dlambda)
+        if bintype=='StellarMassZ':
+            zs = np.mean(zspec0[match_index]) # avgz
+            dlambda = (x0[1]-x0[0])/(1+zs)  #  < -- avgz changes for ea. redshift sample
+        else:
+            dlambda = 0.1 # xval[1] - xval[0]
+
         xval, yval, len_input_index, stacked_indexes, avgz, minz, maxz = stack_data(grid_ndarr, gridz, input_index,
             x0, 3800, 6700, dlambda, instr='Keck')
         num_sources.append(len_input_index[0])
@@ -1042,7 +1053,6 @@ def plot_Keck_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', 
         spectra_file_path = full_path+'Composite_Spectra/StellarMass/Keck_spectra_vals/'+subtitle[10:]+'.txt'
         asc.write(table0, spectra_file_path, format='fixed_width', delimiter=' ', overwrite=True)
 
-        # calculating flux for NII emissions & rms of the emission lines
         pos_flux_list = []
         flux_list = []
         flux_niib_list = []
@@ -1053,7 +1063,8 @@ def plot_Keck_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', 
         pos_sigma_list = []
         neg_sigma_list = []
         median_list = []
-        for i, arr, err_arr in zip(range(2), [HB_RMS, HA_RMS], [HB_ERR, HA_ERR]):
+        # calculating flux for NII emissions & rms of the emission lines
+        for i, rms_arr, err_arr in zip(range(2), [HB_RMS, HA_RMS], [HB_ERR, HA_ERR]):
             xmin0 = xmin_list[i]
             xmax0 = xmax_list[i]
             ax = ax_list[subplot_index+i]
@@ -1070,21 +1081,23 @@ def plot_Keck_Ha_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', 
                     and not np.isnan(yval[x])])
                 med0, std0 = get_baseline_median(xval[good_ii], yval[good_ii], label)
                 if i==0: # hb
-                    npix = len(np.array([x for x in xval if 
-                        (x>=xmin0 and x<=4861-8) or (x>=4861+8 and x<=xmax0)]))
+                    # npix = len(np.array([x for x in xval if 
+                    #     (x>=xmin0 and x<=4861-8) or (x>=4861+8 and x<=xmax0)]))
+                    npix = 5*o1[2]/dlambda  # o1[2] is the emission gaussian
                 else: # ha
-                    npix = len(np.array([x for x in xval if 
-                        (x>=xmin0 and x<=6548.1-5) or (x>=6548.1+5 and x<=6563-8) or
-                        (x>=6563+8 and x<=6583.6-5) or (x>=6583.6+5 and x<=xmax0)]))
-                rms = std0 * np.sqrt(npix) * dlambda
-                arr.append(rms)
+                    # npix = len(np.array([x for x in xval if 
+                    #     (x>=xmin0 and x<=6548.1-5) or (x>=6548.1+5 and x<=6563-8) or
+                    #     (x>=6563+8 and x<=6583.6-5) or (x>=6583.6+5 and x<=xmax0)]))
+                    npix = 5*o1[2]/dlambda  # o1[2] is the emission gaussian
+                rms = std0 * dlambda * np.sqrt(npix)
+                rms_arr.append(rms)
 
                 ## calcluating composites error bars
                 flux_err = composite_errors(flux, rms, label, seed_i=SEED_ORIG+subplot_index)
                 err_arr.append(flux_err[0])
             except IndexError:
                 print '(!!) There\'s some unexpected exception or another.'
-                arr.append(0)
+                rms_arr.append(0)
                 err_arr.append(np.zeros((1,2))[0])
                 continue
             finally:
@@ -1297,7 +1310,7 @@ grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr, fill_value=np.nan)
 print '### plotting MMT_Ha'
 # plot_MMT_Ha()
 # plot_MMT_Ha_stlrmass()
-# plot_MMT_Ha_stlrmass_z()
+plot_MMT_Ha_stlrmass_z()
 grid.close()
 
 print '### looking at the Keck grid'
