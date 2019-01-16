@@ -510,7 +510,7 @@ def plot_MMT_stlrmass_z():
             title=ff
         print '>>>', title
 
-        pp, table_data = plot_MMT_Ha_stlrmass(bins_ii_tbl_temp[ii], pp, title, 'StellarMassZ')
+        pp, table_data = plot_MMT_stlrmass(bins_ii_tbl_temp[ii], pp, title, 'StellarMassZ')
         if table00 == None:
             table00 = table_data
         else:
@@ -773,7 +773,7 @@ def plot_Keck_stlrmass_z():
         title=ff
         print '>>>', title
 
-        pp, table_data = plot_Keck_Ha_stlrmass(bins_ii_tbl_temp[ii], pp, title, 'StellarMassZ')
+        pp, table_data = plot_Keck_stlrmass(bins_ii_tbl_temp[ii], pp, title, 'StellarMassZ')
         if table00 == None:
             table00 = table_data
         else:
