@@ -317,13 +317,8 @@ def plot_MMT_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', publ
                 good_ii = np.array([x for x in range(len(xval)) if xval[x] >= xmin0 and xval[x] <= xmax0
                     and not np.isnan(yval[x])])
                 med0, std0 = get_baseline_median(xval[good_ii], yval[good_ii], label)
-                if i==0: #hg
-                    npix = 5*o1[2]/dlambda  # o1[2] is the emission gaussian
-                elif i==1: # hb
-                    npix = 5*o1[2]/dlambda  # o1[2] is the emission gaussian
-                else: # ha
-                    npix = 5*o1[2]/dlambda  # o1[2] is the emission gaussian
-                rms = std0 * dlambda * np.sqrt(npix)   # = std0 * dlambda instead?? 
+                npix = 5*o1[2]/dlambda  # o1[2] is the positive emission gaussian
+                rms = std0 * dlambda * np.sqrt(npix) 
                 rms_arr.append(rms)                
 
                 ## calculating composites error bars
@@ -435,7 +430,8 @@ def plot_MMT_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', publ
     # getting EBV and EBV errs
     EBV_hghb = HG_HB_EBV(HG_flux, HB_flux)
     flux_hghb_errs = composite_errors([HG_flux, HB_flux], [HG_RMS, HB_RMS], 'HG/HB', seed_i=SEED_ORIG+subplot_index)
-    EBV_hghb_errs = flux_hghb_errs # FOR NOW
+    EBV_hghb_errs = flux_hghb_errs
+    # EBV_hghb_errs = np.log10((flux_hghb_errs)/2.86)/(-0.4*(k_hg - k_hb))
     EBV_hghb_errs_neg = EBV_hghb_errs[:,0]
     EBV_hghb_errs_pos = EBV_hghb_errs[:,1]
 
@@ -445,7 +441,8 @@ def plot_MMT_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', publ
 
     EBV_hahb = HA_HB_EBV(HA_flux, HB_NB921_flux, 'MMT', bintype, title)
     flux_hahb_errs = composite_errors([HA_flux, HB_NB921_flux], [HA_RMS, HB_RMS], 'HA/HB', seed_i=SEED_ORIG+subplot_index)
-    EBV_hahb_errs = np.log10((flux_hahb_errs)/2.86)/(-0.4*(k_ha - k_hb))
+    EBV_hahb_errs = flux_hahb_errs
+    # EBV_hahb_errs = np.log10((flux_hahb_errs)/2.86)/(-0.4*(k_ha - k_hb))
     EBV_hahb_errs_neg = EBV_hahb_errs[:,0]
     EBV_hahb_errs_pos = EBV_hahb_errs[:,1]
 
@@ -625,10 +622,7 @@ def plot_Keck_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', pub
                 good_ii = np.array([x for x in range(len(xval)) if xval[x] >= xmin0 and xval[x] <= xmax0
                     and not np.isnan(yval[x])])
                 med0, std0 = get_baseline_median(xval[good_ii], yval[good_ii], label)
-                if i==0: # hb
-                    npix = 5*o1[2]/dlambda  # o1[2] is the emission gaussian
-                else: # ha
-                    npix = 5*o1[2]/dlambda  # o1[2] is the emission gaussian
+                npix = 5*o1[2]/dlambda  # o1[2] is the positive emission gaussian
                 rms = std0 * dlambda * np.sqrt(npix)
                 rms_arr.append(rms)
 
@@ -714,7 +708,8 @@ def plot_Keck_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', pub
     # getting EBV and EBV errs
     EBV_hahb = HA_HB_EBV(HA_flux, HB_flux, 'Keck', 'stlrmass')
     flux_hahb_errs = composite_errors([HA_flux, HB_flux], [HA_RMS, HB_RMS], 'HA/HB', seed_i=SEED_ORIG+subplot_index)
-    EBV_hahb_errs = np.log10((flux_hahb_errs)/2.86)/(-0.4*(k_ha - k_hb))
+    EBV_hahb_errs = flux_hahb_errs
+    # EBV_hahb_errs = np.log10((flux_hahb_errs)/2.86)/(-0.4*(k_ha - k_hb))
     EBV_hahb_errs_neg = EBV_hahb_errs[:,0]
     EBV_hahb_errs_pos = EBV_hahb_errs[:,1]
 
