@@ -17,6 +17,11 @@ NOTES:
 """
 
 import numpy as np
+from analysis.cardelli import *   # k = cardelli(lambda0, R=3.1)
+
+k_hg = cardelli(4341 * u.Angstrom)
+k_hb = cardelli(4861 * u.Angstrom)
+k_ha = cardelli(6563 * u.Angstrom)
 
 def compute_onesig_pdf(arr0, x_val):
     '''https://github.com/astrochun/chun_codes/blob/master/__init__.py
@@ -83,21 +88,26 @@ def composite_errors(x, dx, label, seed_i):
             hn_pdf = random_pdf(hn_flux[good_iis], hn_rms[good_iis], seed_i)
             hb_pdf = random_pdf(hb_flux[good_iis], hb_rms[good_iis], seed_i)
             x_pdf = hn_pdf/hb_pdf
-
             if label=='HA/HB':
-                import matplotlib.pyplot as plt, datetime
-                f, axes = plt.subplots(len(good_iis),1, sharex=True)
-                for i, ax in zip(range(len(good_iis)), axes):
-                    ax.hist(x_pdf[i])
-                plt.show()
+                ebv_pdf = np.log10((x_pdf)/2.86)/(-0.4*(k_ha-k_hb))
+                ebv_guess = np.log10((hn_flux[good_iis]/hb_flux[good_iis])/2.86)/(-0.4*(k_ha-k_hb))
+            else: #label=='HG/HB'
+                ebv_pdf = np.log10((x_pdf)/0.468)/(-0.4*(k_hg-k_hb))
+                ebv_guess = np.log10((hn_flux[good_iis]/hb_flux[good_iis])/0.468)/(-0.4*(k_hg-k_hb))
+
+            # if label=='HA/HB':
+            #     import matplotlib.pyplot as plt, datetime
+            #     f, axes = plt.subplots(len(good_iis),1, sharex=True)
+            #     for i, ax in zip(range(len(good_iis)), axes):
+            #         ax.hist(x_pdf[i])
+            #     plt.show()
             #     # plt.savefig(str(datetime.datetime.now().time())+'.pdf')
 
-            err, xpeak = compute_onesig_pdf(x_pdf, hn_flux[good_iis]/hb_flux[good_iis])
+            err, xpeak = compute_onesig_pdf(ebv_pdf, ebv_guess)
             onesig_errs[good_iis] = err
 
     else:
         x_pdf = random_pdf(x, dx, seed_i)
         onesig_errs, xpeak = compute_onesig_pdf(x_pdf, x)
 
-    # print 'onesig_errs:::::::', onesig_errs
     return onesig_errs

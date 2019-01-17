@@ -429,9 +429,7 @@ def plot_MMT_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', publ
 
     # getting EBV and EBV errs
     EBV_hghb = HG_HB_EBV(HG_flux, HB_flux)
-    flux_hghb_errs = composite_errors([HG_flux, HB_flux], [HG_RMS, HB_RMS], 'HG/HB', seed_i=SEED_ORIG+subplot_index)
-    EBV_hghb_errs = flux_hghb_errs
-    # EBV_hghb_errs = np.log10((flux_hghb_errs)/2.86)/(-0.4*(k_hg - k_hb))
+    EBV_hghb_errs = composite_errors([HG_flux, HB_flux], [HG_RMS, HB_RMS], 'HG/HB', seed_i=SEED_ORIG+subplot_index)
     EBV_hghb_errs_neg = EBV_hghb_errs[:,0]
     EBV_hghb_errs_pos = EBV_hghb_errs[:,1]
 
@@ -440,9 +438,7 @@ def plot_MMT_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', publ
         HB_NB921_flux = get_HB_NB921_flux(bintype=bintype)
 
     EBV_hahb = HA_HB_EBV(HA_flux, HB_NB921_flux, 'MMT', bintype, title)
-    flux_hahb_errs = composite_errors([HA_flux, HB_NB921_flux], [HA_RMS, HB_RMS], 'HA/HB', seed_i=SEED_ORIG+subplot_index)
-    EBV_hahb_errs = flux_hahb_errs
-    # EBV_hahb_errs = np.log10((flux_hahb_errs)/2.86)/(-0.4*(k_ha - k_hb))
+    EBV_hahb_errs = composite_errors([HA_flux, HB_NB921_flux], [HA_RMS, HB_RMS], 'HA/HB', seed_i=SEED_ORIG+subplot_index)
     EBV_hahb_errs_neg = EBV_hahb_errs[:,0]
     EBV_hahb_errs_pos = EBV_hahb_errs[:,1]
 
@@ -707,9 +703,7 @@ def plot_Keck_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', pub
 
     # getting EBV and EBV errs
     EBV_hahb = HA_HB_EBV(HA_flux, HB_flux, 'Keck', 'stlrmass')
-    flux_hahb_errs = composite_errors([HA_flux, HB_flux], [HA_RMS, HB_RMS], 'HA/HB', seed_i=SEED_ORIG+subplot_index)
-    EBV_hahb_errs = flux_hahb_errs
-    # EBV_hahb_errs = np.log10((flux_hahb_errs)/2.86)/(-0.4*(k_ha - k_hb))
+    EBV_hahb_errs = composite_errors([HA_flux, HB_flux], [HA_RMS, HB_RMS], 'HA/HB', seed_i=SEED_ORIG+subplot_index)
     EBV_hahb_errs_neg = EBV_hahb_errs[:,0]
     EBV_hahb_errs_pos = EBV_hahb_errs[:,1]
 
