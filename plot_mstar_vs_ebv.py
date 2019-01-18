@@ -83,18 +83,24 @@ def main():
     minm_arr = np.concatenate((mmt_mz['min_stlrmass'][aa], keck_mz['min_stlrmass']))
     maxm_arr = np.concatenate((mmt_mz['max_stlrmass'][aa], keck_mz['max_stlrmass']))
     EBV = np.concatenate((mmt_mz['E(B-V)_hahb'][aa], keck_mz['E(B-V)_hahb']))
-    EBV_rms = np.concatenate((mmt_mz['E(B-V)_hahb_rms'][aa], keck_mz['E(B-V)_hahb_rms']))
+    # EBV_rms = np.concatenate((mmt_mz['E(B-V)_hahb_rms'][aa], keck_mz['E(B-V)_hahb_rms']))
+    EBV_errs_neg = np.concatenate((mmt_mz['E(B-V)_hahb_errs_neg'][aa], keck_mz['E(B-V)_hahb_errs_neg']))
+    EBV_errs_pos = np.concatenate((mmt_mz['E(B-V)_hahb_errs_pos'][aa], keck_mz['E(B-V)_hahb_errs_pos']))
 
     # replacing invalid MMT NB973 EBV_hahb w/ EBV_hghb
     h = [x for x in range(len(aa)) if mmt_mz['filter'][aa][x]=='NB973'][0]
     EBV[h:h+5] = mmt_mz['E(B-V)_hghb'][-5:]
-    EBV_rms[h:h+5] = mmt_mz['E(B-V)_hghb_rms'][-5:]
+    # EBV_rms[h:h+5] = mmt_mz['E(B-V)_hghb_rms'][-5:]
+    EBV_errs_neg[h:h+5] = mmt_mz['E(B-V)_hghb_errs_neg'][-5:]
+    EBV_errs_pos[h:h+5] = mmt_mz['E(B-V)_hghb_errs_pos'][-5:]
 
     # replacing invalid lowest two m bins MMT NB921 EBV_hahb w/ EBV_hghb
     i = np.where(mmt_mz['filter']=='NB921')[0][0]
     j = [x for x in range(len(aa)) if mmt_mz['filter'][aa][x]=='NB921'][0]
     EBV[j:j+2] = mmt_mz['E(B-V)_hghb'][i:i+2]
-    EBV_rms[j:j+2] = mmt_mz['E(B-V)_hghb_rms'][i:i+2]
+    # EBV_rms[j:j+2] = mmt_mz['E(B-V)_hghb_rms'][i:i+2]
+    EBV_errs_neg[j:j+2] = mmt_mz['E(B-V)_hghb_errs_neg'][i:i+2]
+    EBV_errs_pos[j:j+2] = mmt_mz['E(B-V)_hghb_errs_pos'][i:i+2]
 
     x_arr = np.arange(8.5, 10.6, 0.1)
     gb2010 = 0.91 + 0.77*(x_arr-10) + 0.11*(x_arr-10)**2 - 0.09*(x_arr-10)**3
@@ -152,7 +158,9 @@ def main():
                 axarr[ax_ii].errorbar(mstar, ebv00, 
                              xerr=np.array([mstar-minm_arr[yz_fmatch[inst_match]], 
                                             maxm_arr[yz_fmatch[inst_match]]-mstar]),
-                             yerr=EBV_rms[yz_fmatch[inst_match]],
+                             # yerr=EBV_rms[yz_fmatch[inst_match]],
+                             yerr=np.array([EBV_errs_neg[yz_fmatch[inst_match]], 
+                                            EBV_errs_pos[yz_fmatch[inst_match]]]),
                              fmt='none', ecolor=cc, alpha=0.5)
             axarr[ax_ii].tick_params(axis='both', which='both', direction='in')
 
