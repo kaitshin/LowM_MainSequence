@@ -167,6 +167,8 @@ def HA_HB_EBV(ha, hb, instr, bintype='redshift', filt='N/A'):
         EBV_hahb[-1] = -99.0 #no nb973 halpha
     elif instr=='MMT' and bintype=='StellarMassZ' and filt=='NB973':
         EBV_hahb[:] = -99.0 #no nb973 halpha
+    elif instr=='MMT' and bintype=='StellarMassZ' and filt=='NB921':
+        EBV_hahb[:2] = -99.0 #no nb921 halpha for the lowest two bins
     elif instr=='Keck' and bintype=='redshift':
         EBV_hahb[0] = -99.0 #no nb816 hbeta
 
