@@ -324,7 +324,7 @@ def plot_MMT_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', publ
                 rms_arr.append(rms)                
 
                 ## calculating composites error bars
-                flux_err = composite_errors(flux, rms, label, seed_i=SEED_ORIG+subplot_index)
+                flux_err = composite_errors(flux, rms, seed_i=SEED_ORIG+subplot_index, label=label)
                 err_arr.append(flux_err[0])
                 # print label, 'errs/1E-18:', flux_err[0]/1E-18
             except IndexError:
@@ -435,23 +435,23 @@ def plot_MMT_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', publ
         HB_NB921_flux = get_HB_NB921_flux(bintype=bintype)
 
     # getting flux ratio errs
-    FLUX_hghb_errs = composite_errors([HG_flux, HB_flux], [HG_RMS, HB_RMS], 'HG/HB_flux_rat_errs', seed_i=SEED_ORIG+subplot_index)
+    FLUX_hghb_errs = composite_errors([HG_flux, HB_flux], [HG_RMS, HB_RMS], seed_i=SEED_ORIG+subplot_index, label='HG/HB_flux_rat_errs')
     FLUX_hghb_errs_neg = FLUX_hghb_errs[:,0]
     FLUX_hghb_errs_pos = FLUX_hghb_errs[:,1]
 
-    FLUX_hahb_errs = composite_errors([HA_flux, HB_NB921_flux], [HA_RMS, HB_RMS], 'HA/HB_flux_rat_errs', seed_i=SEED_ORIG+subplot_index)
+    FLUX_hahb_errs = composite_errors([HA_flux, HB_NB921_flux], [HA_RMS, HB_RMS], seed_i=SEED_ORIG+subplot_index, label='HA/HB_flux_rat_errs')
     FLUX_hahb_errs_neg = FLUX_hahb_errs[:,0]
     FLUX_hahb_errs_pos = FLUX_hahb_errs[:,1]
 
 
     # getting EBV and EBV errs
     EBV_hghb = HG_HB_EBV(HG_flux, HB_flux)
-    EBV_hghb_errs = composite_errors([HG_flux, HB_flux], [HG_RMS, HB_RMS], 'HG/HB', seed_i=SEED_ORIG+subplot_index)
+    EBV_hghb_errs = composite_errors([HG_flux, HB_flux], [HG_RMS, HB_RMS], seed_i=SEED_ORIG+subplot_index, label='HG/HB')
     EBV_hghb_errs_neg = EBV_hghb_errs[:,0]
     EBV_hghb_errs_pos = EBV_hghb_errs[:,1]
 
     EBV_hahb = HA_HB_EBV(HA_flux, HB_NB921_flux, 'MMT', bintype, title)
-    EBV_hahb_errs = composite_errors([HA_flux, HB_NB921_flux], [HA_RMS, HB_RMS], 'HA/HB', seed_i=SEED_ORIG+subplot_index)
+    EBV_hahb_errs = composite_errors([HA_flux, HB_NB921_flux], [HA_RMS, HB_RMS], seed_i=SEED_ORIG+subplot_index, label='HA/HB')
     EBV_hahb_errs_neg = EBV_hahb_errs[:,0]
     EBV_hahb_errs_pos = EBV_hahb_errs[:,1]
 
@@ -635,7 +635,7 @@ def plot_Keck_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', pub
                 rms_arr.append(rms)
 
                 ## calcluating composites error bars
-                flux_err = composite_errors(flux, rms, label, seed_i=SEED_ORIG+subplot_index)
+                flux_err = composite_errors(flux, rms, seed_i=SEED_ORIG+subplot_index, label=label)
                 err_arr.append(flux_err[0])
             except IndexError:
                 print '(!!) There\'s some unexpected exception or another.'
@@ -715,13 +715,13 @@ def plot_Keck_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', pub
 
 
     # getting flux ratio errs
-    FLUX_hahb_errs = composite_errors([HA_flux, HB_flux], [HA_RMS, HB_RMS], 'HA/HB_flux_rat_errs', seed_i=SEED_ORIG+subplot_index)
+    FLUX_hahb_errs = composite_errors([HA_flux, HB_flux], [HA_RMS, HB_RMS], seed_i=SEED_ORIG+subplot_index, label='HA/HB_flux_rat_errs')
     FLUX_hahb_errs_neg = FLUX_hahb_errs[:,0]
     FLUX_hahb_errs_pos = FLUX_hahb_errs[:,1]
 
     # getting EBV and EBV errs
     EBV_hahb = HA_HB_EBV(HA_flux, HB_flux, 'Keck', 'stlrmass')
-    EBV_hahb_errs = composite_errors([HA_flux, HB_flux], [HA_RMS, HB_RMS], 'HA/HB', seed_i=SEED_ORIG+subplot_index)
+    EBV_hahb_errs = composite_errors([HA_flux, HB_flux], [HA_RMS, HB_RMS], seed_i=SEED_ORIG+subplot_index, label='HA/HB')
     EBV_hahb_errs_neg = EBV_hahb_errs[:,0]
     EBV_hahb_errs_pos = EBV_hahb_errs[:,1]
 
