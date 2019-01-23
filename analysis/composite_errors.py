@@ -102,7 +102,7 @@ def composite_errors(x, dx, seed_i, label=''):
 
                 err, xpeak = compute_onesig_pdf(ebv_pdf, ebv_guess)
             else: # label == 'Hn/HB_flux_rat_errs'
-                err, xpeak = compute_onesig_pdf(x_pdf, hn_flux/hb_flux)
+                err, xpeak = compute_onesig_pdf(x_pdf, hn_flux[good_iis]/hb_flux[good_iis])
 
             onesig_errs[good_iis] = err
 
