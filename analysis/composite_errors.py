@@ -1,6 +1,6 @@
 """
 NAME:
-    
+    composite_errors.py
 
 PURPOSE:
 
@@ -24,7 +24,8 @@ k_hb = cardelli(4861 * u.Angstrom)
 k_ha = cardelli(6563 * u.Angstrom)
 
 def compute_onesig_pdf(arr0, x_val):
-    '''https://github.com/astrochun/chun_codes/blob/master/__init__.py
+    '''
+    adapted from https://github.com/astrochun/chun_codes/blob/master/__init__.py
     '''
     len0 = arr0.shape[0] # arr0.shape[1] # Mod on 29/06/2016
 
@@ -75,8 +76,10 @@ def random_pdf(x, dx, seed_i, n_iter=1000):
     return x_pdf
 
 
-def composite_errors(x, dx, label, seed_i):
-    if label=='HA/HB' or label=='HG/HB':
+def composite_errors(x, dx, label='', seed_i):
+    '''
+    '''
+    if label != '':
         hn_flux = np.array(x[0])
         hn_rms = np.array(dx[0])
         hb_flux = np.array(x[1])
@@ -88,22 +91,19 @@ def composite_errors(x, dx, label, seed_i):
             hn_pdf = random_pdf(hn_flux[good_iis], hn_rms[good_iis], seed_i)
             hb_pdf = random_pdf(hb_flux[good_iis], hb_rms[good_iis], seed_i)
             x_pdf = hn_pdf/hb_pdf
-            if label=='HA/HB':
-                ebv_pdf = np.log10((x_pdf)/2.86)/(-0.4*(k_ha-k_hb))
-                ebv_guess = np.log10((hn_flux[good_iis]/hb_flux[good_iis])/2.86)/(-0.4*(k_ha-k_hb))
-            else: #label=='HG/HB'
-                ebv_pdf = np.log10((x_pdf)/0.468)/(-0.4*(k_hg-k_hb))
-                ebv_guess = np.log10((hn_flux[good_iis]/hb_flux[good_iis])/0.468)/(-0.4*(k_hg-k_hb))
 
-            # if label=='HA/HB':
-            #     import matplotlib.pyplot as plt, datetime
-            #     f, axes = plt.subplots(len(good_iis),1, sharex=True)
-            #     for i, ax in zip(range(len(good_iis)), axes):
-            #         ax.hist(x_pdf[i])
-            #     plt.show()
-            #     # plt.savefig(str(datetime.datetime.now().time())+'.pdf')
+            if label=='HA/HB' or label=='HG/HB':
+                if label=='HA/HB':
+                    ebv_pdf = np.log10((x_pdf)/2.86)/(-0.4*(k_ha-k_hb))
+                    ebv_guess = np.log10((hn_flux[good_iis]/hb_flux[good_iis])/2.86)/(-0.4*(k_ha-k_hb))
+                else: #label=='HG/HB'
+                    ebv_pdf = np.log10((x_pdf)/0.468)/(-0.4*(k_hg-k_hb))
+                    ebv_guess = np.log10((hn_flux[good_iis]/hb_flux[good_iis])/0.468)/(-0.4*(k_hg-k_hb))
 
-            err, xpeak = compute_onesig_pdf(ebv_pdf, ebv_guess)
+                err, xpeak = compute_onesig_pdf(ebv_pdf, ebv_guess)
+            else: # label == 'Hn/HB_flux_rat_errs'
+                err, xpeak = compute_onesig_pdf(x_pdf, hn_flux/hb_flux)
+
             onesig_errs[good_iis] = err
 
     else:

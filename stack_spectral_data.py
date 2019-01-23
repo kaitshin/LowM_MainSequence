@@ -60,7 +60,7 @@ MIN_NUM_PER_BIN = 10
 MAX_NUM_OF_BINS = 5
 SEED_ORIG = 19823
 
-full_path = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
+FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
 
 def correct_instr_AP(indexed_AP, indexed_inst_str0, instr):
     '''
@@ -95,7 +95,7 @@ def HG_HB_EBV(hg, hb):
 def get_HB_NB921_flux(bintype='redshift'):
     '''
     '''
-    cvg = asc.read(full_path+'Composite_Spectra/MMT_spectral_coverage.txt')
+    cvg = asc.read(FULL_PATH+'Composite_Spectra/MMT_spectral_coverage.txt')
     nb921 = np.array([x for x in range(len(cvg)) if cvg['filter'][x]=='NB921' and cvg['HB_cvg'][x]=='YES'])
     nb921_ha = np.array([x for x in range(len(nb921)) if cvg['HA_cvg'][nb921][x] == 'YES'])
 
@@ -289,7 +289,7 @@ def plot_MMT_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', publ
 
         # writing the spectra table
         table0 = Table([xval, yval/1E-17], names=['xval','yval/1E-17'])
-        spectra_file_path = full_path+'Composite_Spectra/StellarMass/MMT_spectra_vals/'+subtitle[10:]+'.txt'
+        spectra_file_path = FULL_PATH+'Composite_Spectra/StellarMass/MMT_spectra_vals/'+subtitle[10:]+'.txt'
         asc.write(table0, spectra_file_path, format='fixed_width', delimiter=' ', overwrite=True)
 
         pos_flux_list = []
@@ -408,7 +408,7 @@ def plot_MMT_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', publ
     plt.subplots_adjust(hspace=0, wspace=0.05)
 
     if pp == None:
-        plt.savefig(full_path+'Composite_Spectra/StellarMass/MMT_all_five.pdf')
+        plt.savefig(FULL_PATH+'Composite_Spectra/StellarMass/MMT_all_five.pdf')
         subtitle_list = np.array(['all']*len(stlrmass_bin_arr))
     else:
         pp.savefig()
@@ -429,15 +429,26 @@ def plot_MMT_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', publ
     HA_errs_neg = np.array(HA_ERR)[:,0]
     HA_errs_pos = np.array(HA_ERR)[:,1]
 
+
+    HB_NB921_flux = np.copy(HB_flux)
+    if title=='NB921' or bintype=='StlrMass':
+        HB_NB921_flux = get_HB_NB921_flux(bintype=bintype)
+
+    # getting flux ratio errs
+    FLUX_hghb_errs = composite_errors([HG_flux, HB_flux], [HG_RMS, HB_RMS], 'HG/HB_flux_rat_errs', seed_i=SEED_ORIG+subplot_index)
+    FLUX_hghb_errs_neg = FLUX_hghb_errs[:,0]
+    FLUX_hghb_errs_pos = FLUX_hghb_errs[:,1]
+
+    FLUX_hahb_errs = composite_errors([HA_flux, HB_NB921_flux], [HA_RMS, HB_RMS], 'HA/HB_flux_rat_errs', seed_i=SEED_ORIG+subplot_index)
+    FLUX_hahb_errs_neg = FLUX_hahb_errs[:,0]
+    FLUX_hahb_errs_pos = FLUX_hahb_errs[:,1]
+
+
     # getting EBV and EBV errs
     EBV_hghb = HG_HB_EBV(HG_flux, HB_flux)
     EBV_hghb_errs = composite_errors([HG_flux, HB_flux], [HG_RMS, HB_RMS], 'HG/HB', seed_i=SEED_ORIG+subplot_index)
     EBV_hghb_errs_neg = EBV_hghb_errs[:,0]
     EBV_hghb_errs_pos = EBV_hghb_errs[:,1]
-
-    HB_NB921_flux = np.copy(HB_flux)
-    if title=='NB921' or bintype=='StlrMass':
-        HB_NB921_flux = get_HB_NB921_flux(bintype=bintype)
 
     EBV_hahb = HA_HB_EBV(HA_flux, HB_NB921_flux, 'MMT', bintype, title)
     EBV_hahb_errs = composite_errors([HA_flux, HB_NB921_flux], [HA_RMS, HB_RMS], 'HA/HB', seed_i=SEED_ORIG+subplot_index)
@@ -466,7 +477,7 @@ def plot_MMT_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', publ
 
     if pp != None: return pp, table00
 
-    asc.write(table00, full_path+'Composite_Spectra/StellarMass/MMT_all_five_data.txt',
+    asc.write(table00, FULL_PATH+'Composite_Spectra/StellarMass/MMT_all_five_data.txt',
         format='fixed_width_two_line', delimiter=' ', overwrite=True)
 #enddef
 
@@ -477,7 +488,7 @@ def plot_MMT_stlrmass_z():
     TODO(implement flexible file-naming)
     '''
     print '>MMT STELLARMASS+REDSHIFT STACKING'
-    pp = PdfPages(full_path+'Composite_Spectra/StellarMassZ/MMT_stlrmassZ.pdf')
+    pp = PdfPages(FULL_PATH+'Composite_Spectra/StellarMassZ/MMT_stlrmassZ.pdf')
     table00 = None
 
     mmt_ii = np.array([x for x in range(len(NAME0)) if 
@@ -513,11 +524,10 @@ def plot_MMT_stlrmass_z():
         #endif
     #endfor
 
-    asc.write(table00, full_path+'Composite_Spectra/StellarMassZ/MMT_stlrmassZ_data.txt',
+    asc.write(table00, FULL_PATH+'Composite_Spectra/StellarMassZ/MMT_stlrmassZ_data.txt',
         format='fixed_width_two_line', delimiter=' ', overwrite=True)
     pp.close()
 #enddef
-
 
 def plot_Keck_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', publ=True, instr00='Keck'):
     '''
@@ -590,7 +600,7 @@ def plot_Keck_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', pub
 
         # writing the spectra table
         table0 = Table([xval, yval/1E-17], names=['xval','yval/1E-17'])
-        spectra_file_path = full_path+'Composite_Spectra/StellarMass/Keck_spectra_vals/'+subtitle[10:]+'.txt'
+        spectra_file_path = FULL_PATH+'Composite_Spectra/StellarMass/Keck_spectra_vals/'+subtitle[10:]+'.txt'
         asc.write(table0, spectra_file_path, format='fixed_width', delimiter=' ', overwrite=True)
 
         pos_flux_list = []
@@ -690,7 +700,7 @@ def plot_Keck_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', pub
     plt.subplots_adjust(hspace=0, wspace=0.05)
 
     if pp == None:
-        plt.savefig(full_path+'Composite_Spectra/StellarMass/Keck_all_five.pdf')
+        plt.savefig(FULL_PATH+'Composite_Spectra/StellarMass/Keck_all_five.pdf')
         subtitle_list = np.array(['all']*len(stlrmass_bin_arr))
     else:
         pp.savefig()
@@ -702,6 +712,12 @@ def plot_Keck_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', pub
     HB_errs_pos = np.array(HB_ERR)[:,1]
     HA_errs_neg = np.array(HA_ERR)[:,0]
     HA_errs_pos = np.array(HA_ERR)[:,1]
+
+
+    # getting flux ratio errs
+    FLUX_hahb_errs = composite_errors([HA_flux, HB_flux], [HA_RMS, HB_RMS], 'HA/HB_flux_rat_errs', seed_i=SEED_ORIG+subplot_index)
+    FLUX_hahb_errs_neg = FLUX_hahb_errs[:,0]
+    FLUX_hahb_errs_pos = FLUX_hahb_errs[:,1]
 
     # getting EBV and EBV errs
     EBV_hahb = HA_HB_EBV(HA_flux, HB_flux, 'Keck', 'stlrmass')
@@ -728,7 +744,7 @@ def plot_Keck_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', pub
 
     if pp != None: return pp, table00
 
-    asc.write(table00, full_path+'Composite_Spectra/StellarMass/Keck_all_five_data.txt',
+    asc.write(table00, FULL_PATH+'Composite_Spectra/StellarMass/Keck_all_five_data.txt',
             format='fixed_width_two_line', delimiter=' ', overwrite=True)
 #enddef
 
@@ -739,7 +755,7 @@ def plot_Keck_stlrmass_z():
     TODO(implement flexible file-naming)
     '''
     print '>KECK STELLARMASS+REDSHIFT STACKING'
-    pp = PdfPages(full_path+'Composite_Spectra/StellarMassZ/Keck_stlrmassZ.pdf')
+    pp = PdfPages(FULL_PATH+'Composite_Spectra/StellarMassZ/Keck_stlrmassZ.pdf')
     table00 = None
     
     keck_ii = np.array([x for x in range(len(NAME0)) if 
@@ -772,7 +788,7 @@ def plot_Keck_stlrmass_z():
         #endif
     #endfor
     
-    asc.write(table00, full_path+'Composite_Spectra/StellarMassZ/Keck_stlrmassZ_data.txt',
+    asc.write(table00, FULL_PATH+'Composite_Spectra/StellarMassZ/Keck_stlrmassZ_data.txt',
         format='fixed_width_two_line', delimiter=' ', overwrite=True)
     pp.close()
 #enddef
@@ -799,16 +815,16 @@ k_hg = cardelli(4341 * u.Angstrom)
 k_hb = cardelli(4861 * u.Angstrom)
 k_ha = cardelli(6563 * u.Angstrom)
 
-nbia = pyfits.open(full_path+'Catalogs/NB_IA_emitters.nodup.colorrev.fix.fits')
+nbia = pyfits.open(FULL_PATH+'Catalogs/NB_IA_emitters.nodup.colorrev.fix.fits')
 nbiadata = nbia[1].data
 NAME0 = nbiadata['NAME']
 
-zspec = asc.read(full_path+'Catalogs/nb_ia_zspec.txt',guess=False,
+zspec = asc.read(FULL_PATH+'Catalogs/nb_ia_zspec.txt',guess=False,
                  Reader=asc.CommentedHeader)
 zspec0 = np.array(zspec['zspec0'])
 inst_str0 = np.array(zspec['inst_str0']) ##used
 
-fout  = asc.read(full_path+'FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast.GALEX.fout',
+fout  = asc.read(FULL_PATH+'FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast.GALEX.fout',
                  guess=False,Reader=asc.NoHeader)
 stlr_mass = np.array(fout['col7']) ##used
 nan_stlr_mass = np.copy(stlr_mass)
@@ -818,10 +834,10 @@ data_dict = create_ordered_AP_arrays(AP_only = True)
 AP = data_dict['AP'] ##used
 
 print '### looking at the MMT grid'
-griddata = asc.read(full_path+'Spectra/spectral_MMT_grid_data.txt',guess=False)
+griddata = asc.read(FULL_PATH+'Spectra/spectral_MMT_grid_data.txt',guess=False)
 gridz  = np.array(griddata['ZSPEC']) ##used
 gridap = np.array(griddata['AP']) ##used
-grid   = pyfits.open(full_path+'Spectra/spectral_MMT_grid.fits')
+grid   = pyfits.open(FULL_PATH+'Spectra/spectral_MMT_grid.fits')
 grid_ndarr = grid[0].data ##used
 grid_hdr   = grid[0].header
 CRVAL1 = grid_hdr['CRVAL1']
@@ -842,10 +858,10 @@ plot_MMT_stlrmass_z()
 grid.close()
 
 print '### looking at the Keck grid'
-griddata = asc.read(full_path+'Spectra/spectral_Keck_grid_data.txt',guess=False)
+griddata = asc.read(FULL_PATH+'Spectra/spectral_Keck_grid_data.txt',guess=False)
 gridz  = np.array(griddata['ZSPEC']) ##used
 gridap = np.array(griddata['AP']) ##used
-grid   = pyfits.open(full_path+'Spectra/spectral_Keck_grid.fits')
+grid   = pyfits.open(FULL_PATH+'Spectra/spectral_Keck_grid.fits')
 grid_ndarr = grid[0].data ##used
 grid_hdr   = grid[0].header
 CRVAL1 = grid_hdr['CRVAL1']
