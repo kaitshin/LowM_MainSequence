@@ -470,7 +470,7 @@ def plot_MMT_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', publ
         'avg_stlrmass', 'min_stlrmass', 'max_stlrmass', 'HG_flux', 'HB_flux', 'HB_NB921_flux', 'HA_flux', 'NII_6548_flux', 
         'NII_6583_flux', 'HG_EW', 'HB_EW', 'HA_EW', 'HG_EW_corr', 'HB_EW_corr', 'HA_EW_corr', 'HG_EW_abs', 'HB_EW_abs',
         'HG_continuum', 'HB_continuum', 'HA_continuum', 'HG_RMS', 'HB_RMS', 'HA_RMS', 
-        'HG_errs_neg', 'HG_errs_pos', 'HB_errs_neg', 'HB_errs_pos', 'HA_errs_neg', 'HA_errs_pos',
+        'HG_flux_errs_neg', 'HG_flux_errs_pos', 'HB_flux_errs_neg', 'HB_flux_errs_pos', 'HA_flux_errs_neg', 'HA_flux_errs_pos',
         'HG_pos_amplitude', 'HB_pos_amplitude', 'HA_pos_amplitude',
         'HG_neg_amplitude', 'HB_neg_amplitude', 'E(B-V)_hghb', 'E(B-V)_hahb', 
         'E(B-V)_hghb_errs_neg', 'E(B-V)_hghb_errs_pos', 'E(B-V)_hahb_errs_neg', 'E(B-V)_hahb_errs_pos']) # IDs
@@ -729,16 +729,16 @@ def plot_Keck_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', pub
         avgz_arr, minz_arr, maxz_arr, 
         avg_stlrmass_arr, min_stlrmass_arr, max_stlrmass_arr, HB_flux, HA_flux, NII_6548_flux, 
         NII_6583_flux, HB_EW, HA_EW, HB_EW_corr, HA_EW_corr, HB_EW_abs,
-        HB_continuum, HA_continuum, 
-        HB_RMS, HA_RMS, HB_errs_neg, HB_errs_pos, HA_errs_neg, HA_errs_pos,
+        HB_continuum, HA_continuum, HB_RMS, HA_RMS, 
+        HB_errs_neg, HB_errs_pos, HA_errs_neg, HA_errs_pos,
         HB_pos_amplitude, HA_pos_amplitude, HB_neg_amplitude, 
         EBV_hahb, EBV_hahb_errs_neg, EBV_hahb_errs_pos], # IDs_arr
         names=['filter', 'stlrmass_bin', 'num_sources', 'num_stack_HB', 'num_stack_HA',
         'avgz', 'minz', 'maxz',
         'avg_stlrmass', 'min_stlrmass', 'max_stlrmass', 'HB_flux', 'HA_flux', 'NII_6548_flux', 
         'NII_6583_flux', 'HB_EW', 'HA_EW', 'HB_EW_corr', 'HA_EW_corr', 'HB_EW_abs',
-        'HB_continuum', 'HA_continuum', 
-        'HB_RMS', 'HA_RMS', 'HB_errs_neg', 'HB_errs_pos', 'HA_errs_neg', 'HA_errs_pos', 
+        'HB_continuum', 'HA_continuum', 'HB_RMS', 'HA_RMS', 
+        'HB_flux_errs_neg', 'HB_flux_errs_pos', 'HA_flux_errs_neg', 'HA_flux_errs_pos', 
         'HB_pos_amplitude', 'HA_pos_amplitude', 'HB_neg_amplitude', 
         'E(B-V)_hahb', 'E(B-V)_hahb_errs_neg', 'E(B-V)_hahb_errs_pos']) # 'IDs'
 
