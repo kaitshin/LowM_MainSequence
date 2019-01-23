@@ -472,8 +472,8 @@ def plot_MMT_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', publ
         'NII_6583_flux', 'HG_EW', 'HB_EW', 'HA_EW', 'HG_EW_corr', 'HB_EW_corr', 'HA_EW_corr', 'HG_EW_abs', 'HB_EW_abs',
         'HG_continuum', 'HB_continuum', 'HA_continuum', 'HG_RMS', 'HB_RMS', 'HA_RMS', 
         'HG_flux_errs_neg', 'HG_flux_errs_pos', 'HB_flux_errs_neg', 'HB_flux_errs_pos', 'HA_flux_errs_neg', 'HA_flux_errs_pos',
-        'HG_pos_amplitude', 'HB_pos_amplitude', 'HA_pos_amplitude',
         'FLUX_hghb_errs_neg', 'FLUX_hghb_errs_pos', 'FLUX_hahb_errs_neg', 'FLUX_hahb_errs_pos',
+        'HG_pos_amplitude', 'HB_pos_amplitude', 'HA_pos_amplitude',
         'HG_neg_amplitude', 'HB_neg_amplitude', 'E(B-V)_hghb', 'E(B-V)_hahb', 
         'E(B-V)_hghb_errs_neg', 'E(B-V)_hghb_errs_pos', 'E(B-V)_hahb_errs_neg', 'E(B-V)_hahb_errs_pos']) # IDs
 
@@ -877,7 +877,7 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 
 print '### plotting Keck'
-plot_Keck_stlrmass_z()
+# plot_Keck_stlrmass_z()
 grid.close()
 
 nbia.close()
