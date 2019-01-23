@@ -619,48 +619,43 @@ def plot_Keck_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', pub
             xmax0 = xmax_list[i]
             ax = ax_list[subplot_index+i]
             label = label_list[i]
-            try:
-                ax, flux, flux2, flux3, pos_flux, o1 = Keck_plotting.subplots_plotting(
-                    ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, tol, subplot_index+i)
-                pos_flux_list.append(pos_flux)
-                flux_list.append(flux)
-                flux_niib_list.append(flux3)
 
-                # rms calculations
-                good_ii = np.array([x for x in range(len(xval)) if xval[x] >= xmin0 and xval[x] <= xmax0
-                    and not np.isnan(yval[x])])
-                med0, std0 = get_baseline_median(xval[good_ii], yval[good_ii], label)
-                npix = 5*o1[2]/dlambda  # o1[2] is the positive emission gaussian
-                rms = std0 * dlambda * np.sqrt(npix)
-                rms_arr.append(rms)
+            ax, flux, flux2, flux3, pos_flux, o1 = Keck_plotting.subplots_plotting(
+                ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, tol, subplot_index+i)
+            pos_flux_list.append(pos_flux)
+            flux_list.append(flux)
+            flux_niib_list.append(flux3)
 
-                ## calcluating composites error bars
-                flux_err = composite_errors(flux, rms, seed_i=SEED_ORIG+subplot_index, label=label)
-                err_arr.append(flux_err[0])
-            except IndexError:
-                print '(!!) There\'s some unexpected exception or another.'
-                rms_arr.append(0)
-                err_arr.append(np.zeros((1,2))[0])
-                continue
-            finally:
-                (ew, ew_emission, ew_absorption, median, pos_amplitude, 
-                  neg_amplitude) = Keck_twriting.Hb_Ha_tables(label, subtitle, flux, 
-                  o1, xval, pos_flux, dlambda)
-                table_arrays = general_twriting.table_arr_appends(i, subtitle,
-                  table_arrays, flux, flux2, flux3, ew, ew_emission, ew_absorption, 
-                  median, pos_amplitude, neg_amplitude, 'Keck')
-                ew_list.append(ew)
-                ew_abs_list.append(ew_absorption)
+            # rms calculations
+            good_ii = np.array([x for x in range(len(xval)) if xval[x] >= xmin0 and xval[x] <= xmax0
+                and not np.isnan(yval[x])])
+            med0, std0 = get_baseline_median(xval[good_ii], yval[good_ii], label)
+            npix = 5*o1[2]/dlambda  # o1[2] is the positive emission gaussian
+            rms = std0 * dlambda * np.sqrt(npix)
+            rms_arr.append(rms)
 
-                pos_amplitude_list.append(pos_amplitude)
-                neg_amplitude_list.append(neg_amplitude)
-                pos_sigma_list.append(o1[2])
-                if i==0:
-                    neg_sigma_list.append(o1[5])
-                else:
-                    neg_sigma_list.append(0)
-                median_list.append(median)
-            #endtry
+            ## calcluating composites error bars
+            flux_err = composite_errors(flux, rms, seed_i=SEED_ORIG+subplot_index, label=label)
+            err_arr.append(flux_err[0])
+
+            (ew, ew_emission, ew_absorption, median, pos_amplitude, 
+              neg_amplitude) = Keck_twriting.Hb_Ha_tables(label, subtitle, flux, 
+              o1, xval, pos_flux, dlambda)
+            table_arrays = general_twriting.table_arr_appends(i, subtitle,
+              table_arrays, flux, flux2, flux3, ew, ew_emission, ew_absorption, 
+              median, pos_amplitude, neg_amplitude, 'Keck')
+            ew_list.append(ew)
+            ew_abs_list.append(ew_absorption)
+
+            pos_amplitude_list.append(pos_amplitude)
+            neg_amplitude_list.append(neg_amplitude)
+            pos_sigma_list.append(o1[2])
+            if i==0:
+                neg_sigma_list.append(o1[5])
+            else:
+                neg_sigma_list.append(0)
+            median_list.append(median)
+
         #endfor
 
         for i, arr in zip(range(2), [HB_RMS, HA_RMS]):
