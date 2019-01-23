@@ -11,6 +11,7 @@ from chun_codes import systime
 
 from astropy.io import ascii as asc
 from astropy.io import fits
+from astropy.table import Table, Column
 
 import numpy as np
 
@@ -27,6 +28,18 @@ def mag_combine(m1, m2, epsilon):
   cont_flux = epsilon * 10**(-0.4*(m1+m_AB)) + (1-epsilon)*10**(-0.4*(m2+m_AB))
   cont_mag  = -2.5*np.log10(cont_flux) - m_AB
   return cont_mag
+#enddef
+
+def get_data():
+  path0 = '/Users/cly/Google Drive/NASA_Summer2015/Catalogs/'
+
+  infile = path0 + 'NB_IA_emitters.nodup.colorrev.fix.fits'
+  print("Reading : "+infile)
+
+  data0 = fits.getdata(infile)
+
+  tab0 = Table(data0)
+
 #enddef
 
 def main(filter, NB, sig_NB, excess, sig_excess, silent=False, verbose=True):
