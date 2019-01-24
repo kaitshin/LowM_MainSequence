@@ -44,53 +44,54 @@ def get_data():
 #enddef
 
 def main(filter, NB, sig_NB, excess, sig_excess, silent=False, verbose=True):
+  '''
+  Main function to derive errors from NB photometry
 
-    '''
-    Main function to derive errors from NB photometry
+  Parameters
+  ----------
+  filter : str
+    Name of filter: 'NB704', 'NB711', 'NB816', 'NB921', 'NB973'
 
-    Parameters
-    ----------
-    filter : str
-      Name of filter: 'NB704', 'NB711', 'NB816', 'NB921', 'NB973'
+  NB : array
+    NB magnitudes on AB system
 
-    NB : array
-      NB magnitudes on AB system
+  sig_NB : array
+    error on [NB]
 
-    sig_NB : array
-      error on [NB]
+  excess : array
+    BB - NB color on AB system
 
-    excess : array
-      BB - NB color on AB system
+  sig_excess : array
+    error on [excess]
 
-    sig_excess : array
-      error on [excess]
+  silent : boolean
+    Turns off stdout messages. Default: False
 
-    silent : boolean
-      Turns off stdout messages. Default: False
+  verbose : boolean
+    Turns on additional stdout messages. Default: True
 
-    verbose : boolean
-      Turns on additional stdout messages. Default: True
+  Returns
+  -------
+    flux
+    sig_flux
+    EW
+    sig_EW
 
-    Returns
-    -------
-      flux
-      sig_flux
-      EW
-      sig_EW
+  Notes
+  -----
+  Created by Chun Ly, 13 December 2018
+  '''
 
-    Notes
-    -----
-    Created by Chun Ly, 13 December 2018
-    '''
+  if silent == False: log.info('### Begin main : '+systime())
 
-    if silent == False: log.info('### Begin main : '+systime())
+  filt_ref= ['NB704', 'NB711', 'NB816', 'IA598', 'IA679','NB921','NB973']
+  dNB     = [  100.0,    72.0,   120.0,   303.0,   340.0,  132.0,  200.0]
+  lambdac = [ 7046.0,  7111.0,  8150.0,  6007.0,  6780.0, 9196.0, 9755.0]
+  dBB     = [ 1110.0,  1110.0,  1419.0,   885.0,  1110.0,  956.0,  956.0] # R R i, V, R
 
-    filt_ref= ['NB704', 'NB711', 'NB816', 'IA598', 'IA679','NB921','NB973']
-    dNB     = [  100.0,    72.0,   120.0,   303.0,   340.0,  132.0,  200.0]
-    lambdac = [ 7046.0,  7111.0,  8150.0,  6007.0,  6780.0, 9196.0, 9755.0]
-    dBB     = [ 1110.0,  1110.0,  1419.0,   885.0,  1110.0,  956.0,  956.0] # R R i, V, R
+  tab0 = get_data()
 
     
-    if silent == False: log.info('### End main : '+systime())
+  if silent == False: log.info('### End main : '+systime())
 #enddef
 
