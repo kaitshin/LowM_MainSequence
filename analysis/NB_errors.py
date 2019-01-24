@@ -45,10 +45,13 @@ def get_data():
 
 def get_errors(tab0, filt_ref):
 
+  NB_path = '/Users/cly/data/SDF/NBcat/'
+
+  NB_phot_files = [NB_path+filt+'/sdf_pub2_'+filt+'.cat.mask' for filt in filt_ref[0:3]]
   n_gal = len(tab0)
 
   # Add columns
-  for filt in filt_ref:
+  for filt,ff in zip(filt_ref,range(len(filt_ref))):
     c0 = Column(np.zeros(n_gal), name=filt+'_MAG_ERROR')
     c1 = Column(np.zeros(n_gal), name=filt+'_CONT_ERROR')
     c2 = Column(np.zeros(n_gal), name=filt+'_EW_ERROR')
@@ -58,6 +61,10 @@ def get_errors(tab0, filt_ref):
     idx_end = [xx+1 for xx in range(len(colnames)) if colnames[xx] == filt+'_MAG']
     # +1 to add at end
     tab0.add_columns([c0,c1,c2,c3], indexes=idx_end * 4)
+
+    phot_tab    = asc.read(NB_phot_files[ff])
+    NB_id       = phot_tab['col1']
+    MAGERR_APER = phot_tab['col15']
 
   return tab0
 #enddef
