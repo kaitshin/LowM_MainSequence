@@ -47,7 +47,7 @@ def get_errors(tab0, filt_ref):
 
   NB_path = '/Users/cly/data/SDF/NBcat/'
 
-  NB_phot_files = [NB_path+filt+'/sdf_pub2_'+filt+'.cat.mask' for filt in filt_ref[0:3]]
+  NB_phot_files = [NB_path+filt+'/sdf_pub2_'+filt+'.cat.mask' for filt in filt_ref]
   n_gal = len(tab0)
 
   # Add columns
@@ -62,6 +62,7 @@ def get_errors(tab0, filt_ref):
     # +1 to add at end
     tab0.add_columns([c0,c1,c2,c3], indexes=idx_end * 4)
 
+    print("Reading : "+NB_phot_files[ff])
     phot_tab    = asc.read(NB_phot_files[ff])
     NB_id       = phot_tab['col1']
     MAGERR_APER = phot_tab['col15']
