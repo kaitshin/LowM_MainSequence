@@ -43,6 +43,25 @@ def get_data():
   return tab0
 #enddef
 
+def get_errors(tab0, filt_ref):
+
+  n_gal = len(tab0)
+
+  # Add columns
+  for filt in filt_ref:
+    c0 = Column(np.zeros(n_gal), name=filt+'_MAG_ERROR')
+    c1 = Column(np.zeros(n_gal), name=filt+'_CONT_ERROR')
+    c2 = Column(np.zeros(n_gal), name=filt+'_EW_ERROR')
+    c3 = Column(np.zeros(n_gal), name=filt+'_FLUX_ERROR')
+
+    colnames = tab0.colnames
+    idx_end = [xx+1 for xx in range(len(colnames)) if colnames[xx] == filt+'_MAG']
+    # +1 to add at end
+    tab0.add_columns([c0,c1,c2,c3], indexes=idx_end * 4)
+
+  return tab0
+#enddef
+
 def main(filter, NB, sig_NB, excess, sig_excess, silent=False, verbose=True):
   '''
   Main function to derive errors from NB photometry
