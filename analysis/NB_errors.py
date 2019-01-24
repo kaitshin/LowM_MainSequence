@@ -7,7 +7,7 @@ Compute flux and EW errors based on NB and broadband photometry
 
 import sys, os
 
-from chun_codes import systime
+from chun_codes import systime, match_nosort
 
 from astropy.io import ascii as asc
 from astropy.io import fits
@@ -66,6 +66,8 @@ def get_errors(tab0, filt_ref):
     NB_id       = phot_tab['col1']
     MAGERR_APER = phot_tab['col15']
 
+    idx1, idx2  = match_nosort(tab0[filt+'_ID'], NB_id)
+    tab0[filt+'_MAG_ERROR'][idx1] = MAGERR_APER[idx2]
   return tab0
 #enddef
 
