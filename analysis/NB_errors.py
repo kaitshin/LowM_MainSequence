@@ -67,8 +67,10 @@ def get_errors(tab0, filt_ref):
     NB_id       = phot_tab['col1']
     MAGERR_APER = phot_tab['col15']
 
-    idx1, idx2  = match_nosort(tab0[filt+'_ID'], NB_id)
-    tab0[filt+'_MAG_ERROR'][idx1] = MAGERR_APER[idx2]
+    NBem = np.where(tab0[filt+'_ID'] != 0)[0]
+    idx1, idx2  = match_nosort(tab0[filt+'_ID'][NBem], NB_id)
+    print('index size : '+str(len(NBem))+', '+str(len(idx2)))
+    tab0[filt+'_MAG_ERROR'][NBem[idx1]] = MAGERR_APER[idx2]
   return tab0
 #enddef
 
