@@ -33,13 +33,14 @@ def mag_combine(m1, m2, epsilon):
 def get_data():
   path0 = '/Users/cly/Google Drive/NASA_Summer2015/Catalogs/'
 
-  infile = path0 + 'NB_IA_emitters.nodup.colorrev.fix.fits'
+  infile = path0 + 'NB_IA_emitters.allcols.colorrev.fits'
   print("Reading : "+infile)
 
   data0 = fits.getdata(infile)
 
   tab0 = Table(data0)
 
+  return tab0
 #enddef
 
 def main(filter, NB, sig_NB, excess, sig_excess, silent=False, verbose=True):
