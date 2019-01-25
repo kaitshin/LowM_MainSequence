@@ -120,6 +120,7 @@ def main(filter, NB, sig_NB, excess, sig_excess, silent=False, verbose=True):
   lambdac = [ 7046.0,  7111.0,  8150.0,  6007.0,  6780.0, 9196.0, 9755.0]
   dBB     = [ 1110.0,  1110.0,  1419.0,   885.0,  1110.0,  956.0,  956.0] # R R i, V, R
 
+  BB_filt = {'one': ['R','R','i','V','R','z', 'z'], 'two':['i','i','z','R','i','', '']}
   tab0 = get_data()
 
   tab0 = get_errors(tab0, filt_ref)
