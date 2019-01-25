@@ -122,7 +122,8 @@ def main(filter, NB, sig_NB, excess, sig_excess, silent=False, verbose=True):
 
   tab0 = get_data()
 
-    
+  tab0 = get_errors(tab0, filt_ref)
+
   if silent == False: log.info('### End main : '+systime())
 #enddef
 
