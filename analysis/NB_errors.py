@@ -15,6 +15,7 @@ from astropy.table import Table, Column
 
 import numpy as np
 
+from glob import glob
 from astropy import log
 
 m_AB = 48.6
@@ -48,6 +49,12 @@ def get_errors(tab0, filt_ref, BB_filt):
   NB_path = '/Users/cly/data/SDF/NBcat/'
 
   NB_phot_files = [NB_path+filt+'/sdf_pub2_'+filt+'.cat.mask' for filt in filt_ref]
+
+  BB_phot_files1 = [NB_path+filt+'/sdf_pub2_'+BBfilt+'_'+filt+'.cat.mask' for
+                    BBfilt,filt in zip(BB_filt['one'],filt_ref)]
+  BB_phot_files2 = [NB_path+filt+'/sdf_pub2_'+BBfilt+'_'+filt+'.cat.mask' for
+                    BBfilt,filt in zip(BB_filt['two'],filt_ref)]
+
   n_gal = len(tab0)
 
   # Add columns
@@ -71,6 +78,12 @@ def get_errors(tab0, filt_ref, BB_filt):
     idx1, idx2  = match_nosort(tab0[filt+'_ID'][NBem], NB_id)
     print('index size : '+str(len(NBem))+', '+str(len(idx2)))
     tab0[filt+'_MAG_ERROR'][NBem[idx1]] = MAGERR_APER[idx2]
+
+    print("Reading : "+BB_phot_files1[ff])
+    phot_tab    = asc.read(BB_phot_files1[ff])
+    BB_MAGERR_APER = phot_tab['col15']
+    tab0[filt+'_CONT_ERROR'][NBem[idx1]] = BB_MAGERR_APER[idx2]
+
   return tab0
 #enddef
 
