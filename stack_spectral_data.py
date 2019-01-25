@@ -19,6 +19,7 @@ INPUTS:
     'Spectra/spectral_MMT_grid.fits'
     'Spectra/spectral_Keck_grid_data.txt'
     'Spectra/spectral_Keck_grid.fits'
+    'Composite_Spectra/MMT_spectral_coverage.txt'
 
 OUTPUTS:
     'Composite_Spectra/Redshift/MMT_spectra_vals/'+subtitle+'.txt''
@@ -97,7 +98,11 @@ def HG_HB_EBV(hg, hb):
 
 def get_HB_NB921_flux(bintype='redshift'):
     '''
+    instr is always MMT
 
+    Obtains the HB flux for all the NB921 sources that also have HA coverage.
+    This is useful for getting the correct HB/HA ratio used to get the hb/ha-derived E(B-V).
+    Returns the flux values for each stack in a particular bin in an array.
     '''
     cvg = asc.read(FULL_PATH+'Composite_Spectra/MMT_spectral_coverage.txt')
     nb921 = np.array([x for x in range(len(cvg)) if cvg['filter'][x]=='NB921' and cvg['HB_cvg'][x]=='YES'])
@@ -109,8 +114,9 @@ def get_HB_NB921_flux(bintype='redshift'):
         flux_arr = np.array([-99.0]*5)
 
     for i in range(len(flux_arr)):
-        # i = index of array (0-indexed)
+        # i0 is the array of indexes (in the gridap ordering) that correspond to the correct relevant AP
         i0 = np.array([])
+        # i = index of array (0-indexed)
         if bintype == 'StellarMassZ':
             # i+1 = index of bin (1-indexed)
             bin_i = np.array([x for x in range(len(nb921_ha)) if str(i+1)+'-' in cvg['stlrmassZbin'][nb921[nb921_ha]].data[x]])
@@ -130,6 +136,7 @@ def get_HB_NB921_flux(bintype='redshift'):
         zs = np.average(zs[good_z2])
         dlambda = (x0[1]-x0[0])/(1+zs)
 
+        # stacking
         xval, yval, len_input_index, stacked_indexes, avgz, minz, maxz = stack_data(grid_ndarr, gridz, i0,
             x0, 3700, 6700, dlambda, ff='NB921', instr='MMT')
 
@@ -145,12 +152,14 @@ def get_HB_NB921_flux(bintype='redshift'):
         xval = xval[good_ii]
         yval = yval[good_ii]
 
+        # fitting the hbeta emission line to calculate the flux
         o1 = get_best_fit3(xval, yval, r'H$\beta$')
         pos0 = o1[5]+o1[0]*np.exp(-0.5*((xval-o1[1])/o1[2])**2)
         neg0 = o1[3]*np.exp(-0.5*((xval-o1[1])/o1[4])**2)
         idx_small = np.where(np.absolute(xval - o1[1]) <= 2.5*o1[2])[0]
         flux = np.sum(dlambda * (pos0[idx_small] - o1[5] - neg0[idx_small]))
         
+        # setting the flux value for the stack in the bin
         flux_arr[i] = flux
 
     return flux_arr
