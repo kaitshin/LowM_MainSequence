@@ -64,7 +64,7 @@ FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
 
 def correct_instr_AP(indexed_AP, indexed_inst_str0, instr):
     '''
-    Returns the indexed AP_match array based on the 'matctot = 3h_index' from
+    Returns the indexed AP_match array based on the 'match_index' from
     plot_MMT/Keck_Ha
     '''
     for ii in range(len(indexed_inst_str0)):
@@ -83,6 +83,9 @@ def correct_instr_AP(indexed_AP, indexed_inst_str0, instr):
 def HG_HB_EBV(hg, hb):
     '''
     instr is always MMT
+    
+    Computes the hg/hb-derived E(B-V), correcting for negative reddening and using -99.0 as
+    a placeholder for sources w/o valid hg/hb-derived E(B-V)
     '''
     hg = np.array(hg)
     hb = np.array(hb)
@@ -94,12 +97,11 @@ def HG_HB_EBV(hg, hb):
 
 def get_HB_NB921_flux(bintype='redshift'):
     '''
+
     '''
     cvg = asc.read(FULL_PATH+'Composite_Spectra/MMT_spectral_coverage.txt')
     nb921 = np.array([x for x in range(len(cvg)) if cvg['filter'][x]=='NB921' and cvg['HB_cvg'][x]=='YES'])
     nb921_ha = np.array([x for x in range(len(nb921)) if cvg['HA_cvg'][nb921][x] == 'YES'])
-
-    # print '>>>>>>>HB IDs:', cvg['ID'][nb921].data ##PRINT STATEMENT
 
     if bintype=='redshift':
         flux_arr = np.array([-99.0])
@@ -198,13 +200,7 @@ def split_into_bins(masses, n):
 
 def plot_MMT_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', publ=True, instr00='MMT'):
     '''
-    TODO(document)
-    TODO(implement flexible stellar mass bin-readings)
-    TODO(implement flexible file-naming)
-        (nothing from the command line -- default into 5 bins by percentile)
-        (number n from the command line -- make n bins by percentile)
-        (file name from the command line -- flag to read the stellar mass bins from that ASCII file)
-    TODO(get rid of assumption that there's only one page)
+    
     '''
     if index_list == []:
         print '>MMT STELLARMASS STACKING'
@@ -485,9 +481,7 @@ def plot_MMT_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', publ
 
 def plot_MMT_stlrmass_z():
     '''
-    TODO(document)
-    TODO(generalize stellar mass binning functionality?)
-    TODO(implement flexible file-naming)
+    
     '''
     print '>MMT STELLARMASS+REDSHIFT STACKING'
     pp = PdfPages(FULL_PATH+'Composite_Spectra/StellarMassZ/MMT_stlrmassZ.pdf')
@@ -533,13 +527,7 @@ def plot_MMT_stlrmass_z():
 
 def plot_Keck_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', publ=True, instr00='Keck'):
     '''
-    TODO(document)
-    TODO(implement flexible stellar mass bin-readings)
-    TODO(implement flexible file-naming)
-        (nothing from the command line -- default into 5 bins by percentile)
-        (number n from the command line -- make n bins by percentile)
-        (file name from the command line -- flag to read the stellar mass bins from that ASCII file)
-    TODO(get rid of assumption that there's only one page)
+    
     '''
     if index_list == []:
         print '>KECK STELLARMASS STACKING'
@@ -749,9 +737,7 @@ def plot_Keck_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', pub
 
 def plot_Keck_stlrmass_z():
     '''
-    TODO(document)
-    TODO(generalize stellar mass binning functionality?)
-    TODO(implement flexible file-naming)
+    
     '''
     print '>KECK STELLARMASS+REDSHIFT STACKING'
     pp = PdfPages(FULL_PATH+'Composite_Spectra/StellarMassZ/Keck_stlrmassZ.pdf')
