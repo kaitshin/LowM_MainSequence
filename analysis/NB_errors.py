@@ -52,8 +52,9 @@ def get_errors(tab0, filt_ref, BB_filt):
 
   BB_phot_files1 = [NB_path+filt+'/sdf_pub2_'+BBfilt+'_'+filt+'.cat.mask' for
                     BBfilt,filt in zip(BB_filt['one'],filt_ref)]
-  BB_phot_files2 = [NB_path+filt+'/sdf_pub2_'+BBfilt+'_'+filt+'.cat.mask' for
-                    BBfilt,filt in zip(BB_filt['two'],filt_ref)]
+  BB_phot_files2 = [NB_path+filt+'/sdf_pub2_'+BBfilt+'_'+filt+'.cat.mask' if
+                    BBfilt != '' else '' for BBfilt,filt in
+                    zip(BB_filt['two'],filt_ref)]
 
   n_gal = len(tab0)
 
@@ -82,6 +83,7 @@ def get_errors(tab0, filt_ref, BB_filt):
     print("Reading : "+BB_phot_files1[ff])
     phot_tab    = asc.read(BB_phot_files1[ff])
     BB_MAGERR_APER = phot_tab['col15']
+
     tab0[filt+'_CONT_ERROR'][NBem[idx1]] = BB_MAGERR_APER[idx2]
 
   return tab0
