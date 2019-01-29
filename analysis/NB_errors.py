@@ -81,10 +81,15 @@ def get_errors(tab0, filt_ref, BB_filt):
     tab0[filt+'_MAG_ERROR'][NBem[idx1]] = MAGERR_APER[idx2]
 
     print("Reading : "+BB_phot_files1[ff])
-    phot_tab    = asc.read(BB_phot_files1[ff])
-    BB_MAGERR_APER = phot_tab['col15']
+    phot_tab1       = asc.read(BB_phot_files1[ff])
+    BB_MAGERR_APER1 = phot_tab1['col15']
 
-    tab0[filt+'_CONT_ERROR'][NBem[idx1]] = BB_MAGERR_APER[idx2]
+    if BB_filt['two'][ff] != '':
+      print("Reading : "+BB_phot_files2[ff])
+      phot_tab2       = asc.read(BB_phot_files2[ff])
+      BB_MAGERR_APER2 = phot_tab2['col15']
+    else:
+      tab0[filt+'_CONT_ERROR'][NBem[idx1]] = BB_MAGERR_APER1[idx2]
 
   return tab0
 #enddef
