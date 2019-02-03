@@ -44,7 +44,7 @@ def get_data():
   return tab0
 #enddef
 
-def get_errors(tab0, filt_ref, BB_filt):
+def get_errors(tab0, filt_ref, BB_filt, epsilon):
 
   NB_path = '/Users/cly/data/SDF/NBcat/'
 
@@ -144,7 +144,7 @@ def main(filter, NB, sig_NB, excess, sig_excess, silent=False, verbose=True):
   BB_filt = {'one': ['R','R','i','V','R','z', 'z'], 'two':['i','i','z','R','i','', '']}
   tab0 = get_data()
 
-  tab0 = get_errors(tab0, filt_ref, BB_filt)
+  tab0 = get_errors(tab0, filt_ref, BB_filt, epsilon)
 
   if silent == False: log.info('### End main : '+systime())
 #enddef
