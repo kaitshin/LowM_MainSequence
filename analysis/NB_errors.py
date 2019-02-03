@@ -82,17 +82,19 @@ def get_errors(tab0, filt_ref, BB_filt, epsilon):
 
     print("Reading : "+BB_phot_files1[ff])
     phot_tab1       = asc.read(BB_phot_files1[ff])
-    BB_MAG_APER1    = phot_tab1['col13']
-    BB_MAGERR_APER1 = phot_tab1['col15']
+    BB_MAG_APER1    = phot_tab1['col13'].data
+    BB_MAGERR_APER1 = phot_tab1['col15'].data
 
     if BB_filt['two'][ff] != '':
       print("Reading : "+BB_phot_files2[ff])
       phot_tab2       = asc.read(BB_phot_files2[ff])
-      BB_MAG_APER2    = phot_tab2['col13']
-      BB_MAGERR_APER2 = phot_tab2['col15']
+      BB_MAG_APER2    = phot_tab2['col13'].data
+      BB_MAGERR_APER2 = phot_tab2['col15'].data
 
-      m1_dist = random_pdf(BB_MAG_APER1, BB_MAGERR_APER1, seed_i = ff, n_iter=1000)
-      m2_dist = random_pdf(BB_MAG_APER2, BB_MAGERR_APER2, seed_i = 2*ff+1, n_iter=1000)
+      m1_dist = random_pdf(BB_MAG_APER1[idx2], BB_MAGERR_APER1[idx2], seed_i = ff,
+                           n_iter=1000)
+      m2_dist = random_pdf(BB_MAG_APER2[idx2], BB_MAGERR_APER2[idx2], seed_i = 2*ff+1,
+                           n_iter=1000)
 
       cont_mag_dist = mag_combine(m1_dist, m2_dist, epsilon[ff])
     else:
@@ -101,7 +103,7 @@ def get_errors(tab0, filt_ref, BB_filt, epsilon):
   return tab0
 #enddef
 
-def main(filter, NB, sig_NB, excess, sig_excess, silent=False, verbose=True):
+def main(silent=False, verbose=True):
   '''
   Main function to derive errors from NB photometry
 
