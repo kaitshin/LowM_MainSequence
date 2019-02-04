@@ -195,6 +195,8 @@ def main(silent=False, verbose=True):
   outfile = infile.replace('.fits','.errors.fits')
   tab0.write(outfile, format='fits', overwrite=True)
 
+  plot_errors('Ha', filt_ref, tab0)
+
   if silent == False: log.info('### End main : '+systime())
 #enddef
 
