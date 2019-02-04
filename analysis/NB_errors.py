@@ -155,6 +155,9 @@ def main(silent=False, verbose=True):
 
   tab0 = get_errors(tab0, filt_ref, BB_filt, epsilon)
 
+  outfile = infile.replace('.fits','.errors.fits')
+  tab0.write(outfile, format='fits')
+
   if silent == False: log.info('### End main : '+systime())
 #enddef
 
