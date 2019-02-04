@@ -13,6 +13,9 @@ from astropy.io import ascii as asc
 from astropy.io import fits
 from astropy.table import Table, Column
 
+from matplotlib.backends.backend_pdf import PdfPages
+import matplotlib.pyplot as plt
+
 import numpy as np
 
 from glob import glob
@@ -105,6 +108,20 @@ def get_errors(tab0, filt_ref, BB_filt, epsilon):
       tab0[filt+'_CONT_ERROR'][NBem[idx1]] = BB_MAGERR_APER1[idx2]
 
   return tab0
+#enddef
+
+def plot_errors(l_type, filt_ref, tab0):
+  pp = PdfPages(path+'NB_IA_emitters_'+l_type+'_photometric_errors.pdf')
+
+  for filt in filt_ref:
+    idx = [xx for xx in range(len(tab0)) if l_type+'-'+filt in tab0['NAME'][xx]]
+
+    fig, ax = plt.subplots()
+    ax.scatter(tab0[filt+'_MAG'][idx], tab0[filt+'_MAG_ERROR'][idx])
+
+    fig.savefig(pp, format='pdf')
+
+  pp.close()
 #enddef
 
 def main(silent=False, verbose=True):
