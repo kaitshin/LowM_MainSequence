@@ -41,7 +41,7 @@ def get_data():
 
   tab0 = Table(data0)
 
-  return tab0
+  return tab0, infile
 #enddef
 
 def get_errors(tab0, filt_ref, BB_filt, epsilon):
@@ -151,7 +151,7 @@ def main(silent=False, verbose=True):
 
   epsilon = [0.5, 0.5, 0.6, 0.45, 0.75, 1.0, 1.0]
   BB_filt = {'one': ['R','R','i','V','R','z', 'z'], 'two':['i','i','z','R','i','', '']}
-  tab0 = get_data()
+  tab0, infile = get_data()
 
   tab0 = get_errors(tab0, filt_ref, BB_filt, epsilon)
 
