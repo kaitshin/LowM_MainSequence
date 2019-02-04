@@ -117,10 +117,25 @@ def plot_errors(l_type, filt_ref, tab0):
   for filt in filt_ref:
     idx = [xx for xx in range(len(tab0)) if l_type+'-'+filt in tab0['NAME'][xx]]
 
-    fig, ax = plt.subplots()
-    ax.scatter(tab0[filt+'_MAG'][idx], tab0[filt+'_MAG_ERROR'][idx])
+    if len(idx) > 0:
+      fig, ax = plt.subplots()
+      x0 = tab0[filt+'_MAG'][idx]
+      y0 = tab0[filt+'_MAG_ERROR'][idx]
+      ax.scatter(x0, y0, marker='o', color='blue', facecolor='none', s=10)
 
-    fig.savefig(pp, format='pdf')
+      x1 = tab0[filt+'_MAG'][idx]+tab0[filt+'_EXCESS'][idx]
+      y1 = tab0[filt+'_CONT_ERROR'][idx]
+      ax.scatter(x1, y1, marker='o', color='green', facecolor='none', s=10)
+
+      ax.annotate(l_type+'-'+filt, [0.025,0.975], xycoords='axes fraction',
+                  ha='left', va='top')
+      ax.set_xlabel('magnitude')
+      ax.set_ylabel(r'$\Delta$ magnitude')
+
+      max_y = np.max([max(y0),max(y1)])
+      ax.set_ylim([0,max_y*1.05])
+      plt.subplots_adjust(left=0.09, right=0.98, bottom=0.08, top=0.98)
+      fig.savefig(pp, format='pdf')
 
   pp.close()
 #enddef
