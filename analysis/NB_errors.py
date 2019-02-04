@@ -112,7 +112,7 @@ def get_errors(tab0, filt_ref, BB_filt, epsilon):
 #enddef
 
 def plot_errors(l_type, filt_ref, tab0):
-  pp = PdfPages(path+'NB_IA_emitters_'+l_type+'_photometric_errors.pdf')
+  pp = PdfPages(path0+'NB_IA_emitters_'+l_type+'_photometric_errors.pdf')
 
   for filt in filt_ref:
     idx = [xx for xx in range(len(tab0)) if l_type+'-'+filt in tab0['NAME'][xx]]
