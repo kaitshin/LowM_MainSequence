@@ -21,6 +21,8 @@ import numpy as np
 from glob import glob
 from astropy import log
 
+path0 = '/Users/cly/Google Drive/NASA_Summer2015/Catalogs/'
+
 m_AB = 48.6
 def fluxline(y, fNB, dNB, dBB):
   '''RETURNS emission-line flux in erg/s/cm^2'''
@@ -35,7 +37,6 @@ def mag_combine(m1, m2, epsilon):
 #enddef
 
 def get_data():
-  path0 = '/Users/cly/Google Drive/NASA_Summer2015/Catalogs/'
 
   infile = path0 + 'NB_IA_emitters.allcols.colorrev.fits'
   print("Reading : "+infile)
