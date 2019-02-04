@@ -7,7 +7,7 @@ Compute flux and EW errors based on NB and broadband photometry
 
 import sys, os
 
-from chun_codes import systime, match_nosort, random_pdf
+from chun_codes import systime, match_nosort, random_pdf, compute_onesig_pdf
 
 from astropy.io import ascii as asc
 from astropy.io import fits
@@ -97,6 +97,10 @@ def get_errors(tab0, filt_ref, BB_filt, epsilon):
                            n_iter=1000)
 
       cont_mag_dist = mag_combine(m1_dist, m2_dist, epsilon[ff])
+      cont_mag = tab0[filt+'_MAG'] + tab0[filt+'_EXCESS']
+      err, xpeak = compute_onesig_pdf(cont_mag_dist, cont_mag[NBem[idx1]])
+      g_err = np.sqrt(err[:,0]**2 + err[:,1]**2)
+      tab0[filt+'_CONT_ERROR'][NBem[idx1]] = g_err
     else:
       tab0[filt+'_CONT_ERROR'][NBem[idx1]] = BB_MAGERR_APER1[idx2]
 
