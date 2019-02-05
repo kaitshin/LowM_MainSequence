@@ -129,6 +129,11 @@ def get_errors(tab0, filt_ref, BB_filt, epsilon):
     else:
       tab0[filt+'_CONT_ERROR'][NBem[idx1]] = BB_MAGERR_APER1[idx2]
 
+      cont_mag_dist = random_pdf(BB_MAG_APER1[idx2], BB_MAGERR_APER1[idx2], seed_i = ff)
+      NB_mag_dist   = random_pdf(tab0[filt+'_MAG'][NBem[idx1]], tab0[filt+'_MAG_ERROR'][NBem[idx1]],
+                                 seed_i == ff+1)
+      x_dist = NB_mag_dist - cont_mag_dist
+      ew_dist, flux_dist = ew_flux_dual(NB_mag_dist, cont_mag_dist, x_dist, filt_dict)
   return tab0
 #enddef
 
