@@ -66,7 +66,7 @@ def get_data():
   return tab0, infile
 #enddef
 
-def get_errors(tab0, filt_ref, BB_filt, epsilon):
+def get_errors(tab0, filt_dict0, BB_filt, epsilon):
 
   NB_path = '/Users/cly/data/SDF/NBcat/'
 
@@ -79,6 +79,8 @@ def get_errors(tab0, filt_ref, BB_filt, epsilon):
                     zip(BB_filt['two'],filt_ref)]
 
   n_gal = len(tab0)
+
+  filt_ref = filt_dict0['filter']
 
   # Add columns
   for filt,ff in zip(filt_ref,range(len(filt_ref))):
@@ -138,6 +140,9 @@ def get_errors(tab0, filt_ref, BB_filt, epsilon):
     NB_mag_dist = random_pdf(tab0[filt+'_MAG'][idx1], tab0[filt+'_MAG_ERROR'][idx1],
                              seed_i = ff+1)
     x_dist = NB_mag_dist - cont_mag_dist
+
+    filt_dict = {'dNB': filt_dict0['dNB'][ff], 'dBB': filt_dict0['dBB'][ff],
+                 'lambdac': filt_dict0['lambdac'][ff]}
     ew_dist, flux_dist = ew_flux_dual(NB_mag_dist, cont_mag_dist, x_dist, filt_dict)
 
     flux_err, flux_xpeak = compute_onesig_pdf(flux_dist, flux[idx1])
