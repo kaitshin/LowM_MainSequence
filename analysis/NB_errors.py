@@ -100,8 +100,9 @@ def get_errors(tab0, filt_ref, BB_filt, epsilon):
 
     NBem = np.where(tab0[filt+'_ID'] != 0)[0]
     idx1, idx2  = match_nosort(tab0[filt+'_ID'][NBem], NB_id)
+    idx1 = NBem[idx1]
     print('index size : '+str(len(NBem))+', '+str(len(idx2)))
-    tab0[filt+'_MAG_ERROR'][NBem[idx1]] = MAGERR_APER[idx2]
+    tab0[filt+'_MAG_ERROR'][idx1] = MAGERR_APER[idx2]
 
     print("Reading : "+BB_phot_files1[ff])
     phot_tab1       = asc.read(BB_phot_files1[ff])
@@ -109,7 +110,7 @@ def get_errors(tab0, filt_ref, BB_filt, epsilon):
     BB_MAGERR_APER1 = phot_tab1['col15'].data
 
     cont_mag = tab0[filt+'_MAG'] + tab0[filt+'_EXCESS']
-    tab0[filt+'_CONT_MAG'][NBem[idx1]] = cont_mag[NBem[idx1]]
+    tab0[filt+'_CONT_MAG'][idx1] = cont_mag[idx1]
 
     if BB_filt['two'][ff] != '':
       print("Reading : "+BB_phot_files2[ff])
@@ -123,14 +124,14 @@ def get_errors(tab0, filt_ref, BB_filt, epsilon):
                            n_iter=1000)
 
       cont_mag_dist = mag_combine(m1_dist, m2_dist, epsilon[ff])
-      err, xpeak = compute_onesig_pdf(cont_mag_dist, cont_mag[NBem[idx1]])
+      err, xpeak = compute_onesig_pdf(cont_mag_dist, cont_mag[idx1])
       g_err = np.sqrt(err[:,0]**2 + err[:,1]**2)
-      tab0[filt+'_CONT_ERROR'][NBem[idx1]] = g_err
+      tab0[filt+'_CONT_ERROR'][idx1] = g_err
     else:
-      tab0[filt+'_CONT_ERROR'][NBem[idx1]] = BB_MAGERR_APER1[idx2]
+      tab0[filt+'_CONT_ERROR'][idx1] = BB_MAGERR_APER1[idx2]
 
       cont_mag_dist = random_pdf(BB_MAG_APER1[idx2], BB_MAGERR_APER1[idx2], seed_i = ff)
-      NB_mag_dist   = random_pdf(tab0[filt+'_MAG'][NBem[idx1]], tab0[filt+'_MAG_ERROR'][NBem[idx1]],
+      NB_mag_dist   = random_pdf(tab0[filt+'_MAG'][idx1], tab0[filt+'_MAG_ERROR'][idx1],
                                  seed_i == ff+1)
       x_dist = NB_mag_dist - cont_mag_dist
       ew_dist, flux_dist = ew_flux_dual(NB_mag_dist, cont_mag_dist, x_dist, filt_dict)
