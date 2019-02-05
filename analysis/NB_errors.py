@@ -30,6 +30,24 @@ def fluxline(y, fNB, dNB, dBB):
   return dNB*fNB*(1.0 - y)/(1.0-dNB/dBB)
 #enddef
 
+def ew_flux_dual(NB, BB, x, filt_dict):
+
+  y_temp = 10**(-0.4 * x)
+
+  dNB = filt_dict['dNB']
+  dBB = filt_dict['dBB']
+  lambdac = filt_dict['lambdac']
+
+  EW  = dNB*(1 - y_temp)/(y_temp - dNB/dBB)
+
+  fNB = 10**(-0.4*(NB + m_AB)) # in erg/s/cm2/Hz
+  fNB = fNB*(3.0e8/(filt_dict['lambdac']**2*1.0e-10)) # in erg/s/cm2/Ang
+
+  flux = fluxline(y_temp, fNB, dNB, dBB) # in erg/s/cm2
+
+  return EW, flux
+#enddef
+
 def mag_combine(m1, m2, epsilon):
   cont_flux = epsilon * 10**(-0.4*(m1+m_AB)) + (1-epsilon)*10**(-0.4*(m2+m_AB))
   cont_mag  = -2.5*np.log10(cont_flux) - m_AB
