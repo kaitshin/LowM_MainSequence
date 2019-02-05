@@ -225,3 +225,35 @@ def main(silent=False, verbose=True):
   if silent == False: log.info('### End main : '+systime())
 #enddef
 
+def test_ew_flux():
+  '''
+  Code to check IDL NB excess flux/EW against Python NB excess flux/EW
+  '''
+
+  err_file = path0+'NB_IA_emitters.allcols.colorrev.errors.fits'
+  data = fits.getdata(err_file)
+
+  filt_ref= ['NB704', 'NB711', 'NB816', 'IA598', 'IA679','NB921','NB973']
+  dNB     = [  100.0,    72.0,   120.0,   303.0,   340.0,  132.0,  200.0]
+  lambdac = [ 7046.0,  7111.0,  8150.0,  6007.0,  6780.0, 9196.0, 9755.0]
+  dBB     = [ 1110.0,  1110.0,  1419.0,   885.0,  1110.0,  956.0,  956.0] # R R i, V, R
+
+  for ff in range(len(filt_ref)):
+    filt0 = filt_ref[ff]
+    NB = data[filt0+'_MAG']
+    BB = data[filt0+'_CONT_MAG']
+    x  = data[filt0+'_EXCESS']
+
+    filt_dict = {'dNB': dNB[ff], 'dBB': dBB[ff], 'lambdac': lambdac[ff]}
+
+    idx= [xx for xx in range(len(data)) if 'Ha-'+filt0 in data['NAME'][xx]]
+
+    if len(idx) > 0:
+      ew, flux = ew_flux_dual(NB[idx], BB[idx], x[idx], filt_dict)
+
+      val1 = data[filt0+'_FLUX'][idx] - np.log10(flux)
+      val2 = np.log10(data[filt0+'_EW'][idx]) - np.log10(ew)
+
+      print(filt0, np.nanmin(val1), np.nanmax(val1), np.nanmin(val2), np.nanmax(val2))
+  #endfor
+#endfor
