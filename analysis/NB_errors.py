@@ -90,6 +90,9 @@ def get_errors(tab0, filt_ref, BB_filt, epsilon):
     BB_MAG_APER1    = phot_tab1['col13'].data
     BB_MAGERR_APER1 = phot_tab1['col15'].data
 
+    cont_mag = tab0[filt+'_MAG'] + tab0[filt+'_EXCESS']
+    tab0[filt+'_CONT_MAG'][NBem[idx1]] = cont_mag[NBem[idx1]]
+
     if BB_filt['two'][ff] != '':
       print("Reading : "+BB_phot_files2[ff])
       phot_tab2       = asc.read(BB_phot_files2[ff])
@@ -102,7 +105,6 @@ def get_errors(tab0, filt_ref, BB_filt, epsilon):
                            n_iter=1000)
 
       cont_mag_dist = mag_combine(m1_dist, m2_dist, epsilon[ff])
-      cont_mag = tab0[filt+'_MAG'] + tab0[filt+'_EXCESS']
       err, xpeak = compute_onesig_pdf(cont_mag_dist, cont_mag[NBem[idx1]])
       g_err = np.sqrt(err[:,0]**2 + err[:,1]**2)
       tab0[filt+'_CONT_ERROR'][NBem[idx1]] = g_err
