@@ -20,6 +20,7 @@ from astropy.io import ascii as asc
 
 FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
 CUTOFF_SIGMA = 4.0
+CUTOFF_MASS = 6.0
 
 def whitaker_2014(ax):
     '''
@@ -64,18 +65,11 @@ def salim_2007(ax):
     lowlim = salim_line(xarr) - np.array([0.2]*len(xarr))
     uplim = salim_line(xarr) + np.array([0.2]*len(xarr))
 
-    # ax.plot(xarr, lowlim, color='gray', marker='', linestyle='', zorder=1)
-    # ax.plot(xarr, uplim, color='gray', marker='', linestyle='', zorder=1)
-    # ax.fill_between(xarr, lowlim, uplim, facecolor='none',
-    #                  hatch=3*'.', edgecolor='gray', linewidth=0.0, alpha=0.2,
-    #                  zorder=1)
     ax.plot(xarr, lowlim, 'k--', zorder=1)
     ax.plot(xarr, uplim, 'k--', zorder=1)
     ax.fill_between(xarr, lowlim, uplim, color='gray', alpha=0.4)
     salim, = ax.plot(xarr, salim_line(xarr), 'k-',
                       label='Salim+07 (z~0)', zorder=1)
-    # salim, = ax.plot(xarr, (-0.35 * (xarr - 10.0) - 9.83) + xarr, 'k-',
-    #                   label='Salim+07 (z~0)', zorder=5)
     return salim
 
 
@@ -126,13 +120,13 @@ def sSFR_lines(ax, xlim):
     xmax = max(xlim)
     xarr = np.arange(xmin, xmax, 0.01)
     ax.plot(xarr, xarr - 9, 'k:',zorder=8)#, alpha=.6)
-    ax.text(5.2, -2.9, 'sSFR=(1.0 Gyr)'+r'$^{-1}$', rotation=50, color='k',
+    ax.text(5.85, -2.4, 'sSFR=(1.0 Gyr)'+r'$^{-1}$', rotation=42, color='k',
              alpha=1, fontsize=9)
     ax.plot(xarr, xarr - 10, 'k:')#, alpha=.5)
-    ax.text(6.25, -2.8, 'sSFR=(10.0 Gyr)'+r'$^{-1}$', rotation=50, color='k',
+    ax.text(6.17, -3.04, 'sSFR=(10.0 Gyr)'+r'$^{-1}$', rotation=42, color='k',
              alpha=1, fontsize=9)
     ax.plot(xarr, xarr - 11, 'k:')#, alpha=.5)
-    ax.text(7.3, -2.7, 'sSFR=(100.0 Gyr)'+r'$^{-1}$', rotation=50, color='k',
+    ax.text(7.15, -3.0, 'sSFR=(100.0 Gyr)'+r'$^{-1}$', rotation=42, color='k',
              alpha=1, fontsize=9)
     
 
@@ -176,10 +170,6 @@ def modify_graph(ax, labelarr, xlim, ylim, title, i):
         legend2 = ax.legend(handles=list(labelarr2), loc='lower right', frameon=False,
                          fontsize=11, scatterpoints=1, numpoints=1)
         ax.add_artist(legend2)
-    # if i==3:
-    #     legend2 = ax.legend(handles=list(labelarr2), loc='lower right', frameon=False,
-    #                      fontsize=9, scatterpoints=1, numpoints=1)
-    #     ax.add_artist(legend2)
 
     ax.minorticks_on()
     sSFR_lines(ax, xlim)
@@ -190,11 +180,8 @@ def make_all_graph(stlr_mass, sfr, filtarr, markarr, z_arr, sizearr, title,
     '''
     '''
     color='blue'
-    xlim = [4, 11.15]
+    xlim = [5.80, 11.20]
     ylim = [-3.75, 2]
-
-#     f, ax = plt.subplots()
-#     plt.gcf().set_size_inches(7,6)
 
     labelarr = np.array([])
     for (ff, mark, avg_z, size) in zip(filtarr, markarr, z_arr, sizearr):
@@ -225,8 +212,6 @@ def make_all_graph(stlr_mass, sfr, filtarr, markarr, z_arr, sizearr, title,
     #endfor
 
     modify_graph(ax, labelarr, xlim, ylim, title, i)
-#     plt.savefig(FULL_PATH+'Plots/main_sequence/'+title+'.pdf')
-#     plt.close()
 
 
 def main():
@@ -261,7 +246,7 @@ def main():
     z_arr  = np.array([x+'0' if len(x)==3 else x for x in z_arr])
 
     # defining a flux sigma cutoff
-    good_sig_iis = np.where(corr_tbl['flux_sigma'] >= CUTOFF_SIGMA)[0]
+    good_sig_iis = np.where((corr_tbl['flux_sigma'] >= CUTOFF_SIGMA) & (stlr_mass >= CUTOFF_MASS))[0]
     
     f_all, ax_all = plt.subplots(2,2)
     axarr = np.ndarray.flatten(ax_all)
