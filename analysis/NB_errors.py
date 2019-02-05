@@ -65,14 +65,15 @@ def get_errors(tab0, filt_ref, BB_filt, epsilon):
   # Add columns
   for filt,ff in zip(filt_ref,range(len(filt_ref))):
     c0 = Column(np.zeros(n_gal), name=filt+'_MAG_ERROR')
-    c1 = Column(np.zeros(n_gal), name=filt+'_CONT_ERROR')
-    c2 = Column(np.zeros(n_gal), name=filt+'_EW_ERROR')
-    c3 = Column(np.zeros(n_gal), name=filt+'_FLUX_ERROR')
+    c1 = Column(np.zeros(n_gal), name=filt+'_CONT_MAG')
+    c2 = Column(np.zeros(n_gal), name=filt+'_CONT_ERROR')
+    c3 = Column(np.zeros(n_gal), name=filt+'_EW_ERROR')
+    c4 = Column(np.zeros(n_gal), name=filt+'_FLUX_ERROR')
 
     colnames = tab0.colnames
     idx_end = [xx+1 for xx in range(len(colnames)) if colnames[xx] == filt+'_MAG']
     # +1 to add at end
-    tab0.add_columns([c0,c1,c2,c3], indexes=idx_end * 4)
+    tab0.add_columns([c0,c1,c2,c3,c4], indexes=idx_end * 5)
 
     print("Reading : "+NB_phot_files[ff])
     phot_tab    = asc.read(NB_phot_files[ff])
@@ -121,11 +122,13 @@ def plot_errors(l_type, filt_ref, tab0):
       fig, ax = plt.subplots()
       x0 = tab0[filt+'_MAG'][idx]
       y0 = tab0[filt+'_MAG_ERROR'][idx]
-      ax.scatter(x0, y0, marker='o', color='blue', facecolor='none', s=10)
+      ax.scatter(x0, y0, marker='o', color='blue', facecolor='none', s=10,
+                 label='NB phot')
 
       x1 = tab0[filt+'_MAG'][idx]+tab0[filt+'_EXCESS'][idx]
       y1 = tab0[filt+'_CONT_ERROR'][idx]
-      ax.scatter(x1, y1, marker='o', color='green', facecolor='none', s=10)
+      ax.scatter(x1, y1, marker='o', color='green', facecolor='none', s=10,
+                 label='Cont. phot')
 
       ax.annotate(l_type+'-'+filt, [0.025,0.975], xycoords='axes fraction',
                   ha='left', va='top')
@@ -134,6 +137,8 @@ def plot_errors(l_type, filt_ref, tab0):
 
       max_y = np.max([max(y0),max(y1)])
       ax.set_ylim([0,max_y*1.05])
+
+      ax.legend(loc='lower right')
       plt.subplots_adjust(left=0.09, right=0.98, bottom=0.08, top=0.98)
       fig.savefig(pp, format='pdf')
 
