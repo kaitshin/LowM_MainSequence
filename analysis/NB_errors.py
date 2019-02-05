@@ -85,13 +85,15 @@ def get_errors(tab0, filt_ref, BB_filt, epsilon):
     c0 = Column(np.zeros(n_gal), name=filt+'_MAG_ERROR')
     c1 = Column(np.zeros(n_gal), name=filt+'_CONT_MAG')
     c2 = Column(np.zeros(n_gal), name=filt+'_CONT_ERROR')
-    c3 = Column(np.zeros(n_gal), name=filt+'_EW_ERROR')
-    c4 = Column(np.zeros(n_gal), name=filt+'_FLUX_ERROR')
+    c3 = Column(np.zeros(n_gal), name=filt+'_EW_UPERROR')
+    c3b= Column(np.zeros(n_gal), name=filt+'_EW_LOERROR')
+    c4 = Column(np.zeros(n_gal), name=filt+'_FLUX_UPERROR')
+    c4b= Column(np.zeros(n_gal), name=filt+'_FLUX_LOERROR')
 
     colnames = tab0.colnames
     idx_end = [xx+1 for xx in range(len(colnames)) if colnames[xx] == filt+'_MAG']
     # +1 to add at end
-    tab0.add_columns([c0,c1,c2,c3,c4], indexes=idx_end * 5)
+    tab0.add_columns([c0,c1,c2,c3,c3b,c4,c4b], indexes=idx_end * 7)
 
     print("Reading : "+NB_phot_files[ff])
     phot_tab    = asc.read(NB_phot_files[ff])
@@ -127,14 +129,21 @@ def get_errors(tab0, filt_ref, BB_filt, epsilon):
       err, xpeak = compute_onesig_pdf(cont_mag_dist, cont_mag[idx1])
       g_err = np.sqrt(err[:,0]**2 + err[:,1]**2)
       tab0[filt+'_CONT_ERROR'][idx1] = g_err
+
     else:
       tab0[filt+'_CONT_ERROR'][idx1] = BB_MAGERR_APER1[idx2]
 
       cont_mag_dist = random_pdf(BB_MAG_APER1[idx2], BB_MAGERR_APER1[idx2], seed_i = ff)
-      NB_mag_dist   = random_pdf(tab0[filt+'_MAG'][idx1], tab0[filt+'_MAG_ERROR'][idx1],
-                                 seed_i == ff+1)
-      x_dist = NB_mag_dist - cont_mag_dist
-      ew_dist, flux_dist = ew_flux_dual(NB_mag_dist, cont_mag_dist, x_dist, filt_dict)
+
+    NB_mag_dist = random_pdf(tab0[filt+'_MAG'][idx1], tab0[filt+'_MAG_ERROR'][idx1],
+                             seed_i = ff+1)
+    x_dist = NB_mag_dist - cont_mag_dist
+    ew_dist, flux_dist = ew_flux_dual(NB_mag_dist, cont_mag_dist, x_dist, filt_dict)
+
+    flux_err, flux_xpeak = compute_onesig_pdf(flux_dist, flux[idx1])
+
+    tab0[filt+'_FLUX_UPERROR'][idx1] = flux_err[0,:]
+    tab0[filt+'_FLUX_LOERROR'][idx1] = flux_err[1,:]
   return tab0
 #enddef
 
