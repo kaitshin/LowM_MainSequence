@@ -248,6 +248,12 @@ def main(silent=False, verbose=True):
   outfile = infile.replace('.fits','.errors.fits')
   tab0.write(outfile, format='fits', overwrite=True)
 
+  #Limiting magnitudes
+  m_NB  = [26.7134-0.047, 26.0684, 26.9016+0.057, 26.7894+0.041, 27.3928+0.032,
+           26.7088-0.109, 25.6917-0.051]
+  m_BB1 = [28.0829, 28.0829, 27.7568, 27.8933, 28.0829, 26.8250, 26.8250]
+  m_BB2 = [27.7568, 27.7568, 26.8250, 28.0829, 27.7568, 00.0000, 00.0000]
+
   plot_errors('Ha', filt_ref, tab0)
 
   if silent == False: log.info('### End main : '+systime())
