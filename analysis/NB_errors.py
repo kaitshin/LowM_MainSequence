@@ -236,7 +236,7 @@ def main(silent=False, verbose=True):
   tab0, infile = get_data()
 
   filt_dict0 = {'filter': filt_ref, 'dNB': dNB, 'dBB': dBB, 'lambdac': lambdac}
-  tab0 = get_errors(tab0, filt_dict, BB_filt, epsilon)
+  tab0 = get_errors(tab0, filt_dict0, BB_filt, epsilon)
 
   outfile = infile.replace('.fits','.errors.fits')
   tab0.write(outfile, format='fits', overwrite=True)
