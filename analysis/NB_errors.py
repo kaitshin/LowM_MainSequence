@@ -143,12 +143,14 @@ def get_errors(tab0, filt_dict0, BB_filt, epsilon):
 
     filt_dict = {'dNB': filt_dict0['dNB'][ff], 'dBB': filt_dict0['dBB'][ff],
                  'lambdac': filt_dict0['lambdac'][ff]}
+
     ew_dist, flux_dist = ew_flux_dual(NB_mag_dist, cont_mag_dist, x_dist, filt_dict)
 
-    flux_err, flux_xpeak = compute_onesig_pdf(flux_dist, tab0[filt+'_FLUX'][idx1])
+    flux_err, flux_xpeak = compute_onesig_pdf(np.log10(flux_dist), tab0[filt+'_FLUX'][idx1])
 
     tab0[filt+'_FLUX_UPERROR'][idx1] = flux_err[:,0]
     tab0[filt+'_FLUX_LOERROR'][idx1] = flux_err[:,1]
+
   return tab0
 #enddef
 
