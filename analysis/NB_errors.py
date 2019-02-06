@@ -190,7 +190,11 @@ def plot_errors(l_type, filt_ref, tab0, limit_dict):
 
       f_NB   = 10**(-0.4*(m_AB + limit_dict['m_NB'][ff]))
       NB_err = - 2.5*np.log10(1 - f_NB/f)
-      ax.plot(x, NB_err)
+      ax.plot(x, NB_err, 'b--')
+
+      f_BB   = 10**(-0.4*(m_AB + limit_dict['m_BB'][ff]))
+      BB_err = - 2.5*np.log10(1 - f_BB/f)
+      ax.plot(x, BB_err, 'g--')
 
       ax.legend(loc='lower right')
       plt.subplots_adjust(left=0.09, right=0.98, bottom=0.08, top=0.98)
@@ -245,7 +249,7 @@ def main(silent=False, verbose=True):
   lambdac = [ 7046.0,  7111.0,  8150.0,  6007.0,  6780.0, 9196.0, 9755.0]
   dBB     = [ 1110.0,  1110.0,  1419.0,   885.0,  1110.0,  956.0,  956.0] # R R i, V, R
 
-  epsilon = [0.5, 0.5, 0.6, 0.45, 0.75, 1.0, 1.0]
+  epsilon = np.array([0.5, 0.5, 0.6, 0.45, 0.75, 1.0, 1.0])
   BB_filt = {'one': ['R','R','i','V','R','z', 'z'], 'two':['i','i','z','R','i','', '']}
   tab0, infile = get_data()
 
@@ -256,12 +260,16 @@ def main(silent=False, verbose=True):
   tab0.write(outfile, format='fits', overwrite=True)
 
   #Limiting magnitudes
-  m_NB  = [26.7134-0.047, 26.0684, 26.9016+0.057, 26.7894+0.041, 27.3928+0.032,
-           26.7088-0.109, 25.6917-0.051]
-  m_BB1 = [28.0829, 28.0829, 27.7568, 27.8933, 28.0829, 26.8250, 26.8250]
-  m_BB2 = [27.7568, 27.7568, 26.8250, 28.0829, 27.7568, 00.0000, 00.0000]
+  m_NB  = np.array([26.7134-0.047, 26.0684, 26.9016+0.057, 26.7894+0.041,
+                    27.3928+0.032, 26.7088-0.109, 25.6917-0.051]
+  m_BB1 = np.array([28.0829, 28.0829, 27.7568, 27.8933, 28.0829, 26.8250,
+                    26.8250])
+  m_BB2 = np.array([27.7568, 27.7568, 26.8250, 28.0829, 27.7568, 00.0000,
+                    00.0000])
 
-  limit_dict = {'m_NB': m_NB, 'm_BB1': m_BB1, 'm_BB2': m_BB2}
+  cont_lim  = mag_combine(m_BB1, m_BB2, epsilon)
+
+  limit_dict = {'m_NB': m_NB, 'm_BB': cont_lim}
   plot_errors('Ha', filt_ref, tab0, limit_dict)
 
   if silent == False: log.info('### End main : '+systime())
