@@ -147,8 +147,8 @@ def get_errors(tab0, filt_dict0, BB_filt, epsilon):
 
     flux_err, flux_xpeak = compute_onesig_pdf(flux_dist, tab0[filt+'_FLUX'][idx1])
 
-    tab0[filt+'_FLUX_UPERROR'][idx1] = flux_err[0,:]
-    tab0[filt+'_FLUX_LOERROR'][idx1] = flux_err[1,:]
+    tab0[filt+'_FLUX_UPERROR'][idx1] = flux_err[:,0]
+    tab0[filt+'_FLUX_LOERROR'][idx1] = flux_err[:,1]
   return tab0
 #enddef
 
