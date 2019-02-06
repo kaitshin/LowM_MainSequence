@@ -159,7 +159,7 @@ def get_errors(tab0, filt_dict0, BB_filt, epsilon):
   return tab0
 #enddef
 
-def plot_errors(l_type, filt_ref, tab0):
+def plot_errors(l_type, filt_ref, tab0, limit_dict):
   pp = PdfPages(path0+'NB_IA_emitters_'+l_type+'_photometric_errors.pdf')
 
   for filt in filt_ref:
@@ -254,7 +254,8 @@ def main(silent=False, verbose=True):
   m_BB1 = [28.0829, 28.0829, 27.7568, 27.8933, 28.0829, 26.8250, 26.8250]
   m_BB2 = [27.7568, 27.7568, 26.8250, 28.0829, 27.7568, 00.0000, 00.0000]
 
-  plot_errors('Ha', filt_ref, tab0)
+  limit_dict = {'m_NB': m_NB, 'm_BB1': m_BB1, 'm_BB2':, m_BB2}
+  plot_errors('Ha', filt_ref, tab0, limit_dict)
 
   if silent == False: log.info('### End main : '+systime())
 #enddef
