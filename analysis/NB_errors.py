@@ -70,6 +70,8 @@ def get_errors(tab0, filt_dict0, BB_filt, epsilon):
 
   NB_path = '/Users/cly/data/SDF/NBcat/'
 
+  filt_ref = filt_dict0['filter']
+
   NB_phot_files = [NB_path+filt+'/sdf_pub2_'+filt+'.cat.mask' for filt in filt_ref]
 
   BB_phot_files1 = [NB_path+filt+'/sdf_pub2_'+BBfilt+'_'+filt+'.cat.mask' for
@@ -79,8 +81,6 @@ def get_errors(tab0, filt_dict0, BB_filt, epsilon):
                     zip(BB_filt['two'],filt_ref)]
 
   n_gal = len(tab0)
-
-  filt_ref = filt_dict0['filter']
 
   # Add columns
   for filt,ff in zip(filt_ref,range(len(filt_ref))):
@@ -99,8 +99,8 @@ def get_errors(tab0, filt_dict0, BB_filt, epsilon):
 
     print("Reading : "+NB_phot_files[ff])
     phot_tab    = asc.read(NB_phot_files[ff])
-    NB_id       = phot_tab['col1']
-    MAGERR_APER = phot_tab['col15']
+    NB_id       = phot_tab['col1'].data
+    MAGERR_APER = phot_tab['col15'].data
 
     NBem = np.where(tab0[filt+'_ID'] != 0)[0]
     idx1, idx2  = match_nosort(tab0[filt+'_ID'][NBem], NB_id)
@@ -145,7 +145,7 @@ def get_errors(tab0, filt_dict0, BB_filt, epsilon):
                  'lambdac': filt_dict0['lambdac'][ff]}
     ew_dist, flux_dist = ew_flux_dual(NB_mag_dist, cont_mag_dist, x_dist, filt_dict)
 
-    flux_err, flux_xpeak = compute_onesig_pdf(flux_dist, flux[idx1])
+    flux_err, flux_xpeak = compute_onesig_pdf(flux_dist, tab0[filt+'_FLUX'][idx1])
 
     tab0[filt+'_FLUX_UPERROR'][idx1] = flux_err[0,:]
     tab0[filt+'_FLUX_LOERROR'][idx1] = flux_err[1,:]
