@@ -162,7 +162,7 @@ def get_errors(tab0, filt_dict0, BB_filt, epsilon):
 def plot_errors(l_type, filt_ref, tab0, limit_dict):
   pp = PdfPages(path0+'NB_IA_emitters_'+l_type+'_photometric_errors.pdf')
 
-  for filt in filt_ref:
+  for filt,ff in zip(filt_ref,range(len(filt_ref))):
     idx = [xx for xx in range(len(tab0)) if l_type+'-'+filt in tab0['NAME'][xx]]
 
     if len(idx) > 0:
@@ -184,6 +184,13 @@ def plot_errors(l_type, filt_ref, tab0, limit_dict):
 
       max_y = np.max([max(y0),max(y1)])
       ax.set_ylim([0,max_y*1.05])
+
+      x = np.arange(19,28,0.01)
+      f = 10**(-0.4*(m_AB+x))
+
+      f_NB   = 10**(-0.4*(m_AB + limit_dict['m_NB'][ff]))
+      NB_err = - 2.5*np.log10(1 - f_NB/f)
+      ax.plot(x, NB_err)
 
       ax.legend(loc='lower right')
       plt.subplots_adjust(left=0.09, right=0.98, bottom=0.08, top=0.98)
@@ -254,7 +261,7 @@ def main(silent=False, verbose=True):
   m_BB1 = [28.0829, 28.0829, 27.7568, 27.8933, 28.0829, 26.8250, 26.8250]
   m_BB2 = [27.7568, 27.7568, 26.8250, 28.0829, 27.7568, 00.0000, 00.0000]
 
-  limit_dict = {'m_NB': m_NB, 'm_BB1': m_BB1, 'm_BB2':, m_BB2}
+  limit_dict = {'m_NB': m_NB, 'm_BB1': m_BB1, 'm_BB2': m_BB2}
   plot_errors('Ha', filt_ref, tab0, limit_dict)
 
   if silent == False: log.info('### End main : '+systime())
