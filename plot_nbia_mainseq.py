@@ -108,7 +108,7 @@ def noeske_2007(ax):
                      hatch=3*'.', edgecolor='orange', linewidth=0.0,
                      zorder=1)
     noeske, = ax.plot(logM, logSFR, color='orange', marker='+', #linestyle='', 
-                       label='Noeske+07 (0.20<z<0.40)',zorder=1, mew=2, markersize=11)
+                       label='Noeske+07 (0.20<z<0.45)',zorder=1, mew=2, markersize=11)
     return noeske
 
 
@@ -245,9 +245,9 @@ def main():
     z_arr = np.delete(z_arr, 1)
     z_arr  = np.array([x+'0' if len(x)==3 else x for x in z_arr])
 
-    # defining a flux sigma cutoff
+    # defining a flux sigma and mass cutoff
     good_sig_iis = np.where((corr_tbl['flux_sigma'] >= CUTOFF_SIGMA) & (stlr_mass >= CUTOFF_MASS))[0]
-    
+
     f_all, ax_all = plt.subplots(2,2)
     axarr = np.ndarray.flatten(ax_all)
     f_all.set_size_inches(14,14)
