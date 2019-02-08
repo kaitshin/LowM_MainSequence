@@ -35,6 +35,13 @@ filt_dict0 = {'filter': filt_ref, 'dNB': dNB, 'dBB': dBB, 'lambdac': lambdac}
 
 m_AB = 48.6
 
+def error_from_limit(mag, lim_mag):
+  f     = 10**(-0.4*(m_AB+mag))
+  f_lim = 10**(-0.4*(m_AB + lim_mag))
+
+  error = - 2.5*np.log10(1 - f_lim/f)
+#enddef
+
 def fluxline(y, fNB, dNB, dBB):
   '''RETURNS emission-line flux in erg/s/cm^2'''
 
