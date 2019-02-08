@@ -207,14 +207,11 @@ def plot_errors(l_type, filt_ref, tab0, limit_dict):
       ax.set_ylim([0,max_y*1.05])
 
       x = np.arange(19,28,0.01)
-      f = 10**(-0.4*(m_AB+x))
 
-      f_NB   = 10**(-0.4*(m_AB + limit_dict['m_NB'][ff]))
-      NB_err = - 2.5*np.log10(1 - f_NB/f)
+      NB_err = error_from_limit(x, limit_dict['m_NB'][ff])
       ax.plot(x, NB_err, 'b--')
 
-      f_BB   = 10**(-0.4*(m_AB + limit_dict['m_BB'][ff]))
-      BB_err = - 2.5*np.log10(1 - f_BB/f)
+      BB_err = error_from_limit(x, limit_dict['m_BB'][ff])
       ax.plot(x, BB_err, 'g--')
 
       ax.legend(loc='lower right')
