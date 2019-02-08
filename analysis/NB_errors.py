@@ -96,8 +96,10 @@ def get_errors(tab0, filt_dict0, BB_filt, epsilon):
   # Add columns
   for filt,ff in zip(filt_ref,range(len(filt_ref))):
     c0 = Column(np.zeros(n_gal), name=filt+'_MAG_ERROR')
+    c0b= Column(np.zeros(n_gal), name=filt+'_MAG_ERROR_RAW')
     c1 = Column(np.zeros(n_gal), name=filt+'_CONT_MAG')
     c2 = Column(np.zeros(n_gal), name=filt+'_CONT_ERROR')
+    c2b= Column(np.zeros(n_gal), name=filt+'_CONT_ERROR_RAW')
     c3 = Column(np.zeros(n_gal), name=filt+'_EW_UPERROR')
     c3b= Column(np.zeros(n_gal), name=filt+'_EW_LOERROR')
     c4 = Column(np.zeros(n_gal), name=filt+'_FLUX_UPERROR')
@@ -106,7 +108,7 @@ def get_errors(tab0, filt_dict0, BB_filt, epsilon):
     colnames = tab0.colnames
     idx_end = [xx+1 for xx in range(len(colnames)) if colnames[xx] == filt+'_MAG']
     # +1 to add at end
-    tab0.add_columns([c0,c1,c2,c3,c3b,c4,c4b], indexes=idx_end * 7)
+    tab0.add_columns([c0,c0b,c1,c2,c2b,c3,c3b,c4,c4b], indexes=idx_end * 9)
 
     print("Reading : "+NB_phot_files[ff])
     phot_tab    = asc.read(NB_phot_files[ff])
@@ -117,7 +119,7 @@ def get_errors(tab0, filt_dict0, BB_filt, epsilon):
     idx1, idx2  = match_nosort(tab0[filt+'_ID'][NBem], NB_id)
     idx1 = NBem[idx1]
     print('index size : '+str(len(NBem))+', '+str(len(idx2)))
-    tab0[filt+'_MAG_ERROR'][idx1] = MAGERR_APER[idx2]
+    tab0[filt+'_MAG_ERROR_RAW'][idx1] = MAGERR_APER[idx2]
 
     print("Reading : "+BB_phot_files1[ff])
     phot_tab1       = asc.read(BB_phot_files1[ff])
@@ -141,10 +143,10 @@ def get_errors(tab0, filt_dict0, BB_filt, epsilon):
       cont_mag_dist = mag_combine(m1_dist, m2_dist, epsilon[ff])
       err, xpeak = compute_onesig_pdf(cont_mag_dist, cont_mag[idx1])
       g_err = np.sqrt(err[:,0]**2 + err[:,1]**2)
-      tab0[filt+'_CONT_ERROR'][idx1] = g_err
+      tab0[filt+'_CONT_ERROR_RAW'][idx1] = g_err
 
     else:
-      tab0[filt+'_CONT_ERROR'][idx1] = BB_MAGERR_APER1[idx2]
+      tab0[filt+'_CONT_ERROR_RAW'][idx1] = BB_MAGERR_APER1[idx2]
 
       cont_mag_dist = random_pdf(BB_MAG_APER1[idx2], BB_MAGERR_APER1[idx2], seed_i = ff)
 
