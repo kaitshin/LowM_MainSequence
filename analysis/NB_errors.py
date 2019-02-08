@@ -23,7 +23,18 @@ from astropy import log
 
 path0 = '/Users/cly/Google Drive/NASA_Summer2015/Catalogs/'
 
+filt_ref= ['NB704', 'NB711', 'NB816', 'IA598', 'IA679','NB921','NB973']
+dNB     = [  100.0,    72.0,   120.0,   303.0,   340.0,  132.0,  200.0]
+lambdac = [ 7046.0,  7111.0,  8150.0,  6007.0,  6780.0, 9196.0, 9755.0]
+dBB     = [ 1110.0,  1110.0,  1419.0,   885.0,  1110.0,  956.0,  956.0] # R R i, V, R
+
+epsilon = np.array([0.5, 0.5, 0.6, 0.45, 0.75, 1.0, 1.0])
+BB_filt = {'one': ['R','R','i','V','R','z', 'z'], 'two':['i','i','z','R','i','', '']}
+
+filt_dict0 = {'filter': filt_ref, 'dNB': dNB, 'dBB': dBB, 'lambdac': lambdac}
+
 m_AB = 48.6
+
 def fluxline(y, fNB, dNB, dBB):
   '''RETURNS emission-line flux in erg/s/cm^2'''
 
@@ -244,16 +255,8 @@ def main(silent=False, verbose=True):
 
   if silent == False: log.info('### Begin main : '+systime())
 
-  filt_ref= ['NB704', 'NB711', 'NB816', 'IA598', 'IA679','NB921','NB973']
-  dNB     = [  100.0,    72.0,   120.0,   303.0,   340.0,  132.0,  200.0]
-  lambdac = [ 7046.0,  7111.0,  8150.0,  6007.0,  6780.0, 9196.0, 9755.0]
-  dBB     = [ 1110.0,  1110.0,  1419.0,   885.0,  1110.0,  956.0,  956.0] # R R i, V, R
-
-  epsilon = np.array([0.5, 0.5, 0.6, 0.45, 0.75, 1.0, 1.0])
-  BB_filt = {'one': ['R','R','i','V','R','z', 'z'], 'two':['i','i','z','R','i','', '']}
   tab0, infile = get_data()
 
-  filt_dict0 = {'filter': filt_ref, 'dNB': dNB, 'dBB': dBB, 'lambdac': lambdac}
   tab0 = get_errors(tab0, filt_dict0, BB_filt, epsilon)
 
   outfile = infile.replace('.fits','.errors.fits')
@@ -282,11 +285,6 @@ def test_ew_flux():
 
   err_file = path0+'NB_IA_emitters.allcols.colorrev.errors.fits'
   data = fits.getdata(err_file)
-
-  filt_ref= ['NB704', 'NB711', 'NB816', 'IA598', 'IA679','NB921','NB973']
-  dNB     = [  100.0,    72.0,   120.0,   303.0,   340.0,  132.0,  200.0]
-  lambdac = [ 7046.0,  7111.0,  8150.0,  6007.0,  6780.0, 9196.0, 9755.0]
-  dBB     = [ 1110.0,  1110.0,  1419.0,   885.0,  1110.0,  956.0,  956.0] # R R i, V, R
 
   for ff in range(len(filt_ref)):
     filt0 = filt_ref[ff]
