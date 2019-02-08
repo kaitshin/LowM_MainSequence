@@ -40,6 +40,7 @@ def error_from_limit(mag, lim_mag):
   f_lim = 10**(-0.4*(m_AB + lim_mag))
 
   error = - 2.5*np.log10(1 - f_lim/f)
+  return error
 #enddef
 
 def fluxline(y, fNB, dNB, dBB):
