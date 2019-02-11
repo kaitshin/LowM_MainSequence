@@ -288,7 +288,7 @@ def main(silent=False, verbose=True):
   limit_dict = {'m_NB': m_NB, 'm_BB': cont_lim}
 
   tab0, infile = get_data()
-  tab0 = get_errors(tab0, filt_dict0, BB_filt, epsilon)
+  tab0 = get_errors(tab0, filt_dict0, BB_filt, epsilon, limit_dict=limit_dict)
 
   outfile = infile.replace('.fits','.errors.fits')
   tab0.write(outfile, format='fits', overwrite=True)
