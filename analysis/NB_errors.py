@@ -208,7 +208,7 @@ def plot_errors(l_type, filt_ref, tab0, limit_dict):
 
       y0_raw = tab0[filt+'_MAG_ERROR_RAW'][idx]
       ax.scatter(x0, y0_raw, marker='o', color='blue', facecolor='none',
-                 s=5)
+                 s=5, label = 'NB phot (raw)')
 
       x1 = tab0[filt+'_CONT_MAG'][idx]
       y1 = tab0[filt+'_CONT_ERROR'][idx]
@@ -216,7 +216,8 @@ def plot_errors(l_type, filt_ref, tab0, limit_dict):
                  label='Cont. phot')
 
       y1_raw = tab0[filt+'_CONT_ERROR_RAW'][idx]
-      ax.scatter(x1, y1_raw, marker='o', color='green', facecolor='none', s=5)
+      ax.scatter(x1, y1_raw, marker='o', color='green', facecolor='none', s=5,
+                 label='Cont. phot (raw)')
 
       ax.annotate(l_type+'-'+filt, [0.025,0.975], xycoords='axes fraction',
                   ha='left', va='top')
