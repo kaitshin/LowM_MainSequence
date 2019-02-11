@@ -36,8 +36,8 @@ filt_dict0 = {'filter': filt_ref, 'dNB': dNB, 'dBB': dBB, 'lambdac': lambdac}
 m_AB = 48.6
 
 def error_from_limit(mag, lim_mag):
-  f     = 10**(-0.4*(m_AB+mag))
-  f_lim = 10**(-0.4*(m_AB + lim_mag))
+  f     = 10**(-0.4*(m_AB+mag + np.log10(3)))
+  f_lim = 10**(-0.4*(m_AB + lim_mag + np.log10(3)))
 
   error = - 2.5*np.log10(1 - f_lim/f)
   return error
@@ -216,7 +216,7 @@ def plot_errors(l_type, filt_ref, tab0, limit_dict):
                  label='Cont. phot')
 
       y1_raw = tab0[filt+'_CONT_ERROR_RAW'][idx]
-      ax.scatter(x1, y1, marker='o', color='green', facecolor='none', s=5)
+      ax.scatter(x1, y1_raw, marker='o', color='green', facecolor='none', s=5)
 
       ax.annotate(l_type+'-'+filt, [0.025,0.975], xycoords='axes fraction',
                   ha='left', va='top')
