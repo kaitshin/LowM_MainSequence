@@ -85,7 +85,7 @@ def get_data():
   return tab0, infile
 #enddef
 
-def get_errors(tab0, filt_dict0, BB_filt, epsilon):
+def get_errors(tab0, filt_dict0, BB_filt, epsilon, limit_dict=None):
 
   NB_path = '/Users/cly/data/SDF/NBcat/'
 
@@ -121,6 +121,7 @@ def get_errors(tab0, filt_dict0, BB_filt, epsilon):
     print("Reading : "+NB_phot_files[ff])
     phot_tab    = asc.read(NB_phot_files[ff])
     NB_id       = phot_tab['col1'].data
+    MAG_APER    = phot_tab['col13'].data
     MAGERR_APER = phot_tab['col15'].data
 
     NBem = np.where(tab0[filt+'_ID'] != 0)[0]
@@ -128,6 +129,12 @@ def get_errors(tab0, filt_dict0, BB_filt, epsilon):
     idx1 = NBem[idx1]
     print('index size : '+str(len(NBem))+', '+str(len(idx2)))
     tab0[filt+'_MAG_ERROR_RAW'][idx1] = MAGERR_APER[idx2]
+
+    if limit_dict == None:
+      tab0[filt+'_MAG_ERROR'][idx1] = MAGERR_APER[idx2]
+    else:
+      NB_err = error_from_limit(MAG_APER[idx2], limit_dict['m_NB'][ff])
+      tab0[filt+'_MAG_ERROR'][idx1] = NB_err
 
     print("Reading : "+BB_phot_files1[ff])
     phot_tab1       = asc.read(BB_phot_files1[ff])
@@ -151,12 +158,18 @@ def get_errors(tab0, filt_dict0, BB_filt, epsilon):
       cont_mag_dist = mag_combine(m1_dist, m2_dist, epsilon[ff])
       err, xpeak = compute_onesig_pdf(cont_mag_dist, cont_mag[idx1])
       g_err = np.sqrt(err[:,0]**2 + err[:,1]**2)
-      tab0[filt+'_CONT_ERROR_RAW'][idx1] = g_err
-
     else:
-      tab0[filt+'_CONT_ERROR_RAW'][idx1] = BB_MAGERR_APER1[idx2]
-
+      g_err = BB_MAGERR_APER1[idx2]
       cont_mag_dist = random_pdf(BB_MAG_APER1[idx2], BB_MAGERR_APER1[idx2], seed_i = ff)
+
+    tab0[filt+'_CONT_ERROR_RAW'][idx1] = g_err
+
+    if limit_dict == None:
+      tab0[filt+'_CONT_ERROR'][idx1] = g_err
+    else:
+      BB_err = error_from_limit(cont_mag[idx1], limit_dict['m_BB'][ff])
+      tab0[filt+'_CONT_ERROR'][idx1] = BB_err
+      cont_mag_dist = random_pdf(cont_mag[idx1], BB_err, seed_i = ff)
 
     NB_mag_dist = random_pdf(tab0[filt+'_MAG'][idx1], tab0[filt+'_MAG_ERROR'][idx1],
                              seed_i = ff+1)
