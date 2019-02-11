@@ -262,13 +262,6 @@ def main(silent=False, verbose=True):
 
   if silent == False: log.info('### Begin main : '+systime())
 
-  tab0, infile = get_data()
-
-  tab0 = get_errors(tab0, filt_dict0, BB_filt, epsilon)
-
-  outfile = infile.replace('.fits','.errors.fits')
-  tab0.write(outfile, format='fits', overwrite=True)
-
   #Limiting magnitudes
   m_NB  = np.array([26.7134-0.047, 26.0684, 26.9016+0.057, 26.7894+0.041,
                     27.3928+0.032, 26.7088-0.109, 25.6917-0.051])
@@ -280,6 +273,13 @@ def main(silent=False, verbose=True):
   cont_lim  = mag_combine(m_BB1, m_BB2, epsilon)
 
   limit_dict = {'m_NB': m_NB, 'm_BB': cont_lim}
+
+  tab0, infile = get_data()
+  tab0 = get_errors(tab0, filt_dict0, BB_filt, epsilon)
+
+  outfile = infile.replace('.fits','.errors.fits')
+  tab0.write(outfile, format='fits', overwrite=True)
+
   plot_errors('Ha', filt_ref, tab0, limit_dict)
 
   if silent == False: log.info('### End main : '+systime())
