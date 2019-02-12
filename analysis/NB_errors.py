@@ -193,6 +193,40 @@ def get_errors(tab0, filt_dict0, BB_filt, epsilon, limit_dict=None):
   return tab0
 #enddef
 
+def plot_flux_ew_errors(l_type, filt_ref, tab0):
+  pp = PdfPages(path0+'NB_IA_emitters_'+l_type+'_ew_flux_errors.pdf')
+
+  for filt,ff in zip(filt_ref,range(len(filt_ref))):
+    idx = [xx for xx in range(len(tab0)) if l_type+'-'+filt in tab0['NAME'][xx]]
+
+    if len(idx) > 0:
+      fig, ax = plt.subplots(ncols=2)
+
+      t_tab = tab0[idx]
+      x0 = t_tab[filt+'_FLUX']
+      y0 = np.sqrt((t_tab[filt+'_FLUX_UPERROR']**2 +
+                    t_tab[filt+'_FLUX_LOERROR']**2)/2.0)
+      ax[0].scatter(x0, y0, marker='o', color='blue', facecolor='none', s=10)
+
+      ax[0].annotate(l_type+'-'+filt, [0.025,0.975], xycoords='axes fraction',
+                     ha='left', va='top')
+      ax[0].set_xlabel(r'$F_{\rm NB}$ [dex]')
+      ax[0].set_ylabel(r'$\sigma$ [dex]')
+
+      x1 = t_tab[filt+'_EW']
+      y1 = np.sqrt((t_tab[filt+'_EW_UPERROR']**2 +
+                    t_tab[filt+'_EW_LOERROR']**2)/2.0)
+      ax[1].scatter(x1, y1, marker='o', color='blue', facecolor='none', s=10)
+
+      ax[1].set_xlabel(r'EW [$\AA$]')
+      ax[1].set_ylabel(r'$\sigma$')
+
+      plt.subplots_adjust(left=0.09, right=0.98, bottom=0.08, top=0.98)
+      fig.savefig(pp, format='pdf')
+    #endif
+  #endfor
+#enddef
+
 def plot_errors(l_type, filt_ref, tab0, limit_dict):
   pp = PdfPages(path0+'NB_IA_emitters_'+l_type+'_photometric_errors.pdf')
 
