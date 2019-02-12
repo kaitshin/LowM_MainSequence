@@ -225,6 +225,7 @@ def plot_flux_ew_errors(l_type, filt_ref, tab0):
       fig.savefig(pp, format='pdf')
     #endif
   #endfor
+  pp.close()
 #enddef
 
 def plot_errors(l_type, filt_ref, tab0, limit_dict):
