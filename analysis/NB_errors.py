@@ -173,7 +173,7 @@ def get_errors(tab0, filt_dict0, BB_filt, epsilon, limit_dict=None):
 
     NB_mag_dist = random_pdf(tab0[filt+'_MAG'][idx1], tab0[filt+'_MAG_ERROR'][idx1],
                              seed_i = ff+1)
-    x_dist = NB_mag_dist - cont_mag_dist
+    x_dist = cont_mag_dist - NB_mag_dist
 
     filt_dict = {'dNB': filt_dict0['dNB'][ff], 'dBB': filt_dict0['dBB'][ff],
                  'lambdac': filt_dict0['lambdac'][ff]}
