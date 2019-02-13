@@ -180,9 +180,11 @@ def get_errors(tab0, filt_dict0, BB_filt, epsilon, limit_dict=None):
 
     ew_dist, flux_dist = ew_flux_dual(NB_mag_dist, cont_mag_dist, x_dist, filt_dict)
 
-    flux_err, flux_xpeak = compute_onesig_pdf(np.log10(flux_dist), tab0[filt+'_FLUX'][idx1])
+    flux_err, flux_xpeak = compute_onesig_pdf(np.log10(flux_dist),
+                                              tab0[filt+'_FLUX'][idx1])
 
-    ew_err, ew_xpeak = compute_onesig_pdf(ew_dist, tab0[filt+'_EW'][idx1])
+    ew_err, ew_xpeak = compute_onesig_pdf(np.log10(ew_dist),
+                                          np.log10(tab0[filt+'_EW'][idx1]))
 
     tab0[filt+'_FLUX_UPERROR'][idx1] = flux_err[:,0]
     tab0[filt+'_FLUX_LOERROR'][idx1] = flux_err[:,1]
