@@ -183,6 +183,7 @@ def get_errors(tab0, filt_dict0, BB_filt, epsilon, limit_dict=None):
     flux_err, flux_xpeak = compute_onesig_pdf(np.log10(flux_dist),
                                               tab0[filt+'_FLUX'][idx1])
 
+    # Note: EW errors are in dex
     ew_err, ew_xpeak = compute_onesig_pdf(np.log10(ew_dist),
                                           np.log10(tab0[filt+'_EW'][idx1]))
 
@@ -215,7 +216,7 @@ def plot_flux_ew_errors(l_type, filt_ref, tab0):
       ax[0].set_xlabel(r'$F_{\rm NB}$ [dex]')
       ax[0].set_ylabel(r'$\sigma$ [dex]')
 
-      x1 = t_tab[filt+'_EW']
+      x1 = np.log10(t_tab[filt+'_EW'])
       y1 = np.sqrt((t_tab[filt+'_EW_UPERROR']**2 +
                     t_tab[filt+'_EW_LOERROR']**2)/2.0)
       ax[1].scatter(x1, y1, marker='o', color='blue', facecolor='none', s=10)
