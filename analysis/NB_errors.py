@@ -211,8 +211,8 @@ def plot_flux_ew_errors(l_type, filt_ref, tab0):
                     t_tab[filt+'_FLUX_LOERROR']**2)/2.0)
       ax[0].scatter(x0, y0, marker='o', color='blue', facecolor='none', s=10)
 
-      ax[0].annotate(l_type+'-'+filt, [0.025,0.975], xycoords='axes fraction',
-                     ha='left', va='top')
+      ax[0].annotate(l_type+'-'+filt+'\n N='+str(len(idx)), [0.975,0.975],
+                     xycoords='axes fraction', ha='right', va='top')
 
       xlabel = r'$\log{(F_{\rm NB})[\rm{erg/s/cm}^2]}$'+' [dex]'
       #xlabel = r'$\log{(F_{\rm NB})[{\rm erg s}^{-1}~{\rm cm}^{-2}]}'+' [dex]'
@@ -224,14 +224,21 @@ def plot_flux_ew_errors(l_type, filt_ref, tab0):
       x1 = np.log10(t_tab[filt+'_EW'])
       y1 = np.sqrt((t_tab[filt+'_EW_UPERROR']**2 +
                     t_tab[filt+'_EW_LOERROR']**2)/2.0)
-      ax[1].scatter(x1, y1, marker='o', color='blue', facecolor='none', s=10)
+
+      reliable = np.where(x1 <= 4.0)[0]
+      ax[1].scatter(x1[reliable], y1[reliable], marker='o', color='blue',
+                    facecolor='none', s=10)
+
+      ax[1].annotate('N(in plot)='+str(len(reliable)), [0.025,0.975],
+                     xycoords='axes fraction', ha='left', va='top')
 
       ax[1].set_xlabel(r'$\log{({\rm EW}/\AA)}$')
-      ax[1].set_ylabel(r'$\sigma$ [dex]')
+      ax[1].set_xlim([np.min(x1[reliable])-0.05, np.max(x1[reliable]) + 0.05])
 
-      ax[1].set_ylim([-0.01, np.max(y1) + 0.05])
+      ax[1].set_ylim([-0.01, np.max(y1[reliable]) + 0.05])
 
-      plt.subplots_adjust(left=0.09, right=0.98, bottom=0.08, top=0.98)
+      plt.subplots_adjust(left=0.09, right=0.98, bottom=0.13, top=0.98)
+      fig.set_size_inches(8,4)
       fig.savefig(pp, format='pdf')
     #endif
   #endfor
