@@ -75,7 +75,7 @@ def mag_combine(m1, m2, epsilon):
 
 def get_data():
 
-  infile = path0 + 'NB_IA_emitters.allcols.colorrev.fits'
+  infile = path0 + 'NB_IA_emitters.allcols.colorrev.fix.fits'
   print("Reading : "+infile)
 
   data0 = fits.getdata(infile)
@@ -365,7 +365,7 @@ def test_ew_flux():
   Code to check IDL NB excess flux/EW against Python NB excess flux/EW
   '''
 
-  err_file = path0+'NB_IA_emitters.allcols.colorrev.errors.fits'
+  err_file = path0+'NB_IA_emitters.allcols.colorrev.fix.errors.fits'
   data = fits.getdata(err_file)
 
   for ff in range(len(filt_ref)):
