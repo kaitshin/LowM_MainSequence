@@ -348,6 +348,8 @@ def main(silent=False, verbose=True):
 
   plot_errors('Ha', filt_ref, tab0, limit_dict)
 
+  plot_flux_ew_errors('Ha', filt_ref, tab0)
+
   if silent == False: log.info('### End main : '+systime())
 #enddef
 
