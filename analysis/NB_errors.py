@@ -213,16 +213,23 @@ def plot_flux_ew_errors(l_type, filt_ref, tab0):
 
       ax[0].annotate(l_type+'-'+filt, [0.025,0.975], xycoords='axes fraction',
                      ha='left', va='top')
-      ax[0].set_xlabel(r'$F_{\rm NB}$ [dex]')
+
+      xlabel = r'$\log{(F_{\rm NB})[\rm{erg/s/cm}^2]}$'+' [dex]'
+      #xlabel = r'$\log{(F_{\rm NB})[{\rm erg s}^{-1}~{\rm cm}^{-2}]}'+' [dex]'
+      ax[0].set_xlabel(xlabel)
       ax[0].set_ylabel(r'$\sigma$ [dex]')
+
+      ax[0].set_ylim([-0.01, np.max(y0*1.05)])
 
       x1 = np.log10(t_tab[filt+'_EW'])
       y1 = np.sqrt((t_tab[filt+'_EW_UPERROR']**2 +
                     t_tab[filt+'_EW_LOERROR']**2)/2.0)
       ax[1].scatter(x1, y1, marker='o', color='blue', facecolor='none', s=10)
 
-      ax[1].set_xlabel(r'EW [$\AA$]')
-      ax[1].set_ylabel(r'$\sigma$')
+      ax[1].set_xlabel(r'$\log{({\rm EW}/\AA)}$')
+      ax[1].set_ylabel(r'$\sigma$ [dex]')
+
+      ax[1].set_ylim([-0.01, np.max(y1) + 0.05])
 
       plt.subplots_adjust(left=0.09, right=0.98, bottom=0.08, top=0.98)
       fig.savefig(pp, format='pdf')
