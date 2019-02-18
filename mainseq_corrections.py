@@ -14,8 +14,6 @@ INPUTS:
     'Catalogs/NB_IA_emitters.allcols.colorrev.fits'
     'Catalogs/nb_ia_zspec.txt'
     'FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast.GALEX.fout'
-    'Composite_Spectra/Redshift/MMT_stacked_spectra_data.txt'
-    'Composite_Spectra/Redshift/Keck_stacked_spectra_data.txt'
     'Composite_Spectra/StellarMass/MMT_all_five_data.txt'
     'Composite_Spectra/StellarMass/Keck_all_five_data.txt'
     'Composite_Spectra/StellarMassZ/MMT_stlrmassZ_data.txt'
@@ -374,13 +372,6 @@ def main():
 
 
     # reading in EBV data tables & getting relevant EBV cols
-    mmt_z   = asc.read(FULL_PATH+'Composite_Spectra/Redshift/MMT_stacked_spectra_data.txt')
-    mmt_z_EBV_hahb = np.array(mmt_z['E(B-V)_hahb'])
-    mmt_z_EBV_hghb = np.array(mmt_z['E(B-V)_hghb'])
-    
-    keck_z  = asc.read(FULL_PATH+'Composite_Spectra/Redshift/Keck_stacked_spectra_data.txt')
-    keck_z_EBV_hahb = np.array(keck_z['E(B-V)_hahb'])
-    
     mmt_m   = asc.read(FULL_PATH+'Composite_Spectra/StellarMass/MMT_all_five_data.txt')
     mmt_m_EBV_hahb = np.array(mmt_m['E(B-V)_hahb'])
     mmt_m_EBV_hghb = np.array(mmt_m['E(B-V)_hghb'])
