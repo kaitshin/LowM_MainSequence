@@ -31,11 +31,12 @@ import matplotlib.patches as mpatches
 import matplotlib.lines as mlines
 
 from analysis.cardelli import *
+from analysis.composite_errors import composite_errors
 from astropy.io import ascii as asc
 from create_ordered_AP_arrays import create_ordered_AP_arrays
 
 FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
-
+SEED_ORIG = 276389
 
 ### starting here
 def main():
@@ -57,13 +58,19 @@ def main():
     HB_FLUX   = data_dict['HB_FLUX'][ha_ii]
     HA_SNR    = data_dict['HA_SNR'][ha_ii]
     HB_SNR    = data_dict['HB_SNR'][ha_ii]
+    HA_RMS    = HA_FLUX/HA_SNR
+    HB_RMS    = HB_FLUX/HB_SNR
     # getting indices where the valid-redshift (yes_spectra) data has appropriate HB SNR as well as valid HA_FLUX
     gooddata_iis = np.where((HB_SNR[yes_spectra] >= 5) & (HA_FLUX[yes_spectra] > 1e-20) & (HA_FLUX[yes_spectra] < 99))[0]
     good_EBV_iis = yes_spectra[gooddata_iis]
     # using error propagation to get errors on the individual sources for now...?
-    hahb = HA_FLUX[good_EBV_iis]/HB_FLUX[good_EBV_iis]
-    sigma_hahb = hahb * np.sqrt((1/HA_SNR[good_EBV_iis])**2 + (1/HB_SNR[good_EBV_iis])**2)
-    sigma_ebv = sigma_hahb/(hahb * np.log(10))
+    ebv_hahb_errs = composite_errors([HA_FLUX[good_EBV_iis], HB_FLUX[good_EBV_iis]], 
+        [HA_RMS[good_EBV_iis], HB_RMS[good_EBV_iis]], seed_i=SEED_ORIG, label='HA/HB')
+    ebv_hahb_errs_neg = ebv_hahb_errs[:,0]
+    ebv_hahb_errs_pos = ebv_hahb_errs[:,1]
+    # hahb = HA_FLUX[good_EBV_iis]/HB_FLUX[good_EBV_iis]
+    # sigma_hahb = hahb * np.sqrt((1/HA_SNR[good_EBV_iis])**2 + (1/HB_SNR[good_EBV_iis])**2)
+    # sigma_ebv = sigma_hahb/(hahb * np.log(10))
 
 
     # reading in more data
@@ -126,7 +133,7 @@ def main():
                     axarr[ax_ii].plot(mstar, ebv00, color=cc, marker=shape, lw=0, markersize=8, alpha=0.9, label=ff+'-'+inst)
 
                     sig_iis = np.array([x for x in range(len(good_EBV_iis)) if good_EBV_iis[x] in has_errs])
-                    axarr[ax_ii].errorbar(mstar, ebv00, yerr=sigma_ebv[sig_iis],
+                    axarr[ax_ii].errorbar(mstar, ebv00, yerr=np.array([ebv_hahb_errs_neg[sig_iis], ebv_hahb_errs_pos[sig_iis]]), #sigma_ebv[sig_iis],
                         fmt='none', mew=0, ecolor=cc, alpha=0.9)
                 
                 if inst=='merged':
@@ -139,7 +146,7 @@ def main():
                             axarr[ax_ii].plot(mstar, ebv00, color=cc, marker=shape, lw=0, markersize=8, alpha=0.9, label=ff+'-'+inst)
 
                             sig_iis = np.array([x for x in range(len(good_EBV_iis)) if good_EBV_iis[x] in has_errs])
-                            axarr[ax_ii].errorbar(mstar, ebv00, yerr=sigma_ebv[sig_iis],
+                            axarr[ax_ii].errorbar(mstar, ebv00, yerr=np.array([ebv_hahb_errs_neg[sig_iis], ebv_hahb_errs_pos[sig_iis]]), #sigma_ebv[sig_iis],
                                         fmt='none', mew=0, ecolor=cc, alpha=0.9)
 
     # plotting composites
