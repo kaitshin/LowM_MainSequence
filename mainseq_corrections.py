@@ -33,6 +33,7 @@ import plotting.general_plotting as general_plotting
 import plot_NII_Ha_ratios
 
 from analysis.cardelli import *
+from analysis.composite_errors import composite_errors
 from astropy.cosmology import FlatLambdaCDM
 from scipy import stats
 from scipy.interpolate import interp1d
@@ -40,6 +41,7 @@ cosmo = FlatLambdaCDM(H0 = 70 * u.km / u.s / u.Mpc, Om0=0.3)
 
 
 FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
+SEED_ORIG = 57842
 
 
 def apply_filt_corrs_interp(ff, filt_corrs, zspec0, bad_z, good_z, AP, allcolsdata):
@@ -303,6 +305,94 @@ def EBV_corrs_yes_spectra(EBV_corrs_ys, yes_spectra, HA_FLUX, HB_FLUX, HB_SNR):
     return EBV_corrs_ys
 
 
+def EBV_errs_no_spectra(tab_no_spectra, mmt_mz, mmt_mz_EBV_hahb_errs_neg, mmt_mz_EBV_hahb_errs_pos,
+    mmt_mz_EBV_hghb_errs_neg, mmt_mz_EBV_hghb_errs_pos,
+    keck_mz, keck_mz_EBV_hahb_errs_neg, keck_mz_EBV_hahb_errs_pos):
+    '''
+    ## using composites
+    '''
+    # loop based on filter
+    EBV_errs_neg = np.array([-100.0]*len(tab_no_spectra))
+    EBV_errs_pos = np.array([-100.0]*len(tab_no_spectra))
+    for ff in ['NB704', 'NB711', 'NB816', 'NB921', 'NB973']:
+        bin_filt_iis = np.array([x for x in range(len(tab_no_spectra)) if tab_no_spectra['filter'][x]==ff])
+        # print 'num in '+ff+':', len(bin_filt_iis)
+
+        if ff=='NB704' or ff=='NB711' or ff=='NB816':
+            tab_filt_iis = np.array([x for x in range(len(mmt_mz)) if 
+                (ff in mmt_mz['filter'][x] and mmt_mz['stlrmass_bin'][x] != 'N/A')])
+            m_bin = np.array([int(x[0])-1 for x in tab_no_spectra['stlrmassZbin_MMT'][bin_filt_iis]])
+
+            for ii, m_i in enumerate(m_bin):
+                EBV_errs_neg[bin_filt_iis[ii]] = mmt_mz_EBV_hahb_errs_neg[tab_filt_iis[m_i]]
+                EBV_errs_pos[bin_filt_iis[ii]] = mmt_mz_EBV_hahb_errs_pos[tab_filt_iis[m_i]]
+
+        elif ff == 'NB921':
+            # for sources that fall within the keck mass range
+            bin_filt_iis_keck = np.array([x for x in range(len(tab_no_spectra)) if 
+                (tab_no_spectra['filter'][x]==ff and tab_no_spectra['stlrmass'][x]<=9.78)])
+            tab_filt_iis_keck = np.array([x for x in range(len(keck_mz)) if 
+                (keck_mz['filter'][x]==ff and keck_mz['stlrmass_bin'][x] != 'N/A')])
+            m_bin_keck = np.array([int(x[0])-1 for x in tab_no_spectra['stlrmassZbin_Keck'][bin_filt_iis_keck]])
+
+            for ii, m_i in enumerate(m_bin_keck):
+                EBV_errs_neg[bin_filt_iis_keck[ii]] = keck_mz_EBV_hahb_errs_neg[tab_filt_iis_keck[m_i]]
+                EBV_errs_pos[bin_filt_iis_keck[ii]] = keck_mz_EBV_hahb_errs_pos[tab_filt_iis_keck[m_i]]
+
+            # for sources that fall above the keck mass range (so we use mmt)
+            bin_filt_iis_mmt = np.array([x for x in range(len(tab_no_spectra)) if 
+                (tab_no_spectra['filter'][x]==ff and tab_no_spectra['stlrmass'][x]>9.78)])
+            tab_filt_iis_mmt = np.array([x for x in range(len(mmt_mz)) if 
+                (mmt_mz['filter'][x]==ff and mmt_mz['stlrmass_bin'][x] != 'N/A')])
+            m_bin_mmt = np.array([int(x[0])-1 for x in tab_no_spectra['stlrmassZbin_MMT'][bin_filt_iis_mmt]])
+
+            for ii, m_i in enumerate(m_bin_mmt):
+                EBV_errs_neg[bin_filt_iis_mmt[ii]] = mmt_mz_EBV_hghb_errs_neg[tab_filt_iis_mmt[m_i]]
+                EBV_errs_pos[bin_filt_iis_mmt[ii]] = mmt_mz_EBV_hghb_errs_pos[tab_filt_iis_mmt[m_i]]
+            
+        elif ff == 'NB973':
+            tab_filt_iis = np.array([x for x in range(len(keck_mz)) if 
+                (keck_mz['filter'][x]==ff and keck_mz['stlrmass_bin'][x] != 'N/A')])
+            m_bin = np.array([int(x[0])-1 for x in tab_no_spectra['stlrmassZbin_Keck'][bin_filt_iis]])
+
+            for ii, m_i in enumerate(m_bin):
+                EBV_errs_neg[bin_filt_iis[ii]] = keck_mz_EBV_hahb_errs_neg[tab_filt_iis[m_i]]
+                EBV_errs_pos[bin_filt_iis[ii]] = keck_mz_EBV_hahb_errs_pos[tab_filt_iis[m_i]]
+    #endfor
+
+    assert len([x for x in EBV_errs_neg if x==-100.0]) == 0
+    assert len([x for x in EBV_errs_pos if x==-100.0]) == 0
+    return EBV_errs_neg, EBV_errs_pos
+
+
+def EBV_errs_yes_spectra(EBV_errs_ys_neg, EBV_errs_ys_pos, yes_spectra, HA_SNR, HB_SNR, HA_FLUX, HB_FLUX):
+    '''
+    HA_RMS    = HA_FLUX/HA_SNR
+    HB_RMS    = HB_FLUX/HB_SNR
+    '''
+    gooddata_iis = np.where((HB_SNR[yes_spectra] >= 5) & (HA_FLUX[yes_spectra] > 1e-20) & (HA_FLUX[yes_spectra] < 99))[0]
+    good_EBV_iis = yes_spectra[gooddata_iis]
+    ebv_hahb_errs = composite_errors([HA_FLUX[good_EBV_iis], HB_FLUX[good_EBV_iis]], 
+        [HA_SNR[good_EBV_iis], HB_SNR[good_EBV_iis]], seed_i=SEED_ORIG, label='HA/HB')
+    EBV_errs_ys_neg[gooddata_iis] = ebv_hahb_errs[:,0]
+    EBV_errs_ys_pos[gooddata_iis] = ebv_hahb_errs[:,1]
+
+    return EBV_errs_ys_neg, EBV_errs_ys_pos
+
+
+def NBIA_errs(nbiaerrsdata, filtarr, FILT):
+    '''
+    '''
+    NBIA_errs_neg = np.array([-100.0]*len(nbiaerrsdata))
+    NBIA_errs_pos = np.array([-100.0]*len(nbiaerrsdata))
+    for ff in filtarr:
+        filt_iis = np.where(FILT==ff)[0]  # where 1080-indexing == relevant filter
+        NBIA_errs_neg[filt_iis] = nbiaerrsdata[ff+'_FLUX_LOERROR'][filt_iis]
+        NBIA_errs_pos[filt_iis] = nbiaerrsdata[ff+'_FLUX_UPERROR'][filt_iis]
+
+    return NBIA_errs_neg, NBIA_errs_pos
+
+
 def main():
     # reading in data
     nbia = pyfits.open(FULL_PATH+'Catalogs/NB_IA_emitters.nodup.colorrev.fix.fits')
@@ -322,9 +412,12 @@ def main():
     AP = data_dict['AP']
     HA_FLUX   = data_dict['HA_FLUX']
     HB_FLUX   = data_dict['HB_FLUX']
+    HA_SNR    = data_dict['HA_SNR']
     HB_SNR    = data_dict['HB_SNR']
     NIIB_FLUX = data_dict['NIIB_FLUX']
     NIIB_SNR  = data_dict['NIIB_SNR']
+    nbiaerrs = pyfits.open(FULL_PATH+'Catalogs/NB_IA_emitters.allcols.colorrev.fix.errors.fits')
+    nbiaerrsdata0 = nbiaerrs[1].data
 
 
     # defining other useful data structs
@@ -362,10 +455,12 @@ def main():
     AP          = AP[ha_ii]
     HA_FLUX     = HA_FLUX[ha_ii]
     HB_FLUX     = HB_FLUX[ha_ii]
+    HA_SNR      = HA_SNR[ha_ii]
     HB_SNR      = HB_SNR[ha_ii]
     NIIB_FLUX   = NIIB_FLUX[ha_ii]
     NIIB_SNR    = NIIB_SNR[ha_ii]
     allcolsdata = allcolsdata0[ha_ii]
+    nbiaerrsdata = nbiaerrsdata0[ha_ii]
 
     no_spectra  = np.where((zspec0 <= 0) | (zspec0 > 9))[0]
     yes_spectra = np.where((zspec0 >= 0) & (zspec0 < 9))[0]
@@ -381,10 +476,16 @@ def main():
     
     mmt_mz  = asc.read(FULL_PATH+'Composite_Spectra/StellarMassZ/MMT_stlrmassZ_data.txt')
     mmt_mz_EBV_hahb = np.array(mmt_mz['E(B-V)_hahb'])
+    mmt_mz_EBV_hahb_errs_neg = np.array(mmt_mz['E(B-V)_hahb_errs_neg'])
+    mmt_mz_EBV_hahb_errs_pos = np.array(mmt_mz['E(B-V)_hahb_errs_pos'])
     mmt_mz_EBV_hghb = np.array(mmt_mz['E(B-V)_hghb'])
+    mmt_mz_EBV_hghb_errs_neg = np.array(mmt_mz['E(B-V)_hghb_errs_neg'])
+    mmt_mz_EBV_hghb_errs_pos = np.array(mmt_mz['E(B-V)_hghb_errs_pos'])
     
     keck_mz = asc.read(FULL_PATH+'Composite_Spectra/StellarMassZ/Keck_stlrmassZ_data.txt')
     keck_mz_EBV_hahb = np.array(keck_mz['E(B-V)_hahb'])
+    keck_mz_EBV_hahb_errs_neg = np.array(keck_mz['E(B-V)_hahb_errs_neg'])
+    keck_mz_EBV_hahb_errs_pos = np.array(keck_mz['E(B-V)_hahb_errs_pos'])
 
 
     # mass 'bin' lists made by reading in from files generated by the stack plots
@@ -471,6 +572,34 @@ def main():
         EBV_corrs_ns, EBV_corrs_ys)
 
 
+    # getting the EBV errors
+    #  yes_spectra originally gets the no_spectra and then individual ones are applied
+    #  if S/N is large enough
+    EBV_errs_ns_neg, EBV_errs_ns_pos = EBV_errs_no_spectra(tab_no_spectra, 
+        mmt_mz, mmt_mz_EBV_hahb_errs_neg, mmt_mz_EBV_hahb_errs_pos,
+        mmt_mz_EBV_hghb_errs_neg, mmt_mz_EBV_hghb_errs_pos,
+        keck_mz, keck_mz_EBV_hahb_errs_neg, keck_mz_EBV_hahb_errs_pos)
+    EBV_errs_ys_neg, EBV_errs_ys_pos = EBV_errs_no_spectra(tab_yes_spectra, 
+        mmt_mz, mmt_mz_EBV_hahb_errs_neg, mmt_mz_EBV_hahb_errs_pos,
+        mmt_mz_EBV_hghb_errs_neg, mmt_mz_EBV_hghb_errs_pos,
+        keck_mz, keck_mz_EBV_hahb_errs_neg, keck_mz_EBV_hahb_errs_pos)
+    EBV_errs_ys_neg, EBV_errs_ys_pos = EBV_errs_yes_spectra(EBV_errs_ys_neg, EBV_errs_ys_pos, 
+        yes_spectra, HA_SNR, HB_SNR, HA_FLUX, HB_FLUX)
+
+    EBV_errs_neg = consolidate_ns_ys(orig_fluxes, no_spectra, yes_spectra,
+        EBV_errs_ns_neg, EBV_errs_ys_neg)
+    EBV_errs_pos = consolidate_ns_ys(orig_fluxes, no_spectra, yes_spectra,
+        EBV_errs_ns_pos, EBV_errs_ys_pos)
+
+
+    # getting the NBIA errors
+    NBIA_errs_neg, NBIA_errs_pos = NBIA_errs(nbiaerrsdata, filtarr, FILT)
+
+    # getting the errors associated w/ measurements
+    meas_errs_neg = np.sqrt(EBV_errs_neg**2 + NBIA_errs_neg**2)
+    meas_errs_pos = np.sqrt(EBV_errs_pos**2 + NBIA_errs_pos**2)
+
+
     # getting dust extinction corrections
     k_ha = cardelli(6563.0 * u.Angstrom)
     A_V = k_ha * EBV_corrs
@@ -500,22 +629,18 @@ def main():
     # #  We use 1.8 to convert to Chabrier IMF.
     orig_sfr = np.log10(7.9/1.8) - 42 + orig_lums
 
-
-    #  before table-writing:
-    #    EBV vs. diff M* (per each composite stack)
-    #    diff symbols correspond to diff redshifts
-    #    diff colors to diff ratios
     
     # write some table so that plot_nbia_mainseq.py can read this in
-    ## TODO(add in an instr. column?)
     tab00 = Table([ID0, NAME0, FILT, inst_str0, zspec0, stlr_mass, sigma, orig_fluxes, orig_lums, orig_sfr, 
         filt_corr_factor, nii_ha_corr_factor, nii_ha_ratio, ratio_vs_line,
-        A_V, EBV_corrs, dust_corr_factor], 
+        A_V, EBV_corrs, dust_corr_factor, EBV_errs_neg, EBV_errs_pos, NBIA_errs_neg, NBIA_errs_pos,
+        meas_errs_neg, meas_errs_pos], 
         names=['ID', 'NAME0', 'filt', 'inst_str0', 'zspec0', 'stlr_mass', 'flux_sigma', 'obs_fluxes', 'obs_lumin', 'obs_sfr',
         'filt_corr_factor', 'nii_ha_corr_factor', 'NII_Ha_ratio', 'ratio_vs_line', 
-        'A_V', 'EBV', 'dust_corr_factor'])
+        'A_V', 'EBV', 'dust_corr_factor', 'EBV_errs_neg', 'EBV_errs_pos', 'NBIA_errs_neg', 'NBIA_errs_pos',
+        'meas_errs_neg', 'meas_errs_pos'])
     asc.write(tab00, FULL_PATH+'Main_Sequence/mainseq_corrections_tbl.txt',
-        format='fixed_width_two_line', delimiter=' ')
+        format='fixed_width_two_line', delimiter=' ', overwrite=True)
 
 
 if __name__ == '__main__':
