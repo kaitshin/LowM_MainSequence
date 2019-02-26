@@ -373,7 +373,7 @@ def EBV_errs_yes_spectra(EBV_errs_ys_neg, EBV_errs_ys_pos, yes_spectra, HA_SNR, 
     gooddata_iis = np.where((HB_SNR[yes_spectra] >= 5) & (HA_FLUX[yes_spectra] > 1e-20) & (HA_FLUX[yes_spectra] < 99))[0]
     good_EBV_iis = yes_spectra[gooddata_iis]
     ebv_hahb_errs = composite_errors([HA_FLUX[good_EBV_iis], HB_FLUX[good_EBV_iis]], 
-        [HA_SNR[good_EBV_iis], HB_SNR[good_EBV_iis]], seed_i=SEED_ORIG, label='HA/HB')
+        [HA_FLUX[good_EBV_iis]/HA_SNR[good_EBV_iis], HB_FLUX[good_EBV_iis]/HB_SNR[good_EBV_iis]], seed_i=SEED_ORIG, label='HA/HB')
     EBV_errs_ys_neg[gooddata_iis] = ebv_hahb_errs[:,0]
     EBV_errs_ys_pos[gooddata_iis] = ebv_hahb_errs[:,1]
 
