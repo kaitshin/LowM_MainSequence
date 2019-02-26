@@ -590,14 +590,17 @@ def main():
         EBV_errs_ns_neg, EBV_errs_ys_neg)
     EBV_errs_pos = consolidate_ns_ys(orig_fluxes, no_spectra, yes_spectra,
         EBV_errs_ns_pos, EBV_errs_ys_pos)
+    EBV_errs = np.sqrt(EBV_errs_neg**2/2 + EBV_errs_pos**2/2)
 
 
     # getting the NBIA errors
     NBIA_errs_neg, NBIA_errs_pos = NBIA_errs(nbiaerrsdata, filtarr, FILT)
+    NBIA_errs = np.sqrt(NBIA_errs_neg**2/2 + NBIA_errs_pos**2/2)
 
     # getting the errors associated w/ measurements
     meas_errs_neg = np.sqrt(EBV_errs_neg**2 + NBIA_errs_neg**2)
     meas_errs_pos = np.sqrt(EBV_errs_pos**2 + NBIA_errs_pos**2)
+    meas_errs = np.sqrt(meas_errs_neg**2/2 + meas_errs_pos**2/2)
 
 
     # getting dust extinction corrections
@@ -633,12 +636,10 @@ def main():
     # write some table so that plot_nbia_mainseq.py can read this in
     tab00 = Table([ID0, NAME0, FILT, inst_str0, zspec0, stlr_mass, sigma, orig_fluxes, orig_lums, orig_sfr, 
         filt_corr_factor, nii_ha_corr_factor, nii_ha_ratio, ratio_vs_line,
-        A_V, EBV_corrs, dust_corr_factor, EBV_errs_neg, EBV_errs_pos, NBIA_errs_neg, NBIA_errs_pos,
-        meas_errs_neg, meas_errs_pos], 
+        A_V, EBV_corrs, dust_corr_factor, EBV_errs,  NBIA_errs, meas_errs], 
         names=['ID', 'NAME0', 'filt', 'inst_str0', 'zspec0', 'stlr_mass', 'flux_sigma', 'obs_fluxes', 'obs_lumin', 'obs_sfr',
         'filt_corr_factor', 'nii_ha_corr_factor', 'NII_Ha_ratio', 'ratio_vs_line', 
-        'A_V', 'EBV', 'dust_corr_factor', 'EBV_errs_neg', 'EBV_errs_pos', 'NBIA_errs_neg', 'NBIA_errs_pos',
-        'meas_errs_neg', 'meas_errs_pos'])
+        'A_V', 'EBV', 'dust_corr_factor', 'EBV_errs', 'NBIA_errs', 'meas_errs'])
     asc.write(tab00, FULL_PATH+'Main_Sequence/mainseq_corrections_tbl.txt',
         format='fixed_width_two_line', delimiter=' ', overwrite=True)
 
