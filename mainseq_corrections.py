@@ -153,7 +153,7 @@ def fix_masses_out_of_range(masses_MMT_ii, masses_Keck_ii, masstype):
     return masses_MMT_ii, masses_Keck_ii
 
 
-def bins_table_no_spectra(indexes, NAME0, AP, stlr_mass, massbins_MMT, massbins_Keck, 
+def bins_table(indexes, NAME0, AP, stlr_mass, massbins_MMT, massbins_Keck, 
     massZbins_MMT, massZbins_Keck, massZlist_filts_MMT, massZlist_filts_Keck):
     '''
     Creates and returns a table of bins as such:
@@ -246,6 +246,7 @@ def EBV_corrs_no_spectra(tab_no_spectra, mmt_mz, mmt_mz_EBV_hahb, mmt_mz_EBV_hgh
         print 'num in '+ff+':', len(bin_filt_iis)
 
         if ff=='NB704' or ff=='NB711' or ff=='NB816':
+            # using MMT hahb vals for all of these sources
             tab_filt_iis = np.array([x for x in range(len(mmt_mz)) if 
                 (ff in mmt_mz['filter'][x] and mmt_mz['stlrmass_bin'][x] != 'N/A')])
             m_bin = np.array([int(x[0])-1 for x in tab_no_spectra['stlrmassZbin_MMT'][bin_filt_iis]])
@@ -254,9 +255,12 @@ def EBV_corrs_no_spectra(tab_no_spectra, mmt_mz, mmt_mz_EBV_hahb, mmt_mz_EBV_hgh
                 EBV_corrs[bin_filt_iis[ii]] = mmt_mz_EBV_hahb[tab_filt_iis[m_i]]
 
         elif ff == 'NB921':
-            # for sources that fall within the keck mass range
+            # for sources that fall within the keck mass range, we use keck hahb vals
+            #  max_keck_mass should be 9.72
+            max_keck_mass = float(keck_mz[np.where(keck_mz['filter']=='NB921')[0]]['stlrmass_bin'][-1]
+                [keck_mz[np.where(keck_mz['filter']=='NB921')[0]]['stlrmass_bin'][-1].find('-')+1:])
             bin_filt_iis_keck = np.array([x for x in range(len(tab_no_spectra)) if 
-                (tab_no_spectra['filter'][x]==ff and tab_no_spectra['stlrmass'][x]<=9.78)])
+                (tab_no_spectra['filter'][x]==ff and tab_no_spectra['stlrmass'][x]<=max_keck_mass)])
             tab_filt_iis_keck = np.array([x for x in range(len(keck_mz)) if 
                 (keck_mz['filter'][x]==ff and keck_mz['stlrmass_bin'][x] != 'N/A')])
             m_bin_keck = np.array([int(x[0])-1 for x in tab_no_spectra['stlrmassZbin_Keck'][bin_filt_iis_keck]])
@@ -264,9 +268,9 @@ def EBV_corrs_no_spectra(tab_no_spectra, mmt_mz, mmt_mz_EBV_hahb, mmt_mz_EBV_hgh
             for ii, m_i in enumerate(m_bin_keck):
                 EBV_corrs[bin_filt_iis_keck[ii]] = keck_mz_EBV_hahb[tab_filt_iis_keck[m_i]]
 
-            # for sources that fall above the keck mass range (so we use mmt)
+            # for sources that fall above the keck mass range (so we use mmt hahb vals)
             bin_filt_iis_mmt = np.array([x for x in range(len(tab_no_spectra)) if 
-                (tab_no_spectra['filter'][x]==ff and tab_no_spectra['stlrmass'][x]>9.78)])
+                (tab_no_spectra['filter'][x]==ff and tab_no_spectra['stlrmass'][x]>max_keck_mass)])
             tab_filt_iis_mmt = np.array([x for x in range(len(mmt_mz)) if 
                 (mmt_mz['filter'][x]==ff and mmt_mz['stlrmass_bin'][x] != 'N/A')])
             m_bin_mmt = np.array([int(x[0])-1 for x in tab_no_spectra['stlrmassZbin_MMT'][bin_filt_iis_mmt]])
@@ -275,6 +279,7 @@ def EBV_corrs_no_spectra(tab_no_spectra, mmt_mz, mmt_mz_EBV_hahb, mmt_mz_EBV_hgh
                 EBV_corrs[bin_filt_iis_mmt[ii]] = mmt_mz_EBV_hghb[tab_filt_iis_mmt[m_i]]
             
         elif ff == 'NB973':
+            # using keck hahb vals instead of mmt hahb vals
             tab_filt_iis = np.array([x for x in range(len(keck_mz)) if 
                 (keck_mz['filter'][x]==ff and keck_mz['stlrmass_bin'][x] != 'N/A')])
             m_bin = np.array([int(x[0])-1 for x in tab_no_spectra['stlrmassZbin_Keck'][bin_filt_iis]])
@@ -310,6 +315,9 @@ def EBV_errs_no_spectra(tab_no_spectra, mmt_mz, mmt_mz_EBV_hahb_errs_neg, mmt_mz
     keck_mz, keck_mz_EBV_hahb_errs_neg, keck_mz_EBV_hahb_errs_pos):
     '''
     ## using composites
+
+    Almost identical to EBV_corrs_no_spectra, except uses <instr>_mz_EBV_hahb_errs_<neg/pos> rather than
+    <instr>_mz_EBV_hahb
     '''
     # loop based on filter
     EBV_errs_neg = np.array([-100.0]*len(tab_no_spectra))
@@ -319,6 +327,7 @@ def EBV_errs_no_spectra(tab_no_spectra, mmt_mz, mmt_mz_EBV_hahb_errs_neg, mmt_mz
         # print 'num in '+ff+':', len(bin_filt_iis)
 
         if ff=='NB704' or ff=='NB711' or ff=='NB816':
+            # using MMT hahb errs for all of these sources
             tab_filt_iis = np.array([x for x in range(len(mmt_mz)) if 
                 (ff in mmt_mz['filter'][x] and mmt_mz['stlrmass_bin'][x] != 'N/A')])
             m_bin = np.array([int(x[0])-1 for x in tab_no_spectra['stlrmassZbin_MMT'][bin_filt_iis]])
@@ -328,9 +337,12 @@ def EBV_errs_no_spectra(tab_no_spectra, mmt_mz, mmt_mz_EBV_hahb_errs_neg, mmt_mz
                 EBV_errs_pos[bin_filt_iis[ii]] = mmt_mz_EBV_hahb_errs_pos[tab_filt_iis[m_i]]
 
         elif ff == 'NB921':
-            # for sources that fall within the keck mass range
+            # for sources that fall within the keck mass range, we use keck hahb errs
+            #  max_keck_mass should be 9.72
+            max_keck_mass = float(keck_mz[np.where(keck_mz['filter']=='NB921')[0]]['stlrmass_bin'][-1]
+                [keck_mz[np.where(keck_mz['filter']=='NB921')[0]]['stlrmass_bin'][-1].find('-')+1:])
             bin_filt_iis_keck = np.array([x for x in range(len(tab_no_spectra)) if 
-                (tab_no_spectra['filter'][x]==ff and tab_no_spectra['stlrmass'][x]<=9.78)])
+                (tab_no_spectra['filter'][x]==ff and tab_no_spectra['stlrmass'][x]<=max_keck_mass)])
             tab_filt_iis_keck = np.array([x for x in range(len(keck_mz)) if 
                 (keck_mz['filter'][x]==ff and keck_mz['stlrmass_bin'][x] != 'N/A')])
             m_bin_keck = np.array([int(x[0])-1 for x in tab_no_spectra['stlrmassZbin_Keck'][bin_filt_iis_keck]])
@@ -339,18 +351,19 @@ def EBV_errs_no_spectra(tab_no_spectra, mmt_mz, mmt_mz_EBV_hahb_errs_neg, mmt_mz
                 EBV_errs_neg[bin_filt_iis_keck[ii]] = keck_mz_EBV_hahb_errs_neg[tab_filt_iis_keck[m_i]]
                 EBV_errs_pos[bin_filt_iis_keck[ii]] = keck_mz_EBV_hahb_errs_pos[tab_filt_iis_keck[m_i]]
 
-            # for sources that fall above the keck mass range (so we use mmt)
+            # for sources that fall above the keck mass range (so we use mmt hahb errs)
             bin_filt_iis_mmt = np.array([x for x in range(len(tab_no_spectra)) if 
-                (tab_no_spectra['filter'][x]==ff and tab_no_spectra['stlrmass'][x]>9.78)])
+                (tab_no_spectra['filter'][x]==ff and tab_no_spectra['stlrmass'][x]>max_keck_mass)])
             tab_filt_iis_mmt = np.array([x for x in range(len(mmt_mz)) if 
                 (mmt_mz['filter'][x]==ff and mmt_mz['stlrmass_bin'][x] != 'N/A')])
             m_bin_mmt = np.array([int(x[0])-1 for x in tab_no_spectra['stlrmassZbin_MMT'][bin_filt_iis_mmt]])
 
             for ii, m_i in enumerate(m_bin_mmt):
-                EBV_errs_neg[bin_filt_iis_mmt[ii]] = mmt_mz_EBV_hghb_errs_neg[tab_filt_iis_mmt[m_i]]
-                EBV_errs_pos[bin_filt_iis_mmt[ii]] = mmt_mz_EBV_hghb_errs_pos[tab_filt_iis_mmt[m_i]]
+                EBV_errs_neg[bin_filt_iis_mmt[ii]] = mmt_mz_EBV_hahb_errs_neg[tab_filt_iis_mmt[m_i]]
+                EBV_errs_pos[bin_filt_iis_mmt[ii]] = mmt_mz_EBV_hahb_errs_pos[tab_filt_iis_mmt[m_i]]
             
         elif ff == 'NB973':
+            # using Keck hahb errs instead of MMT hahb errs 
             tab_filt_iis = np.array([x for x in range(len(keck_mz)) if 
                 (keck_mz['filter'][x]==ff and keck_mz['stlrmass_bin'][x] != 'N/A')])
             m_bin = np.array([int(x[0])-1 for x in tab_no_spectra['stlrmassZbin_Keck'][bin_filt_iis]])
@@ -380,7 +393,7 @@ def EBV_errs_yes_spectra(EBV_errs_ys_neg, EBV_errs_ys_pos, yes_spectra, HA_SNR, 
     return EBV_errs_ys_neg, EBV_errs_ys_pos
 
 
-def NBIA_errs(nbiaerrsdata, filtarr, FILT):
+def get_NBIA_errs(nbiaerrsdata, filtarr, FILT):
     '''
     '''
     NBIA_errs_neg = np.array([-100.0]*len(nbiaerrsdata))
@@ -503,9 +516,10 @@ def main():
         masslist_Keck, massZlist_MMT, massZlist_Keck)
 
     # getting tables of which bins the sources fall into (for eventual EBV corrections)
-    tab_no_spectra = bins_table_no_spectra(no_spectra, NAME0, AP, stlr_mass, 
+    #  populate w/ no_spectra sources first, then populate w/ yes_spectra sources, then consolidate
+    tab_no_spectra = bins_table(no_spectra, NAME0, AP, stlr_mass, 
         massbins_MMT, massbins_Keck, massZbins_MMT, massZbins_Keck, massZlist_filts_MMT, massZlist_filts_Keck)
-    tab_yes_spectra = bins_table_no_spectra(yes_spectra, NAME0, AP, stlr_mass, 
+    tab_yes_spectra = bins_table(yes_spectra, NAME0, AP, stlr_mass, 
         massbins_MMT, massbins_Keck, massZbins_MMT, massZbins_Keck, massZlist_filts_MMT, massZlist_filts_Keck)
     FILT = consolidate_ns_ys(allcolsdata, no_spectra, yes_spectra,
         np.array(tab_no_spectra['filter']), np.array(tab_yes_spectra['filter']), datatype='str')
@@ -559,7 +573,7 @@ def main():
     nii_ha_corr_factor = np.log10(1/(1+nii_ha_ratio))
 
 
-    # getting the EBV corrections to use
+    # getting the corrected EBVs to use
     #  yes_spectra originally gets the no_spectra and then individual ones are applied 
     #  if S/N is large enough
     EBV_corrs_ns = EBV_corrs_no_spectra(tab_no_spectra, mmt_mz, mmt_mz_EBV_hahb,
@@ -594,7 +608,7 @@ def main():
 
 
     # getting the NBIA errors
-    NBIA_errs_neg, NBIA_errs_pos = NBIA_errs(nbiaerrsdata, filtarr, FILT)
+    NBIA_errs_neg, NBIA_errs_pos = get_NBIA_errs(nbiaerrsdata, filtarr, FILT)
     NBIA_errs = np.sqrt(NBIA_errs_neg**2/2 + NBIA_errs_pos**2/2)
 
     # getting the errors associated w/ measurements
@@ -603,11 +617,12 @@ def main():
     meas_errs = np.sqrt(meas_errs_neg**2/2 + meas_errs_pos**2/2)
 
 
-    # getting dust extinction corrections
+    # getting dust extinction factors and corrections
     k_ha = cardelli(6563.0 * u.Angstrom)
     A_V = k_ha * EBV_corrs
     dustcorr_fluxes = orig_fluxes + 0.4*A_V # A_V = A(Ha) = extinction at Ha
     dust_corr_factor = dustcorr_fluxes - orig_fluxes
+    dust_errs = 0.4*(k_ha * EBV_errs)
 
 
     # getting luminosities
@@ -636,10 +651,10 @@ def main():
     # write some table so that plot_nbia_mainseq.py can read this in
     tab00 = Table([ID0, NAME0, FILT, inst_str0, zspec0, stlr_mass, sigma, orig_fluxes, orig_lums, orig_sfr, 
         filt_corr_factor, nii_ha_corr_factor, nii_ha_ratio, ratio_vs_line,
-        A_V, EBV_corrs, dust_corr_factor, EBV_errs,  NBIA_errs, meas_errs], 
+        A_V, EBV_corrs, dust_corr_factor, dust_errs,  NBIA_errs, meas_errs], 
         names=['ID', 'NAME0', 'filt', 'inst_str0', 'zspec0', 'stlr_mass', 'flux_sigma', 'obs_fluxes', 'obs_lumin', 'obs_sfr',
         'filt_corr_factor', 'nii_ha_corr_factor', 'NII_Ha_ratio', 'ratio_vs_line', 
-        'A_V', 'EBV', 'dust_corr_factor', 'EBV_errs', 'NBIA_errs', 'meas_errs'])
+        'A(Ha)', 'EBV', 'dust_corr_factor', 'dust_errs', 'NBIA_errs', 'meas_errs'])
     asc.write(tab00, FULL_PATH+'Main_Sequence/mainseq_corrections_tbl.txt',
         format='fixed_width_two_line', delimiter=' ', overwrite=True)
 
