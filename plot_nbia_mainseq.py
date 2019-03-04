@@ -226,7 +226,7 @@ def main():
 
     stlr_mass = np.array(corr_tbl['stlr_mass'])
     filts = np.array(corr_tbl['filt'])
-    obs_sfr = np.array(corr_tbl['obs_sfr'])
+    sfr = np.array(corr_tbl['met_dep_sfr'])
     dust_corr_factor = np.array(corr_tbl['dust_corr_factor'])
     filt_corr_factor = np.array(corr_tbl['filt_corr_factor'])
     nii_ha_corr_factor = np.array(corr_tbl['nii_ha_corr_factor'])
@@ -255,8 +255,8 @@ def main():
                              '(c) Filter+[N II]', '(d) Filter+[N II]+Dust Attenuation'], 
                             [np.zeros(len(corr_tbl)), filt_corr_factor, filt_corr_factor+nii_ha_corr_factor, 
                              filt_corr_factor+nii_ha_corr_factor+dust_corr_factor], axarr, range(4)):
-        #  should pass in e.g., "obs_sfr + corrs" to plot applied corrs
-        make_all_graph(stlr_mass, obs_sfr+corrs, filtarr, markarr, z_arr, sizearr, title, 
+        #  should pass in e.g., "sfr + corrs" to plot applied corrs
+        make_all_graph(stlr_mass, sfr+corrs, filtarr, markarr, z_arr, sizearr, title, 
             no_spectra, yes_spectra, filts, good_sig_iis, ax, i)
         print 'done plotting', title
 
