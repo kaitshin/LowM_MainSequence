@@ -406,6 +406,54 @@ def get_NBIA_errs(nbiaerrsdata, filtarr, FILT):
     return NBIA_errs_neg, NBIA_errs_pos
 
 
+def niiha_oh_determine(x0, type, index=None, silent=None, linear=None):
+    '''
+    Adapted from Chun Ly 
+    
+    PURPOSE:
+       This code estimates 12+log(O/H) based on strong-line diagnostics. It uses
+       emission-line that use [NII]6583, such as [NII]6583/Halpha.
+
+    CALLING SEQUENCE:
+       niiha_oh_determine(x0, type, index=index, silent=1)
+
+    INPUTS:
+       x0   -- Array of log([NII]6583/Halpha)
+       type -- The type of diagnostics to use. The options are:
+         'PP04_N2'    -- N2 index calibration of Pettini & Pagel (2004), MNRAS, 348, 59
+           - Specify linear keyword to use linear instead of 3rd-order function
+
+    OPTIONAL KEYWORD INPUT:
+       index   -- Index of array to determine metallicity
+       silent  -- If set, this means that nothing will be printed out
+    '''
+
+    if index is None: index = range(len(x0))
+
+    ## Default sets those without metallicity at -1.0
+    OH_gas = np.repeat(-1.000, len(x0))
+
+
+    ######################################
+    ## Empirical, PP04                  ##
+    ## ---------------------------------##
+    ## See Pettini & Pagel (2004)       ##
+    ## Eq. A10 of Kewley & Ellison 2008 ##
+    ## + on 04/03/2016                  ##
+    ## Mod on 14/06/2016                ##
+    ######################################
+    if type == 'PP04_N2':
+        if linear == None:
+            OH_gas[index] = 9.37 + 2.03*x0[index] + 1.26*(x0[index])**2 + 0.32*(x0[index])**3
+        else:
+            print '## Using linear relation!'
+            # Bug found. Mod on 30/06/2016 OH_gas -> OH_gas[index]
+            OH_gas[index] = 8.90 + 0.57 * x0[index] #xt0
+    #endif
+
+    return OH_gas
+
+
 def main():
     # reading in data
     nbia = pyfits.open(FULL_PATH+'Catalogs/NB_IA_emitters.nodup.colorrev.fix.fits')
@@ -643,18 +691,30 @@ def main():
 
 
     # # getting SFR
-    # #  7.9E-42 is conversion btwn L and SFR based on Kennicutt 1998 for Salpeter IMF. 
-    # #  We use 1.8 to convert to Chabrier IMF.
+    #  7.9E-42 is conversion btwn L and SFR based on Kennicutt 1998 for Salpeter IMF. 
+    #  We use 1.8 to convert to Chabrier IMF.
     orig_sfr = np.log10(7.9/1.8) - 42 + orig_lums
+
+    # # getting metallicity-dependent SFR corrections based on Ly+16 (MACT 1)
+    # nii_ha_ratio is NII_6548,6583/Ha = (1+2.96)/2.96 * NII_6583/Ha
+    NII6583_Ha = nii_ha_ratio * 2.96/(1+2.96)
+    logOH = niiha_oh_determine(np.log10(NII6583_Ha), 'PP04_N2') - 12   # since this code estimates log(O/H)+12
+    y = logOH + 3.31 
+    log_SFR_LHa = -41.34 + 0.39*y + 0.127*y**2
+
+    # # metallicity-dep SFRs
+    log_SFR = log_SFR_LHa + orig_lums
 
     
     # write some table so that plot_nbia_mainseq.py can read this in
-    tab00 = Table([ID0, NAME0, FILT, inst_str0, zspec0, stlr_mass, sigma, orig_fluxes, orig_lums, orig_sfr, 
+    tab00 = Table([ID0, NAME0, FILT, inst_str0, zspec0, stlr_mass, sigma, 
+        orig_fluxes, orig_lums, orig_sfr, log_SFR,
         filt_corr_factor, nii_ha_corr_factor, nii_ha_ratio, ratio_vs_line,
-        A_V, EBV_corrs, dust_corr_factor, dust_errs,  NBIA_errs, meas_errs], 
-        names=['ID', 'NAME0', 'filt', 'inst_str0', 'zspec0', 'stlr_mass', 'flux_sigma', 'obs_fluxes', 'obs_lumin', 'obs_sfr',
+        A_V, EBV_corrs, dust_corr_factor, EBV_errs, dust_errs,  NBIA_errs, meas_errs], 
+        names=['ID', 'NAME0', 'filt', 'inst_str0', 'zspec0', 'stlr_mass', 'flux_sigma', 
+        'obs_fluxes', 'obs_lumin', 'obs_sfr', 'met_dep_sfr',
         'filt_corr_factor', 'nii_ha_corr_factor', 'NII_Ha_ratio', 'ratio_vs_line', 
-        'A(Ha)', 'EBV', 'dust_corr_factor', 'dust_errs', 'NBIA_errs', 'meas_errs'])
+        'A(Ha)', 'EBV', 'dust_corr_factor', 'EBV_errs', 'dust_errs', 'NBIA_errs', 'meas_errs'])
     asc.write(tab00, FULL_PATH+'Main_Sequence/mainseq_corrections_tbl.txt',
         format='fixed_width_two_line', delimiter=' ', overwrite=True)
 
