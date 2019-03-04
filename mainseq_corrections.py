@@ -292,7 +292,7 @@ def EBV_corrs_no_spectra(tab_no_spectra, mmt_mz, mmt_mz_EBV_hahb, mmt_mz_EBV_hgh
     return EBV_corrs
 
 
-def EBV_corrs_yes_spectra(EBV_corrs_ys, yes_spectra, HA_FLUX, HB_FLUX, HB_SNR):
+def EBV_corrs_yes_spectra(EBV_corrs_ys, yes_spectra, HA_FLUX, HB_FLUX, HB_SNR, HA_SNR):
     '''
     '''
     k_hb = cardelli(4861 * u.Angstrom)
@@ -628,7 +628,7 @@ def main():
         mmt_mz_EBV_hghb, keck_mz, keck_mz_EBV_hahb)
     EBV_corrs_ys = EBV_corrs_no_spectra(tab_yes_spectra, mmt_mz, mmt_mz_EBV_hahb, 
         mmt_mz_EBV_hghb, keck_mz, keck_mz_EBV_hahb)
-    EBV_corrs_ys = EBV_corrs_yes_spectra(EBV_corrs_ys, yes_spectra, HA_FLUX, HB_FLUX, HB_SNR)
+    EBV_corrs_ys = EBV_corrs_yes_spectra(EBV_corrs_ys, yes_spectra, HA_FLUX, HB_FLUX, HB_SNR, HA_SNR)
     
     EBV_corrs = consolidate_ns_ys(orig_fluxes, no_spectra, yes_spectra,
         EBV_corrs_ns, EBV_corrs_ys)
