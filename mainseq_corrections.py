@@ -659,11 +659,6 @@ def main():
     NBIA_errs_neg, NBIA_errs_pos = get_NBIA_errs(nbiaerrsdata, filtarr, FILT)
     NBIA_errs = np.sqrt(NBIA_errs_neg**2/2 + NBIA_errs_pos**2/2)
 
-    # getting the errors associated w/ measurements
-    meas_errs_neg = np.sqrt(EBV_errs_neg**2 + NBIA_errs_neg**2)
-    meas_errs_pos = np.sqrt(EBV_errs_pos**2 + NBIA_errs_pos**2)
-    meas_errs = np.sqrt(meas_errs_neg**2/2 + meas_errs_pos**2/2)
-
 
     # getting dust extinction factors and corrections
     k_ha = cardelli(6563.0 * u.Angstrom)
@@ -671,6 +666,9 @@ def main():
     dustcorr_fluxes = orig_fluxes + 0.4*A_V # A_V = A(Ha) = extinction at Ha
     dust_corr_factor = dustcorr_fluxes - orig_fluxes
     dust_errs = 0.4*(k_ha * EBV_errs)
+
+    # getting the errors associated w/ measurements
+    meas_errs = np.sqrt(NBIA_errs**2/2 + dust_errs**2/2)
 
 
     # getting luminosities
