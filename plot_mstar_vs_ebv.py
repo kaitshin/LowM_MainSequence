@@ -58,19 +58,17 @@ def main():
     HB_FLUX   = data_dict['HB_FLUX'][ha_ii]
     HA_SNR    = data_dict['HA_SNR'][ha_ii]
     HB_SNR    = data_dict['HB_SNR'][ha_ii]
-    HA_RMS    = HA_FLUX/HA_SNR
-    HB_RMS    = HB_FLUX/HB_SNR
     # getting indices where the valid-redshift (yes_spectra) data has appropriate HB SNR as well as valid HA_FLUX
-    gooddata_iis = np.where((HB_SNR[yes_spectra] >= 5) & (HA_FLUX[yes_spectra] > 1e-20) & (HA_FLUX[yes_spectra] < 99))[0]
+    gooddata_iis = np.where((HB_SNR[yes_spectra] >= 5) & (HA_SNR[yes_spectra] > 0) & (HA_FLUX[yes_spectra] > 1e-20) & (HA_FLUX[yes_spectra] < 99))[0]
     good_EBV_iis = yes_spectra[gooddata_iis]
-    # using error propagation to get errors on the individual sources for now...?
-    ebv_hahb_errs = composite_errors([HA_FLUX[good_EBV_iis], HB_FLUX[good_EBV_iis]], 
-        [HA_RMS[good_EBV_iis], HB_RMS[good_EBV_iis]], seed_i=SEED_ORIG, label='HA/HB')
-    ebv_hahb_errs_neg = ebv_hahb_errs[:,0]
-    ebv_hahb_errs_pos = ebv_hahb_errs[:,1]
-    # hahb = HA_FLUX[good_EBV_iis]/HB_FLUX[good_EBV_iis]
-    # sigma_hahb = hahb * np.sqrt((1/HA_SNR[good_EBV_iis])**2 + (1/HB_SNR[good_EBV_iis])**2)
-    # sigma_ebv = sigma_hahb/(hahb * np.log(10))
+    
+    # ebv & errors on ebv for all sources (individ. & stacked)
+    # EBV = corr_tbl['EBV'].data
+    EBV_errs = corr_tbl['EBV_errs'].data
+    # ebv_hahb_errs = composite_errors([HA_FLUX[good_EBV_iis], HB_FLUX[good_EBV_iis]], 
+    #     [HA_FLUX[good_EBV_iis]/HA_SNR[good_EBV_iis], HB_FLUX[good_EBV_iis]/HB_SNR[good_EBV_iis]], seed_i=SEED_ORIG, label='HA/HB')
+    # ebv_hahb_errs_neg = ebv_hahb_errs[:,0]
+    # ebv_hahb_errs_pos = ebv_hahb_errs[:,1]
 
 
     # reading in more data
@@ -94,18 +92,16 @@ def main():
     EBV_errs_neg = np.concatenate((mmt_mz['E(B-V)_hahb_errs_neg'][aa], keck_mz['E(B-V)_hahb_errs_neg']))
     EBV_errs_pos = np.concatenate((mmt_mz['E(B-V)_hahb_errs_pos'][aa], keck_mz['E(B-V)_hahb_errs_pos']))
 
-    # replacing invalid MMT NB973 EBV_hahb w/ EBV_hghb
+    # replacing invalid MMT NB973 EBV_hahb w/ Keck EBV_hahb
     h = [x for x in range(len(aa)) if mmt_mz['filter'][aa][x]=='NB973'][0]
-    EBV[h:h+5] = mmt_mz['E(B-V)_hghb'][-5:]
-    # EBV_rms[h:h+5] = mmt_mz['E(B-V)_hghb_rms'][-5:]
-    EBV_errs_neg[h:h+5] = mmt_mz['E(B-V)_hghb_errs_neg'][-5:]
-    EBV_errs_pos[h:h+5] = mmt_mz['E(B-V)_hghb_errs_pos'][-5:]
+    EBV[h:h+5] = keck_mz['E(B-V)_hahb'][-5:]
+    EBV_errs_neg[h:h+5] = keck_mz['E(B-V)_hahb_errs_neg'][-5:]
+    EBV_errs_pos[h:h+5] = keck_mz['E(B-V)_hahb_errs_pos'][-5:]
 
     # replacing invalid lowest two m bins MMT NB921 EBV_hahb w/ EBV_hghb
     i = np.where(mmt_mz['filter']=='NB921')[0][0]
     j = [x for x in range(len(aa)) if mmt_mz['filter'][aa][x]=='NB921'][0]
     EBV[j:j+2] = mmt_mz['E(B-V)_hghb'][i:i+2]
-    # EBV_rms[j:j+2] = mmt_mz['E(B-V)_hghb_rms'][i:i+2]
     EBV_errs_neg[j:j+2] = mmt_mz['E(B-V)_hghb_errs_neg'][i:i+2]
     EBV_errs_pos[j:j+2] = mmt_mz['E(B-V)_hghb_errs_pos'][i:i+2]
 
@@ -133,7 +129,7 @@ def main():
                     axarr[ax_ii].plot(mstar, ebv00, color=cc, marker=shape, lw=0, markersize=8, alpha=0.9, label=ff+'-'+inst)
 
                     sig_iis = np.array([x for x in range(len(good_EBV_iis)) if good_EBV_iis[x] in has_errs])
-                    axarr[ax_ii].errorbar(mstar, ebv00, yerr=np.array([ebv_hahb_errs_neg[sig_iis], ebv_hahb_errs_pos[sig_iis]]), #sigma_ebv[sig_iis],
+                    axarr[ax_ii].errorbar(mstar, ebv00, yerr=EBV_errs[good_EBV_iis][sig_iis], #yerr=np.array([ebv_hahb_errs_neg[sig_iis], ebv_hahb_errs_pos[sig_iis]]), #sigma_ebv[sig_iis],
                         fmt='none', mew=0, ecolor=cc, alpha=0.9)
                 
                 if inst=='merged':
@@ -146,7 +142,7 @@ def main():
                             axarr[ax_ii].plot(mstar, ebv00, color=cc, marker=shape, lw=0, markersize=8, alpha=0.9, label=ff+'-'+inst)
 
                             sig_iis = np.array([x for x in range(len(good_EBV_iis)) if good_EBV_iis[x] in has_errs])
-                            axarr[ax_ii].errorbar(mstar, ebv00, yerr=np.array([ebv_hahb_errs_neg[sig_iis], ebv_hahb_errs_pos[sig_iis]]), #sigma_ebv[sig_iis],
+                            axarr[ax_ii].errorbar(mstar, ebv00, yerr=EBV_errs[good_EBV_iis][sig_iis], #yerr=np.array([ebv_hahb_errs_neg[sig_iis], ebv_hahb_errs_pos[sig_iis]]), #sigma_ebv[sig_iis],
                                         fmt='none', mew=0, ecolor=cc, alpha=0.9)
 
     # plotting composites

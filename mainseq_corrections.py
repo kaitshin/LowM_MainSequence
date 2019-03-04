@@ -298,7 +298,7 @@ def EBV_corrs_yes_spectra(EBV_corrs_ys, yes_spectra, HA_FLUX, HB_FLUX, HB_SNR):
     k_hb = cardelli(4861 * u.Angstrom)
     k_ha = cardelli(6563 * u.Angstrom)
     
-    gooddata_iis = np.where((HB_SNR[yes_spectra] >= 5) & (HA_FLUX[yes_spectra] > 1e-20) & (HA_FLUX[yes_spectra] < 99))[0]
+    gooddata_iis = np.where((HB_SNR[yes_spectra] >= 5) & (HA_SNR[yes_spectra] > 0) & (HA_FLUX[yes_spectra] > 1e-20) & (HA_FLUX[yes_spectra] < 99))[0]
     good_EBV_iis = yes_spectra[gooddata_iis]
 
     hahb = HA_FLUX[good_EBV_iis]/HB_FLUX[good_EBV_iis]
@@ -383,7 +383,7 @@ def EBV_errs_yes_spectra(EBV_errs_ys_neg, EBV_errs_ys_pos, yes_spectra, HA_SNR, 
     HA_RMS    = HA_FLUX/HA_SNR
     HB_RMS    = HB_FLUX/HB_SNR
     '''
-    gooddata_iis = np.where((HB_SNR[yes_spectra] >= 5) & (HA_FLUX[yes_spectra] > 1e-20) & (HA_FLUX[yes_spectra] < 99))[0]
+    gooddata_iis = np.where((HB_SNR[yes_spectra] >= 5) & (HA_SNR[yes_spectra] > 0) & (HA_FLUX[yes_spectra] > 1e-20) & (HA_FLUX[yes_spectra] < 99))[0]
     good_EBV_iis = yes_spectra[gooddata_iis]
     ebv_hahb_errs = composite_errors([HA_FLUX[good_EBV_iis], HB_FLUX[good_EBV_iis]], 
         [HA_FLUX[good_EBV_iis]/HA_SNR[good_EBV_iis], HB_FLUX[good_EBV_iis]/HB_SNR[good_EBV_iis]], seed_i=SEED_ORIG, label='HA/HB')
