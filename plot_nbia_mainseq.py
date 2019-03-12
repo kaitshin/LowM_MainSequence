@@ -175,6 +175,19 @@ def modify_graph(ax, labelarr, xlim, ylim, title, i):
     sSFR_lines(ax, xlim)
 
 
+def plot_avg_sfrs(ax, stlr_mass, sfrs):
+    '''
+    assumes the lowest mass is at m=6
+    plots the mean sfr in each mass bin of width 0.5
+    '''
+    mbins0 = np.arange(6.25, 10.75, .5)
+    bin_ii = np.digitize(stlr_mass, mbins0)
+
+    for i in range(len(mbins0)):
+        bin_match = np.where(bin_ii == i)[0]
+        ax.plot(mbins0[i], np.mean(sfrs[bin_match]), 'ko')
+
+
 def make_all_graph(stlr_mass, sfr, filtarr, markarr, z_arr, sizearr, title,
     no_spectra, yes_spectra, filts, good_sig_iis, ax, i):
     '''
@@ -210,6 +223,8 @@ def make_all_graph(stlr_mass, sfr, filtarr, markarr, z_arr, sizearr, title,
         
         labelarr = np.append(labelarr, temp)
     #endfor
+
+    plot_avg_sfrs(ax, stlr_mass[good_sig_iis], sfr[good_sig_iis])
 
     modify_graph(ax, labelarr, xlim, ylim, title, i)
 
