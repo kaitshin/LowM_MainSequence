@@ -80,7 +80,7 @@ def main():
     plt.plot(stlr_mass[big_good_nii][i1], BIG_FLUX_RAT[i1], 
              color='lightblue', mec='lightblue', marker='s', lw=0, label='Keck', alpha=0.8)
     plt.plot(stlr_mass[big_good_nii][i2], BIG_FLUX_RAT[i2], 
-             color='purple', mec='purple', marker='o', lw=0, label='merged', alpha=0.8)
+             color='purple', mec='purple', marker='o', lw=0, label='MMT+Keck', alpha=0.8)
 
 
     ## SNR < 2 limits
