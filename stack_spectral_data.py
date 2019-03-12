@@ -79,7 +79,7 @@ def correct_instr_AP(indexed_AP, indexed_inst_str0, instr):
         #endif
     #endfor
     return indexed_AP
-#enddef
+
 
 def HG_HB_EBV(hg, hb):
     '''
@@ -94,7 +94,7 @@ def HG_HB_EBV(hg, hb):
     EBV_hghb = np.log10((hghb)/0.468)/(-0.4*(k_hg - k_hb))
     EBV_hghb = np.array([-99.0 if np.isnan(x) else x for x in EBV_hghb])
     return EBV_hghb
-#enddef
+
 
 def get_HB_NB921_flux(bintype='redshift'):
     '''
@@ -163,10 +163,12 @@ def get_HB_NB921_flux(bintype='redshift'):
         flux_arr[i] = flux
 
     return flux_arr
-#enddef
+
 
 def HA_HB_EBV(ha, hb, instr, bintype='redshift', filt='N/A'):
     '''
+    Computes the ha/hb-derived E(B-V), correcting for negative reddening and using -99.0 as
+    a placeholder for sources w/o valid ha/hb-derived E(B-V)
     '''
     ha = np.array(ha)
     hb = np.array(hb)
@@ -186,10 +188,13 @@ def HA_HB_EBV(ha, hb, instr, bintype='redshift', filt='N/A'):
     EBV_hahb = np.array([-99.0 if np.isnan(x) else x for x in EBV_hahb])
 
     return EBV_hahb
-#enddef
+
 
 def split_into_bins(masses, n):
     '''
+    Helper function for plot_<instr>_stlrmass_z()
+
+    This 
     '''
     perc_arrs = np.array([np.percentile(masses, x) for x in np.arange(0, 100+100.0/n, 100.0/n)[1:]])
     
@@ -205,7 +210,7 @@ def split_into_bins(masses, n):
         return 'TOO SMALL'
     else:
         return index_arrs
-#enddef
+
 
 def plot_MMT_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', publ=True, instr00='MMT'):
     '''
@@ -486,7 +491,7 @@ def plot_MMT_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', publ
 
     asc.write(table00, FULL_PATH+'Composite_Spectra/StellarMass/MMT_all_five_data.txt',
         format='fixed_width_two_line', delimiter=' ', overwrite=True)
-#enddef
+
 
 def plot_MMT_stlrmass_z():
     '''
@@ -532,7 +537,7 @@ def plot_MMT_stlrmass_z():
     asc.write(table00, FULL_PATH+'Composite_Spectra/StellarMassZ/MMT_stlrmassZ_data.txt',
         format='fixed_width_two_line', delimiter=' ', overwrite=True)
     pp.close()
-#enddef
+
 
 def plot_Keck_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', publ=True, instr00='Keck'):
     '''
@@ -742,7 +747,7 @@ def plot_Keck_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', pub
 
     asc.write(table00, FULL_PATH+'Composite_Spectra/StellarMass/Keck_all_five_data.txt',
             format='fixed_width_two_line', delimiter=' ', overwrite=True)
-#enddef
+
 
 def plot_Keck_stlrmass_z():
     '''
@@ -785,7 +790,6 @@ def plot_Keck_stlrmass_z():
     asc.write(table00, FULL_PATH+'Composite_Spectra/StellarMassZ/Keck_stlrmassZ_data.txt',
         format='fixed_width_two_line', delimiter=' ', overwrite=True)
     pp.close()
-#enddef
 
 
 #----main body---------------------------------------------------------------#
@@ -872,7 +876,7 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 
 print '### plotting Keck'
-# plot_Keck_stlrmass_z()
+plot_Keck_stlrmass_z()
 grid.close()
 
 nbia.close()
