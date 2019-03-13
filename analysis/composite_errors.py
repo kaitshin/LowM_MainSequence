@@ -79,7 +79,7 @@ def random_pdf(x, dx, seed_i, n_iter=1000):
 def composite_errors(x, dx, seed_i, label=''):
     '''
     '''
-    if '/HB' in label:
+    if '/HB' in label or label=='NII_BOTH/HA':
         hn_flux = np.array(x[0])
         hn_rms = np.array(dx[0])
         hb_flux = np.array(x[1])
