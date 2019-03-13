@@ -198,6 +198,7 @@ def make_all_graph(stlr_mass, sfr, filtarr, markarr, z_arr, sizearr, title,
     ylim = [-3.75, 2]
 
     labelarr = np.array([])
+    check_nums = []
     for (ff, mark, avg_z, size) in zip(filtarr, markarr, z_arr, sizearr):
         if 'NB7' in ff:
             filt_index_n = np.array([x for x in range(len(no_spectra)) if ff[:3] in filts[no_spectra][x] 
@@ -211,6 +212,7 @@ def make_all_graph(stlr_mass, sfr, filtarr, markarr, z_arr, sizearr, title,
                 and yes_spectra[x] in good_sig_iis])
 
         print '>>>', ff, avg_z
+        check_nums.append(len(filt_index_y)+len(filt_index_n))
 
         temp = ax.scatter(stlr_mass[yes_spectra][filt_index_y],
                        sfr[yes_spectra][filt_index_y], marker=mark,
@@ -224,6 +226,7 @@ def make_all_graph(stlr_mass, sfr, filtarr, markarr, z_arr, sizearr, title,
         
         labelarr = np.append(labelarr, temp)
     #endfor
+    assert np.sum(check_nums)==len(good_sig_iis)
     plot_avg_sfrs(ax, stlr_mass[good_sig_iis], sfr[good_sig_iis])
 
     modify_graph(ax, labelarr, xlim, ylim, title, i)
