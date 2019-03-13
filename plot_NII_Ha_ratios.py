@@ -16,6 +16,7 @@ OUTPUTS:
     FULL_PATH+'Plots/main_sequence/NII_Ha_scatter_log.pdf'
 """
 
+from analysis.composite_errors import composite_errors
 from astropy.io import fits as pyfits, ascii as asc
 from create_ordered_AP_arrays import create_ordered_AP_arrays
 from scipy.optimize import curve_fit
@@ -72,15 +73,30 @@ def main():
     i2 = [x for x in range(len(big_good_nii)) if 'merged' in inst_str0[big_good_nii][x]]
 
     # ratios for individual sources
-    BIG_FLUX_RAT = NIIB_FLUX[big_good_nii]*((1+2.96)/2.96)/HA_FLUX[big_good_nii]
+    NII_BOTH_FLUX = NIIB_FLUX*((1+2.96)/2.96)
+    BIG_FLUX_RAT = NII_BOTH_FLUX[big_good_nii]/HA_FLUX[big_good_nii]
+
+    # errors for individual sources
+    niiha_errs_tmp = composite_errors([NII_BOTH_FLUX[big_good_nii], HA_FLUX[big_good_nii]], 
+        [NII_BOTH_FLUX[big_good_nii]/NIIB_SNR[big_good_nii], HA_FLUX[big_good_nii]/HA_SNR[big_good_nii]], 
+        seed_i=8679, label='NII_BOTH/HA')
+    niiha_errs_neg = niiha_errs_tmp[:,0]
+    niiha_errs_pos = niiha_errs_tmp[:,1]
+    niiha_errs = np.sqrt(niiha_errs_neg**2/2 + niiha_errs_pos**2/2)
 
     # plotting
     plt.plot(stlr_mass[big_good_nii][i0], BIG_FLUX_RAT[i0], 
              color='blue', mec='blue', marker='*', lw=0, label='MMT', ms=10, alpha=0.8)
+    plt.errorbar(stlr_mass[big_good_nii][i0], BIG_FLUX_RAT[i0],
+             yerr=niiha_errs[i0], fmt='none', mew=0, ecolor='blue', alpha=0.8)
     plt.plot(stlr_mass[big_good_nii][i1], BIG_FLUX_RAT[i1], 
              color='lightblue', mec='lightblue', marker='s', lw=0, label='Keck', alpha=0.8)
+    plt.errorbar(stlr_mass[big_good_nii][i1], BIG_FLUX_RAT[i1],
+             yerr=niiha_errs[i1], fmt='none', mew=0, ecolor='lightblue', alpha=0.8)
     plt.plot(stlr_mass[big_good_nii][i2], BIG_FLUX_RAT[i2], 
              color='purple', mec='purple', marker='o', lw=0, label='MMT+Keck', alpha=0.8)
+    plt.errorbar(stlr_mass[big_good_nii][i2], BIG_FLUX_RAT[i2],
+             yerr=niiha_errs[i2], fmt='none', mew=0, ecolor='purple', alpha=0.8)
 
 
     ## SNR < 2 limits
@@ -149,8 +165,9 @@ def main():
     a = [tick.label.set_fontsize(14) for tick in plt.gca().xaxis.get_major_ticks()]
     b = [tick.label.set_fontsize(14) for tick in plt.gca().yaxis.get_major_ticks()]
     plt.gca().tick_params(axis='both', which='both', direction='in')
-    plt.ylim(ymax=1.1)
+    plt.ylim(ymax=1.2)
     plt.gcf().set_size_inches(8,7)
+    plt.axhline(0.54 * (1+2.96)/2.96, color='k', ls='--', alpha=0.8)  # line marking NII6583/Ha > 0.54, Kennicut+08
     plt.tight_layout()
     plt.savefig(FULL_PATH+'Plots/main_sequence/NII_Ha_scatter.pdf')
     plt.close()
