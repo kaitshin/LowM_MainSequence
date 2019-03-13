@@ -181,11 +181,12 @@ def plot_avg_sfrs(ax, stlr_mass, sfrs):
     plots the mean sfr in each mass bin of width 0.5
     '''
     mbins0 = np.arange(6.25, 10.75, .5)
-    bin_ii = np.digitize(stlr_mass, mbins0)
+    bin_ii = np.digitize(stlr_mass, mbins0+0.25)
 
     for i in range(len(mbins0)):
         bin_match = np.where(bin_ii == i)[0]
-        ax.plot(mbins0[i], np.mean(sfrs[bin_match]), 'ko')
+        ax.plot(mbins0[i], np.mean(sfrs[bin_match]), 'ko', alpha=0.8, ms=8)
+        ax.errorbar(mbins0[i], np.mean(sfrs[bin_match]), xerr=0.25, fmt='none', ecolor='black', alpha=0.8, lw=2)
 
 
 def make_all_graph(stlr_mass, sfr, filtarr, markarr, z_arr, sizearr, title,
@@ -223,7 +224,6 @@ def make_all_graph(stlr_mass, sfr, filtarr, markarr, z_arr, sizearr, title,
         
         labelarr = np.append(labelarr, temp)
     #endfor
-
     plot_avg_sfrs(ax, stlr_mass[good_sig_iis], sfr[good_sig_iis])
 
     modify_graph(ax, labelarr, xlim, ylim, title, i)
@@ -277,7 +277,7 @@ def main():
 
     [a.tick_params(axis='both', labelsize='10', which='both', direction='in') for a in f_all.axes[:]]
     plt.subplots_adjust(hspace=0.01, wspace=0.01, left=0.04, right=0.99, top=0.99, bottom=0.04)
-    plt.savefig(FULL_PATH+'Plots/main_sequence/ALL.pdf')
+    plt.savefig(FULL_PATH+'Plots/main_sequence/mainseq.pdf')
     plt.close()
 
 
