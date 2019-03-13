@@ -607,6 +607,9 @@ def main():
     # NIIB_SNR >= 2
     highSNR = np.array([x for x in range(len(NIIB_SNR)) 
         if (NIIB_SNR[x] >= 2 and NIIB_FLUX[x] != 0 and HA_FLUX[x] < 99)])
+    nii_ha_ratios_tmp = (1+2.96)/2.96*NIIB_FLUX[highSNR]/HA_FLUX[highSNR]
+    agns_ii = np.where(nii_ha_ratios_tmp > 0.54*(1+2.96)/2.96)[0]
+    highSNR = np.delete(highSNR, agns_ii)
     nii_ha_ratio[highSNR] = (1+2.96)/2.96*NIIB_FLUX[highSNR]/HA_FLUX[highSNR]
     ratio_vs_line[highSNR] = 'ratio'
 
