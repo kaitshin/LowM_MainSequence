@@ -22,20 +22,14 @@ INPUTS:
     'Composite_Spectra/MMT_spectral_coverage.txt'
 
 OUTPUTS:
-    'Composite_Spectra/Redshift/MMT_spectra_vals/'+subtitle+'.txt''
-    'Composite_Spectra/Redshift/MMT_stacked_spectra_data.txt'
     'Composite_Spectra/StellarMass/MMT_spectra_vals/'+subtitle[10:]+'.txt'
     'Composite_Spectra/StellarMass/MMT_all_five_data.txt'
     'Composite_Spectra/StellarMassZ/MMT_stlrmassZ_data.txt'
-    'Composite_Spectra/Redshift/Keck_spectra_vals/'+subtitle+'.txt'
-    'Composite_Spectra/Redshift/Keck_stacked_spectra_data.txt'
     'Composite_Spectra/StellarMass/Keck_spectra_vals/'+subtitle[10:]+'.txt'
     'Composite_Spectra/StellarMass/Keck_all_five_data.txt'
     'Composite_Spectra/StellarMassZ/Keck_stlrmassZ_data.txt'
-    'Composite_Spectra/Redshift/MMT_stacked_spectra.pdf'
     'Composite_Spectra/StellarMass/MMT_all_five.pdf'
     'Composite_Spectra/StellarMassZ/MMT_stlrmassZ.pdf'
-    'Composite_Spectra/Redshift/Keck_stacked_spectra.pdf'
     'Composite_Spectra/StellarMass/Keck_all_five.pdf'
     'Composite_Spectra/StellarMassZ/Keck_stlrmassZ.pdf'
 """
@@ -57,7 +51,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 from analysis.cardelli import *   # k = cardelli(lambda0, R=3.1)
 from astropy import units as u
 
-MIN_NUM_PER_BIN = 10
+MIN_NUM_PER_BIN = 9
 MAX_NUM_OF_BINS = 5
 SEED_ORIG = 19823
 
@@ -79,6 +73,26 @@ def correct_instr_AP(indexed_AP, indexed_inst_str0, instr):
         #endif
     #endfor
     return indexed_AP
+
+
+def exclude_AGN(index, NAME0):
+    '''
+    excludes AGNs based on manual inspection whre NII6583/Ha > 0.54 (Kennicutt+08)
+    '''
+    # affected by skyline. don't use individ NII measurements
+    index = np.delete(index, np.where(index==np.where(NAME0=='Ha-NB921_063859')[0])[0])
+
+    # affected by skyline. don't use individ NII measurements
+    index = np.delete(index, np.where(index==np.where(NAME0=='Ha-NB973_054540')[0])[0])
+
+    # lines too broad b/c of poor sky subtraction (bad fit).
+    # redo IRAF fit?  otherwise don't use individ. NII measurements.
+    index = np.delete(index, np.where(index==np.where(NAME0=='Ha-NB973_064347')[0])[0])
+
+    # definitely an AGN (seifert 2 galaxy) --> narrow hb line. def exclude!
+    index = np.delete(index, np.where(index==np.where(NAME0=='Ha-NB973_084633')[0])[0])
+
+    return index
 
 
 def HG_HB_EBV(hg, hb):
@@ -504,6 +518,7 @@ def plot_MMT_stlrmass_z():
     mmt_ii = np.array([x for x in range(len(NAME0)) if 
         ('Ha-NB' in NAME0[x] and inst_str0[x] in inst_dict['MMT'] 
             and stlr_mass[x] > 0 and (zspec0[x] > 0 and zspec0[x] < 9))])
+    mmt_ii = exclude_AGN(mmt_ii, NAME0)
     bins_ii_tbl = np.ndarray((5,5), dtype=object)
 
     bins_ii_tbl_temp = np.ndarray((5,5), dtype=object)
@@ -760,6 +775,7 @@ def plot_Keck_stlrmass_z():
     keck_ii = np.array([x for x in range(len(NAME0)) if 
                         ('Ha-NB9' in NAME0[x] and inst_str0[x] in inst_dict['Keck'] 
                          and stlr_mass[x] > 0 and (zspec0[x] > 0 and zspec0[x] < 9))])
+    keck_ii = exclude_AGN(keck_ii, NAME0)
     bins_ii_tbl = np.ndarray((2,5), dtype=object)
 
     bins_ii_tbl_temp = np.ndarray((2,5), dtype=object)
@@ -852,7 +868,7 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr, fill_value=np.nan)
 
 print '### plotting MMT'
-plot_MMT_stlrmass_z()
+# plot_MMT_stlrmass_z()
 grid.close()
 
 print '### looking at the Keck grid'
