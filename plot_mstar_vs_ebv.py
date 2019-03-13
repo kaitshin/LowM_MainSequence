@@ -50,7 +50,6 @@ def main():
         Reader=asc.FixedWidthTwoLine)
     ha_ii = np.array(corr_tbl['ID'])-1
     zspec0 = corr_tbl['zspec0'].data
-    no_spectra  = np.where((zspec0 <= 0) | (zspec0 > 9))[0]
     yes_spectra = np.where((zspec0 >= 0) & (zspec0 < 9))[0]
 
     data_dict = create_ordered_AP_arrays()
