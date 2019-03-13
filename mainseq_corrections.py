@@ -454,6 +454,35 @@ def niiha_oh_determine(x0, type, index=None, silent=None, linear=None):
     return OH_gas
 
 
+def exclude_bad_sources(ha_ii, NAME0):
+    '''
+    excludes sources from the mainseq sample depending on their unreliable properties
+    '''
+    # getting rid of special cases (no_spectra):
+    bad_highz_gal = np.where(NAME0=='Ha-NB816_174829_Ha-NB921_187439_Lya-IA598_163379')[0]
+
+    bad_HbNB704_SIINB973_gals = np.array([x for x in range(len(ha_ii)) if 
+            (NAME0[x]=='Ha-NB704_028405_OII-NB973_056979' or 
+             NAME0[x]=='Ha-NB704_090945_OII-NB973_116533')])
+
+    # getting rid of a source w/o flux (yes_spectra):
+    no_flux_gal = np.where(NAME0=='Ha-NB921_069950')[0]
+
+    # getting rid of a source w/ atypical SFR behavior we don't understand
+    weird_SFR_gal = np.where(NAME0=='OIII-NB704_063543_Ha-NB816_086540')[0]
+
+    # getting rid of AGN candidate galaxies
+    possibly_AGNs = np.array([x for x in range(len(ha_ii)) if 
+            (NAME0[x]=='Ha-NB921_063859' or NAME0[x]=='Ha-NB973_054540' or
+             NAME0[x]=='Ha-NB973_064347' or NAME0[x]=='Ha-NB973_084633')])
+
+    bad_sources = np.concatenate([bad_highz_gal, bad_HbNB704_SIINB973_gals, no_flux_gal, weird_SFR_gal, possibly_AGNs])
+    ha_ii = np.delete(ha_ii, bad_sources)
+    NAME0 = np.delete(NAME0, bad_sources)
+
+    return ha_ii, NAME0
+
+
 def main():
     # reading in data
     nbia = pyfits.open(FULL_PATH+'Catalogs/NB_IA_emitters.nodup.colorrev.fix.fits')
@@ -492,22 +521,8 @@ def main():
     ha_ii = np.array([x for x in range(len(NAME0)) if 'Ha-NB' in NAME0[x]])
     NAME0       = NAME0[ha_ii]
 
-    # getting rid of special cases (no_spectra):
-    bad_highz_gal = np.where(NAME0=='Ha-NB816_174829_Ha-NB921_187439_Lya-IA598_163379')[0]
-
-    bad_HbNB704_SIINB973_gals = np.array([x for x in range(len(ha_ii)) if 
-        (NAME0[x]=='Ha-NB704_028405_OII-NB973_056979' or 
-            NAME0[x]=='Ha-NB704_090945_OII-NB973_116533')])
-
-    # getting rid of a source w/o flux (yes_spectra):
-    no_flux_gal = np.where(NAME0=='Ha-NB921_069950')[0]
-
-    # getting rid of a source w/ atypical SFR behavior we don't understand
-    weird_SFR_gal = np.where(NAME0=='OIII-NB704_063543_Ha-NB816_086540')[0]
-
-    bad_sources = np.concatenate([bad_highz_gal, bad_HbNB704_SIINB973_gals, no_flux_gal, weird_SFR_gal])
-    ha_ii = np.delete(ha_ii, bad_sources)
-    NAME0 = np.delete(NAME0, bad_sources)
+    # getting rid of unreliable galaxies:
+    ha_ii, NAME0 = exclude_bad_sources(ha_ii, NAME0)
 
     ID0         = ID0[ha_ii]
     zspec0      = zspec0[ha_ii]
