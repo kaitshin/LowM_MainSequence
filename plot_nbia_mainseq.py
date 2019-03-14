@@ -16,6 +16,8 @@ OUTPUTS:
 """
 
 import numpy as np, matplotlib.pyplot as plt
+import scipy.optimize as optimize
+import matplotlib as mpl
 from astropy.io import ascii as asc
 
 FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
@@ -232,6 +234,52 @@ def make_all_graph(stlr_mass, sfr, filtarr, markarr, z_arr, sizearr, title,
     modify_graph(ax, labelarr, xlim, ylim, title, i)
 
 
+def make_redshift_graph(f, ax, z_arr, corr_sfrs, stlr_mass, zspec0, filts, good_sig_iis):
+    '''
+    '''
+    eqn0 = r'$log[SFR] = \alpha log[M] + \beta z + \gamma$'
+    def func0(data, a, b, c):
+        return a*data[:,0] + b*data[:,1] + c
+
+    # getting relevant data in a good format
+    sfrs00 = corr_sfrs[good_sig_iis]
+    smass0 = stlr_mass[good_sig_iis]
+    zspec0 = zspec0[good_sig_iis]
+    no_spectra  = np.where((zspec0 <= 0) | (zspec0 > 9))[0]
+    yes_spectra = np.where((zspec0 >= 0) & (zspec0 < 9))[0]
+    badz_iis = np.array([x for x in range(len(zspec0)) if zspec0[x] < 0 or zspec0[x] > 9])
+    filt_lambda_list = {'NB704':7045.0, 'NB711':7126.0, 'NB816':8152.0, 'NB921':9193.0, 'NB973':9749.0}
+    ffs = filts[good_sig_iis]
+    for ff in filt_lambda_list.keys():
+        badf_match = np.where(ffs[badz_iis] == ff)[0]
+        zspec0[badz_iis[badf_match]] = (filt_lambda_list[ff]/6562.8) - 1
+    data00 = np.vstack([smass0, zspec0]).T
+
+    # getting colorwheel
+    cwheel = [np.array(mpl.rcParams['axes.prop_cycle'])[x]['color'] for x in range(4)]
+    cwheel = [cwheel[3], cwheel[1], cwheel[2], cwheel[0]]
+
+    params, pcov = optimize.curve_fit(func0, data00, sfrs00, method='lm')
+    perr = np.sqrt(np.diag(pcov))
+
+    for ff,cc,ll,zz in zip(['NB7', 'NB816', 'NB921', 'NB973'], cwheel, ['NB704,NB711', 'NB816', 'NB921', 'NB973'], z_arr):
+        filt_match = np.array([x for x in range(len(ffs)) if ff in ffs[x]])
+        ax.plot(smass0[filt_match], sfrs00[filt_match], 'o', color=cc, alpha=0.2, label='z~'+zz+' ('+ll+')')
+
+        sorted_iis = np.argsort(smass0[filt_match])
+        ax.plot(smass0[filt_match][sorted_iis], func0(data00[filt_match][sorted_iis], *params), color=cc, lw=2)
+
+    ax.set_xlabel('log(M'+r'$_\bigstar$'+'/M'+r'$_{\odot}$'+')', size=14)
+    ax.set_ylabel('log(SFR[H'+r'$\alpha$'+']/M'+r'$_{\odot}$'+' yr'+r'$^{-1}$'+')', size=14)
+    ax.legend(loc='upper left', fontsize=14, frameon=False)
+    ax.text(0.52,0.25,eqn0+
+             '\n\n'+r'$\alpha=$'+'{:.2f}'.format(params[0])+r'$\pm$'+'{:.3f}'.format(np.sqrt(np.diag(pcov))[0])+
+             '\n'+r'$\beta=$'+'{:.2f}'.format(params[1])+r'$\pm$'+'{:.3f}'.format(np.sqrt(np.diag(pcov))[1])+
+             '\n'+r'$\gamma=$'+'{:.2f}'.format(params[2])+r'$\pm$'+'{:.3f}'.format(np.sqrt(np.diag(pcov))[2]),
+             transform=ax.transAxes,fontsize=15,ha='left',va='top')
+    [a.tick_params(axis='both', labelsize='10', which='both', direction='in') for a in f.axes[:]]
+    f.set_size_inches(7,6)
+
 def main():
     '''
     '''
@@ -282,6 +330,14 @@ def main():
     plt.subplots_adjust(hspace=0.01, wspace=0.01, left=0.04, right=0.99, top=0.99, bottom=0.04)
     plt.savefig(FULL_PATH+'Plots/main_sequence/mainseq.pdf')
     plt.close()
+
+    print 'making redshift dependent plot now'
+    # redshift dependent plot
+    f, ax = plt.subplots()
+    corr_sfrs = sfr+filt_corr_factor+nii_ha_corr_factor+dust_corr_factor
+    make_redshift_graph(f, ax, z_arr, corr_sfrs, stlr_mass, zspec0, filts, good_sig_iis)
+    plt.subplots_adjust(hspace=0.01, wspace=0.01, right=0.99, top=0.98, left=0.1, bottom=0.09)
+    plt.savefig(FULL_PATH+'Plots/main_sequence/zdep_mainseq.pdf')
 
 
 if __name__ == '__main__':
