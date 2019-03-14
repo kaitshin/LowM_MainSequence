@@ -247,27 +247,50 @@ def make_redshift_graph(f, ax, z_arr, corr_sfrs, stlr_mass, zspec0, filts, good_
     zspec0 = zspec0[good_sig_iis]
     no_spectra  = np.where((zspec0 <= 0) | (zspec0 > 9))[0]
     yes_spectra = np.where((zspec0 >= 0) & (zspec0 < 9))[0]
+
+    centr_filts = {'NB7':((7045.0/6562.8 - 1) + (7126.0/6562.8 - 1))/2.0, 
+                   'NB816':8152.0/6562.8 - 1, 'NB921':9193.0/6562.8 - 1, 'NB973':9749.0/6562.8 - 1}    
+
+
+    # for obtaining the best-fit line params
     badz_iis = np.array([x for x in range(len(zspec0)) if zspec0[x] < 0 or zspec0[x] > 9])
     filt_lambda_list = {'NB704':7045.0, 'NB711':7126.0, 'NB816':8152.0, 'NB921':9193.0, 'NB973':9749.0}
     ffs = filts[good_sig_iis]
     for ff in filt_lambda_list.keys():
         badf_match = np.where(ffs[badz_iis] == ff)[0]
         zspec0[badz_iis[badf_match]] = (filt_lambda_list[ff]/6562.8) - 1
+    
     data00 = np.vstack([smass0, zspec0]).T
+    params, pcov = optimize.curve_fit(func0, data00, sfrs00, method='lm')
+    perr = np.sqrt(np.diag(pcov))
+
 
     # getting colorwheel
     cwheel = [np.array(mpl.rcParams['axes.prop_cycle'])[x]['color'] for x in range(4)]
     cwheel = [cwheel[3], cwheel[1], cwheel[2], cwheel[0]]
-
-    params, pcov = optimize.curve_fit(func0, data00, sfrs00, method='lm')
-    perr = np.sqrt(np.diag(pcov))
-
     for ff,cc,ll,zz in zip(['NB7', 'NB816', 'NB921', 'NB973'], cwheel, ['NB704,NB711', 'NB816', 'NB921', 'NB973'], z_arr):
-        filt_match = np.array([x for x in range(len(ffs)) if ff in ffs[x]])
-        ax.plot(smass0[filt_match], sfrs00[filt_match], 'o', color=cc, alpha=0.2, label='z~'+zz+' ('+ll+')')
+        if 'NB7' in ff:
+            filt_index_n = np.array([x for x in range(len(no_spectra)) if ff[:3] in ffs[no_spectra][x]])
+            filt_index_y = np.array([x for x in range(len(yes_spectra)) if ff[:3] in ffs[yes_spectra][x]])
+        else:
+            filt_index_n = np.array([x for x in range(len(no_spectra)) if ff==ffs[no_spectra][x]])
+            filt_index_y = np.array([x for x in range(len(yes_spectra)) if ff==ffs[yes_spectra][x]])
 
-        sorted_iis = np.argsort(smass0[filt_match])
-        ax.plot(smass0[filt_match][sorted_iis], func0(data00[filt_match][sorted_iis], *params), color=cc, lw=2)
+        # scattering
+        ax.scatter(smass0[yes_spectra][filt_index_y], sfrs00[yes_spectra][filt_index_y],
+            facecolors=cc, edgecolors='none', alpha=0.3,
+            zorder=3, label='z~'+zz+' ('+ll+')')
+
+        ax.scatter(smass0[no_spectra][filt_index_n], sfrs00[no_spectra][filt_index_n],
+            facecolors='none', edgecolors=cc, alpha=0.3, 
+            linewidth=0.5, zorder=3)
+
+        # plotting the best-fit lines
+        filt_match = np.array([x for x in range(len(ffs)) if ff in ffs[x]])
+        mrange = np.arange(min(smass0[filt_match]), max(smass0[filt_match]), 0.1)
+        avgz = np.array([centr_filts[ff]]*len(mrange))
+        tmpdata = np.vstack([mrange, avgz]).T
+        ax.plot(mrange, func0(tmpdata, *params), color=cc, lw=2)
 
     ax.set_xlabel('log(M'+r'$_\bigstar$'+'/M'+r'$_{\odot}$'+')', size=14)
     ax.set_ylabel('log(SFR[H'+r'$\alpha$'+']/M'+r'$_{\odot}$'+' yr'+r'$^{-1}$'+')', size=14)
@@ -279,6 +302,7 @@ def make_redshift_graph(f, ax, z_arr, corr_sfrs, stlr_mass, zspec0, filts, good_
              transform=ax.transAxes,fontsize=15,ha='left',va='top')
     [a.tick_params(axis='both', labelsize='10', which='both', direction='in') for a in f.axes[:]]
     f.set_size_inches(7,6)
+
 
 def main():
     '''
