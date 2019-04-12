@@ -24,6 +24,54 @@ import numpy as np, matplotlib.pyplot as plt
 FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
 
 
+def niiha_oh_determine(x0, type, index=None, silent=None, linear=None):
+    '''
+    Adapted from Chun Ly 
+    
+    PURPOSE:
+       This code estimates 12+log(O/H) based on strong-line diagnostics. It uses
+       emission-line that use [NII]6583, such as [NII]6583/Halpha.
+
+    CALLING SEQUENCE:
+       niiha_oh_determine(x0, type, index=index, silent=1)
+
+    INPUTS:
+       x0   -- Array of log([NII]6583/Halpha)
+       type -- The type of diagnostics to use. The options are:
+         'PP04_N2'    -- N2 index calibration of Pettini & Pagel (2004), MNRAS, 348, 59
+           - Specify linear keyword to use linear instead of 3rd-order function
+
+    OPTIONAL KEYWORD INPUT:
+       index   -- Index of array to determine metallicity
+       silent  -- If set, this means that nothing will be printed out
+    '''
+
+    if index is None: index = range(len(x0))
+
+    ## Default sets those without metallicity at -1.0
+    OH_gas = np.repeat(-1.000, len(x0))
+
+
+    ######################################
+    ## Empirical, PP04                  ##
+    ## ---------------------------------##
+    ## See Pettini & Pagel (2004)       ##
+    ## Eq. A10 of Kewley & Ellison 2008 ##
+    ## + on 04/03/2016                  ##
+    ## Mod on 14/06/2016                ##
+    ######################################
+    if type == 'PP04_N2':
+        if linear == None:
+            OH_gas[index] = 9.37 + 2.03*x0[index] + 1.26*(x0[index])**2 + 0.32*(x0[index])**3
+        else:
+            print '## Using linear relation!'
+            # Bug found. Mod on 30/06/2016 OH_gas -> OH_gas[index]
+            OH_gas[index] = 8.90 + 0.57 * x0[index] #xt0
+    #endif
+
+    return OH_gas
+
+
 def main():
     '''
     '''
@@ -97,7 +145,7 @@ def main():
              color='purple', mec='purple', marker='o', lw=0, label='MMT+Keck', alpha=0.8)
     plt.errorbar(stlr_mass[big_good_nii][i2], BIG_FLUX_RAT[i2],
              yerr=niiha_errs[i2], fmt='none', mew=0, ecolor='purple', alpha=0.8)
-
+    print 'are there zeros in individuals?', [x for x in BIG_FLUX_RAT[i0] if x==0], [x for x in BIG_FLUX_RAT[i1] if x==0], [x for x in BIG_FLUX_RAT[i2] if x==0]
 
     ## SNR < 2 limits
     # getting indexes
@@ -123,11 +171,15 @@ def main():
     # ratios for composites
     flux_rat_arr = nii_flux_arr*((1+2.96)/2.96)/ha_flux_arr
 
+    # errors for composites
+    
+
     # plotting
     plt.plot(avgm_arr[:9], flux_rat_arr[:9], color='limegreen', mec='limegreen', lw=0, label='MMT composites', marker='*', ms=10, alpha=0.8)
     plt.plot(avgm_arr[9:], flux_rat_arr[9:], color='darkgreen', mec='darkgreen', lw=0, label='Keck composites', marker='s', alpha=0.8)
     plt.errorbar(avgm_arr[:9], flux_rat_arr[:9], xerr=np.array([avgm_arr[:9]-minm_arr[:9], maxm_arr[:9]-avgm_arr[:9]]), fmt='none', ecolor='limegreen', alpha=0.8)
     plt.errorbar(avgm_arr[9:], flux_rat_arr[9:], xerr=np.array([avgm_arr[9:]-minm_arr[9:], maxm_arr[9:]-avgm_arr[9:]]), fmt='none', ecolor='darkgreen', alpha=0.8)
+    print 'are there zeros in composites?', [x for x in flux_rat_arr[:9] if x==0]
 
     # legend 1
     legendAA = plt.legend(loc='best', fontsize=11)
@@ -168,49 +220,106 @@ def main():
     plt.ylim(ymax=1.2)
     plt.gcf().set_size_inches(8,7)
     plt.axhline(0.54 * (1+2.96)/2.96, color='k', ls='--', alpha=0.8)  # line marking NII6583/Ha > 0.54, Kennicut+08
+    ax1 = plt.gca()
+    ylims = ax1.get_ylim()
+
+    # ax2 = ax1.twiny().twinx()
+    # ax2.set_xticks([])
+    # ax2.set_ylabel('log(O/H)+12', size=16)
+    # ax2.tick_params(axis='y', which='both', direction='in')
+    # ax2.yaxis.set_tick_params(labelsize=14)
+    # ax2.set_ylim(ylims)
+    # print ax1.get_yticks()[2:]
+    # x0 = np.log10(ax1.get_yticks() * (2.96)/(1+2.96))
+    # ax2.set_yticklabels(np.round(niiha_oh_determine(x0, 'PP04_N2'),2))
+    # ax2.set_yticks(ax1.get_yticks())
+    
+
     plt.tight_layout()
     plt.savefig(FULL_PATH+'Plots/main_sequence/NII_Ha_scatter.pdf')
     plt.close()
 
 
+    # BELOW: making the y axis a log10 scale as well
+
+    # testing plotting
+    # individ
+    plt.plot(stlr_mass[big_good_nii][i0], BIG_FLUX_RAT[i0], 
+             color='blue', mec='blue', marker='*', lw=0, label='MMT', ms=10, alpha=0.8)
+    plt.errorbar(stlr_mass[big_good_nii][i0], BIG_FLUX_RAT[i0],
+             yerr=niiha_errs[i0], fmt='none', mew=0, ecolor='blue', alpha=0.8)
+    plt.plot(stlr_mass[big_good_nii][i1], BIG_FLUX_RAT[i1], 
+             color='lightblue', mec='lightblue', marker='s', lw=0, label='Keck', alpha=0.8)
+    plt.errorbar(stlr_mass[big_good_nii][i1], BIG_FLUX_RAT[i1],
+             yerr=niiha_errs[i1], fmt='none', mew=0, ecolor='lightblue', alpha=0.8)
+    plt.plot(stlr_mass[big_good_nii][i2], BIG_FLUX_RAT[i2], 
+             color='purple', mec='purple', marker='o', lw=0, label='MMT+Keck', alpha=0.8)
+    plt.errorbar(stlr_mass[big_good_nii][i2], BIG_FLUX_RAT[i2],
+             yerr=niiha_errs[i2], fmt='none', mew=0, ecolor='purple', alpha=0.8)
+
+    # individ limits
+    plt.plot(stlr_mass[lil_good_nii][j0], LIMIT_arr[j0],
+             linestyle='none', marker=u'$\u2193$', markersize=10, color='blue', mec='blue', mew=2, alpha=0.8)
+    plt.plot(stlr_mass[lil_good_nii][j1], LIMIT_arr[j1],
+             linestyle='none', marker=u'$\u2193$', markersize=10, color='lightblue', mec='lightblue', mew=2, alpha=0.8)
+    plt.plot(stlr_mass[lil_good_nii][j2], LIMIT_arr[j2],
+             linestyle='none', marker=u'$\u2193$', markersize=10, color='purple', mec='purple', mew=2, alpha=0.8)
+
+    # composites
+    plt.plot(avgm_arr[:9], flux_rat_arr[:9], color='limegreen', mec='limegreen', lw=0, label='MMT composites', marker='*', ms=10, alpha=0.8)
+    plt.plot(avgm_arr[9:], flux_rat_arr[9:], color='darkgreen', mec='darkgreen', lw=0, label='Keck composites', marker='s', alpha=0.8)
+    plt.errorbar(avgm_arr[:9], flux_rat_arr[:9], xerr=np.array([avgm_arr[:9]-minm_arr[:9], maxm_arr[:9]-avgm_arr[:9]]), fmt='none', ecolor='limegreen', alpha=0.8)
+    plt.errorbar(avgm_arr[9:], flux_rat_arr[9:], xerr=np.array([avgm_arr[9:]-minm_arr[9:], maxm_arr[9:]-avgm_arr[9:]]), fmt='none', ecolor='darkgreen', alpha=0.8)
+
+    # lines
+    lineA, = plt.plot(np.arange(6.0,8.1,0.1), np.array([const]*len(np.arange(6.0,8.1,0.1))), 
+        'r--', lw=2)
+    lineB, = plt.plot(np.arange(8.0,10.6,0.1), line2(np.arange(8.0,10.6,0.1), *coeffs1), 
+        'r--', lw=2)
+    plt.axhline(0.54 * (1+2.96)/2.96, color='k', ls='--', alpha=0.8)  # line marking NII6583/Ha > 0.54, Kennicut+08
 
 
-
-    # BELOW: not used for publication purposes. obsolete?? 
-    # ## making the y axis a log10 scale as well
-    # plt.plot(stlr_mass[big_good_nii][i0], np.log10(BIG_FLUX_RAT[i0]), 
-    #          color='blue', mec='blue', marker='*', lw=0, label='MMT')
-    # plt.plot(stlr_mass[big_good_nii][i1], np.log10(BIG_FLUX_RAT[i1]), 
-    #          color='lightblue', mec='lightblue', marker='s', lw=0, label='Keck')
-    # plt.plot(stlr_mass[big_good_nii][i2], np.log10(BIG_FLUX_RAT[i2]), 
-    #          color='purple', mec='purple', marker='o', lw=0, label='merged')
-
-    # plt.plot(stlr_mass[lil_good_nii][j0], np.log10(LIMIT_arr[j0]),
-    #          linestyle='none', marker=u'$\u2193$', markersize=10, color='blue', mec='blue', mew=2)
-    # plt.plot(stlr_mass[lil_good_nii][j1], np.log10(LIMIT_arr[j1]),
-    #          linestyle='none', marker=u'$\u2193$', markersize=10, color='lightblue', mec='lightblue', mew=2)
-    # plt.plot(stlr_mass[lil_good_nii][j2], np.log10(LIMIT_arr[j2]),
-    #          linestyle='none', marker=u'$\u2193$', markersize=10, color='purple', mec='purple', mew=2)
-
-    # plt.plot(avgm_arr[:9], np.log10(flux_rat_arr[:9]), color='limegreen', lw=0, label='MMT composites', marker='*', mew=0)
-    # plt.plot(avgm_arr[9:], np.log10(flux_rat_arr[9:]), color='darkgreen', lw=0, label='Keck composites', marker='s', mew=0)
-    # plt.errorbar(avgm_arr[:9], np.log10(flux_rat_arr[:9]), xerr=np.array([avgm_arr[:9]-minm_arr[:9], maxm_arr[:9]-avgm_arr[:9]]), fmt='none', ecolor='limegreen')
-    # plt.errorbar(avgm_arr[9:], np.log10(flux_rat_arr[9:]), xerr=np.array([avgm_arr[9:]-minm_arr[9:], maxm_arr[9:]-avgm_arr[9:]]), fmt='none', ecolor='darkgreen')
-
-    # plt.plot(np.arange(6.0,8.1,0.1), np.log10(np.array([const]*len(np.arange(6.0,8.1,0.1)))), 'r--', lw=2)
-    # plt.plot(np.arange(8.0,10.6,0.1), np.log10(line2(np.arange(8.0,10.6,0.1), *coeffs1)), 'r--', lw=2)
-
-    # plt.xlabel(r'M$_{\star}$')
-    # plt.ylabel('log[1.34*NIIB/Ha]')
-    # plt.xlim([4, 11])
-    # plt.ylim([-2.5, 1.0])
-    # plt.legend(loc='best')
-    # plt.gcf().set_size_inches(10,8)
-    # plt.savefig(FULL_PATH+'Plots/main_sequence/NII_Ha_scatter_log.pdf')
-    # plt.close()
+    # setting the y axis to a log scale
+    plt.yscale('log')
 
 
-    return {'C':const, 'm':coeffs1[0], 'b':coeffs1[0]*-8+const}
+    # aesthetic touches
+    plt.xlabel(r'$\log(M_\bigstar/M_\odot)$', size=16)
+    plt.ylabel('log([N II]'+r'$\lambda\lambda$6548,6583/H$\alpha$'+')', size=16)
+    plt.legend(loc='lower right', fontsize=14)
+
+    a = [tick.label.set_fontsize(14) for tick in plt.gca().xaxis.get_major_ticks()]
+    b = [tick.label.set_fontsize(14) for tick in plt.gca().yaxis.get_major_ticks()]
+    plt.gca().tick_params(axis='both', which='both', direction='in')
+    plt.gca().tick_params(axis='y', which='major', length=6)
+    plt.gca().tick_params(axis='y', which='minor', length=3)
+    plt.gcf().set_size_inches(8,7)
+
+
+    # adding second axis
+    ax1 = plt.gca()
+    ylims = ax1.get_ylim()
+    ax2 = ax1.twiny().twinx()
+    ax2.set_xticks([])
+    ax2.set_yscale('log')
+    ax2.set_ylabel('12+log(O/H) [PP04]', size=16)
+    ax2.tick_params(axis='y', which='both', direction='in')
+    ax2.yaxis.set_tick_params(labelsize=14)
+    ax2.set_ylim(ylims)
+    ax2.minorticks_off()
+
+    x0 = np.log10(ax1.get_yticks()) + np.log10((2.96)/(1+2.96))
+    ax2.set_yticklabels(np.round(niiha_oh_determine(x0, 'PP04_N2'),2))
+
+
+    # saving plot
+    plt.tight_layout()
+    plt.gcf().set_size_inches(10,8)
+    plt.savefig(FULL_PATH+'Plots/main_sequence/NII_Ha_scatter_log.pdf')
+    plt.close()
+
+
+    # return {'C':const, 'm':coeffs1[0], 'b':coeffs1[0]*-8+const}
 
 
 if __name__ == '__main__':
