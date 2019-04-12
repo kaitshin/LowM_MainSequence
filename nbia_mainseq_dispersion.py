@@ -29,6 +29,7 @@ def add_legends(ax):
     '''
     adds two legends to the plot
     '''
+    from matplotlib.patches import Patch
     # first legend
     legend1 = ax.legend(loc='upper left', frameon=False)
     ax.add_artist(legend1)
@@ -36,7 +37,8 @@ def add_legends(ax):
     # second legend
     noeske, = ax.plot(-100,100,color='orange', marker='+',label='Noeske+07 (0.20<z<0.40)',mew=2,markersize=11)
     delosreyes = ax.scatter(-100, 100, color='c', marker='s',label='de los Reyes+15 (z~0.8)', zorder=2)
-    salim, = ax.plot([-100, 100], [-100, 100], 'k-', label='Salim+07 (z~0)', zorder=1)
+    # salim, = ax.plot([-100, 100], [-100, 100], 'k-', label='Salim+07 (z~0)', zorder=1)
+    salim = Patch(facecolor='gray', edgecolor='None', alpha=0.4, label='Salim+07 (z~0)')
     labelarr2 = np.array([delosreyes, noeske, salim])
     legend2 = ax.legend(handles=list(labelarr2), loc='lower right', frameon=False,
                          fontsize=11, scatterpoints=1, numpoints=1)
@@ -238,7 +240,7 @@ def main():
     f, ax = plt.subplots()
     params, pcov = optimize.curve_fit(func0, data00, sfrs00, method='lm')
     sfrs_resid = sfrs00 - func0(data00, *params)
-    ax.plot(smass0, np.zeros(len(smass0)), 'k-')
+    ax.plot([5.5,11.5], np.zeros(2), 'k--', zorder=1)
     plot_resids(ax, markarr, sizearr, z_arr, no_spectra, yes_spectra, good_sig_iis, smass0, sfrs_resid, filts00)
     plot_avg_resids(ax, smass0, sfrs_resid)
 
@@ -250,7 +252,7 @@ def main():
     # final touches
     add_legends(ax)
     ax.set_xlabel('log(M'+r'$_\bigstar$'+'/M'+r'$_{\odot}$'+')', size=14)
-    ax.set_ylabel(r'$\Delta$'+'SFR', size=14)
+    ax.set_ylabel(r'$\Delta$'+'SFR [dex]', size=14)
     ax.set_xlim([5.5,11.5])
     ax.set_ylim([-1.1,2.0])
     f.set_size_inches(7,6)
@@ -263,7 +265,7 @@ def main():
 
     # creating a dispersion table
     tt = create_disp_tbl(smass0, sfrs00, sfrs_resid, corr_tbl, good_sig_iis)
-    asc.write(tt, FULL_PATH+'Main_Sequence/dispersion_tbl.txt', format='latex', overwrite=True)
+    # asc.write(tt, FULL_PATH+'Main_Sequence/dispersion_tbl.txt', format='latex', overwrite=True)
     # print asc.write(tt, format='latex')
 
 if __name__ == '__main__':
