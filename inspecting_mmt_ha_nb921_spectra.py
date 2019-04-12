@@ -83,7 +83,7 @@ def masked_MMT_grid(full_path, NAME0, inst_str0, inst_dict, AP):
 
     
     index_list = general_plotting.get_index_list(NAME0, inst_str0, inst_dict, 'MMT')
-    match_index = index_list[3]
+    match_index = index_list[2]
 
     AP_match = correct_instr_AP(AP[match_index], inst_str0[match_index], 'MMT')
     input_index = np.array([x for x in range(len(gridap)) if gridap[x] in
@@ -141,7 +141,7 @@ def unmasked_MMT_grid(full_path, NAME0, inst_str0, inst_dict, AP):
 
     
     index_list = general_plotting.get_index_list(NAME0, inst_str0, inst_dict, 'MMT')
-    match_index = index_list[3]
+    match_index = index_list[2]
 
     AP_match = correct_instr_AP(AP[match_index], inst_str0[match_index], 'MMT')
     input_index = np.array([x for x in range(len(gridap)) if gridap[x] in
@@ -192,6 +192,10 @@ def plotting_spectra(full_path, new_grid, new_grid_um, gridap, input_index, x_re
         
         axnum = row_ii%9
         current_axis = f.get_axes()[axnum]
+
+        if not np.all(np.isnan(row/1e-17)):
+            redmaskval = x_rest[np.max([x for x in range(len(row)) if not np.isnan(row[x]/1e-17)])]
+            print AP, '\t', redmaskval
         
         current_axis.plot(x_rest, row/1e-17, 'b', label='masked')
         current_axis.plot(x_rest, new_grid_um[row_ii]/1e-17, 'r--', alpha=0.6, label='unmasked')
