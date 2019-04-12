@@ -19,6 +19,7 @@ import numpy as np, matplotlib.pyplot as plt
 import scipy.optimize as optimize
 import matplotlib as mpl
 from astropy.io import ascii as asc
+from analysis.composite_errors import compute_onesig_pdf
 
 FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
 CUTOFF_SIGMA = 4.0
@@ -67,11 +68,11 @@ def salim_2007(ax):
     lowlim = salim_line(xarr) - np.array([0.2]*len(xarr))
     uplim = salim_line(xarr) + np.array([0.2]*len(xarr))
 
-    ax.plot(xarr, lowlim, 'k--', zorder=1)
-    ax.plot(xarr, uplim, 'k--', zorder=1)
+    ax.plot(xarr, lowlim, 'k--', zorder=1, lw=0.5)
+    ax.plot(xarr, uplim, 'k--', zorder=1, lw=0.5)
     ax.fill_between(xarr, lowlim, uplim, color='gray', alpha=0.4)
     salim, = ax.plot(xarr, salim_line(xarr), 'k-',
-                      label='Salim+07 (z~0)', zorder=1)
+                      label='Salim+07 (z~0)', zorder=1, lw=0.5)
     return salim
 
 
@@ -130,7 +131,7 @@ def sSFR_lines(ax, xlim):
     ax.plot(xarr, xarr - 11, 'k:')#, alpha=.5)
     ax.text(7.15, -3.0, 'sSFR=(100.0 Gyr)'+r'$^{-1}$', rotation=42, color='k',
              alpha=1, fontsize=9)
-    
+
 
 def modify_graph(ax, labelarr, xlim, ylim, title, i):
     '''
@@ -187,8 +188,21 @@ def plot_avg_sfrs(ax, stlr_mass, sfrs):
 
     for i in range(len(mbins0)):
         bin_match = np.where(bin_ii == i)[0]
-        ax.plot(mbins0[i], np.mean(sfrs[bin_match]), 'ko', alpha=0.8, ms=8)
-        ax.errorbar(mbins0[i], np.mean(sfrs[bin_match]), xerr=0.25, fmt='none', ecolor='black', alpha=0.8, lw=2)
+        sfrs_matched = sfrs[bin_match]
+        ax.plot(mbins0[i], np.mean(sfrs_matched), 'ko', alpha=0.8, ms=8)
+        ax.errorbar(mbins0[i], np.mean(sfrs_matched), xerr=0.25, fmt='none', ecolor='black', alpha=0.8, lw=2)
+
+        # calculating yerr assuming a uniform distribution
+        np.random.seed(213078)
+        num_iterations = 1000
+        len0 = len(sfrs_matched)
+
+        MC_arr = np.random.choice(sfrs_matched, size=(len0, num_iterations))
+        avg_dist = np.average(MC_arr, axis=0)
+        avg_dist = np.reshape(avg_dist,(1,num_iterations))
+
+        ysfrerr, xpeak = compute_onesig_pdf(avg_dist, [np.mean(sfrs_matched)]) #x_pdf, x_val        
+        ax.errorbar(mbins0[i], np.mean(sfrs_matched), yerr=ysfrerr, fmt='none', ecolor='black', alpha=0.8, lw=2)
 
 
 def make_all_graph(stlr_mass, sfr, filtarr, markarr, z_arr, sizearr, title,
@@ -234,10 +248,31 @@ def make_all_graph(stlr_mass, sfr, filtarr, markarr, z_arr, sizearr, title,
     modify_graph(ax, labelarr, xlim, ylim, title, i)
 
 
-def make_redshift_graph(f, ax, z_arr, corr_sfrs, stlr_mass, zspec0, filts, good_sig_iis):
+def plot_zdep_avg_sfrs(ax, stlr_mass, sfrs, cc):
     '''
     '''
-    eqn0 = r'$log[SFR] = \alpha log[M] + \beta z + \gamma$'
+    mbins0 = np.arange(6.25, 10.75, .5)
+    bin_ii = np.digitize(stlr_mass, mbins0+0.25)
+    
+    for i in set(bin_ii):
+        bin_match = np.where(bin_ii == i)[0]
+        avg_sfr = np.mean(sfrs[bin_match])
+        avg_mass = np.mean(stlr_mass[bin_match])
+        
+        min_per_bin = 5
+        if len(bin_match) < min_per_bin:
+            ax.scatter(avg_mass, avg_sfr, edgecolors=cc, facecolors='none', marker='s', alpha=0.4, s=15**2, linewidth=1)
+        elif len(bin_match) >= min_per_bin:
+            ax.plot(avg_mass, avg_sfr, color=cc, marker='s', alpha=0.6, ms=15, mew=0)
+        
+        ax.errorbar(avg_mass, avg_sfr, fmt='none', ecolor=cc, alpha=0.6, lw=2,
+            xerr=np.array([[avg_mass - (mbins0[i]-0.25)], [(mbins0[i]+0.25) - avg_mass]]))
+
+
+def make_redshift_graph(f, ax, z_arr, corr_sfrs, stlr_mass, zspec0, filts, good_sig_iis, cwheel):
+    '''
+    '''
+    eqn0 = r'$log(SFR) = \alpha log(M) + \beta z + \gamma$'
     def func0(data, a, b, c):
         return a*data[:,0] + b*data[:,1] + c
 
@@ -265,10 +300,7 @@ def make_redshift_graph(f, ax, z_arr, corr_sfrs, stlr_mass, zspec0, filts, good_
     perr = np.sqrt(np.diag(pcov))
 
 
-    # getting colorwheel
-    cwheel = [np.array(mpl.rcParams['axes.prop_cycle'])[x]['color'] for x in range(4)]
-    cwheel = [cwheel[3], cwheel[1], cwheel[2], cwheel[0]]
-    for ff,cc,ll,zz in zip(['NB7', 'NB816', 'NB921', 'NB973'], cwheel, ['NB704,NB711', 'NB816', 'NB921', 'NB973'], z_arr):
+    for ff,cc,ll,zz in zip(['NB7', 'NB816', 'NB921', 'NB973'][::-1], cwheel[::-1], ['NB704,NB711', 'NB816', 'NB921', 'NB973'][::-1], z_arr[::-1]):
         if 'NB7' in ff:
             filt_index_n = np.array([x for x in range(len(no_spectra)) if ff[:3] in ffs[no_spectra][x]])
             filt_index_y = np.array([x for x in range(len(yes_spectra)) if ff[:3] in ffs[yes_spectra][x]])
@@ -292,16 +324,62 @@ def make_redshift_graph(f, ax, z_arr, corr_sfrs, stlr_mass, zspec0, filts, good_
         tmpdata = np.vstack([mrange, avgz]).T
         ax.plot(mrange, func0(tmpdata, *params), color=cc, lw=2)
 
+        plot_zdep_avg_sfrs(ax, smass0[filt_match], sfrs00[filt_match], cc)
+
     ax.set_xlabel('log(M'+r'$_\bigstar$'+'/M'+r'$_{\odot}$'+')', size=14)
     ax.set_ylabel('log(SFR[H'+r'$\alpha$'+']/M'+r'$_{\odot}$'+' yr'+r'$^{-1}$'+')', size=14)
     ax.legend(loc='upper left', fontsize=14, frameon=False)
-    ax.text(0.52,0.25,eqn0+
-             '\n\n'+r'$\alpha=$'+'{:.2f}'.format(params[0])+r'$\pm$'+'{:.3f}'.format(np.sqrt(np.diag(pcov))[0])+
-             '\n'+r'$\beta=$'+'{:.2f}'.format(params[1])+r'$\pm$'+'{:.3f}'.format(np.sqrt(np.diag(pcov))[1])+
-             '\n'+r'$\gamma=$'+'{:.2f}'.format(params[2])+r'$\pm$'+'{:.3f}'.format(np.sqrt(np.diag(pcov))[2]),
+    ax.text(0.50,0.12,eqn0+
+        '\n'+r'$\alpha=$'+'%.2f'%(params[0])+', '+r'$\beta=$'+'%.2f'%(params[1])+', '+r'$\gamma=$'+'%.2f'%(params[2]),
              transform=ax.transAxes,fontsize=15,ha='left',va='top')
     [a.tick_params(axis='both', labelsize='10', which='both', direction='in') for a in f.axes[:]]
     f.set_size_inches(7,6)
+
+
+def bestfit_zssfr(ax, tmpzarr0, tmpsarr0):
+    '''
+    '''
+    def line(x, m, b):
+        return m*x + b
+    tempparams, temppcov = optimize.curve_fit(line, tmpzarr0, tmpsarr0)
+    print 'sSFR a*log(1+z)+b params:', tempparams
+    stp = 0.02
+    xrange_tmp = np.arange(min(tmpzarr0)-stp, max(tmpzarr0)+2*stp, stp)
+    ax.plot(xrange_tmp,  line(xrange_tmp, *tempparams), 'k--')
+
+
+def make_ssfr_graph(f, axes, sfrs00, smass0, filts00, zspec00, cwheel, z_arr):
+    '''
+    '''
+    ssfr = sfrs00-smass0
+    tmpzarr0, tmpsarr0 = [], []
+    for i, ax in enumerate(axes):
+        for ff,cc,ll,zz in zip(['NB7', 'NB816', 'NB921', 'NB973'], cwheel, ['NB704,NB711', 'NB816', 'NB921', 'NB973'], z_arr):
+            filt_match = np.array([x for x in range(len(filts00)) if ff in filts00[x]])
+            
+            if i==0:
+                ax.scatter(smass0[filt_match], ssfr[filt_match], 
+                           facecolors='none', edgecolors=cc, linewidth=0.5, label='z~'+zz+' ('+ll+')')
+                ax.set_xlabel('log(M'+r'$_\bigstar$'+'/M'+r'$_{\odot}$'+')', size=14)
+                ax.set_ylabel(r'sSFR', size=14)
+            else: #i==1
+                # ax.scatter(zspec00[filt_match], ssfr[filt_match],
+                #            facecolors='none', edgecolors=cc, linewidth=0.5)
+                ax.scatter(np.log10(1+zspec00[filt_match]), ssfr[filt_match],
+                           facecolors='none', edgecolors=cc, linewidth=0.5)
+                zmean = np.mean(np.log10(1+zspec00[filt_match]))
+                smean = np.mean(ssfr[filt_match])
+                tmpzarr0.append(zmean)
+                tmpsarr0.append(smean)
+                ax.plot(zmean, smean,'ko', ms=10)
+                ax.set_xlabel(r'$\log(1+z)$', size=14)
+
+    axes[0].legend(loc='upper left', fontsize=12, frameon=False)
+    axes[0].set_ylim(ymax=-6.9)
+    bestfit_zssfr(axes[1], tmpzarr0, tmpsarr0)
+    f.subplots_adjust(wspace=0.01)
+    [a.tick_params(axis='both', labelsize='10', which='both', direction='in') for a in f.axes[:]]
+    f.set_size_inches(16,6)
 
 
 def main():
@@ -355,13 +433,38 @@ def main():
     plt.savefig(FULL_PATH+'Plots/main_sequence/mainseq.pdf')
     plt.close()
 
+
+    # getting colorwheel
+    cwheel = [np.array(mpl.rcParams['axes.prop_cycle'])[x]['color'] for x in range(4)]
+    # cwheel = [cwheel[3], cwheel[1], cwheel[2], cwheel[0]]
+
     print 'making redshift dependent plot now'
     # redshift dependent plot
     f, ax = plt.subplots()
     corr_sfrs = sfr+filt_corr_factor+nii_ha_corr_factor+dust_corr_factor
-    make_redshift_graph(f, ax, z_arr, corr_sfrs, stlr_mass, zspec0, filts, good_sig_iis)
+    make_redshift_graph(f, ax, z_arr, corr_sfrs, stlr_mass, zspec0, filts, good_sig_iis, cwheel)
     plt.subplots_adjust(hspace=0.01, wspace=0.01, right=0.99, top=0.98, left=0.1, bottom=0.09)
     plt.savefig(FULL_PATH+'Plots/main_sequence/zdep_mainseq.pdf')
+    plt.close()
+
+    print 'making sSFR plot now'
+    f, axes = plt.subplots(1,2, sharey=True)
+    sfrs00 = corr_sfrs[good_sig_iis]
+    smass0 = corr_tbl['stlr_mass'][good_sig_iis].data
+    filts00 = corr_tbl['filt'][good_sig_iis].data
+    zspec00 = corr_tbl['zspec0'][good_sig_iis].data
+    no_spectra  = np.where((zspec00 <= 0) | (zspec00 > 9))[0]
+    yes_spectra = np.where((zspec00 >= 0) & (zspec00 < 9))[0]
+    badz_iis = np.array([x for x in range(len(zspec00)) if zspec00[x] < 0 or zspec00[x] > 9])
+    filt_lambda_list = {'NB704':7045.0, 'NB711':7126.0, 'NB816':8152.0, 'NB921':9193.0, 'NB973':9749.0}
+    ffs = filts[good_sig_iis]
+    for ff in filt_lambda_list.keys():
+        badf_match = np.where(ffs[badz_iis] == ff)[0]
+        zspec00[badz_iis[badf_match]] = (filt_lambda_list[ff]/6562.8) - 1
+
+    make_ssfr_graph(f, axes, sfrs00, smass0, filts00, zspec00, cwheel, z_arr)
+    plt.subplots_adjust(right=0.99, top=0.98, left=0.05, bottom=0.09)
+    plt.savefig(FULL_PATH+'Plots/main_sequence/mainseq_sSFRs.pdf')
 
 
 if __name__ == '__main__':
