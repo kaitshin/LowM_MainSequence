@@ -191,8 +191,6 @@ def create_SED_fits(match_index, filename):
             current_axis.set_ylabel('Flux ('+r'$\mu$'+'Jy)', fontsize=12)
         
         if axnum==4 or num==len(match_index)-1: #last on page
-#             plt.tight_layout()
-#             plt.subplots_adjust(hspace=0)
             pp.savefig()
             plt.close()
         #endif
@@ -268,9 +266,6 @@ id_match = np.array([x for x in range(len(ID0)) if ID0[x] in ha_id])
 dust_lumin[id_match] = dust_lumin0
 print '### done reading files'
 
-# lambda_naught = np.array([912.0,1216.0,3727.0,(4861.0+5007.0)/2.0,6563.0])
-# lambda_label  = np.array(['Lyman break', 'Ly'+r'$\alpha$'+'', '[OII]',
-#                           'H'+r'$\beta$'+'+[OIII]', 'H'+r'$\alpha$'+''])
 lambda_naught = np.array([3727.0,(4861.0+5007.0)/2.0,6563.0])
 lambda_label  = np.array(['[OII]','H'+r'$\beta$'+'+[OIII]', 'H'+r'$\alpha$'+''])
 
@@ -281,21 +276,3 @@ match_index0 = np.array([np.random.choice(np.array([x for x in range(len(names))
                          np.random.choice(np.array([x for x in range(len(names)) if 'Ha-NB921' in names[x] and len(names[x]) < 20 and zspec0[x] > 0 and zspec0[x] < 9])),
                          np.random.choice(np.array([x for x in range(len(names)) if 'Ha-NB973' in names[x] and len(names[x]) < 20 and zspec0[x] > 0 and zspec0[x] < 9]))])
 create_SED_fits(match_index0, 'allfilt'+fileend)
-
-# # v1
-# np.random.seed(433)
-# match_index0 = np.array([np.random.choice(np.array([x for x in range(len(names)) if 'Ha-NB704' in names[x] and len(names[x]) < 20 and zspec0[x] > 0 and zspec0[x] < 9])),
-#                          np.random.choice(np.array([x for x in range(len(names)) if 'Ha-NB711' in names[x] and len(names[x]) < 20 and zspec0[x] > 0 and zspec0[x] < 9])),
-#                          np.random.choice(np.array([x for x in range(len(names)) if 'Ha-NB816' in names[x] and len(names[x]) < 20 and zspec0[x] > 0 and zspec0[x] < 9])),
-#                          np.random.choice(np.array([x for x in range(len(names)) if 'Ha-NB921' in names[x] and len(names[x]) < 20 and zspec0[x] > 0 and zspec0[x] < 9])),
-#                          np.random.choice(np.array([x for x in range(len(names)) if 'Ha-NB973' in names[x] and len(names[x]) < 20 and zspec0[x] > 0 and zspec0[x] < 9]))])
-# create_SED_fits(match_index0, 'allfilt'+fileend)
-
-# # v2
-# np.random.seed(1) 
-# match_index0 = np.array([np.random.choice(np.array([x for x in range(len(names)) if 'Ha-NB704' in names[x] and len(names[x]) < 20 and zspec0[x] > 0 and zspec0[x] < 9])),
-#                          np.random.choice(np.array([x for x in range(len(names)) if 'Ha-NB711' in names[x] and len(names[x]) < 20 and zspec0[x] > 0 and zspec0[x] < 9])),
-#                          np.random.choice(np.array([x for x in range(len(names)) if 'Ha-NB816' in names[x] and len(names[x]) < 20 and zspec0[x] > 0 and zspec0[x] < 9])),
-#                          np.random.choice(np.array([x for x in range(len(names)) if 'Ha-NB921' in names[x] and len(names[x]) < 20 and zspec0[x] > 0 and zspec0[x] < 9])),
-#                          np.random.choice(np.array([x for x in range(len(names)) if 'Ha-NB973' in names[x] and len(names[x]) < 20 and zspec0[x] > 0 and zspec0[x] < 9]))])
-# create_SED_fits(match_index0, 'allfilt'+fileend)
