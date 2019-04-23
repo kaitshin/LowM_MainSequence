@@ -115,13 +115,17 @@ def noeske_2007(ax):
     return noeske
 
 
-def sSFR_lines(ax, xlim):
+def sSFR_lines(ax, xlim, i):
     '''
     Creates the three dotted sSFR^-1 lines: 1, 10, and 100 Gyr
     '''
     xmin = min(xlim)
     xmax = max(xlim)
     xarr = np.arange(xmin, xmax, 0.01)
+    if i==5:
+        ax.plot(xarr, xarr - 8, 'k:',zorder=8)#, alpha=.6)
+        ax.text(5.85, -1.4, 'sSFR=(0.1 Gyr)'+r'$^{-1}$', rotation=42, color='k',
+                 alpha=1, fontsize=9)
     ax.plot(xarr, xarr - 9, 'k:',zorder=8)#, alpha=.6)
     ax.text(5.85, -2.4, 'sSFR=(1.0 Gyr)'+r'$^{-1}$', rotation=42, color='k',
              alpha=1, fontsize=9)
@@ -150,9 +154,9 @@ def modify_graph(ax, labelarr, xlim, ylim, title, i):
     
     if i>1:
         ax.set_xlabel('log(M'+r'$_\bigstar$'+'/M'+r'$_{\odot}$'+')', size=14)
-    if i%2==0:
+    if i%2==0 or i==5:
         ax.set_ylabel('log(SFR[H'+r'$\alpha$'+']/M'+r'$_{\odot}$'+' yr'+r'$^{-1}$'+')', size=14)
-    if i%2==1:
+    if i%2==1 and i!=5:
         ax.set_yticklabels([])
     if i<2:
         ax.set_xticklabels([])
@@ -166,7 +170,7 @@ def modify_graph(ax, labelarr, xlim, ylim, title, i):
     
     labelarr2 = np.array([whitaker, delosreyes, noeske, salim, berg])
 
-    if i==0:
+    if i==0 or i==5:
         legend1 = ax.legend(handles=list(labelarr), loc=(0.01, 0.78), frameon=False,
                          fontsize=11, scatterpoints=1, numpoints=1)
         ax.add_artist(legend1)
@@ -175,7 +179,7 @@ def modify_graph(ax, labelarr, xlim, ylim, title, i):
         ax.add_artist(legend2)
 
     ax.minorticks_on()
-    sSFR_lines(ax, xlim)
+    sSFR_lines(ax, xlim, i)
 
 
 def plot_avg_sfrs(ax, stlr_mass, sfrs):
@@ -433,6 +437,17 @@ def main():
     plt.savefig(FULL_PATH+'Plots/main_sequence/mainseq.pdf')
     plt.close()
 
+    mainseq_fig4_only = True
+    if mainseq_fig4_only:
+        i=5
+        f, ax = plt.subplots()
+        make_all_graph(stlr_mass, sfr+corrs, filtarr, markarr, z_arr, sizearr, title, 
+            no_spectra, yes_spectra, filts, good_sig_iis, ax, i)
+        ax.tick_params(axis='both', labelsize='10', which='both', direction='in')
+        f.set_size_inches(8,8)
+        plt.tight_layout()
+        plt.savefig(FULL_PATH+'Plots/main_sequence/mainseq_allcorrs.pdf')
+        plt.close()
 
     # getting colorwheel
     cwheel = [np.array(mpl.rcParams['axes.prop_cycle'])[x]['color'] for x in range(4)]

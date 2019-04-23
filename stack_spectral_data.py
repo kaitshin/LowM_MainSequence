@@ -868,7 +868,7 @@ mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr, fill_value=np.nan)
 
 print '### plotting MMT'
-# plot_MMT_stlrmass_z()
+plot_MMT_stlrmass_z()
 grid.close()
 
 print '### looking at the Keck grid'
