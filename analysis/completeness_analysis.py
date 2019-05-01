@@ -83,18 +83,45 @@ def mag_vs_mass(silent=False, verbose=True):
         cont_mag[NB_idx] = NB_catdata[filt+'_CONT_MAG'][NB_idx]
 
 
+    for rr in range(2):
+        for cc in range(2):
+            if cc == 0: ax[rr][cc].set_ylabel(r'$\log(M/M_{\odot})$')
+            if cc == 1: ax[rr][cc].set_yticklabels([])
+            ax[rr][cc].set_xlim(19.5,28.5)
+            ax[rr][cc].set_ylim(4.0,11.0)
+
     NB704711_idx = [ii for ii in range(len(NB_tab)) if 'Ha-NB7' in NB_HA_Name[ii]]
-    ax[0][0].scatter(cont_mag[NB704711_idx], logM_NB_Ha[NB704711_idx])
+    ax[0][0].scatter(cont_mag[NB704711_idx], logM_NB_Ha[NB704711_idx],
+                     edgecolor='none', color='blue', alpha=0.5)
+    ax[0][0].set_xlabel(r"$R_Ci$'")
+    ax[0][0].annotate('NB704,NB711', [0.975,0.975], xycoords='axes fraction',
+                      ha='right', va='top')
 
     NB816_idx = [ii for ii in range(len(NB_tab)) if 'Ha-NB816' in NB_HA_Name[ii]]
-    ax[0][1].scatter(cont_mag[NB816_idx], logM_NB_Ha[NB816_idx])
+    ax[0][1].scatter(cont_mag[NB816_idx], logM_NB_Ha[NB816_idx],
+                     edgecolor='none', color='blue', alpha=0.5)
+    ax[0][1].set_xlabel(r"$i$'$z$'")
+    ax[0][1].annotate('NB816', [0.975,0.975], xycoords='axes fraction',
+                      ha='right', va='top')
 
     NB921_idx = [ii for ii in range(len(NB_tab)) if 'Ha-NB921' in NB_HA_Name[ii]]
-    ax[1][0].scatter(cont_mag[NB921_idx], logM_NB_Ha[NB921_idx])
+    ax[1][0].scatter(cont_mag[NB921_idx], logM_NB_Ha[NB921_idx],
+                     edgecolor='none', color='blue', alpha=0.5)
+    ax[1][0].set_xlabel("$z$'")
+    ax[1][0].annotate('NB921', [0.975,0.975], xycoords='axes fraction',
+                      ha='right', va='top')
 
     NB973_idx = [ii for ii in range(len(NB_tab)) if 'Ha-NB973' in NB_HA_Name[ii]]
-    ax[1][1].scatter(cont_mag[NB973_idx], logM_NB_Ha[NB973_idx])
-    
+    ax[1][1].scatter(cont_mag[NB973_idx], logM_NB_Ha[NB973_idx],
+                     edgecolor='none', color='blue', alpha=0.5)
+    ax[1][1].set_xlabel("$z$'")
+    ax[1][1].annotate('NB973', [0.975,0.975], xycoords='axes fraction',
+                      ha='right', va='top')
+
+    plt.subplots_adjust(left=0.07, right=0.97, bottom=0.08, top=0.97, wspace=0.01)
+
+    out_pdf = path0 + 'Completeness/mag_vs_mass.pdf'
+    fig.savefig(out_pdf, bbox_inches='tight')
     if silent == False: log.info('### End mag_vs_mass : '+systime())
 #enddef
 
