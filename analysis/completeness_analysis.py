@@ -62,6 +62,11 @@ def mag_vs_mass(silent=False, verbose=True):
     logM = FAST_tab['col7'].data
 
     logM_NB_Ha = logM[NB_Ha_ID]
+
+    NB_catfile = path0 + 'Catalogs/NB_IA_emitters.allcols.colorrev.fix.errors.fits'
+    log.info("Reading : "+NB_catfile)
+    NB_catdata = fits.getdata(NB_catfile)
+    NB_catdata = NB_catdata[NB_Ha_ID]
     
     if silent == False: log.info('### End mag_vs_mass : '+systime())
 #enddef
