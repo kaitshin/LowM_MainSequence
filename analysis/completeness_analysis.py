@@ -22,6 +22,7 @@ import matplotlib.pyplot as plt
 from NB_errors import ew_flux_dual, fluxline
 
 from NB_errors import filt_ref, dNB, lambdac, dBB, epsilon
+from scipy.interpolate import interp1d
 
 NB_filt = np.array([xx for xx in range(len(filt_ref)) if 'NB' in filt_ref[xx]])
 for arr in ['filt_ref','dNB','lambdac','dBB','epsilon']:
@@ -154,9 +155,25 @@ def ew_MC():
     logEW_mean = np.arange(1.15,1.60,0.05)
     logEW_sig  = np.arange(0.15,0.45,0.05)
 
-    for mm in range(len(logEW_mean)):
-        for ss in range(len(logEW_sig)):
-            np.random.seed = mm*ss
-            rand0    = np.random.normal(0.0, 1.0, size=10000)
-            logEW_MC = logEW_mean[mm] + logEW_sig[ss]*rand0
+    for ff in range(len(filt_ref)): # loop over filter
+        # filt_dict = {'dNB': dNB[ff], 'dBB': dBB[ff], 'lambdac': lambdac[ff]}
+
+        x      = np.arange(0.01,10.00,0.01)
+        y_temp = 10**(-0.4 * x)
+        EW_ref = np.log10(dNB[ff]*(1 - y_temp)/(y_temp - dNB[ff]/dBB[ff]))
+
+        good = np.where(np.isfinite(EW_ref))[0]
+        EW_int = interp1d(EW_ref[good], x[good], bounds_error=False,
+                          fill_value=(-3.0, np.max(EW_ref[good])))
+
+        #print np.max(EW_ref[good])
+
+        for mm in range(len(logEW_mean)): # loop over median of EW dist
+            for ss in range(len(logEW_sig)): # looop over sigma of EW dist
+                np.random.seed = mm*ss
+                rand0    = np.random.normal(0.0, 1.0, size=10000)
+                logEW_MC = logEW_mean[mm] + logEW_sig[ss]*rand0
+
+                #print max(logEW_MC)
+                x_MC = EW_int(logEW_MC)
 
