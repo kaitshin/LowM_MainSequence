@@ -21,6 +21,16 @@ import matplotlib.pyplot as plt
 
 from NB_errors import ew_flux_dual, fluxline
 
+from NB_errors import filt_ref, dNB, lambdac, dBB, epsilon
+
+NB_filt = np.array([xx for xx in range(len(filt_ref)) if 'NB' in filt_ref[xx]])
+for arr in ['filt_ref','dNB','lambdac','dBB','epsilon']:
+    cmd1 = arr + ' = np.array('+arr+')'
+    exec(cmd1)
+    cmd2 = arr + ' = '+arr+'[NB_filt]'
+    exec(cmd2)
+
+
 from astropy import log
 
 def mag_vs_mass(silent=False, verbose=True):
