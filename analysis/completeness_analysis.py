@@ -82,7 +82,6 @@ def mag_vs_mass(silent=False, verbose=True):
         #print(NB_catdata[filt+'_CONT_MAG'])[NB_idx]
         cont_mag[NB_idx] = NB_catdata[filt+'_CONT_MAG'][NB_idx]
 
-
     for rr in range(2):
         for cc in range(2):
             if cc == 0: ax[rr][cc].set_ylabel(r'$\log(M/M_{\odot})$')
@@ -97,7 +96,7 @@ def mag_vs_mass(silent=False, verbose=True):
     for ff in range(len(prefixes)):
         col = ff % 2
         row = ff / 2
-        NB_idx = [ii for ii in range(len(NB_tab)) if prefixes[ff] in NB_HA_Name[ii]]
+        NB_idx = np.array([ii for ii in range(len(NB_tab)) if prefixes[ff] in NB_HA_Name[ii]])
         t_ax = ax[row][col]
         t_ax.scatter(cont_mag[NB_idx], logM_NB_Ha[NB_idx], edgecolor='none',
                      color='blue', alpha=0.5)
@@ -105,6 +104,19 @@ def mag_vs_mass(silent=False, verbose=True):
         t_ax.annotate(annot[ff], [0.975,0.975], xycoords='axes fraction',
                       ha='right', va='top')
 
+        x_min    = np.min(cont_mag[NB_idx])
+        x_max    = np.max(cont_mag[NB_idx])
+        cont_arr = np.arange(x_min, x_max+0.2, 0.2)
+        avg_logM = np.zeros(len(cont_arr))
+        std_logM = np.zeros(len(cont_arr))
+        for cc in range(len(cont_arr)):
+            cc_idx = np.where((cont_mag[NB_idx] >= cont_arr[cc]) &
+                              (cont_mag[NB_idx] < cont_arr[cc]+0.2))[0]
+            avg_logM[cc] = np.average(logM_NB_Ha[NB_idx[cc_idx]])
+            std_logM[cc] = np.std(logM_NB_Ha[NB_idx[cc_idx]])
+
+        t_ax.scatter(cont_arr+0.1, avg_logM, marker='o', color='black', edgecolor='none')
+        t_ax.errorbar(cont_arr+0.1, avg_logM, yerr=std_logM, capsize=0, linestyle='none')
     plt.subplots_adjust(left=0.07, right=0.97, bottom=0.08, top=0.97, wspace=0.01)
 
     out_pdf = path0 + 'Completeness/mag_vs_mass.pdf'
