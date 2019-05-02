@@ -90,32 +90,19 @@ def mag_vs_mass(silent=False, verbose=True):
             ax[rr][cc].set_xlim(19.5,28.5)
             ax[rr][cc].set_ylim(4.0,11.0)
 
-    NB704711_idx = [ii for ii in range(len(NB_tab)) if 'Ha-NB7' in NB_HA_Name[ii]]
-    ax[0][0].scatter(cont_mag[NB704711_idx], logM_NB_Ha[NB704711_idx],
-                     edgecolor='none', color='blue', alpha=0.5)
-    ax[0][0].set_xlabel(r"$R_Ci$'")
-    ax[0][0].annotate('NB704,NB711', [0.975,0.975], xycoords='axes fraction',
-                      ha='right', va='top')
+    prefixes = ['Ha-NB7','Ha-NB816','Ha-NB921','Ha-NB973']
+    xlabels  = [r"$R_Ci$'", r"$i$'$z$'", "$z$'", "$z$'"]
+    annot    = ['NB704,NB711', 'NB816', 'NB921', 'NB973']
 
-    NB816_idx = [ii for ii in range(len(NB_tab)) if 'Ha-NB816' in NB_HA_Name[ii]]
-    ax[0][1].scatter(cont_mag[NB816_idx], logM_NB_Ha[NB816_idx],
-                     edgecolor='none', color='blue', alpha=0.5)
-    ax[0][1].set_xlabel(r"$i$'$z$'")
-    ax[0][1].annotate('NB816', [0.975,0.975], xycoords='axes fraction',
-                      ha='right', va='top')
-
-    NB921_idx = [ii for ii in range(len(NB_tab)) if 'Ha-NB921' in NB_HA_Name[ii]]
-    ax[1][0].scatter(cont_mag[NB921_idx], logM_NB_Ha[NB921_idx],
-                     edgecolor='none', color='blue', alpha=0.5)
-    ax[1][0].set_xlabel("$z$'")
-    ax[1][0].annotate('NB921', [0.975,0.975], xycoords='axes fraction',
-                      ha='right', va='top')
-
-    NB973_idx = [ii for ii in range(len(NB_tab)) if 'Ha-NB973' in NB_HA_Name[ii]]
-    ax[1][1].scatter(cont_mag[NB973_idx], logM_NB_Ha[NB973_idx],
-                     edgecolor='none', color='blue', alpha=0.5)
-    ax[1][1].set_xlabel("$z$'")
-    ax[1][1].annotate('NB973', [0.975,0.975], xycoords='axes fraction',
+    for ff in range(len(prefixes)):
+        col = ff % 2
+        row = ff / 2
+        NB_idx = [ii for ii in range(len(NB_tab)) if prefixes[ff] in NB_HA_Name[ii]]
+        t_ax = ax[row][col]
+        t_ax.scatter(cont_mag[NB_idx], logM_NB_Ha[NB_idx], edgecolor='none',
+                     color='blue', alpha=0.5)
+        t_ax.set_xlabel(xlabels[ff])
+        t_ax.annotate(annot[ff], [0.975,0.975], xycoords='axes fraction',
                       ha='right', va='top')
 
     plt.subplots_adjust(left=0.07, right=0.97, bottom=0.08, top=0.97, wspace=0.01)
