@@ -19,6 +19,8 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 
+from NB_errors import ew_flux_dual, fluxline
+
 from astropy import log
 
 def mag_vs_mass(silent=False, verbose=True):
@@ -137,4 +139,14 @@ def mag_vs_mass(silent=False, verbose=True):
     fig.savefig(out_pdf, bbox_inches='tight')
     if silent == False: log.info('### End mag_vs_mass : '+systime())
 #enddef
+
+def ew_MC():
+    logEW_mean = np.arange(1.15,1.60,0.05)
+    logEW_sig  = np.arange(0.15,0.45,0.05)
+
+    for mm in range(len(logEW_mean)):
+        for ss in range(len(logEW_sig)):
+            np.random.seed = mm*ss
+            rand0    = np.random.normal(0.0, 1.0, size=10000)
+            logEW_MC = logEW_mean[mm] + logEW_sig[ss]*rand0
 
