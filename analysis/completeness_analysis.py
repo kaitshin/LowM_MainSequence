@@ -93,31 +93,37 @@ def mag_vs_mass(silent=False, verbose=True):
     xlabels  = [r"$R_Ci$'", r"$i$'$z$'", "$z$'", "$z$'"]
     annot    = ['NB704,NB711', 'NB816', 'NB921', 'NB973']
 
+    dmag = 0.4
+
     for ff in range(len(prefixes)):
         col = ff % 2
         row = ff / 2
         NB_idx = np.array([ii for ii in range(len(NB_tab)) if prefixes[ff] in NB_HA_Name[ii]])
         t_ax = ax[row][col]
-        t_ax.scatter(cont_mag[NB_idx], logM_NB_Ha[NB_idx], edgecolor='none',
-                     color='blue', alpha=0.5)
+        t_ax.scatter(cont_mag[NB_idx], logM_NB_Ha[NB_idx], edgecolor='blue',
+                     color='none', alpha=0.5)
         t_ax.set_xlabel(xlabels[ff])
         t_ax.annotate(annot[ff], [0.975,0.975], xycoords='axes fraction',
                       ha='right', va='top')
 
         x_min    = np.min(cont_mag[NB_idx])
         x_max    = np.max(cont_mag[NB_idx])
-        cont_arr = np.arange(x_min, x_max+0.2, 0.2)
+        cont_arr = np.arange(x_min, x_max+dmag, dmag)
         avg_logM = np.zeros(len(cont_arr))
         std_logM = np.zeros(len(cont_arr))
         for cc in range(len(cont_arr)):
             cc_idx = np.where((cont_mag[NB_idx] >= cont_arr[cc]) &
-                              (cont_mag[NB_idx] < cont_arr[cc]+0.2))[0]
+                              (cont_mag[NB_idx] < cont_arr[cc]+dmag))[0]
             avg_logM[cc] = np.average(logM_NB_Ha[NB_idx[cc_idx]])
             std_logM[cc] = np.std(logM_NB_Ha[NB_idx[cc_idx]])
 
-        t_ax.scatter(cont_arr+0.1, avg_logM, marker='o', color='black', edgecolor='none')
-        t_ax.errorbar(cont_arr+0.1, avg_logM, yerr=std_logM, capsize=0, linestyle='none')
-    plt.subplots_adjust(left=0.07, right=0.97, bottom=0.08, top=0.97, wspace=0.01)
+        t_ax.scatter(cont_arr+dmag/2, avg_logM, marker='o', color='black',
+                     edgecolor='none')
+        t_ax.errorbar(cont_arr+dmag/2, avg_logM, yerr=std_logM, capsize=0,
+                      linestyle='none', color='black')
+
+    plt.subplots_adjust(left=0.07, right=0.97, bottom=0.08, top=0.97,
+                        wspace=0.01)
 
     out_pdf = path0 + 'Completeness/mag_vs_mass.pdf'
     fig.savefig(out_pdf, bbox_inches='tight')
