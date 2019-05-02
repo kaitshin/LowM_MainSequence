@@ -111,17 +111,25 @@ def mag_vs_mass(silent=False, verbose=True):
         cont_arr = np.arange(x_min, x_max+dmag, dmag)
         avg_logM = np.zeros(len(cont_arr))
         std_logM = np.zeros(len(cont_arr))
+        N_logM   = np.zeros(len(cont_arr))
         for cc in range(len(cont_arr)):
             cc_idx = np.where((cont_mag[NB_idx] >= cont_arr[cc]) &
                               (cont_mag[NB_idx] < cont_arr[cc]+dmag))[0]
-            avg_logM[cc] = np.average(logM_NB_Ha[NB_idx[cc_idx]])
-            std_logM[cc] = np.std(logM_NB_Ha[NB_idx[cc_idx]])
+            if len(cc_idx) > 0:
+                avg_logM[cc] = np.average(logM_NB_Ha[NB_idx[cc_idx]])
+                std_logM[cc] = np.std(logM_NB_Ha[NB_idx[cc_idx]])
+                N_logM[cc]   = len(cc_idx)
 
         t_ax.scatter(cont_arr+dmag/2, avg_logM, marker='o', color='black',
                      edgecolor='none')
         t_ax.errorbar(cont_arr+dmag/2, avg_logM, yerr=std_logM, capsize=0,
                       linestyle='none', color='black')
 
+        out_npz = path0 + 'Completeness/mag_vs_mag_'+prefixes[ff]+'.npz'
+        log.info("Writing : "+out_npz)
+        np.savez(out_npz, x_min=x_min, x_max=x_max, cont_arr=cont_arr,
+                 avg_logM=avg_logM, std_logM=std_logM, N_logM=N_logM)
+    #endfor
     plt.subplots_adjust(left=0.07, right=0.97, bottom=0.08, top=0.97,
                         wspace=0.01)
 
