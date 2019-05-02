@@ -18,6 +18,7 @@ from astropy.io import ascii as asc
 import numpy as np
 
 import matplotlib.pyplot as plt
+from matplotlib.backends.backend_pdf import PdfPages
 
 from NB_errors import ew_flux_dual, fluxline
 
@@ -33,6 +34,8 @@ for arr in ['filt_ref','dNB','lambdac','dBB','epsilon']:
 
 
 from astropy import log
+
+path0 = '/Users/cly/Google Drive/NASA_Summer2015/'
 
 def mag_vs_mass(silent=False, verbose=True):
 
@@ -57,8 +60,6 @@ def mag_vs_mass(silent=False, verbose=True):
     '''
 
     if silent == False: log.info('### Begin mag_vs_mass : '+systime())
-
-    path0 = '/Users/cly/Google Drive/NASA_Summer2015/'
 
     # NB Ha emitter sample for ID
     NB_file = path0 + 'Main_Sequence/mainseq_corrections_tbl (1).txt'
@@ -155,6 +156,9 @@ def ew_MC():
     logEW_mean = np.arange(1.15,1.60,0.05)
     logEW_sig  = np.arange(0.15,0.45,0.05)
 
+    out_pdf = path0 + 'Completeness/ew_MC.pdf'
+    pp = PdfPages(out_pdf)
+
     for ff in range(len(filt_ref)): # loop over filter
         # filt_dict = {'dNB': dNB[ff], 'dBB': dBB[ff], 'lambdac': lambdac[ff]}
 
@@ -177,3 +181,14 @@ def ew_MC():
                 #print max(logEW_MC)
                 x_MC = EW_int(logEW_MC)
 
+                fig, ax = plt.subplots()
+                ax.hist(x_MC, bins=50)
+
+                annot_txt  = r'$<\log({\rm EW}_0)> = %.2f$' % logEW_mean[mm] + '\n'
+                annot_txt += r'$\sigma[\log({\rm EW}_0)] = %.2f$' % logEW_sig[ssre] + '\n'
+                ax.annotate(annot_txt, [0.05,0.95], xycoords='axes fraction',
+                            va='top', ha='left')
+
+                fig.savefig(pp, format='pdf')
+
+    pp.close()
