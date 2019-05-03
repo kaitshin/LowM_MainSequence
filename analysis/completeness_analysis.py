@@ -32,6 +32,12 @@ for arr in ['filt_ref','dNB','lambdac','dBB','epsilon']:
     cmd2 = arr + ' = '+arr+'[NB_filt]'
     exec(cmd2)
 
+#Limiting magnitudes for NB data (only)
+m_NB  = np.array([26.7134-0.047, 26.0684, 26.9016+0.057, 26.7088-0.109, 25.6917-0.051])
+m_BB1 = np.array([28.0829, 28.0829, 27.7568, 26.8250, 26.8250])
+m_BB2 = np.array([27.7568, 27.7568, 26.8250, 00.0000, 00.0000])
+cont_lim  = mag_combine(m_BB1, m_BB2, epsilon)
+
 
 from astropy import log
 
