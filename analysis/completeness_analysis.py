@@ -186,7 +186,7 @@ def ew_MC():
     NBbin = 0.25
 
     for ff in range(len(filt_ref)): # loop over filter
-        # filt_dict = {'dNB': dNB[ff], 'dBB': dBB[ff], 'lambdac': lambdac[ff]}
+        filt_dict = {'dNB': dNB[ff], 'dBB': dBB[ff], 'lambdac': lambdac[ff]}
 
         x      = np.arange(0.01,10.00,0.01)
         y_temp = 10**(-0.4 * x)
@@ -202,9 +202,9 @@ def ew_MC():
         NB = np.arange(NBmin,NBmax+NBbin,NBbin)
         print('NB (min/max)', min(NB), max(NB))
 
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(ncols=2, nrows=2)
         for nn in range(len(NB)):
-            for mm in [0]: #range(len(logEW_mean)): # loop over median of EW dist
+            for mm in [len(logEW_mean)-1]: #range(len(logEW_mean)): # loop over median of EW dist
                 for ss in [0]: #range(len(logEW_sig)): # loop over sigma of EW dist
                     np.random.seed = mm*ss
                     rand0    = np.random.normal(0.0, 1.0, size=100)
@@ -215,15 +215,18 @@ def ew_MC():
 
                     #ax.hist(x_MC, bins=50)
                     t_NB = np.repeat(NB[nn], len(x_MC))
-                    ax.scatter(t_NB, x_MC, marker=',', s=1)
+                    ax[0][0].scatter(t_NB, x_MC, marker=',', s=1)
 
-                    ax.axhline(y=minthres[ff], linestyle='dashed', color='blue')
-                    ax.plot(NB, color_cut(NB, m_NB[ff], cont_lim[ff]), 'b--')
-                                          
-                    annot_txt  = r'$<\log({\rm EW}_0)> = %.2f$' % logEW_mean[mm] + '\n'
+                    t_EW, t_flux = ew_flux_dual(t_NB, t_NB + x_MC, x_MC, filt_dict)
+                    ax[0][1].scatter(t_NB, np.log10(t_flux))
+
+                    ax[0][0].axhline(y=minthres[ff], linestyle='dashed', color='blue')
+                    ax[0][0].plot(NB, color_cut(NB, m_NB[ff], cont_lim[ff]), 'b--')
+
+                    annot_txt  = r'$<\langle\log({\rm EW}_0)\rangle = %.2f$' % logEW_mean[mm] + '\n'
                     annot_txt += r'$\sigma[\log({\rm EW}_0)] = %.2f$' % logEW_sig[ss] + '\n'
-                    ax.annotate(annot_txt, [0.05,0.95], xycoords='axes fraction',
-                                va='top', ha='left')
+                    ax[0][0].annotate(annot_txt, [0.05,0.95], xycoords='axes fraction',
+                                      va='top', ha='left')
 
         fig.savefig(pp, format='pdf')
 
