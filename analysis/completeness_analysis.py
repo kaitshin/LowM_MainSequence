@@ -20,10 +20,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
-from NB_errors import ew_flux_dual, fluxline
+from scipy.interpolate import interp1d
+
+from NB_errors import ew_flux_dual, fluxline, mag_combine
 
 from NB_errors import filt_ref, dNB, lambdac, dBB, epsilon
-from scipy.interpolate import interp1d
 
 NB_filt = np.array([xx for xx in range(len(filt_ref)) if 'NB' in filt_ref[xx]])
 for arr in ['filt_ref','dNB','lambdac','dBB','epsilon']:
@@ -162,8 +163,13 @@ def ew_MC():
     logEW_mean = np.arange(1.15,1.60,0.05)
     logEW_sig  = np.arange(0.15,0.45,0.05)
 
+    Nsim = 200
+    print('Nsim : ', Nsim)
+
     out_pdf = path0 + 'Completeness/ew_MC.pdf'
     pp = PdfPages(out_pdf)
+
+    NBbin = 0.25
 
     for ff in range(len(filt_ref)): # loop over filter
         # filt_dict = {'dNB': dNB[ff], 'dBB': dBB[ff], 'lambdac': lambdac[ff]}
@@ -177,24 +183,31 @@ def ew_MC():
                           fill_value=(-3.0, np.max(EW_ref[good])))
 
         #print np.max(EW_ref[good])
+        NBmin = 20.0
+        NBmax = m_NB[ff]-0.5
+        NB = np.arange(NBmin,NBmax+NBbin,NBbin)
+        print('NB (min/max)', min(NB), max(NB))
 
-        for mm in range(len(logEW_mean)): # loop over median of EW dist
-            for ss in range(len(logEW_sig)): # looop over sigma of EW dist
-                np.random.seed = mm*ss
-                rand0    = np.random.normal(0.0, 1.0, size=10000)
-                logEW_MC = logEW_mean[mm] + logEW_sig[ss]*rand0
+        fig, ax = plt.subplots()
+        for nn in range(len(NB)):
+            for mm in [0]: #range(len(logEW_mean)): # loop over median of EW dist
+                for ss in [0]: #range(len(logEW_sig)): # loop over sigma of EW dist
+                    np.random.seed = mm*ss
+                    rand0    = np.random.normal(0.0, 1.0, size=100)
+                    logEW_MC = logEW_mean[mm] + logEW_sig[ss]*rand0
 
-                #print max(logEW_MC)
-                x_MC = EW_int(logEW_MC)
+                    #print max(logEW_MC)
+                    x_MC = EW_int(logEW_MC)
 
-                fig, ax = plt.subplots()
-                ax.hist(x_MC, bins=50)
+                    #ax.hist(x_MC, bins=50)
+                    t_NB = np.repeat(NB[nn], len(x_MC))
+                    ax.scatter(t_NB, x_MC, marker=',', s=1)
 
-                annot_txt  = r'$<\log({\rm EW}_0)> = %.2f$' % logEW_mean[mm] + '\n'
-                annot_txt += r'$\sigma[\log({\rm EW}_0)] = %.2f$' % logEW_sig[ssre] + '\n'
-                ax.annotate(annot_txt, [0.05,0.95], xycoords='axes fraction',
-                            va='top', ha='left')
+                    annot_txt  = r'$<\log({\rm EW}_0)> = %.2f$' % logEW_mean[mm] + '\n'
+                    annot_txt += r'$\sigma[\log({\rm EW}_0)] = %.2f$' % logEW_sig[ss] + '\n'
+                    ax.annotate(annot_txt, [0.05,0.95], xycoords='axes fraction',
+                                va='top', ha='left')
 
-                fig.savefig(pp, format='pdf')
+        fig.savefig(pp, format='pdf')
 
     pp.close()
