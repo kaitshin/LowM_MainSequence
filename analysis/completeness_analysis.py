@@ -37,8 +37,10 @@ for arr in ['filt_ref','dNB','lambdac','dBB','epsilon']:
 m_NB  = np.array([26.7134-0.047, 26.0684, 26.9016+0.057, 26.7088-0.109, 25.6917-0.051])
 m_BB1 = np.array([28.0829, 28.0829, 27.7568, 26.8250, 26.8250])
 m_BB2 = np.array([27.7568, 27.7568, 26.8250, 00.0000, 00.0000])
-cont_lim  = mag_combine(m_BB1, m_BB2, epsilon)
+cont_lim = mag_combine(m_BB1, m_BB2, epsilon)
 
+#Minimum NB excess color
+minthres = [0.15, 0.15, 0.15, 0.2, 0.25]
 
 from astropy import log
 
@@ -202,6 +204,7 @@ def ew_MC():
                     #ax.hist(x_MC, bins=50)
                     t_NB = np.repeat(NB[nn], len(x_MC))
                     ax.scatter(t_NB, x_MC, marker=',', s=1)
+                    ax.axhline(y=minthres[ff])
 
                     annot_txt  = r'$<\log({\rm EW}_0)> = %.2f$' % logEW_mean[mm] + '\n'
                     annot_txt += r'$\sigma[\log({\rm EW}_0)] = %.2f$' % logEW_sig[ss] + '\n'
