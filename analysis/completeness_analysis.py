@@ -46,6 +46,18 @@ from astropy import log
 
 path0 = '/Users/cly/Google Drive/NASA_Summer2015/'
 
+m_AB = 48.6
+def color_cut(x, lim1, lim2, mean=0.0):
+    f1 = 10**(-0.4*(m_AB+lim1))
+    f2 = 10**(-0.4*(m_AB+lim2))
+
+    f = 10**(-0.4*(m_AB+x))
+
+    val = mean -2.5*np.log10(1 - np.sqrt(f1**2+f2**2)/f)
+
+    return val
+#enddef
+
 def mag_vs_mass(silent=False, verbose=True):
 
     '''
@@ -204,8 +216,10 @@ def ew_MC():
                     #ax.hist(x_MC, bins=50)
                     t_NB = np.repeat(NB[nn], len(x_MC))
                     ax.scatter(t_NB, x_MC, marker=',', s=1)
-                    ax.axhline(y=minthres[ff])
 
+                    ax.axhline(y=minthres[ff], linestyle='dashed', color='blue')
+                    ax.plot(NB, color_cut(NB, m_NB[ff], cont_lim[ff]), 'b--')
+                                          
                     annot_txt  = r'$<\log({\rm EW}_0)> = %.2f$' % logEW_mean[mm] + '\n'
                     annot_txt += r'$\sigma[\log({\rm EW}_0)] = %.2f$' % logEW_sig[ss] + '\n'
                     ax.annotate(annot_txt, [0.05,0.95], xycoords='axes fraction',
