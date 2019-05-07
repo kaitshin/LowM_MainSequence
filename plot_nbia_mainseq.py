@@ -12,7 +12,11 @@ INPUTS:
     FULL_PATH+'Main_Sequence/mainseq_corrections_tbl.txt'
 
 OUTPUTS:
-    FULL_PATH+'Plots/main_sequence/ALL.pdf'
+    FULL_PATH+'Plots/main_sequence/mainseq.pdf'
+    if mainseq_fig4_only = True:
+        FULL_PATH+'Plots/main_sequence/mainseq_allcorrs.pdf'
+    FULL_PATH+'Plots/main_sequence/zdep_mainseq.pdf'
+    FULL_PATH+'Plots/main_sequence/mainseq_sSFRs.pdf'
 """
 
 import numpy as np, matplotlib.pyplot as plt
@@ -115,17 +119,16 @@ def noeske_2007(ax):
     return noeske
 
 
-def sSFR_lines(ax, xlim, i):
+def sSFR_lines(ax, xlim):
     '''
     Creates the three dotted sSFR^-1 lines: 1, 10, and 100 Gyr
     '''
     xmin = min(xlim)
     xmax = max(xlim)
     xarr = np.arange(xmin, xmax, 0.01)
-    if i==5:
-        ax.plot(xarr, xarr - 8, 'k:',zorder=8)#, alpha=.6)
-        ax.text(5.85, -1.4, 'sSFR=(0.1 Gyr)'+r'$^{-1}$', rotation=42, color='k',
-                 alpha=1, fontsize=9)
+    ax.plot(xarr, xarr - 8, 'k:',zorder=8)#, alpha=.6)
+    ax.text(5.85, -1.4, 'sSFR=(0.1 Gyr)'+r'$^{-1}$', rotation=42, color='k',
+             alpha=1, fontsize=9)
     ax.plot(xarr, xarr - 9, 'k:',zorder=8)#, alpha=.6)
     ax.text(5.85, -2.4, 'sSFR=(1.0 Gyr)'+r'$^{-1}$', rotation=42, color='k',
              alpha=1, fontsize=9)
@@ -179,7 +182,7 @@ def modify_graph(ax, labelarr, xlim, ylim, title, i):
         ax.add_artist(legend2)
 
     ax.minorticks_on()
-    sSFR_lines(ax, xlim, i)
+    sSFR_lines(ax, xlim)
 
 
 def plot_avg_sfrs(ax, stlr_mass, sfrs):
@@ -255,7 +258,7 @@ def make_all_graph(stlr_mass, sfr, filtarr, markarr, z_arr, sizearr, title,
 def plot_zdep_avg_sfrs(ax, stlr_mass, sfrs, cc):
     '''
     '''
-    mbins0 = np.arange(6.25, 10.75, .5)
+    mbins0 = np.arange(6.25, 12.25, .5)
     bin_ii = np.digitize(stlr_mass, mbins0+0.25)
     
     for i in set(bin_ii):
@@ -273,7 +276,8 @@ def plot_zdep_avg_sfrs(ax, stlr_mass, sfrs, cc):
             xerr=np.array([[avg_mass - (mbins0[i]-0.25)], [(mbins0[i]+0.25) - avg_mass]]))
 
 
-def make_redshift_graph(f, ax, z_arr, corr_sfrs, stlr_mass, zspec0, filts, good_sig_iis, cwheel):
+def make_redshift_graph(f, ax, z_arr, corr_sfrs, stlr_mass, zspec0, filts, good_sig_iis, cwheel,
+    ffarr=['NB7', 'NB816', 'NB921', 'NB973'], llarr=['NB704,NB711', 'NB816', 'NB921', 'NB973']):
     '''
     '''
     eqn0 = r'$log(SFR) = \alpha log(M) + \beta z + \gamma$'
@@ -288,7 +292,8 @@ def make_redshift_graph(f, ax, z_arr, corr_sfrs, stlr_mass, zspec0, filts, good_
     yes_spectra = np.where((zspec0 >= 0) & (zspec0 < 9))[0]
 
     centr_filts = {'NB7':((7045.0/6562.8 - 1) + (7126.0/6562.8 - 1))/2.0, 
-                   'NB816':8152.0/6562.8 - 1, 'NB921':9193.0/6562.8 - 1, 'NB973':9749.0/6562.8 - 1}    
+                   'NB816':8152.0/6562.8 - 1, 'NB921':9193.0/6562.8 - 1, 'NB973':9749.0/6562.8 - 1,
+                   'NEWHA':0.8031674}
 
 
     # for obtaining the best-fit line params
@@ -304,7 +309,9 @@ def make_redshift_graph(f, ax, z_arr, corr_sfrs, stlr_mass, zspec0, filts, good_
     perr = np.sqrt(np.diag(pcov))
 
 
-    for ff,cc,ll,zz in zip(['NB7', 'NB816', 'NB921', 'NB973'][::-1], cwheel[::-1], ['NB704,NB711', 'NB816', 'NB921', 'NB973'][::-1], z_arr[::-1]):
+    # ffarr = ['NB7', 'NB816', 'NB921', 'NB973']
+    # llarr = ['NB704,NB711', 'NB816', 'NB921', 'NB973']
+    for ff,cc,ll,zz in zip(ffarr[::-1], cwheel[::-1], llarr[::-1], z_arr[::-1]):
         if 'NB7' in ff:
             filt_index_n = np.array([x for x in range(len(no_spectra)) if ff[:3] in ffs[no_spectra][x]])
             filt_index_y = np.array([x for x in range(len(yes_spectra)) if ff[:3] in ffs[yes_spectra][x]])
@@ -312,14 +319,16 @@ def make_redshift_graph(f, ax, z_arr, corr_sfrs, stlr_mass, zspec0, filts, good_
             filt_index_n = np.array([x for x in range(len(no_spectra)) if ff==ffs[no_spectra][x]])
             filt_index_y = np.array([x for x in range(len(yes_spectra)) if ff==ffs[yes_spectra][x]])
 
+            # if ff=='NEWHA': print filt_index_y, filt_index_n
+
         # scattering
         ax.scatter(smass0[yes_spectra][filt_index_y], sfrs00[yes_spectra][filt_index_y],
             facecolors=cc, edgecolors='none', alpha=0.3,
             zorder=3, label='z~'+zz+' ('+ll+')')
-
-        ax.scatter(smass0[no_spectra][filt_index_n], sfrs00[no_spectra][filt_index_n],
-            facecolors='none', edgecolors=cc, alpha=0.3, 
-            linewidth=0.5, zorder=3)
+        if ff != 'NEWHA':
+            ax.scatter(smass0[no_spectra][filt_index_n], sfrs00[no_spectra][filt_index_n],
+                facecolors='none', edgecolors=cc, alpha=0.3, 
+                linewidth=0.5, zorder=3)
 
         # plotting the best-fit lines
         filt_match = np.array([x for x in range(len(ffs)) if ff in ffs[x]])
@@ -437,7 +446,7 @@ def main():
     plt.savefig(FULL_PATH+'Plots/main_sequence/mainseq.pdf')
     plt.close()
 
-    mainseq_fig4_only = True
+    mainseq_fig4_only = False
     if mainseq_fig4_only:
         i=5
         f, ax = plt.subplots()
