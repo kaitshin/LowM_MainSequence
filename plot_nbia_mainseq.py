@@ -361,13 +361,14 @@ def bestfit_zssfr(ax, tmpzarr0, tmpsarr0):
     ax.plot(xrange_tmp,  line(xrange_tmp, *tempparams), 'k--')
 
 
-def make_ssfr_graph(f, axes, sfrs00, smass0, filts00, zspec00, cwheel, z_arr):
+def make_ssfr_graph(f, axes, sfrs00, smass0, filts00, zspec00, cwheel, z_arr,
+    ffarr=['NB7', 'NB816', 'NB921', 'NB973'], llarr=['NB704,NB711', 'NB816', 'NB921', 'NB973']):
     '''
     '''
     ssfr = sfrs00-smass0
     tmpzarr0, tmpsarr0 = [], []
     for i, ax in enumerate(axes):
-        for ff,cc,ll,zz in zip(['NB7', 'NB816', 'NB921', 'NB973'], cwheel, ['NB704,NB711', 'NB816', 'NB921', 'NB973'], z_arr):
+        for ff,cc,ll,zz in zip(ffarr, cwheel, llarr, z_arr):
             filt_match = np.array([x for x in range(len(filts00)) if ff in filts00[x]])
             
             if i==0:
