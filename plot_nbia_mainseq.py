@@ -52,8 +52,8 @@ def delosreyes_2015(ax):
     yarr = np.array([0.06, 0.27, 0.43, 0.83, 1.05, 1.18, 1.50, 1.54])
     yerr = np.array([0.454, 0.313, 0.373, 0.329, 0.419, 0.379, 0.337, 0.424])
 
-    ax.errorbar(xarr, yarr, yerr, fmt='c', ecolor='c', zorder=2) 
-    delosreyes = ax.scatter(xarr, yarr, color='c', marker='s',
+    ax.errorbar(xarr, yarr, yerr, fmt='deepskyblue', ecolor='deepskyblue', zorder=2) 
+    delosreyes = ax.scatter(xarr, yarr, color='deepskyblue', marker='s',
                              label='de los Reyes+15 (z~0.8)', zorder=2)
     return delosreyes
 
@@ -239,12 +239,12 @@ def make_all_graph(stlr_mass, sfr, filtarr, markarr, z_arr, sizearr, title,
 
         temp = ax.scatter(stlr_mass[yes_spectra][filt_index_y],
                        sfr[yes_spectra][filt_index_y], marker=mark,
-                       facecolors=color, edgecolors='none', alpha=0.3,
+                       facecolors=color, edgecolors='none', alpha=0.2,
                        zorder=3, label='z~'+np.str(avg_z)+' ('+ff+')', s=size)
 
         ax.scatter(stlr_mass[no_spectra][filt_index_n], 
                         sfr[no_spectra][filt_index_n],
-                        marker=mark, facecolors='none', edgecolors=color, alpha=0.3, 
+                        marker=mark, facecolors='none', edgecolors=color, alpha=0.2, 
                         linewidth=0.5, zorder=3, label='z~'+np.str(avg_z)+' ('+ff+')', s=size)
         
         labelarr = np.append(labelarr, temp)

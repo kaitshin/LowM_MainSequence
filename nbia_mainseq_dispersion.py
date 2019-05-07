@@ -36,7 +36,7 @@ def add_legends(ax):
 
     # second legend
     noeske, = ax.plot(-100,100,color='orange', marker='+',label='Noeske+07 (0.20<z<0.40)',mew=2,markersize=11)
-    delosreyes = ax.scatter(-100, 100, color='c', marker='s',label='de los Reyes+15 (z~0.8)', zorder=2)
+    delosreyes = ax.scatter(-100, 100, color='deepskyblue', marker='s',label='de los Reyes+15 (z~0.8)', zorder=2)
     # salim, = ax.plot([-100, 100], [-100, 100], 'k-', label='Salim+07 (z~0)', zorder=1)
     salim = Patch(facecolor='gray', edgecolor='None', alpha=0.4, label='Salim+07 (z~0)')
     labelarr2 = np.array([delosreyes, noeske, salim])
@@ -91,8 +91,8 @@ def delosreyes_2015(ax):
     dlr_xarr = np.array([9.27, 9.52, 9.76, 10.01, 10.29, 10.59, 10.81, 11.15])
     dlr_yarr = np.array([0.06, 0.27, 0.43, 0.83, 1.05, 1.18, 1.50, 1.54])
     dlr_yerr = np.array([0.454, 0.313, 0.373, 0.329, 0.419, 0.379, 0.337, 0.424])
-    ax.errorbar(dlr_xarr, dlr_yarr - delosreyes_fit(dlr_xarr), dlr_yerr, fmt='none', ecolor='c', zorder=2) 
-    ax.scatter(dlr_xarr, dlr_yarr - delosreyes_fit(dlr_xarr), color='c', marker='s', zorder=2)
+    ax.errorbar(dlr_xarr, dlr_yarr - delosreyes_fit(dlr_xarr), dlr_yerr, fmt='none', ecolor='deepskyblue', zorder=2) 
+    ax.scatter(dlr_xarr, dlr_yarr - delosreyes_fit(dlr_xarr), color='deepskyblue', marker='s', zorder=2)
 
 
 def func0(data, a, b, c):
@@ -134,7 +134,7 @@ def noeske_2007(ax):
     params, pcov = optimize.curve_fit(line, logM, logSFR)
     ax.fill_between(logM, logSFR_low-line(logM, *params), logSFR_high-line(logM, *params), facecolor='none',
                     hatch=3*'.', edgecolor='orange', linewidth=0.0, zorder=1)
-    ax.plot(logM, logSFR - line(logM, *params), color='orange', marker='+', 
+    ax.plot(logM, logSFR - line(logM, *params), color='orange', marker='+', lw=0,
             mew=2, markersize=11)
 
 
@@ -176,12 +176,12 @@ def plot_resids(ax, markarr, sizearr, z_arr, no_spectra, yes_spectra, good_sig_i
 
         ax.scatter(smass0[yes_spectra][filt_index_y],
                    sfrs_resid[yes_spectra][filt_index_y], marker=mm,
-                   facecolors='blue', edgecolors='none', alpha=0.3,
+                   facecolors='blue', edgecolors='none', alpha=0.2,
                    label='z~'+np.str(avg_z)+' ('+ll+')', s=size)
 
         ax.scatter(smass0[no_spectra][filt_index_n], 
                         sfrs_resid[no_spectra][filt_index_n],
-                        marker=mm, facecolors='none', edgecolors='blue', alpha=0.3, 
+                        marker=mm, facecolors='none', edgecolors='blue', alpha=0.2, 
                         linewidth=0.5, zorder=3, s=size)
     assert np.sum(check_nums)==len(good_sig_iis)
 
