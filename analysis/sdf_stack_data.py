@@ -15,6 +15,12 @@ OUTPUTS:
 
 import numpy as np
 from stack_data import stack
+
+# newt.phys.unsw.edu.au/~jkw/alpha/useful_lines.pdf
+HG = 4340.47
+HB = 4861.33
+HA = 6562.80
+
 def stack_data(ndarr, zspec, index, x0, xmin, xmax, dlambda, ff='', instr=''):
     '''
     TODO(document)
@@ -49,9 +55,9 @@ def stack_data(ndarr, zspec, index, x0, xmin, xmax, dlambda, ff='', instr=''):
             ma = np.isnan(new_grid)
             new_grid2 = np.ma.array(new_grid, mask=ma)
             x_rest = np.arange(xmin, xmax, dlambda)
-            idx0 = (np.abs(x_rest-4341.0)).argmin()
-            idx1 = (np.abs(x_rest-4861.0)).argmin()
-            idx2 = (np.abs(x_rest-6563.0)).argmin()
+            idx0 = (np.abs(x_rest-HG)).argmin()
+            idx1 = (np.abs(x_rest-HB)).argmin()
+            idx2 = (np.abs(x_rest-HA)).argmin()
             good_hg_num = np.ma.count(new_grid2, axis=0)[idx0]
             good_hb_num = np.ma.count(new_grid2, axis=0)[idx1]
             good_ha_num = np.ma.count(new_grid2, axis=0)[idx2]
@@ -64,8 +70,8 @@ def stack_data(ndarr, zspec, index, x0, xmin, xmax, dlambda, ff='', instr=''):
             # looks for # sources stacked @ nearest emission line by finding nearest idx 
             ma = np.isnan(new_grid)
             new_grid2 = np.ma.array(new_grid, mask=ma)
-            idx0 = (np.abs(x_rest-4861.0)).argmin()
-            idx1 = (np.abs(x_rest-6563.0)).argmin()
+            idx0 = (np.abs(x_rest-HB)).argmin()
+            idx1 = (np.abs(x_rest-HA)).argmin()
             good_hb_num = np.ma.count(new_grid2, axis=0)[idx0]
             good_ha_num = np.ma.count(new_grid2, axis=0)[idx1]
 
@@ -81,13 +87,13 @@ def stack_data(ndarr, zspec, index, x0, xmin, xmax, dlambda, ff='', instr=''):
         ma = np.isnan(new_grid)
         new_grid2 = np.ma.array(new_grid, mask=ma)
         x_rest = np.arange(xmin, xmax, dlambda)
-        idx0 = (np.abs(x_rest-4861.0)).argmin()
-        idx1 = (np.abs(x_rest-6563.0)).argmin()
+        idx0 = (np.abs(x_rest-HB)).argmin()
+        idx1 = (np.abs(x_rest-HA)).argmin()
         good_hb_num = np.ma.count(new_grid2, axis=0)[idx0]
         good_ha_num = np.ma.count(new_grid2, axis=0)[idx1]
 
         if instr=='MMT':
-            idx2 = (np.abs(x_rest-4341.0)).argmin()
+            idx2 = (np.abs(x_rest-HG)).argmin()
             good_hg_num = np.ma.count(new_grid2, axis=0)[idx2]
             return x_rest, plot_grid_avg, [good_hg_num, good_hb_num, good_ha_num], index, avgz, minz, maxz
         else:

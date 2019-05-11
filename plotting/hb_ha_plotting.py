@@ -11,6 +11,12 @@ from analysis.balmer_fit import find_nearest, get_best_fit, get_best_fit2, get_b
 from matplotlib.ticker import MaxNLocator
 import numpy as np
 
+# newt.phys.unsw.edu.au/~jkw/alpha/useful_lines.pdf
+HB = 4861.33
+HA = 6562.80
+NII6548 = 6548.03
+NII6583 = 6583.41
+
 def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0, 
     pos_amp=0, neg_amp=0, pos_sigma=0, neg_sigma=0, continuum=0, ew=0, ew_abs=0, 
     flux_niib=0, rms=0, publ=True):
@@ -63,10 +69,10 @@ def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0,
                 '\ncontinuum='+'{:.3f}'.format((continuum/1E-17)),
                 transform=ax.transAxes,fontsize=5,ha='right',va='top')
         if subtitle != 'NB816':
-            ax_list[num-1].plot([4861,4861],[0,ymaxval],'k',alpha=0.7,zorder=1)
-        ax_list[num].plot([6563,6563], [0,ymaxval],'k',alpha=0.7,zorder=1)
-        ax_list[num].plot([6548,6548],[0,ymaxval], 'k:',alpha=0.4,zorder=1)
-        ax_list[num].plot([6583,6583],[0,ymaxval], 'k:',alpha=0.4,zorder=1)
+            ax_list[num-1].plot([HB,HB],[0,ymaxval],'k',alpha=0.7,zorder=1)
+        ax_list[num].plot([HA,HA], [0,ymaxval],'k',alpha=0.7,zorder=1)
+        ax_list[num].plot([NII6548,NII6548],[0,ymaxval], 'k:',alpha=0.4,zorder=1)
+        ax_list[num].plot([NII6583,NII6583],[0,ymaxval], 'k:',alpha=0.4,zorder=1)
     #endif
     if num<8:
         ax.set_xticklabels([])
@@ -97,31 +103,31 @@ def subplots_plotting(ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, to
         o1 = get_best_fit(xval, yval, label)
         ax.plot(xval, (o1[3]+o1[0]*np.exp(-0.5*((xval-o1[1])/o1[2])**2))/1E-17, 'r--', zorder=3)
 
-        peak_idx1_left  = find_nearest(xval, 6563-tol)
-        peak_idx1_right = find_nearest(xval, 6563+tol)
+        peak_idx1_left  = find_nearest(xval, HA-tol)
+        peak_idx1_right = find_nearest(xval, HA+tol)
         xval1=xval[peak_idx1_left:peak_idx1_right]
         flux = np.sum(dlambda * (o1[0]*np.exp(-0.5*((xval1-o1[1])/o1[2])**2)))
         # flux = np.sum(dlambda * (o1[0]*np.exp(-0.5*((xval-o1[1])/o1[2])**2)))
         pos_flux = flux
 
-        peak_idx2_left  = find_nearest(xval, 6548.1-tol)
-        peak_idx2_right = find_nearest(xval, 6548.1+tol)
+        peak_idx2_left  = find_nearest(xval, NII6548-tol)
+        peak_idx2_right = find_nearest(xval, NII6548+tol)
         xval2=xval[peak_idx2_left:peak_idx2_right]
         yval2=yval[peak_idx2_left:peak_idx2_right]
         try:
-            o2 = get_best_fit2(xval2, yval2, 6548.1, label)
+            o2 = get_best_fit2(xval2, yval2, NII6548, label)
         except RuntimeError:
             print '(For NII fitting) RuntimeError: Optimal parameters not found: Number of calls to function has reached maxfev = 1000.'
             o2 = [0,0,0,0]
         flux2 = np.sum(dlambda * (o2[0]*np.exp(-0.5*((xval2-o2[1])/o2[2])**2)))
         ax.plot(xval2, (o2[3]+o2[0]*np.exp(-0.5*((xval2-o2[1])/o2[2])**2))/1E-17, 'g,', zorder=3)
 
-        peak_idx3_left = find_nearest(xval, 6583.6-tol)
-        peak_idx3_right = find_nearest(xval, 6583.6+tol)
+        peak_idx3_left = find_nearest(xval, NII6583-tol)
+        peak_idx3_right = find_nearest(xval, NII6583+tol)
         xval3=xval[peak_idx3_left:peak_idx3_right]
         yval3=yval[peak_idx3_left:peak_idx3_right]
         try:
-            o3 = get_best_fit2(xval3, yval3, 6583.6, label)
+            o3 = get_best_fit2(xval3, yval3, NII6583, label)
         except RuntimeError:
             print '(For NII fitting) RuntimeError: Optimal parameters not found: Number of calls to function has reached maxfev = 1000.'
             o3 = [0,0,0,0]

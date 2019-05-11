@@ -11,7 +11,14 @@ import numpy as np, math
 import scipy.optimize as optimization
 from astropy.stats import sigma_clipped_stats
 
-ctr_arr = {r'H$\gamma$':4341, r'H$\beta$':4861, r'H$\alpha$':6563}
+# newt.phys.unsw.edu.au/~jkw/alpha/useful_lines.pdf
+HG = 4340.47
+HB = 4861.33
+HA = 6562.80
+NII6548 = 6548.03
+NII6583 = 6583.41
+
+ctr_arr = {r'H$\gamma$':HG, r'H$\beta$':HB, r'H$\alpha$':HA}
 ptol = 1
 
 def find_nearest(array,value):
@@ -33,27 +40,30 @@ def get_baseline_median(xval, yval, label):
 
     Also returns the stdev of the continuum
     '''
+    tol1 = 8
+    tol2 = 5
+
     if 'gamma' in label:
-        peak_l = find_nearest(xval, 4341-8)
-        peak_r = find_nearest(xval, 4341+8)
+        peak_l = find_nearest(xval, HG-tol1)
+        peak_r = find_nearest(xval, HG+tol1)
 
         temparr = np.concatenate([yval[:peak_l], yval[peak_r:]], axis=0)
         return np.median(temparr), np.nanstd(temparr)
     if 'beta' in label:
-        peak_l = find_nearest(xval, 4861-8)
-        peak_r = find_nearest(xval, 4861+8)
+        peak_l = find_nearest(xval, HB-tol1)
+        peak_r = find_nearest(xval, HB+tol1)
 
         temparr = np.concatenate([yval[:peak_l], yval[peak_r:]], axis=0)
         return np.median(temparr), np.nanstd(temparr)
     if 'alpha' in label:
-        nii_1l = find_nearest(xval, 6548.1-5)
-        nii_1r = find_nearest(xval, 6548.1+5)
+        nii_1l = find_nearest(xval, NII6548-tol2)
+        nii_1r = find_nearest(xval, NII6548+tol2)
 
-        peak_l = find_nearest(xval, 6563-8)
-        peak_r = find_nearest(xval, 6563+8)
+        peak_l = find_nearest(xval, HA-tol1)
+        peak_r = find_nearest(xval, HA+tol1)
 
-        nii_2l = find_nearest(xval, 6583.6-5)
-        nii_2r = find_nearest(xval, 6583.6+5)
+        nii_2l = find_nearest(xval, NII6583-tol2)
+        nii_2r = find_nearest(xval, NII6583+tol2)
 
         temparr = np.concatenate([yval[:nii_1l], yval[nii_1r:peak_l],
                                   yval[peak_r:nii_2l], yval[nii_2r:]], axis=0)

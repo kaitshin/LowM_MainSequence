@@ -11,6 +11,14 @@ from analysis.balmer_fit import find_nearest, get_best_fit, get_best_fit2, get_b
 from matplotlib.ticker import MaxNLocator
 import numpy as np
 
+# newt.phys.unsw.edu.au/~jkw/alpha/useful_lines.pdf
+HG = 4340.47
+HB = 4861.33
+HA = 6562.80
+OIII4363 = 4363.21
+NII6548 = 6548.03
+NII6583 = 6583.41
+
 def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0, 
     pos_amp=0, neg_amp=0, pos_sigma=0, neg_sigma=0, continuum=0, hb_nb921_flux=0, 
     ew=0, ew_abs=0, flux_niib=0, rms=0, bintype='N/A', ftitle='', publ=True):
@@ -68,9 +76,9 @@ def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0,
         ax.yaxis.set_major_locator(MaxNLocator(nbins=5))
     elif ftitle=='NB921' and num%3==1 and subtitle[10] != '8':
         ymaxval = max(ax.get_ylim())
-        ax_list[num-1].plot([4341,4341],[-1,ymaxval],'k',alpha=0.7,zorder=1)
-        ax_list[num-1].plot([4363,4363],[-1,ymaxval],'k:',alpha=0.4,zorder=1)
-        ax_list[num].plot([4861,4861],[-1,ymaxval],'k',alpha=0.7,zorder=1)
+        ax_list[num-1].plot([HG,HG],[-1,ymaxval],'k',alpha=0.7,zorder=1)
+        ax_list[num-1].plot([OIII4363,OIII4363],[-1,ymaxval],'k:',alpha=0.4,zorder=1)
+        ax_list[num].plot([HB,HB],[-1,ymaxval],'k',alpha=0.7,zorder=1)
         if subtitle[10]=='6':
             [a.set_ylim([-0.05, ymaxval]) for a in ax_list[num-1:num+1]]
         elif subtitle[10]=='7':
@@ -79,12 +87,12 @@ def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0,
         ymaxval = max(ax.get_ylim())
         if bintype!='StellarMassZ' or ftitle!='NB973':
             [a.set_ylim(ymax=ymaxval) for a in ax_list[num-2:num]]
-        ax_list[num-2].plot([4341,4341],[0,ymaxval],'k',alpha=0.7,zorder=1)
-        ax_list[num-2].plot([4363,4363],[0,ymaxval],'k:',alpha=0.4,zorder=1)
-        ax_list[num-1].plot([4861,4861],[0,ymaxval],'k',alpha=0.7,zorder=1)
-        ax_list[num].plot([6563,6563], [0,ymaxval],'k',alpha=0.7,zorder=1)
-        ax_list[num].plot([6548,6548],[0,ymaxval], 'k:',alpha=0.4,zorder=1)
-        ax_list[num].plot([6583,6583],[0,ymaxval], 'k:',alpha=0.4,zorder=1)
+        ax_list[num-2].plot([HG,HG],[0,ymaxval],'k',alpha=0.7,zorder=1)
+        ax_list[num-2].plot([OIII4363,OIII4363],[0,ymaxval],'k:',alpha=0.4,zorder=1)
+        ax_list[num-1].plot([HB,HB],[0,ymaxval],'k',alpha=0.7,zorder=1)
+        ax_list[num].plot([HA,HA], [0,ymaxval],'k',alpha=0.7,zorder=1)
+        ax_list[num].plot([NII6548,NII6548],[0,ymaxval], 'k:',alpha=0.4,zorder=1)
+        ax_list[num].plot([NII6583,NII6583],[0,ymaxval], 'k:',alpha=0.4,zorder=1)
         if publ==True:
             ax.text(0.97,0.97,'Flux='+'{:.3f}'.format((pos_flux/1E-17))+
                 '\n[N II]='+'{:.3f}'.format((flux_niib/pos_flux))+ # [N II] is the flux of [N II]lambda6583/Ha
@@ -101,15 +109,15 @@ def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0,
     elif subtitle=='NB973' and num%3==1:
         ymaxval = max(ax.get_ylim())
         [a.set_ylim(ymax=ymaxval) for a in ax_list[num-1:num]]
-        ax_list[num-1].plot([4341,4341],[0,ymaxval],'k',alpha=0.7,zorder=1)
-        ax_list[num-1].plot([4363,4363],[0,ymaxval],'k:',alpha=0.4,zorder=1)
-        ax_list[num].plot([4861,4861],[0,ymaxval],'k',alpha=0.7,zorder=1)
+        ax_list[num-1].plot([HG,HG],[0,ymaxval],'k',alpha=0.7,zorder=1)
+        ax_list[num-1].plot([OIII4363,OIII4363],[0,ymaxval],'k:',alpha=0.4,zorder=1)
+        ax_list[num].plot([HB,HB],[0,ymaxval],'k',alpha=0.7,zorder=1)
     elif bintype=='StellarMassZ' and ftitle=='NB973' and num%3==1:
         ymaxval = max(ax.get_ylim())
         [a.set_ylim(ymax=ymaxval) for a in ax_list[num-1:num]]
-        ax_list[num-1].plot([4341,4341],[0,ymaxval],'k',alpha=0.7,zorder=1)
-        ax_list[num-1].plot([4363,4363],[0,ymaxval],'k:',alpha=0.4,zorder=1)
-        ax_list[num].plot([4861,4861],[0,ymaxval],'k',alpha=0.7,zorder=1)
+        ax_list[num-1].plot([HG,HG],[0,ymaxval],'k',alpha=0.7,zorder=1)
+        ax_list[num-1].plot([OIII4363,OIII4363],[0,ymaxval],'k:',alpha=0.4,zorder=1)
+        ax_list[num].plot([HB,HB],[0,ymaxval],'k',alpha=0.7,zorder=1)
     if num%3!=0:
         ax.set_yticklabels([])
     if num<12:
@@ -165,8 +173,8 @@ def subplots_plotting(ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, to
         ax.plot(xval, (o1[3]+o1[0]*np.exp(-0.5*((xval-o1[1])/o1[2])**2))/1E-17,
                 'r--', zorder=3)
         
-        peak_idx1_left  = find_nearest(xval, 6563-tol)
-        peak_idx1_right = find_nearest(xval, 6563+tol)
+        peak_idx1_left  = find_nearest(xval, HA-tol)
+        peak_idx1_right = find_nearest(xval, HA+tol)
         xval1=xval[peak_idx1_left:peak_idx1_right]
         flux = np.sum(dlambda * (o1[0]*np.exp(-0.5*((xval1-o1[1])/o1[2])**2)))
         # flux = np.sum(dlambda * (o1[0]*np.exp(-0.5*((xval-o1[1])/o1[2])**2)))
@@ -177,19 +185,19 @@ def subplots_plotting(ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, to
             flux3 = 0
         else: #elif subtitle!='NB973':
             print 'label|subtitle', label, subtitle
-            peak_idx2_left  = find_nearest(xval, 6548.1-tol)
-            peak_idx2_right = find_nearest(xval, 6548.1+tol)
+            peak_idx2_left  = find_nearest(xval, NII6548-tol)
+            peak_idx2_right = find_nearest(xval, NII6548+tol)
             xval2=xval[peak_idx2_left:peak_idx2_right]
             yval2=yval[peak_idx2_left:peak_idx2_right]
-            o2 = get_best_fit2(xval2, yval2, 6548.1, label)
+            o2 = get_best_fit2(xval2, yval2, NII6548, label)
             flux2 = np.sum(dlambda * (o2[0]*np.exp(-0.5*((xval2-o2[1])/o2[2])**2)))
             ax.plot(xval2, (o2[3]+o2[0]*np.exp(-0.5*((xval2-o2[1])/o2[2])**2))/1E-17, 'g,', zorder=3)
 
-            peak_idx3_left  = find_nearest(xval, 6583.6-tol)
-            peak_idx3_right = find_nearest(xval, 6583.6+tol)
+            peak_idx3_left  = find_nearest(xval, NII6583-tol)
+            peak_idx3_right = find_nearest(xval, NII6583+tol)
             xval3=xval[peak_idx3_left:peak_idx3_right]
             yval3=yval[peak_idx3_left:peak_idx3_right]
-            o3 = get_best_fit2(xval3, yval3, 6583.6, label)
+            o3 = get_best_fit2(xval3, yval3, NII6583, label)
             flux3 = np.sum(dlambda * (o3[0]*np.exp(-0.5*((xval3-o3[1])/o3[2])**2)))
             ax.plot(xval3, (o3[3]+o3[0]*np.exp(-0.5*((xval3-o3[1])/o3[2])**2))/1E-17, 'g,', zorder=3)
 

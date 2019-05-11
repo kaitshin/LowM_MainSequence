@@ -19,9 +19,14 @@ NOTES:
 import numpy as np
 from analysis.cardelli import *   # k = cardelli(lambda0, R=3.1)
 
-k_hg = cardelli(4341 * u.Angstrom)
-k_hb = cardelli(4861 * u.Angstrom)
-k_ha = cardelli(6563 * u.Angstrom)
+# newt.phys.unsw.edu.au/~jkw/alpha/useful_lines.pdf
+HG = 4340.47
+HB = 4861.33
+HA = 6562.80
+
+k_hg = cardelli(HG * u.Angstrom)
+k_hb = cardelli(HB * u.Angstrom)
+k_ha = cardelli(HA * u.Angstrom)
 
 def compute_onesig_pdf(arr0, x_val):
     '''

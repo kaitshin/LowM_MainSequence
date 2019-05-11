@@ -51,6 +51,11 @@ from matplotlib.backends.backend_pdf import PdfPages
 from analysis.cardelli import *   # k = cardelli(lambda0, R=3.1)
 from astropy import units as u
 
+# newt.phys.unsw.edu.au/~jkw/alpha/useful_lines.pdf
+HG = 4340.47
+HB = 4861.33
+HA = 6562.80
+
 MIN_NUM_PER_BIN = 9
 MAX_NUM_OF_BINS = 5
 SEED_ORIG = 19823
@@ -825,9 +830,9 @@ inst_dict['Keck'] = ['merged,','Keck,','Keck,Keck,','Keck,FOCAS,',
                      'Keck,FOCAS,FOCAS,','Keck,Keck,FOCAS,','merged,FOCAS,']
 tol = 3 #in angstroms, used for NII emission flux calculations ##used
 
-k_hg = cardelli(4341 * u.Angstrom)
-k_hb = cardelli(4861 * u.Angstrom)
-k_ha = cardelli(6563 * u.Angstrom)
+k_hg = cardelli(HG * u.Angstrom)
+k_hb = cardelli(HB * u.Angstrom)
+k_ha = cardelli(HA * u.Angstrom)
 
 nbia = pyfits.open(FULL_PATH+'Catalogs/NB_IA_emitters.nodup.colorrev.fix.fits')
 nbiadata = nbia[1].data

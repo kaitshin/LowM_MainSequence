@@ -20,6 +20,9 @@ import scipy.optimize as optimize
 from astropy.io import ascii as asc
 from astropy.table import Table
 
+# newt.phys.unsw.edu.au/~jkw/alpha/useful_lines.pdf
+HA = 6562.80
+
 FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
 CUTOFF_SIGMA = 4.0
 CUTOFF_MASS = 6.0
@@ -108,7 +111,7 @@ def get_vis_redshift_arr():
     '''
     defines an approximate redshift array for plot visualization
     '''
-    z_arr0 = np.array([7045.0, 7126.0, 8152.0, 9193.0, 9749.0])/6563.0 - 1
+    z_arr0 = np.array([7045.0, 7126.0, 8152.0, 9193.0, 9749.0])/HA - 1
     z_arr0 = np.around(z_arr0, 2)
     z_arr  = np.array(z_arr0, dtype='|S9')
     z_arr[0] = ",".join(z_arr[:2])
@@ -230,7 +233,7 @@ def main():
     ffs = filts[good_sig_iis]
     for ff in filt_lambda_list.keys():
         badf_match = np.where(ffs[badz_iis] == ff)[0]
-        zspec0[badz_iis[badf_match]] = (filt_lambda_list[ff]/6562.8) - 1
+        zspec0[badz_iis[badf_match]] = (filt_lambda_list[ff]/HA) - 1
 
     data00 = np.vstack([smass0, zspec0]).T
     filts00 = filts[good_sig_iis]

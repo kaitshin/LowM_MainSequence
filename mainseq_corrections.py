@@ -39,6 +39,9 @@ from scipy import stats
 from scipy.interpolate import interp1d
 cosmo = FlatLambdaCDM(H0 = 70 * u.km / u.s / u.Mpc, Om0=0.3)
 
+# newt.phys.unsw.edu.au/~jkw/alpha/useful_lines.pdf
+HB = 4861.33
+HA = 6562.80
 
 FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
 SEED_ORIG = 57842
@@ -63,7 +66,7 @@ def apply_filt_corrs_interp(ff, filt_corrs, zspec0, bad_z, good_z, AP, allcolsda
     # reading data
     response = asc.read(FULL_PATH+'Filters/'+ff+'response.dat',guess=False,
                     Reader=asc.NoHeader)
-    z_filt = response['col1'].data/6562.8 - 1
+    z_filt = response['col1'].data/HA - 1
     yresponse = np.array(response['col2'])
 
     filter_stat_corr_dict = {'NB704':1.289439104, 'NB711':1.41022358406, 'NB816':1.29344789854, 'NB921':1.32817034288, 'NB973':1.29673596942}
@@ -295,8 +298,8 @@ def EBV_corrs_no_spectra(tab_no_spectra, mmt_mz, mmt_mz_EBV_hahb, mmt_mz_EBV_hgh
 def EBV_corrs_yes_spectra(EBV_corrs_ys, yes_spectra, HA_FLUX, HB_FLUX, HB_SNR, HA_SNR):
     '''
     '''
-    k_hb = cardelli(4861 * u.Angstrom)
-    k_ha = cardelli(6563 * u.Angstrom)
+    k_hb = cardelli(HB * u.Angstrom)
+    k_ha = cardelli(HA * u.Angstrom)
     
     gooddata_iis = np.where((HB_SNR[yes_spectra] >= 5) & (HA_SNR[yes_spectra] > 0) & (HA_FLUX[yes_spectra] > 1e-20) & (HA_FLUX[yes_spectra] < 99))[0]
     good_EBV_iis = yes_spectra[gooddata_iis]
@@ -679,7 +682,7 @@ def main():
 
 
     # getting dust extinction factors and corrections
-    k_ha = cardelli(6563.0 * u.Angstrom)
+    k_ha = cardelli(HA * u.Angstrom)
     A_V = k_ha * EBV_corrs
     dustcorr_fluxes = orig_fluxes + 0.4*A_V # A_V = A(Ha) = extinction at Ha
     dust_corr_factor = dustcorr_fluxes - orig_fluxes
@@ -694,7 +697,7 @@ def main():
     tempz = np.array([-100.0]*len(no_spectra))
     for ff, ii in zip(filtarr, range(len(filt_cen))):
         filt_match = np.array([x for x in range(len(no_spectra)) if tab_no_spectra['filter'][x]==ff])
-        tempz[filt_match] = filt_cen[ii]/6562.8 - 1
+        tempz[filt_match] = filt_cen[ii]/HA - 1
     #endfor
     lum_dist_ns = (cosmo.luminosity_distance(tempz).to(u.cm).value)
     lum_factor_ns = np.log10(4*np.pi)+2*np.log10(lum_dist_ns) # = log10(L[Ha])

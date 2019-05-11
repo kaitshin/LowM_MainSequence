@@ -31,10 +31,12 @@ from astropy.io import fits as pyfits, ascii as asc
 from astropy.table import Table
 from create_ordered_AP_arrays import create_ordered_AP_arrays
 
+# newt.phys.unsw.edu.au/~jkw/alpha/useful_lines.pdf
+HG_VAL = 4340.47
+HB_VAL = 4861.33
+HA_VAL = 6562.80
+
 FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
-HG_VAL = 4341
-HB_VAL = 4861
-HA_VAL = 6563
 
 def get_filt_arr(NAME0):
     '''
@@ -113,9 +115,9 @@ def get_spectral_cvg_MMT(MMT_LMIN0, MMT_LMAX0, zspec0, grid_ndarr_match_ii, x0):
     HB = np.array([])
     HA = np.array([])
     for lmin0, lmax0, row, z in zip(MMT_LMIN0, MMT_LMAX0, grid_ndarr_match_ii, zspec0):
-        hg_near_iis = find_nearest_iis(x0, 4341*(1+z))
-        hb_near_iis = find_nearest_iis(x0, 4861*(1+z))
-        ha_near_iis = find_nearest_iis(x0, 6563*(1+z))
+        hg_near_iis = find_nearest_iis(x0, HG*(1+z))
+        hb_near_iis = find_nearest_iis(x0, HB*(1+z))
+        ha_near_iis = find_nearest_iis(x0, HA*(1+z))
 
         if lmin0 < 0:
             HG = np.append(HG, 'NO')

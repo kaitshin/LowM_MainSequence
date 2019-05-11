@@ -26,6 +26,12 @@ from astropy.io import ascii as asc, fits as pyfits
 from astropy import constants
 from matplotlib.backends.backend_pdf import PdfPages
 
+# newt.phys.unsw.edu.au/~jkw/alpha/useful_lines.pdf
+HB = 4861.33
+HA = 6562.80
+OII3727 = 3726.03
+OIII5007 = 5006.84
+
 fileend='.GALEX'
 FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
 
@@ -279,7 +285,7 @@ id_match = np.array([x for x in range(len(ID0)) if ID0[x] in ha_id])
 dust_lumin[id_match] = dust_lumin0
 print '### done reading files'
 
-lambda_naught = np.array([3727.0,(4861.0+5007.0)/2.0,6563.0])
+lambda_naught = np.array([OII3727,(HB+OIII5007)/2.0,HA])
 lambda_label  = np.array(['[OII]','H'+r'$\beta$'+'+[OIII]', 'H'+r'$\alpha$'+''])
 
 np.random.seed(436)

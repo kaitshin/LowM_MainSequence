@@ -35,13 +35,16 @@ from analysis.composite_errors import composite_errors
 from astropy.io import ascii as asc
 from create_ordered_AP_arrays import create_ordered_AP_arrays
 
+# newt.phys.unsw.edu.au/~jkw/alpha/useful_lines.pdf
+HA = 6562.80
+
 FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
 SEED_ORIG = 276389
 
 ### starting here
 def main():
     # reading in data
-    k_ha = cardelli(6563 * u.Angstrom)
+    k_ha = cardelli(HA * u.Angstrom)
 
     mmt_cvg = asc.read(FULL_PATH+'Composite_Spectra/MMT_spectral_coverage.txt')
     keck_cvg = asc.read(FULL_PATH+'Composite_Spectra/Keck_spectral_coverage.txt')

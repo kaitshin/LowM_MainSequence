@@ -25,6 +25,9 @@ import matplotlib as mpl
 from astropy.io import ascii as asc
 from analysis.composite_errors import compute_onesig_pdf
 
+# newt.phys.unsw.edu.au/~jkw/alpha/useful_lines.pdf
+HA = 6562.80
+
 FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
 CUTOFF_SIGMA = 4.0
 CUTOFF_MASS = 6.0
@@ -291,8 +294,8 @@ def make_redshift_graph(f, ax, z_arr, corr_sfrs, stlr_mass, zspec0, filts, good_
     no_spectra  = np.where((zspec0 <= 0) | (zspec0 > 9))[0]
     yes_spectra = np.where((zspec0 >= 0) & (zspec0 < 9))[0]
 
-    centr_filts = {'NB7':((7045.0/6562.8 - 1) + (7126.0/6562.8 - 1))/2.0, 
-                   'NB816':8152.0/6562.8 - 1, 'NB921':9193.0/6562.8 - 1, 'NB973':9749.0/6562.8 - 1,
+    centr_filts = {'NB7':((7045.0/HA - 1) + (7126.0/HA - 1))/2.0, 
+                   'NB816':8152.0/HA - 1, 'NB921':9193.0/HA - 1, 'NB973':9749.0/HA - 1,
                    'NEWHA':0.8031674}
 
 
@@ -302,7 +305,7 @@ def make_redshift_graph(f, ax, z_arr, corr_sfrs, stlr_mass, zspec0, filts, good_
     ffs = filts[good_sig_iis]
     for ff in filt_lambda_list.keys():
         badf_match = np.where(ffs[badz_iis] == ff)[0]
-        zspec0[badz_iis[badf_match]] = (filt_lambda_list[ff]/6562.8) - 1
+        zspec0[badz_iis[badf_match]] = (filt_lambda_list[ff]/HA) - 1
     
     data00 = np.vstack([smass0, zspec0]).T
     params, pcov = optimize.curve_fit(func0, data00, sfrs00, method='lm')
@@ -420,7 +423,7 @@ def main():
     sizearr = np.array([6.0, 6.0, 6.0, 9.0])**2
 
     # defining an approximate redshift array for plot visualization
-    z_arr0 = np.array([7045.0, 7126.0, 8152.0, 9193.0, 9749.0])/6563.0 - 1
+    z_arr0 = np.array([7045.0, 7126.0, 8152.0, 9193.0, 9749.0])/HA - 1
     z_arr0 = np.around(z_arr0, 2)
     z_arr  = np.array(z_arr0, dtype='|S9')
     z_arr[0] = ",".join(z_arr[:2])
@@ -485,7 +488,7 @@ def main():
     ffs = filts[good_sig_iis]
     for ff in filt_lambda_list.keys():
         badf_match = np.where(ffs[badz_iis] == ff)[0]
-        zspec00[badz_iis[badf_match]] = (filt_lambda_list[ff]/6562.8) - 1
+        zspec00[badz_iis[badf_match]] = (filt_lambda_list[ff]/HA) - 1
 
     make_ssfr_graph(f, axes, sfrs00, smass0, filts00, zspec00, cwheel, z_arr)
     plt.subplots_adjust(right=0.99, top=0.98, left=0.05, bottom=0.09)

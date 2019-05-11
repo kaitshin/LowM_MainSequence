@@ -10,6 +10,11 @@ PURPOSE:
 
 import numpy as np
 
+# newt.phys.unsw.edu.au/~jkw/alpha/useful_lines.pdf
+HG = 4340.47
+HB = 4861.33
+HA = 6562.80
+
 def get_name_index_matches(NAME0, inst_str0, inst_dict, *args, **kwargs):
     '''
     Returns the indexes from which the kwargs name is in the ordered NAME0
@@ -122,14 +127,14 @@ def get_iter_lists(instr, stlr=False):
     based on instr keyword
     '''
     if instr=='MMT':
-        xmin_list = np.array([4341,4861,6563])-60
-        xmax_list = np.array([4341,4861,6563])+60
+        xmin_list = np.array([HG,HB,HA])-60
+        xmax_list = np.array([HG,HB,HA])+60
         label_list=[r'H$\gamma$',r'H$\beta$',r'H$\alpha$']
         subtitle_list = ['NB704+NB711']+['NB816']+['NB921']+['NB973']
         return (xmin_list, xmax_list, label_list, subtitle_list)
     elif instr=='Keck':
-        xmin_list = np.array([4861,6563])-30
-        xmax_list = np.array([4861,6563])+30
+        xmin_list = np.array([HB,HA])-30
+        xmax_list = np.array([HB,HA])+30
         label_list=[r'H$\beta$',r'H$\alpha$']
         subtitle_list = ['NB816']+['NB921']+['NB973']
         return (xmin_list, xmax_list, label_list, subtitle_list)
