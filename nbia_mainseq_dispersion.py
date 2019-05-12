@@ -20,7 +20,7 @@ import scipy.optimize as optimize
 from astropy.io import ascii as asc
 from astropy.table import Table
 
-# newt.phys.unsw.edu.au/~jkw/alpha/useful_lines.pdf
+# emission line wavelengths (air)
 HA = 6562.80
 
 FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'

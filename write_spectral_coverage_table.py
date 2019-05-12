@@ -31,9 +31,9 @@ from astropy.io import fits as pyfits, ascii as asc
 from astropy.table import Table
 from create_ordered_AP_arrays import create_ordered_AP_arrays
 
-# newt.phys.unsw.edu.au/~jkw/alpha/useful_lines.pdf
-HG_VAL = 4340.47
-HB_VAL = 4861.33
+# emission line wavelengths (air)
+HG_VAL = 4340.46
+HB_VAL = 4861.32
 HA_VAL = 6562.80
 
 FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'

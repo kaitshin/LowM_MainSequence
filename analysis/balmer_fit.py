@@ -11,12 +11,12 @@ import numpy as np, math
 import scipy.optimize as optimization
 from astropy.stats import sigma_clipped_stats
 
-# newt.phys.unsw.edu.au/~jkw/alpha/useful_lines.pdf
-HG = 4340.47
-HB = 4861.33
+# emission line wavelengths (air)
+HG = 4340.46
+HB = 4861.32
 HA = 6562.80
-NII6548 = 6548.03
-NII6583 = 6583.41
+NII6548 = 6548.10
+NII6583 = 6583.60
 
 ctr_arr = {r'H$\gamma$':HG, r'H$\beta$':HB, r'H$\alpha$':HA}
 ptol = 1

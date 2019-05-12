@@ -11,11 +11,11 @@ from analysis.balmer_fit import find_nearest, get_best_fit, get_best_fit2, get_b
 from matplotlib.ticker import MaxNLocator
 import numpy as np
 
-# newt.phys.unsw.edu.au/~jkw/alpha/useful_lines.pdf
-HB = 4861.33
+# emission line wavelengths (air)
+HB = 4861.32
 HA = 6562.80
-NII6548 = 6548.03
-NII6583 = 6583.41
+NII6548 = 6548.10
+NII6583 = 6583.60
 
 def subplots_setup(ax, ax_list, label, subtitle, num, pos_flux=0, flux=0, 
     pos_amp=0, neg_amp=0, pos_sigma=0, neg_sigma=0, continuum=0, ew=0, ew_abs=0, 

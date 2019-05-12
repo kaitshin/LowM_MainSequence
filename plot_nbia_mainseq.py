@@ -25,7 +25,7 @@ import matplotlib as mpl
 from astropy.io import ascii as asc
 from analysis.composite_errors import compute_onesig_pdf
 
-# newt.phys.unsw.edu.au/~jkw/alpha/useful_lines.pdf
+# emission line wavelengths (air)
 HA = 6562.80
 
 FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'

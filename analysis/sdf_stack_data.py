@@ -16,9 +16,9 @@ OUTPUTS:
 import numpy as np
 from stack_data import stack
 
-# newt.phys.unsw.edu.au/~jkw/alpha/useful_lines.pdf
-HG = 4340.47
-HB = 4861.33
+# emission line wavelengths (air)
+HG = 4340.46
+HB = 4861.32
 HA = 6562.80
 
 def stack_data(ndarr, zspec, index, x0, xmin, xmax, dlambda, ff='', instr=''):

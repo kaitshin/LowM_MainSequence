@@ -26,10 +26,10 @@ from astropy.io import ascii as asc, fits as pyfits
 from astropy import constants
 from matplotlib.backends.backend_pdf import PdfPages
 
-# newt.phys.unsw.edu.au/~jkw/alpha/useful_lines.pdf
-HB = 4861.33
+# emission line wavelengths (air)
+HB = 4861.32
 HA = 6562.80
-OII3727 = 3726.03
+OII3727 = (3726.16+3728.91)/2.0
 OIII5007 = 5006.84
 
 fileend='.GALEX'

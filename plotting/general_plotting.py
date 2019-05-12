@@ -10,9 +10,9 @@ PURPOSE:
 
 import numpy as np
 
-# newt.phys.unsw.edu.au/~jkw/alpha/useful_lines.pdf
-HG = 4340.47
-HB = 4861.33
+# emission line wavelengths (air)
+HG = 4340.46
+HB = 4861.32
 HA = 6562.80
 
 def get_name_index_matches(NAME0, inst_str0, inst_dict, *args, **kwargs):

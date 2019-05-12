@@ -39,8 +39,8 @@ from scipy import stats
 from scipy.interpolate import interp1d
 cosmo = FlatLambdaCDM(H0 = 70 * u.km / u.s / u.Mpc, Om0=0.3)
 
-# newt.phys.unsw.edu.au/~jkw/alpha/useful_lines.pdf
-HB = 4861.33
+# emission line wavelengths (air)
+HB = 4861.32
 HA = 6562.80
 
 FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
