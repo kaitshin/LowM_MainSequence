@@ -207,7 +207,11 @@ def ew_MC():
 
         # Read in mag vs mass extrapolation
         npz_mass_file = path0 + 'Completeness/mag_vs_mass_'+prefixes[ff]+'.npz'
-        npz_mass = np.loadz(npz_mass_file)
+        npz_mass = np.load(npz_mass_file)
+        cont_arr = npz_mass['cont_arr']
+        dmag = cont_arr[1]-cont_arr[0]
+        mass_int = interp1d(cont_arr+dmag/2.0, npz_mass['avg_logM'], bounds_error=False,
+                            fill_value=(0.0,15.0))
 
         fig, ax = plt.subplots(ncols=2, nrows=2)
         for nn in range(len(NB)):
@@ -226,6 +230,9 @@ def ew_MC():
 
                     t_EW, t_flux = ew_flux_dual(t_NB, t_NB + x_MC, x_MC, filt_dict)
                     ax[0][1].scatter(t_NB, np.log10(t_flux))
+
+                    logM_MC = mass_int(t_NB + x_MC)
+                    ax[1][1].scatter(logM_MC, np.log10(t_flux))
 
                     ax[0][0].axhline(y=minthres[ff], linestyle='dashed', color='blue')
                     ax[0][0].plot(NB, color_cut(NB, m_NB[ff], cont_lim[ff]), 'b--')
