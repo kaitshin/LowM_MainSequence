@@ -175,6 +175,8 @@ def mag_vs_mass(silent=False, verbose=True):
 
 def ew_MC():
 
+    prefixes = ['Ha-NB7','Ha-NB7','Ha-NB816','Ha-NB921','Ha-NB973']
+
     logEW_mean = np.arange(1.15,1.60,0.05)
     logEW_sig  = np.arange(0.15,0.45,0.05)
 
@@ -202,6 +204,10 @@ def ew_MC():
         NBmax = m_NB[ff]-0.5
         NB = np.arange(NBmin,NBmax+NBbin,NBbin)
         print('NB (min/max)', min(NB), max(NB))
+
+        # Read in mag vs mass extrapolation
+        npz_mass_file = path0 + 'Completeness/mag_vs_mass_'+prefixes[ff]+'.npz'
+        npz_mass = np.loadz(npz_mass_file)
 
         fig, ax = plt.subplots(ncols=2, nrows=2)
         for nn in range(len(NB)):
