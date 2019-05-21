@@ -26,6 +26,10 @@ from NB_errors import ew_flux_dual, fluxline, mag_combine
 
 from NB_errors import filt_ref, dNB, lambdac, dBB, epsilon
 
+import astropy.units as u
+from astropy.cosmology import FlatLambdaCDM
+cosmo = FlatLambdaCDM(H0 = 70 * u.km / u.s / u.Mpc, Om0=0.3)
+
 NB_filt = np.array([xx for xx in range(len(filt_ref)) if 'NB' in filt_ref[xx]])
 for arr in ['filt_ref','dNB','lambdac','dBB','epsilon']:
     cmd1 = arr + ' = np.array('+arr+')'
@@ -176,6 +180,7 @@ def mag_vs_mass(silent=False, verbose=True):
 def ew_MC():
 
     prefixes = ['Ha-NB7','Ha-NB7','Ha-NB816','Ha-NB921','Ha-NB973']
+    z_NB     = lambdac/6562.8 - 1.0
 
     logEW_mean = np.arange(1.15,1.60,0.05)
     logEW_sig  = np.arange(0.15,0.45,0.05)
@@ -213,6 +218,9 @@ def ew_MC():
         mass_int = interp1d(cont_arr+dmag/2.0, npz_mass['avg_logM'], bounds_error=False,
                             fill_value=(0.0,15.0))
 
+        lum_dist = cosmo.luminosity_distance(z_NB[ff]).to(u.cm).value
+        print(lum_dist, z_NB[ff])
+
         fig, ax = plt.subplots(ncols=2, nrows=2)
         for nn in range(len(NB)):
             for mm in [len(logEW_mean)-1]: #range(len(logEW_mean)): # loop over median of EW dist
@@ -231,8 +239,11 @@ def ew_MC():
                     t_EW, t_flux = ew_flux_dual(t_NB, t_NB + x_MC, x_MC, filt_dict)
                     ax[0][1].scatter(t_NB, np.log10(t_flux))
 
+                    t_HaLum = np.log10(t_flux) + np.log10(4*np.pi) + 2*np.log10(lum_dist)
+
                     logM_MC = mass_int(t_NB + x_MC)
-                    ax[1][1].scatter(logM_MC, np.log10(t_flux))
+                    ax[1][1].scatter(logM_MC, t_HaLum) #np.log10(t_flux))
+                    #ax[1][1].set_ylim([37.5,43.0])
 
                     ax[0][0].axhline(y=minthres[ff], linestyle='dashed', color='blue')
                     ax[0][0].plot(NB, color_cut(NB, m_NB[ff], cont_lim[ff]), 'b--')
