@@ -237,12 +237,12 @@ def ew_MC():
                     ax[0][0].scatter(t_NB, x_MC, marker=',', s=1)
 
                     t_EW, t_flux = ew_flux_dual(t_NB, t_NB + x_MC, x_MC, filt_dict)
-                    ax[0][1].scatter(t_NB, np.log10(t_flux))
+                    ax[0][1].scatter(t_NB, np.log10(t_flux), alpha=0.5, edgecolor='none')
 
                     t_HaLum = np.log10(t_flux) + np.log10(4*np.pi) + 2*np.log10(lum_dist)
 
                     logM_MC = mass_int(t_NB + x_MC)
-                    ax[1][1].scatter(logM_MC, t_HaLum) #np.log10(t_flux))
+                    ax[1][1].scatter(logM_MC, t_HaLum, alpha=0.5, edgecolor='none') #np.log10(t_flux))
                     #ax[1][1].set_ylim([37.5,43.0])
 
                     ax[0][0].axhline(y=minthres[ff], linestyle='dashed', color='blue')
