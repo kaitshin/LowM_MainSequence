@@ -236,17 +236,21 @@ def ew_MC():
                     t_NB = np.repeat(NB[nn], len(x_MC))
                     ax[0][0].scatter(t_NB, x_MC, marker=',', s=1)
 
+                    ax[0][0].axhline(y=minthres[ff], linestyle='dashed', color='blue')
+                    ax[0][0].plot(NB, color_cut(NB, m_NB[ff], cont_lim[ff]), 'b--')
+                    sig_limit = color_cut(t_NB, m_NB[ff], cont_lim[ff])
+                    NB_sel = np.where((x_MC >= minthres[ff]) & (x_MC >= sig_limit))[0]
+
                     t_EW, t_flux = ew_flux_dual(t_NB, t_NB + x_MC, x_MC, filt_dict)
                     ax[0][1].scatter(t_NB, np.log10(t_flux), alpha=0.5, edgecolor='none')
+                    ax[0][1].scatter(t_NB[NB_sel], np.log10(t_flux[NB_sel]),
+                                     edgecolor='black', facecolor='none')
 
                     t_HaLum = np.log10(t_flux) + np.log10(4*np.pi) + 2*np.log10(lum_dist)
 
                     logM_MC = mass_int(t_NB + x_MC)
                     ax[1][1].scatter(logM_MC, t_HaLum, alpha=0.5, edgecolor='none') #np.log10(t_flux))
                     #ax[1][1].set_ylim([37.5,43.0])
-
-                    ax[0][0].axhline(y=minthres[ff], linestyle='dashed', color='blue')
-                    ax[0][0].plot(NB, color_cut(NB, m_NB[ff], cont_lim[ff]), 'b--')
 
                     annot_txt  = r'$\langle\log({\rm EW}_0)\rangle = %.2f$' % logEW_mean[mm] + '\n'
                     annot_txt += r'$\sigma[\log({\rm EW}_0)] = %.2f$' % logEW_sig[ss] + '\n'
