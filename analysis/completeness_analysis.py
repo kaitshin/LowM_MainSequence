@@ -160,7 +160,7 @@ def mag_vs_mass(silent=False, verbose=True):
         t_ax.errorbar(cont_arr+dmag/2, avg_logM, yerr=std_logM, capsize=0,
                       linestyle='none', color='black')
 
-        out_npz = path0 + 'Completeness/mag_vs_mag_'+prefixes[ff]+'.npz'
+        out_npz = path0 + 'Completeness/mag_vs_mass_'+prefixes[ff]+'.npz'
         log.info("Writing : "+out_npz)
         np.savez(out_npz, x_min=x_min, x_max=x_max, cont_arr=cont_arr,
                  avg_logM=avg_logM, std_logM=std_logM, N_logM=N_logM)
