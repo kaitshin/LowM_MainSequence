@@ -174,6 +174,7 @@ def mag_vs_mass(silent=False, verbose=True):
 #enddef
 
 def ew_MC():
+
     logEW_mean = np.arange(1.15,1.60,0.05)
     logEW_sig  = np.arange(0.15,0.45,0.05)
 
@@ -223,7 +224,7 @@ def ew_MC():
                     ax[0][0].axhline(y=minthres[ff], linestyle='dashed', color='blue')
                     ax[0][0].plot(NB, color_cut(NB, m_NB[ff], cont_lim[ff]), 'b--')
 
-                    annot_txt  = r'$<\langle\log({\rm EW}_0)\rangle = %.2f$' % logEW_mean[mm] + '\n'
+                    annot_txt  = r'$\langle\log({\rm EW}_0)\rangle = %.2f$' % logEW_mean[mm] + '\n'
                     annot_txt += r'$\sigma[\log({\rm EW}_0)] = %.2f$' % logEW_sig[ss] + '\n'
                     ax[0][0].annotate(annot_txt, [0.05,0.95], xycoords='axes fraction',
                                       va='top', ha='left')
