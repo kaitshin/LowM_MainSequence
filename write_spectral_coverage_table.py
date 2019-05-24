@@ -30,6 +30,7 @@ import plotting.general_plotting as general_plotting
 from astropy.io import fits as pyfits, ascii as asc
 from astropy.table import Table
 from create_ordered_AP_arrays import create_ordered_AP_arrays
+from stack_spectral_data import exclude_AGN
 
 # emission line wavelengths (air)
 HG_VAL = 4340.46
@@ -115,16 +116,16 @@ def get_spectral_cvg_MMT(MMT_LMIN0, MMT_LMAX0, zspec0, grid_ndarr_match_ii, x0):
     HB = np.array([])
     HA = np.array([])
     for lmin0, lmax0, row, z in zip(MMT_LMIN0, MMT_LMAX0, grid_ndarr_match_ii, zspec0):
-        hg_near_iis = find_nearest_iis(x0, HG*(1+z))
-        hb_near_iis = find_nearest_iis(x0, HB*(1+z))
-        ha_near_iis = find_nearest_iis(x0, HA*(1+z))
+        hg_near_iis = find_nearest_iis(x0, HG_VAL*(1+z))
+        hb_near_iis = find_nearest_iis(x0, HB_VAL*(1+z))
+        ha_near_iis = find_nearest_iis(x0, HA_VAL*(1+z))
 
         if lmin0 < 0:
             HG = np.append(HG, 'NO')
             HB = np.append(HB, 'NO')
             HA = np.append(HA, 'NO')
         else:
-            if lmin0 < HG_VAL and lmax0 > HG_VAL:
+            if lmin0 <= HG_VAL and lmax0 >= HG_VAL:
                 if np.average(row[hg_near_iis])==0:
                     HG = np.append(HG, 'MASK')
                 else:
@@ -132,7 +133,7 @@ def get_spectral_cvg_MMT(MMT_LMIN0, MMT_LMAX0, zspec0, grid_ndarr_match_ii, x0):
             else:
                 HG = np.append(HG, 'NO')
             
-            if lmin0 < HB_VAL and lmax0 > HB_VAL:
+            if lmin0 <= HB_VAL and lmax0 >= HB_VAL:
                 if np.average(row[hb_near_iis])==0:
                     HB = np.append(HB, 'MASK')
                 else:
@@ -140,7 +141,7 @@ def get_spectral_cvg_MMT(MMT_LMIN0, MMT_LMAX0, zspec0, grid_ndarr_match_ii, x0):
             else:
                 HB = np.append(HB, 'NO')
                 
-            if lmin0 < HA_VAL and lmax0 > HA_VAL:
+            if lmin0 <= HA_VAL and lmax0 >= HA_VAL:
                 if np.average(row[ha_near_iis])==0:
                     HA = np.append(HA, 'MASK')
                 else:
@@ -198,9 +199,10 @@ def write_MMT_table(inst_str0, ID, zspec0, NAME0, AP, stlr_mass, filt_arr,
     match_ii = np.array(match_ii, dtype=np.int32)
     HG_cvg, HB_cvg, HA_cvg = get_spectral_cvg_MMT(MMT_LMIN0, MMT_LMAX0, zspec0, grid_ndarr[match_ii], x0)
 
-    # creating/writing the table
-    tt_mmt = Table([ID, NAME0, AP, zspec0, filt_arr, stlr_mass, stlrmassbin, stlrmassbinZ, HG_cvg, HB_cvg, HA_cvg, MMT_LMIN0, MMT_LMAX0], 
-        names=['ID', 'NAME', 'AP', 'z', 'filter', 'stlrmass', 'stlrmassbin', 'stlrmassZbin', 'HG_cvg', 'HB_cvg', 'HA_cvg', 'LMIN0', 'LMAX0']) 
+    tt_mmt = Table([ID, NAME0, AP, zspec0, filt_arr, stlr_mass, stlrmassbin, stlrmassbinZ,
+        HG_cvg, HB_cvg, HA_cvg, MMT_LMIN0, MMT_LMAX0], 
+        names=['ID', 'NAME', 'AP', 'z', 'filter', 'stlrmass', 'stlrmassbin', 'stlrmassZbin',
+        'HG_cvg', 'HB_cvg', 'HA_cvg', 'LMIN0', 'LMAX0']) 
     asc.write(tt_mmt, FULL_PATH+'Composite_Spectra/MMT_spectral_coverage.txt', format='fixed_width', delimiter=' ', overwrite=True)
 
 
@@ -291,6 +293,7 @@ def main():
 
     # limit all data to valid Halpha NB emitters only
     ha_ii = np.array([x for x in range(len(NAME0_orig)) if 'Ha-NB' in NAME0_orig[x] and (zspec0[x] < 9.0 and zspec0[x] > 0.0)])
+    ha_ii = exclude_AGN(ha_ii, NAME0_orig)
     NAME0 = NAME0_orig[ha_ii]
     zspec0 = zspec0[ha_ii]
     
