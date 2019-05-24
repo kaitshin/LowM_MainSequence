@@ -18,7 +18,7 @@ INPUTS:
     FULL_PATH+'Main_Sequence/Catalogs/mainseq_Ha_corrections'+fileend+'.fits'
 
 OUTPUTS:
-    FULL_PATH+'Plots/SED_fits/'+filename+'.pdf'
+    FULL_PATH+'Plots/SED_fits/'+filename+fileend+'.pdf'
 """
 
 import numpy as np, matplotlib.pyplot as plt
