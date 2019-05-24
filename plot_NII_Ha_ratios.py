@@ -319,7 +319,7 @@ def main():
     plt.close()
 
 
-    # return {'C':const, 'm':coeffs1[0], 'b':coeffs1[0]*-8+const}
+    return {'C':const, 'm':coeffs1[0], 'b':coeffs1[0]*-8+const}
 
 
 if __name__ == '__main__':
