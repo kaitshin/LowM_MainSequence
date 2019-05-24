@@ -4,7 +4,7 @@ NAME:
 
 PURPOSE:
 
-    depends on 
+    depends on mainseq_corrections.py, 
 
 INPUTS:
     FULL_PATH+'Main_Sequence/Berg2012_table.clean.txt'
@@ -31,6 +31,8 @@ HA = 6562.80
 FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
 CUTOFF_SIGMA = 4.0
 CUTOFF_MASS = 6.0
+
+mainseq_fig4_only = False
 
 def whitaker_2014(ax):
     '''
@@ -450,7 +452,6 @@ def main():
     plt.savefig(FULL_PATH+'Plots/main_sequence/mainseq.pdf')
     plt.close()
 
-    mainseq_fig4_only = False
     if mainseq_fig4_only:
         i=5
         f, ax = plt.subplots()

@@ -4,7 +4,7 @@ NAME:
 
 PURPOSE:
 
-    depends on 
+    depends on mainseq_corrections.py, 
 
 INPUTS:
     FULL_PATH+'Main_Sequence/mainseq_corrections_tbl.txt'
