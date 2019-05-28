@@ -62,6 +62,14 @@ def color_cut(x, lim1, lim2, mean=0.0):
     return val
 #enddef
 
+def HaSFR_metal_dep(logOH, orig_lums):
+    y = logOH + 3.31
+    log_SFR_LHa = -41.34 + 0.39 * y + 0.127 * y**2
+
+    log_SFR = log_SFR_LHa + orig_lums
+
+    return log_SFR
+
 def mag_vs_mass(silent=False, verbose=True):
 
     '''
