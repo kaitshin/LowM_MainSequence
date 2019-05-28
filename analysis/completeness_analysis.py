@@ -63,6 +63,11 @@ def color_cut(x, lim1, lim2, mean=0.0):
 #enddef
 
 def HaSFR_metal_dep(logOH, orig_lums):
+    '''
+      Determine H-alpha SFR using metallicity and luminosity to follow
+      Ly+ 2016 metallicity-dependent SFR conversion
+    '''
+
     y = logOH + 3.31
     log_SFR_LHa = -41.34 + 0.39 * y + 0.127 * y**2
 
