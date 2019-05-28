@@ -77,7 +77,7 @@ def get_NIIHa_logOH(logM):
 
     # Compute metallicity
     NII6583_Ha = NIIHa * 1/(1+1/2.96)
-    logOH = niiha_oh_determine(np.log10(NII6583_Ha), 'PP04_N2')
+    logOH = niiha_oh_determine(np.log10(NII6583_Ha), 'PP04_N2') - 12.0
 
     return NIIHa, logOH
 #enddef
