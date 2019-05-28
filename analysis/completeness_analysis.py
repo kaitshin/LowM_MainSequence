@@ -26,6 +26,8 @@ from NB_errors import ew_flux_dual, fluxline, mag_combine
 
 from NB_errors import filt_ref, dNB, lambdac, dBB, epsilon
 
+from ..mainseq_corrections import niiha_oh_determine
+
 import astropy.units as u
 from astropy.cosmology import FlatLambdaCDM
 cosmo = FlatLambdaCDM(H0 = 70 * u.km / u.s / u.Mpc, Om0=0.3)
@@ -62,6 +64,24 @@ def color_cut(x, lim1, lim2, mean=0.0):
     return val
 #enddef
 
+def get_NIIHa_logOH(logM):
+    NIIHa = np.zeros(len(logM))
+
+    low_mass = np.where(logM <= 8.0)[0]
+    if len(low_mass) > 0:
+        NIIHa[low_mass] = 0.064
+
+    high_mass = np.where(logM > 8.0)[0]
+    if len(high_mass) > 0:
+        NIIHa[high_mass] = 0.169*logM[high_mass] - 1.285
+
+    # Compute metallicity
+    NII6583_Ha = NIIHa * 1/(1+1/2.96)
+    logOH = niiha_oh_determine(np.log10(NII6583_Ha), 'PP04_N2')
+
+    return NIIHa, logOH
+#enddef
+
 def HaSFR_metal_dep(logOH, orig_lums):
     '''
       Determine H-alpha SFR using metallicity and luminosity to follow
@@ -74,6 +94,7 @@ def HaSFR_metal_dep(logOH, orig_lums):
     log_SFR = log_SFR_LHa + orig_lums
 
     return log_SFR
+#enddef
 
 def mag_vs_mass(silent=False, verbose=True):
 
