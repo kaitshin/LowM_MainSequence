@@ -286,11 +286,20 @@ def ew_MC():
                     t_HaLum = t_flux + np.log10(4*np.pi) + 2*np.log10(lum_dist)
 
                     logM_MC = mass_int(t_NB + x_MC)
-                    ax[1][1].scatter(logM_MC[NB_sel], t_HaLum[NB_sel], alpha=0.25, s=2,
+
+                    ax[1][0].scatter(logM_MC[NB_sel], t_HaLum[NB_sel], alpha=0.25, s=2,
                                      edgecolor='none')
-                    ax[1][1].scatter(logM_MC[NB_nosel], t_HaLum[NB_nosel], alpha=0.25, s=2,
+                    ax[1][0].scatter(logM_MC[NB_nosel], t_HaLum[NB_nosel], alpha=0.25, s=2,
                                      edgecolor='blue', linewidth=0.25, facecolor='none')
                     #ax[1][1].set_ylim([37.5,43.0])
+
+                    NIIHa, logOH = get_NIIHa_logOH(logM_MC)
+                    logSFR_MC = HaSFR_metal_dep(logOH, t_HaLum)
+                    ax[1][1].scatter(logM_MC[NB_sel], logSFR_MC[NB_sel], alpha=0.25, s=2,
+                                     edgecolor='none')
+                    ax[1][1].scatter(logM_MC[NB_nosel], logSFR_MC[NB_nosel], alpha=0.25, s=2,
+                                     edgecolor='blue', linewidth=0.25, facecolor='none')
+
 
                     annot_txt  = r'$\langle\log({\rm EW}_0)\rangle = %.2f$' % logEW_mean[mm] + '\n'
                     annot_txt += r'$\sigma[\log({\rm EW}_0)] = %.2f$' % logEW_sig[ss] + '\n'
