@@ -281,6 +281,9 @@ def ew_MC():
 
                     ax[0][0].axhline(y=minthres[ff], linestyle='dashed', color='blue')
                     ax[0][0].plot(NB, color_cut(NB, m_NB[ff], cont_lim[ff]), 'b--')
+                    ax[0][0].set_xlabel('NB')
+                    ax[0][0].set_ylabel('cont - NB')
+
                     sig_limit = color_cut(t_NB, m_NB[ff], cont_lim[ff])
                     NB_sel   = np.where((x_MC >= minthres[ff]) & (x_MC >= sig_limit))[0]
                     NB_nosel = np.where((x_MC < minthres[ff]) | (x_MC < sig_limit))[0]
@@ -297,6 +300,8 @@ def ew_MC():
                                      edgecolor='none')
                     ax[0][1].scatter(t_NB[NB_nosel], t_Haflux[NB_nosel], alpha=0.25, s=2,
                                      edgecolor='blue', linewidth=0.25, facecolor='none')
+                    ax[0][1].set_xlabel('NB')
+                    ax[0][1].set_ylabel(r'$\log(F_{H\alpha})$')
 
                     #ax[0][1].scatter(t_NB, t_Haflux, marker='s', color='red', alpha=0.25, s=2,
                     #                 facecolor='none')
@@ -307,6 +312,8 @@ def ew_MC():
                                      edgecolor='none')
                     ax[1][0].scatter(logM_MC[NB_nosel], t_HaLum[NB_nosel], alpha=0.25, s=2,
                                      edgecolor='blue', linewidth=0.25, facecolor='none')
+                    ax[1][0].set_xlabel(r'$\log(M_{\star}/M_{\odot})$')
+                    ax[1][0].set_ylabel(r'$\log(L_{{\rm H}\alpha})$')
                     #ax[1][1].set_ylim([37.5,43.0])
 
                     logSFR_MC = HaSFR_metal_dep(logOH, t_HaLum)
@@ -314,6 +321,8 @@ def ew_MC():
                                      edgecolor='none')
                     ax[1][1].scatter(logM_MC[NB_nosel], logSFR_MC[NB_nosel], alpha=0.25, s=2,
                                      edgecolor='blue', linewidth=0.25, facecolor='none')
+                    ax[1][1].set_xlabel(r'$\log(M_{\star}/M_{\odot})$')
+                    ax[1][1].set_ylabel(r'$\log({\rm SFR}({\rm H}\alpha))$')
 
 
                     annot_txt  = r'$\langle\log({\rm EW}_0)\rangle = %.2f$' % logEW_mean[mm] + '\n'
