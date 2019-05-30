@@ -64,6 +64,13 @@ def color_cut(x, lim1, lim2, mean=0.0):
     return val
 #enddef
 
+def correct_NII(log_flux, NIIHa):
+    '''
+    This returns Halpha fluxes from F_NB using NII/Ha flux ratios for correction
+    '''
+    return log_flux - np.log10(1+NIIHa)
+#enddef
+
 def get_NIIHa_logOH(logM):
     NIIHa = np.zeros(len(logM))
 
@@ -279,14 +286,20 @@ def ew_MC():
                     t_EW, t_flux = ew_flux_dual(t_NB, t_NB + x_MC, x_MC, filt_dict)
                     t_flux = np.log10(t_flux)
 
-                    ax[0][1].scatter(t_NB[NB_sel], t_flux[NB_sel], alpha=0.25, s=2,
+                    logM_MC = mass_int(t_NB + x_MC)
+                    NIIHa, logOH = get_NIIHa_logOH(logM_MC)
+
+                    t_Haflux = correct_NII(t_flux, NIIHa)
+
+                    ax[0][1].scatter(t_NB[NB_sel], t_Haflux[NB_sel], alpha=0.25, s=2,
                                      edgecolor='none')
-                    ax[0][1].scatter(t_NB[NB_nosel], t_flux[NB_nosel], alpha=0.25, s=2,
+                    ax[0][1].scatter(t_NB[NB_nosel], t_Haflux[NB_nosel], alpha=0.25, s=2,
                                      edgecolor='blue', linewidth=0.25, facecolor='none')
 
-                    t_HaLum = t_flux + np.log10(4*np.pi) + 2*np.log10(lum_dist)
+                    #ax[0][1].scatter(t_NB, t_Haflux, marker='s', color='red', alpha=0.25, s=2,
+                    #                 facecolor='none')
 
-                    logM_MC = mass_int(t_NB + x_MC)
+                    t_HaLum = t_Haflux + np.log10(4*np.pi) + 2*np.log10(lum_dist)
 
                     ax[1][0].scatter(logM_MC[NB_sel], t_HaLum[NB_sel], alpha=0.25, s=2,
                                      edgecolor='none')
@@ -294,7 +307,6 @@ def ew_MC():
                                      edgecolor='blue', linewidth=0.25, facecolor='none')
                     #ax[1][1].set_ylim([37.5,43.0])
 
-                    NIIHa, logOH = get_NIIHa_logOH(logM_MC)
                     logSFR_MC = HaSFR_metal_dep(logOH, t_HaLum)
                     ax[1][1].scatter(logM_MC[NB_sel], logSFR_MC[NB_sel], alpha=0.25, s=2,
                                      edgecolor='none')
