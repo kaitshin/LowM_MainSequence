@@ -222,6 +222,8 @@ def mag_vs_mass(silent=False, verbose=True):
 def ew_MC():
 
     prefixes = ['Ha-NB7','Ha-NB7','Ha-NB816','Ha-NB921','Ha-NB973']
+    filters  = ['NB704', 'NB711', 'NB816', 'NB921', 'NB973']
+
     z_NB     = lambdac/6562.8 - 1.0
 
     logEW_mean = np.arange(1.15,1.60,0.05)
@@ -230,12 +232,12 @@ def ew_MC():
     Nsim = 200
     print('Nsim : ', Nsim)
 
-    out_pdf = path0 + 'Completeness/ew_MC.pdf'
-    pp = PdfPages(out_pdf)
-
     NBbin = 0.25
 
     for ff in range(len(filt_ref)): # loop over filter
+        out_pdf = path0 + 'Completeness/ew_MC_'+filters[ff]+'.pdf'
+        pp = PdfPages(out_pdf)
+
         filt_dict = {'dNB': dNB[ff], 'dBB': dBB[ff], 'lambdac': lambdac[ff]}
 
         x      = np.arange(0.01,10.00,0.01)
@@ -263,8 +265,8 @@ def ew_MC():
         lum_dist = cosmo.luminosity_distance(z_NB[ff]).to(u.cm).value
 
         fig, ax = plt.subplots(ncols=2, nrows=2)
-        for nn in range(len(NB)):
-            for mm in [len(logEW_mean)-1]: #range(len(logEW_mean)): # loop over median of EW dist
+        for mm in [len(logEW_mean)-1]: #range(len(logEW_mean)): # loop over median of EW dist
+            for nn in range(len(NB)):
                 for ss in [0]: #range(len(logEW_sig)): # loop over sigma of EW dist
                     np.random.seed = mm*ss
                     rand0    = np.random.normal(0.0, 1.0, size=100)
@@ -320,5 +322,4 @@ def ew_MC():
                                       va='top', ha='left')
 
         fig.savefig(pp, format='pdf')
-
-    pp.close()
+        pp.close()
