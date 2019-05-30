@@ -69,11 +69,12 @@ def get_NIIHa_logOH(logM):
 
     low_mass = np.where(logM <= 8.0)[0]
     if len(low_mass) > 0:
-        NIIHa[low_mass] = 0.064
+        NIIHa[low_mass] = 0.0624396766589
 
     high_mass = np.where(logM > 8.0)[0]
     if len(high_mass) > 0:
-        NIIHa[high_mass] = 0.169*logM[high_mass] - 1.285
+        NIIHa[high_mass] = 0.169429547993*logM[high_mass] - 1.29299670728
+
 
     # Compute metallicity
     NII6583_Ha = NIIHa * 1/(1+1/2.96)
