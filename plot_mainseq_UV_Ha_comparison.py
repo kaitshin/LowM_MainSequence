@@ -72,17 +72,12 @@ def get_nu_lnu(filt_index, ff):
     '''
     ID    = ID0[filt_index]
     zspec = zspec0[filt_index]
-    # zphot = zphot0[filt_index]
-    # goodz = np.array([x for x in range(len(zspec)) if zspec[x] < 9. and
-    #                   zspec[x] > 0.])
-    # badz  = np.array([x for x in range(len(zspec)) if zspec[x] >= 9. or
-    #                   zspec[x] <= 0.])
+
     goodz = np.where((zspec >= 0) & (zspec < 9))[0]
     badz  = np.where((zspec <= 0) | (zspec > 9))[0]
 
     tempz = np.zeros(len(filt_index))
     tempz[goodz] = zspec[goodz]
-    # tempz[badz]  = zphot[badz]
     tempz[badz] = centr_filts[ff]
 
     lambda_arr = (1+tempz)*1500
@@ -284,26 +279,18 @@ nii_ha_corr_factor = np.array(corr_tbl['nii_ha_corr_factor'])
 corr_factors = filt_corr_factor + nii_ha_corr_factor + dust_corr_factor
 
 corr_lumin = obs_lumin + corr_factors
-
 print '### done reading input files'
 
-# nii_ha_corr_lumin = np.zeros(len(ID0))
-# dust_corr_lumin = np.zeros(len(ID0))
 ID_match = np.array([x for x in range(len(ID0)) if ID0[x] in corrID])
-# nii_ha_corr_lumin[ID_match] = corrdata['nii_ha_corr_lumin']
-# dust_corr_lumin[ID_match] = corrdata['dust_corr_lumin']
-# color_arr = ['r', 'orange', 'g', 'b', 'purple']
-color_arr = ['r', 'orange', 'g', 'b'] #, 'purple']
+color_arr = ['r', 'orange', 'g', 'b']
 centr_filts = {'NB7':((7045.0/HA - 1) + (7126.0/HA - 1))/2.0, 
                'NB816':8152.0/HA - 1, 'NB921':9193.0/HA - 1, 'NB973':9749.0/HA - 1}
 
 print '### making scatter_plots and ratio_plots'
-# for (ff, cc) in zip(['NB704','NB711','NB816','NB921','NB973'], color_arr):
 for (ff, cc) in zip(['NB7','NB816','NB921','NB973'], color_arr):
     print ff
     filt_index = np.array([x for x in range(len(NAME0)) if 'Ha-'+ff in
                            NAME0[x]])
-    # filt_index = np.array(filt_index,dtype=np.int32)
 
     nu_lnu = get_nu_lnu(filt_index, ff)
     
