@@ -148,18 +148,31 @@ def make_all_ratio_legend(filtlabel):
     '''
     import matplotlib.patches as mpatches
 
-    red_patch = mpatches.Patch(color='red', label='H'+r'$\alpha$'+'-NB704 '
-                               +filtlabel['NB704'], alpha=0.5)
-    orange_patch = mpatches.Patch(color='orange', label='H'+r'$\alpha$'
-                                  +'-NB711 '+filtlabel['NB711'], alpha=0.5)
-    green_patch = mpatches.Patch(color='green', label='H'+r'$\alpha$'+'-NB816 '
+    # red_patch = mpatches.Patch(color='red', label='H'+r'$\alpha$'+'-NB704 '
+    #                            +filtlabel['NB704'], alpha=0.5)
+    # orange_patch = mpatches.Patch(color='orange', label='H'+r'$\alpha$'
+    #                               +'-NB711 '+filtlabel['NB711'], alpha=0.5)
+    # green_patch = mpatches.Patch(color='green', label='H'+r'$\alpha$'+'-NB816 '
+    #                              +filtlabel['NB816'], alpha=0.5)
+    # blue_patch = mpatches.Patch(color='blue', label='H'+r'$\alpha$'+'-NB921 '
+    #                             +filtlabel['NB921'], alpha=0.5)
+    # purple_patch = mpatches.Patch(color='purple', label='H'+r'$\alpha$'
+    #                               +'-NB973 '+filtlabel['NB973'], alpha=0.5)
+    # legend0 = plt.legend(handles=[red_patch,orange_patch,green_patch,
+    #                               blue_patch,purple_patch],fontsize=9,
+    #                      loc='lower right', frameon=False)
+
+    red_patch = mpatches.Patch(color='red', label='H'+r'$\alpha$'+'-NB7 '
+                               +filtlabel['NB7'], alpha=0.5)
+    orange_patch = mpatches.Patch(color='orange', label='H'+r'$\alpha$'+'-NB816 '
                                  +filtlabel['NB816'], alpha=0.5)
-    blue_patch = mpatches.Patch(color='blue', label='H'+r'$\alpha$'+'-NB921 '
+    green_patch = mpatches.Patch(color='green', label='H'+r'$\alpha$'+'-NB921 '
                                 +filtlabel['NB921'], alpha=0.5)
-    purple_patch = mpatches.Patch(color='purple', label='H'+r'$\alpha$'
+    blue_patch = mpatches.Patch(color='blue', label='H'+r'$\alpha$'
                                   +'-NB973 '+filtlabel['NB973'], alpha=0.5)
+
     legend0 = plt.legend(handles=[red_patch,orange_patch,green_patch,
-                                  blue_patch,purple_patch],fontsize=9,
+                                  blue_patch],fontsize=9,
                          loc='lower right', frameon=False)
     plt.gca().add_artist(legend0)
 
@@ -201,17 +214,20 @@ def make_all_ratio_plot(L_ha, ltype):
     filtlabel = {}
     for (ff, cc) in zip(['NB7','NB816','NB921','NB973'], color_arr):
         print ff
-        filt_index = np.array([x for x in range(len(NAME0)) if 'Ha-'+ff in
-                               NAME0[x]])
-        filt_index = np.array(filt_index,dtype=np.int32)
+        # filt_index = np.array([x for x in range(len(NAME0)) if 'Ha-'+ff in
+        #                        NAME0[x]])
+        # filt_index = np.array(filt_index,dtype=np.int32)
         
-        zspec = zspec0[filt_index]
-        stlr = stlr0[filt_index]
-        nu_lnu = get_nu_lnu(filt_index, ff)
+        # zspec = zspec0[filt_index]
+        # stlr = stlr0[filt_index]
 
-        filt_index_haii = np.array([x for x in range(len(corr_tbl)) if 'Ha-'+ff in 
-            corr_tbl['NAME0'].data])
+        filt_index_haii = np.array([x for x in range(len(corr_tbl)) if ff in
+        corrfilts[x]])
         l_ha = L_ha[filt_index_haii]
+
+        zspec = corrzspec0[filt_index_haii]
+        stlr = corrstlr0[filt_index_haii]
+        nu_lnu = get_nu_lnu(filt_index_haii, ff)
 
         # if ff=='NB921':
         #     zero_index = np.where(l_ha == 0.)[0]
@@ -242,10 +258,10 @@ def make_all_ratio_plot(L_ha, ltype):
     plt.xlabel('log[M/M'+r'$_{\odot}$'+']')
     plt.ylabel('log['+r'$\nu$'+'L'+r'$_{\nu}$'+'(1500 '+r'$\AA$'+')/L'
                +r'$_{H\alpha}$'+']')
-    plt.xlim(4, 11)
-    plt.ylim(-2.5, 4)
+    # plt.xlim(4, 11)
+    # plt.ylim(-2.5, 4)
     make_all_ratio_legend(filtlabel)
-    plt.plot(plt.xlim(), [2.05, 2.05], 'k--', alpha=0.3, linewidth=3.0)
+    # plt.plot(plt.xlim(), [2.05, 2.05], 'k--', alpha=0.3, linewidth=3.0)
     plt.savefig(FULL_PATH+'Plots/main_sequence_UV_Ha/ratios/all_filt_'+ltype+
                 fileend+'.pdf')
     plt.close()
@@ -281,6 +297,7 @@ corr_tbl = asc.read(FULL_PATH+'Main_Sequence/mainseq_corrections_tbl.txt',
 corrID = np.array(corr_tbl['ID'])
 corrzspec0 = np.array(corr_tbl['zspec0'])
 corrfilts = np.array(corr_tbl['filt'])
+corrstlr0 = np.array(corr_tbl['stlr_mass'])
 obs_lumin = np.array(corr_tbl['obs_lumin'])
 dust_corr_factor = np.array(corr_tbl['dust_corr_factor'])
 filt_corr_factor = np.array(corr_tbl['filt_corr_factor'])
@@ -304,13 +321,15 @@ for (ff, cc) in zip(['NB7','NB816','NB921','NB973'], color_arr):
     filt_index_haii = np.array([x for x in range(len(corr_tbl)) if ff in
         corrfilts[x]])
 
-    nu_lnu = get_nu_lnu(filt_index, filt_index_haii, ff)
+    nu_lnu = get_nu_lnu(filt_index_haii, ff)
     
     make_scatter_plot(nu_lnu, corr_lumin[filt_index_haii], ff, 'all_corr')
 
     # make_ratio_plot(nu_lnu, corr_lumin[filt_index_haii], stlr0[filt_index],
     #     ff, 'all_corr')
+    make_ratio_plot(nu_lnu, corr_lumin[filt_index_haii], corrstlr0[filt_index_haii],
+        ff, 'all_corr')
 
 
-# print '### making all_ratio_plots'
-# make_all_ratio_plot(corr_lumin, 'all_corr')
+print '### making all_ratio_plots'
+make_all_ratio_plot(corr_lumin, 'all_corr')
