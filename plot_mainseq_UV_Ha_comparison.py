@@ -33,7 +33,6 @@ REVISION HISTORY:
 """
 
 import numpy as np, astropy.units as u, matplotlib.pyplot as plt, sys
-import matplotlib.patches as mpatches
 from scipy import interpolate
 from astropy import constants
 from astropy.io import fits as pyfits, ascii as asc
@@ -50,13 +49,14 @@ def get_flux(ID, lambda_arr):
     '''
     newflux = np.zeros(len(ID))
     for ii in range(len(ID)):
-        tempfile = asc.read('FAST/outputs/BEST_FITS/NB_IA_emitters_allphot.emagcorr.\
-            ACpsf_fast'+fileend+'_'+str(ID[ii])+'.fit', guess=False,Reader=asc.NoHeader)
+        tempfile = asc.read(FULL_PATH+'FAST/outputs/BEST_FITS/NB_IA_emitters\
+            _allphot.emagcorr.ACpsf_fast'+fileend+'_'+str(ID[ii])+'.fit',
+            guess=False,Reader=asc.NoHeader)
         wavelength = np.array(tempfile['col1'])
         flux = np.array(tempfile['col2'])
         f = interpolate.interp1d(wavelength, flux)
         newflux[ii] = f(lambda_arr[ii])
-    #endfor
+
     return newflux
 
 
@@ -98,14 +98,15 @@ def make_scatter_plot(filt_index, nu_lnu, l_ha, ff, ltype):
         zero = np.where(l_ha == 0.)[0]
         nu_lnu = np.concatenate((nu_lnu[:zero], nu_lnu[zero+1:]))
         l_ha = np.concatenate((l_ha[:zero], l_ha[zero+1:]))
-    #endif
+
     plt.scatter(nu_lnu, l_ha)
     plt.gca().minorticks_on()
     plt.xlabel('log['+r'$\nu$'+'L'+r'$_{\nu}$'+'(1500 '+r'$\AA$'+')]')
     plt.ylabel('log[L'+r'$_{H\alpha}$'+']')    
     plt.xlim(36.0, 48.0)
     plt.ylim(37.0, 44.0)
-    plt.savefig('Plots/main_sequence_UV_Ha/'+ff+'_'+ltype+fileend+'.pdf')
+    plt.savefig(FULL_PATH+'Plots/main_sequence_UV_Ha/'+ff+'_'+ltype+
+        fileend+'.pdf')
     plt.close()
 
 
@@ -122,14 +123,14 @@ def make_ratio_plot(filt_index, nu_lnu, l_ha, stlr, ff, ltype):
         nu_lnu = np.concatenate((nu_lnu[:zero], nu_lnu[zero+1:]))
         l_ha = np.concatenate((l_ha[:zero], l_ha[zero+1:]))
         stlr = np.concatenate((stlr[:zero], stlr[zero+1:]))
-    #endif
 
     ratio = nu_lnu-l_ha
     plt.scatter(stlr, ratio)
     plt.gca().minorticks_on()
     plt.xlabel('log[M/M'+r'$_{\odot}$'+']')
     plt.ylabel('log['+r'$\nu$'+'L'+r'$_{\nu}$'+'/L(H'+r'$\alpha$'+')'+']')
-    plt.savefig('Plots/main_sequence_UV_Ha/ratios/'+ff+'_'+ltype+fileend+'.pdf')
+    plt.savefig(FULL_PATH+'Plots/main_sequence_UV_Ha/ratios/'+ff+'_'+ltype+
+        fileend+'.pdf')
     plt.close()
 
 
@@ -140,6 +141,8 @@ def make_all_ratio_legend(filtlabel):
 
     red='NB704', orange='NB711', green='NB816', blue='NB921', purple='NB973'
     '''
+    import matplotlib.patches as mpatches
+
     red_patch = mpatches.Patch(color='red', label='H'+r'$\alpha$'+'-NB704 '
                                +filtlabel['NB704'], alpha=0.5)
     orange_patch = mpatches.Patch(color='orange', label='H'+r'$\alpha$'
@@ -178,8 +181,6 @@ def get_binned_stats(xposdata, yposdata):
             plt.scatter(xpos, ypos, facecolor='k', edgecolor='none', alpha=0.7)
             plt.errorbar(xpos, ypos, yerr=yerr, ecolor='k', alpha=0.7,
                          fmt='none')
-        #endif
-    #endfor
 
 
 def make_all_ratio_plot(L_ha, ltype):
@@ -209,7 +210,6 @@ def make_all_ratio_plot(L_ha, ltype):
             zspec = np.delete(zspec, zero_index)
             stlr = np.delete(stlr, zero_index)
             nu_lnu = np.delete(nu_lnu, zero_index)
-        #endif
         
         ratio = nu_lnu-l_ha
         xposdata = np.append(xposdata, stlr)
@@ -225,8 +225,8 @@ def make_all_ratio_plot(L_ha, ltype):
                     alpha=0.5)
         plt.scatter(stlr[bad_z], ratio[bad_z], facecolor='none', edgecolor=cc,
                     linewidth=0.5, alpha=0.5)
-        #endif
-    #endfor
+
+
     get_binned_stats(xposdata, yposdata)
     plt.gca().minorticks_on()
     plt.xlabel('log[M/M'+r'$_{\odot}$'+']')
@@ -236,7 +236,7 @@ def make_all_ratio_plot(L_ha, ltype):
     plt.ylim(-2.5, 4)
     make_all_ratio_legend(filtlabel)
     plt.plot(plt.xlim(), [2.05, 2.05], 'k--', alpha=0.3, linewidth=3.0)
-    plt.savefig('Plots/main_sequence_UV_Ha/ratios/all_filt_'+ltype+
+    plt.savefig(FULL_PATH+'Plots/main_sequence_UV_Ha/ratios/all_filt_'+ltype+
                 fileend+'.pdf')
     plt.close()
 
@@ -250,34 +250,25 @@ def make_all_ratio_plot(L_ha, ltype):
 #   plotting the nii/ha corrected version, and one for plotting the dust
 #   corrected version.
 #----------------------------------------------------------------------------#
-if len(sys.argv)>1:
-    if sys.argv[1]=='GALEX':
-        fileend='.GALEX'
-        print '###USING GALEX FILES'
-    else:
-        raise AttributeError('Invalid optional command line argument. \
-            Only \'GALEX\' is accepted')
-else:
-    fileend=''
-    print '####USING NORMAL FILES'
-#endif
+# +190531: only GALEX files will be used
+fileend='.GALEX'
 
-zspec_file = asc.read('Catalogs/nb_ia_zspec.txt',guess=False,
+zspec_file = asc.read(FULL_PATH+'Catalogs/nb_ia_zspec.txt',guess=False,
                       Reader=asc.CommentedHeader)
 ID0    = np.array(zspec_file['ID0'])
 zspec0 = np.array(zspec_file['zspec0'])
 
-fout  = asc.read('FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast'
-                 +fileend+'.fout',guess=False,Reader=asc.NoHeader)
+fout  = asc.read(FULL_PATH+'FAST/outputs/NB_IA_emitters_allphot.emagcorr\
+    .ACpsf_fast'+fileend+'.fout',guess=False,Reader=asc.NoHeader)
 zphot0 = np.array(fout['col2'])
 stlr0 = np.array(fout['col7'])
 
-NIIB_Ha_ratios = asc.read('Main_Sequence/Catalogs/line_emission_ratios_table.\
-    dat',guess=False,Reader=asc.CommentedHeader)
+NIIB_Ha_ratios = asc.read(FULL_PATH+'Main_Sequence/Catalogs/line_emission_\
+    ratios_table.dat',guess=False,Reader=asc.CommentedHeader)
 names0 = np.array(NIIB_Ha_ratios['NAME'])
 
-Ha_corrs = pyfits.open('Main_Sequence/Catalogs/mainseq_Ha_corrections'+fileend
-                       +'.fits')
+Ha_corrs = pyfits.open(FULL_PATH+'Main_Sequence/Catalogs/mainseq_Ha_\
+    corrections'+fileend+'.fits')
 corrdata = Ha_corrs[1].data
 corrID = corrdata['ID']
 print '### done reading input files'
@@ -306,7 +297,6 @@ for (ff, cc) in zip(['NB704','NB711','NB816','NB921','NB973'], color_arr):
                     stlr0[filt_index], ff, 'nii_ha_corr')
     make_ratio_plot(filt_index, nu_lnu, dust_corr_lumin[filt_index],
                     stlr0[filt_index], ff, 'dust_corr')
-#endfor
 
 print '### making all_ratio_plots'
 make_all_ratio_plot(nii_ha_corr_lumin, 'nii_ha_corr')
