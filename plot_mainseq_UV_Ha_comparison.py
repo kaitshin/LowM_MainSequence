@@ -40,11 +40,14 @@ from astropy.io import fits as pyfits, ascii as asc
 from astropy.cosmology import FlatLambdaCDM
 cosmo = FlatLambdaCDM(H0 = 70 * u.km / u.s / u.Mpc, Om0=0.3)
 
-#----get_flux----------------------------------------------------------------#
-# o Reads in the relevant SED spectrum file and then interpolates the
-#   function to obtain a flux, the array of which is then returned.
-#----------------------------------------------------------------------------#
+FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
+
+
 def get_flux(ID, lambda_arr):
+    '''
+    Reads in the relevant SED spectrum file and then interpolates the
+    function to obtain a flux, the array of which is then returned.
+    '''
     newflux = np.zeros(len(ID))
     for ii in range(len(ID)):
         tempfile = asc.read('FAST/outputs/BEST_FITS/NB_IA_emitters_allphot.emagcorr.\
@@ -55,16 +58,15 @@ def get_flux(ID, lambda_arr):
         newflux[ii] = f(lambda_arr[ii])
     #endfor
     return newflux
-#enddef
 
 
-#----get_nu_lnu--------------------------------------------------------------#
-# o Calls get_flux with an array of redshifted wavelengths in order to get
-#   the corresponding flux values. Those f_lambda values are then converted
-#   into f_nu values, which is in turn converted into L_nu and multiplied by
-#   nu, the log of which is returned as nu_lnu.
-#----------------------------------------------------------------------------#
 def get_nu_lnu(filt_index):
+    '''
+    Calls get_flux with an array of redshifted wavelengths in order to get
+    the corresponding flux values. Those f_lambda values are then converted
+    into f_nu values, which is in turn converted into L_nu and multiplied by
+    nu, the log of which is returned as nu_lnu.
+    '''
     ID    = ID0[filt_index]
     zspec = zspec0[filt_index]
     zphot = zphot0[filt_index]
@@ -82,16 +84,16 @@ def get_nu_lnu(filt_index):
     f_nu = f_lambda*(1E-19*(lambda_arr**2*1E-10)/(constants.c.value))
     L_nu = f_nu*4*np.pi*(cosmo.luminosity_distance(tempz).to(u.cm).value)**2
     return np.log10(L_nu*((constants.c.value)/1.5E-7))
-#endef
 
 
-#----make_scatter_plot-------------------------------------------------------#
-# o Makes a scatter plot (by filter) of nu_lnu vs l_ha, then saves and
-#   closes the figure.
-# o There is a value in the filter NB921 which has flux=='NAN'. That is
-#   ignored.
-#----------------------------------------------------------------------------#
 def make_scatter_plot(filt_index, nu_lnu, l_ha, ff, ltype):
+    '''
+    Makes a scatter plot (by filter) of nu_lnu vs l_ha, then saves and
+    closes the figure.
+
+    There is a value in the filter NB921 which has flux=='NAN'. That is
+    ignored.
+    '''
     if ff=='NB921':
         zero = np.where(l_ha == 0.)[0]
         nu_lnu = np.concatenate((nu_lnu[:zero], nu_lnu[zero+1:]))
@@ -105,16 +107,16 @@ def make_scatter_plot(filt_index, nu_lnu, l_ha, ff, ltype):
     plt.ylim(37.0, 44.0)
     plt.savefig('Plots/main_sequence_UV_Ha/'+ff+'_'+ltype+fileend+'.pdf')
     plt.close()
-#enddef
 
 
-#----make_ratio_plot---------------------------------------------------------#
-# o Makes a ratio plot (by filter) of stellar mass vs. (nu_lnu/l_ha), then
-#   saves and closes the figure.
-# o There is a value in the filter NB921 which has flux=='NAN'. That is
-#   ignored.
-#----------------------------------------------------------------------------#
 def make_ratio_plot(filt_index, nu_lnu, l_ha, stlr, ff, ltype):
+    '''
+    Makes a ratio plot (by filter) of stellar mass vs. (nu_lnu/l_ha), then
+    saves and closes the figure.
+
+    There is a value in the filter NB921 which has flux=='NAN'. That is
+    ignored.
+    '''
     if ff=='NB921':
         zero = np.where(l_ha == 0.)[0]
         nu_lnu = np.concatenate((nu_lnu[:zero], nu_lnu[zero+1:]))
@@ -129,15 +131,15 @@ def make_ratio_plot(filt_index, nu_lnu, l_ha, stlr, ff, ltype):
     plt.ylabel('log['+r'$\nu$'+'L'+r'$_{\nu}$'+'/L(H'+r'$\alpha$'+')'+']')
     plt.savefig('Plots/main_sequence_UV_Ha/ratios/'+ff+'_'+ltype+fileend+'.pdf')
     plt.close()
-#enddef
 
 
-#----make_all_ratio_legend---------------------------------------------------#
-# o Makes a legend for the plot with all ratios (as a function of mass) of
-#   all the filters on the same plot.
-# o red='NB704', orange='NB711', green='NB816', blue='NB921', purple='NB973'
-#----------------------------------------------------------------------------#
 def make_all_ratio_legend(filtlabel):
+    '''
+    Makes a legend for the plot with all ratios (as a function of mass) of
+    all the filters on the same plot.
+
+    red='NB704', orange='NB711', green='NB816', blue='NB921', purple='NB973'
+    '''
     red_patch = mpatches.Patch(color='red', label='H'+r'$\alpha$'+'-NB704 '
                                +filtlabel['NB704'], alpha=0.5)
     orange_patch = mpatches.Patch(color='orange', label='H'+r'$\alpha$'
@@ -152,18 +154,18 @@ def make_all_ratio_legend(filtlabel):
                                   blue_patch,purple_patch],fontsize=9,
                          loc='lower right', frameon=False)
     plt.gca().add_artist(legend0)
-#enddef
 
 
-#----get_binned_stats--------------------------------------------------------#
-# o From the min to the max x-values of the graph, 'bins' of interval 0.25
-#   are created. If there are more than 3 x values in a particular bin, the
-#   average of the corresponding y values are plotted, and their std dev
-#   values are plotted as error bars as well.
-# o In order to clearly stand out from the rainbow scatter plot points, these
-#   'binned' points are black.
-#----------------------------------------------------------------------------#
 def get_binned_stats(xposdata, yposdata):
+    '''
+    From the min to the max x-values of the graph, 'bins' of interval 0.25
+    are created. If there are more than 3 x values in a particular bin, the
+    average of the corresponding y values are plotted, and their std dev
+    values are plotted as error bars as well.
+
+    In order to clearly stand out from the rainbow scatter plot points, these
+    'binned' points are black.
+    '''
     bins = np.arange(min(plt.xlim()), max(plt.xlim())+0.25, 0.25)
     for bb in range(len(bins)-1):
         valid_index = np.array([x for x in range(len(xposdata)) if
@@ -178,16 +180,15 @@ def get_binned_stats(xposdata, yposdata):
                          fmt='none')
         #endif
     #endfor
-#enddef
 
 
-#----make_all_ratio_plot-----------------------------------------------------#
-# o Similar as make_ratio_plot, except each filter is plotted on the graph,
-#   and sources with good zspec are filled points while those w/o good zspec
-#   are plotted as empty points. get_binned_stats and make_all_ratio_legend
-#   are called, before the plot is duly modified, saved, and closed.
-#----------------------------------------------------------------------------#
 def make_all_ratio_plot(L_ha, ltype):
+    '''
+    Similar as make_ratio_plot, except each filter is plotted on the graph,
+    and sources with good zspec are filled points while those w/o good zspec
+    are plotted as empty points. get_binned_stats and make_all_ratio_legend
+    are called, before the plot is duly modified, saved, and closed.
+    '''
     print ltype
     xposdata = np.array([])
     yposdata = np.array([])
@@ -238,7 +239,6 @@ def make_all_ratio_plot(L_ha, ltype):
     plt.savefig('Plots/main_sequence_UV_Ha/ratios/all_filt_'+ltype+
                 fileend+'.pdf')
     plt.close()
-#enddef
 
 
 #----main body---------------------------------------------------------------#
