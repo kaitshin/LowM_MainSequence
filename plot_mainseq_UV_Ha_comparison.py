@@ -198,7 +198,7 @@ def make_all_ratio_plot(L_ha, ltype):
     xposdata = np.array([])
     yposdata = np.array([])
     filtlabel = {}
-    for (ff, cc) in zip(['NB704','NB711','NB816','NB921','NB973'], color_arr):
+    for (ff, cc) in zip(['NB7','NB816','NB921','NB973'], color_arr):
         print ff
         filt_index = np.array([x for x in range(len(NAME0)) if 'Ha-'+ff in
                                NAME0[x]])
@@ -206,8 +206,12 @@ def make_all_ratio_plot(L_ha, ltype):
         
         zspec = zspec0[filt_index]
         stlr = stlr0[filt_index]
-        nu_lnu = get_nu_lnu(filt_index)
-        l_ha = L_ha[filt_index]
+        nu_lnu = get_nu_lnu(filt_index, ff)
+
+        filt_index_haii = np.array([x for x in range(len(corr_tbl)) if 'Ha-'+ff in 
+            corr_tbl['NAME0'].data])
+        l_ha = L_ha[filt_index_haii]
+
         if ff=='NB921':
             zero_index = np.where(l_ha == 0.)[0]
             l_ha = np.delete(l_ha, zero_index)
@@ -233,6 +237,7 @@ def make_all_ratio_plot(L_ha, ltype):
 
     get_binned_stats(xposdata, yposdata)
     plt.gca().minorticks_on()
+    plt.gca().tick_params(axis='both', which='both', direction='in')
     plt.xlabel('log[M/M'+r'$_{\odot}$'+']')
     plt.ylabel('log['+r'$\nu$'+'L'+r'$_{\nu}$'+'(1500 '+r'$\AA$'+')/L'
                +r'$_{H\alpha}$'+']')
@@ -306,7 +311,4 @@ for (ff, cc) in zip(['NB7','NB816','NB921','NB973'], color_arr):
 
 
 # print '### making all_ratio_plots'
-# make_all_ratio_plot(nii_ha_corr_lumin, 'nii_ha_corr')
-# make_all_ratio_plot(dust_corr_lumin, 'dust_corr')
-
-Ha_corrs.close()
+make_all_ratio_plot(corr_lumin, 'all_corr')
