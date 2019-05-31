@@ -298,10 +298,7 @@ for (ff, cc) in zip(['NB7','NB816','NB921','NB973'], color_arr):
         corr_tbl['NAME0'].data])
     
     make_scatter_plot(nu_lnu, corr_lumin[filt_index_haii], ff, 'all_corr')
-    # make_scatter_plot(filt_index, nu_lnu, nii_ha_corr_lumin[filt_index], ff,
-    #                   'nii_ha_corr')
-    # make_scatter_plot(filt_index, nu_lnu, dust_corr_lumin[filt_index], ff,
-    #                   'dust_corr')
+    
     # make_ratio_plot(filt_index, nu_lnu, nii_ha_corr_lumin[filt_index],
     #                 stlr0[filt_index], ff, 'nii_ha_corr')
     # make_ratio_plot(filt_index, nu_lnu, dust_corr_lumin[filt_index],
