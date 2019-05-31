@@ -12,8 +12,8 @@ PURPOSE:
 INPUTS:
     'Catalogs/nb_ia_zspec.txt'
     'FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast'+fileend+'.fout'
-    'Main_Sequence/Catalogs/line_emission_ratios_table.dat'
-    'Main_Sequence/Catalogs/mainseq_Ha_corrections'+fileend+'.fits'
+    'Catalogs/NB_IA_emitters.nodup.colorrev.fix.fits'
+    'Main_Sequence/mainseq_corrections_tbl.txt'
     'FAST/outputs/BEST_FITS/NB_IA_emitters_allphot.emagcorr.ACpsf_fast'
          +fileend+'_'+str(ID[ii])+'.fit'
 
@@ -39,6 +39,9 @@ from astropy.io import fits as pyfits, ascii as asc
 from astropy.cosmology import FlatLambdaCDM
 cosmo = FlatLambdaCDM(H0 = 70 * u.km / u.s / u.Mpc, Om0=0.3)
 
+# emission line wavelengths (air)
+HA = 6562.80
+
 FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
 
 
@@ -60,7 +63,7 @@ def get_flux(ID, lambda_arr):
     return newflux
 
 
-def get_nu_lnu(filt_index):
+def get_nu_lnu(filt_index, ff):
     '''
     Calls get_flux with an array of redshifted wavelengths in order to get
     the corresponding flux values. Those f_lambda values are then converted
@@ -69,14 +72,18 @@ def get_nu_lnu(filt_index):
     '''
     ID    = ID0[filt_index]
     zspec = zspec0[filt_index]
-    zphot = zphot0[filt_index]
-    goodz = np.array([x for x in range(len(zspec)) if zspec[x] < 9. and
-                      zspec[x] > 0.])
-    badz  = np.array([x for x in range(len(zspec)) if zspec[x] >= 9. or
-                      zspec[x] <= 0.])
+    # zphot = zphot0[filt_index]
+    # goodz = np.array([x for x in range(len(zspec)) if zspec[x] < 9. and
+    #                   zspec[x] > 0.])
+    # badz  = np.array([x for x in range(len(zspec)) if zspec[x] >= 9. or
+    #                   zspec[x] <= 0.])
+    goodz = np.where((zspec >= 0) & (zspec < 9))[0]
+    badz  = np.where((zspec <= 0) | (zspec > 9))[0]
+
     tempz = np.zeros(len(filt_index))
     tempz[goodz] = zspec[goodz]
-    tempz[badz]  = zphot[badz]
+    # tempz[badz]  = zphot[badz]
+    tempz[badz] = centr_filts[ff]
 
     lambda_arr = (1+tempz)*1500
 
@@ -196,8 +203,8 @@ def make_all_ratio_plot(L_ha, ltype):
     filtlabel = {}
     for (ff, cc) in zip(['NB704','NB711','NB816','NB921','NB973'], color_arr):
         print ff
-        filt_index = np.array([x for x in range(len(names0)) if 'Ha-'+ff in
-                               names0[x]])
+        filt_index = np.array([x for x in range(len(NAME0)) if 'Ha-'+ff in
+                               NAME0[x]])
         filt_index = np.array(filt_index,dtype=np.int32)
         
         zspec = zspec0[filt_index]
@@ -253,53 +260,64 @@ def make_all_ratio_plot(L_ha, ltype):
 # +190531: only GALEX files will be used
 fileend='.GALEX'
 
-zspec_file = asc.read(FULL_PATH+'Catalogs/nb_ia_zspec.txt',guess=False,
-                      Reader=asc.CommentedHeader)
-ID0    = np.array(zspec_file['ID0'])
+zspec = asc.read(FULL_PATH+'Catalogs/nb_ia_zspec.txt',guess=False,
+    Reader=asc.CommentedHeader)
 zspec0 = np.array(zspec_file['zspec0'])
 
 fout  = asc.read(FULL_PATH+'FAST/outputs/NB_IA_emitters_allphot.emagcorr\
     .ACpsf_fast'+fileend+'.fout',guess=False,Reader=asc.NoHeader)
-zphot0 = np.array(fout['col2'])
-stlr0 = np.array(fout['col7'])
+zphot0 = np.array(fout['col2'])  # IDK
+stlr0 = np.array(fout['col7']) # stlr mass
 
-NIIB_Ha_ratios = asc.read(FULL_PATH+'Main_Sequence/Catalogs/line_emission_\
-    ratios_table.dat',guess=False,Reader=asc.CommentedHeader)
-names0 = np.array(NIIB_Ha_ratios['NAME'])
+nbia = pyfits.open(FULL_PATH+'Catalogs/NB_IA_emitters.nodup.colorrev.fix.fits')
+nbiadata = nbia[1].data
+NAME0 = np.array(nbiadata['NAME'])
+ID0   = np.array(nbiadata['ID'])
 
-Ha_corrs = pyfits.open(FULL_PATH+'Main_Sequence/Catalogs/mainseq_Ha_\
-    corrections'+fileend+'.fits')
-corrdata = Ha_corrs[1].data
-corrID = corrdata['ID']
+corr_tbl = asc.read(FULL_PATH+'Main_Sequence/mainseq_corrections_tbl.txt',
+    guess=False, Reader=asc.FixedWidthTwoLine)
+corrID = np.array(corr_tbl['ID'])
+obs_lumin = np.array(corr_tbl['obs_lumin'])
+dust_corr_factor = np.array(corr_tbl['dust_corr_factor'])
+filt_corr_factor = np.array(corr_tbl['filt_corr_factor'])
+nii_ha_corr_factor = np.array(corr_tbl['nii_ha_corr_factor'])
+corr_factors = filt_corr_factor + nii_ha_corr_factor + dust_corr_factor
+
+corr_lumin = obs_lumin + corr_factors
+
 print '### done reading input files'
 
-nii_ha_corr_lumin = np.zeros(len(ID0))
-dust_corr_lumin = np.zeros(len(ID0))
+# nii_ha_corr_lumin = np.zeros(len(ID0))
+# dust_corr_lumin = np.zeros(len(ID0))
 ID_match = np.array([x for x in range(len(ID0)) if ID0[x] in corrID])
-nii_ha_corr_lumin[ID_match] = corrdata['nii_ha_corr_lumin']
-dust_corr_lumin[ID_match] = corrdata['dust_corr_lumin']
-color_arr = ['r', 'orange', 'g', 'b', 'purple']
+# nii_ha_corr_lumin[ID_match] = corrdata['nii_ha_corr_lumin']
+# dust_corr_lumin[ID_match] = corrdata['dust_corr_lumin']
+# color_arr = ['r', 'orange', 'g', 'b', 'purple']
+color_arr = ['r', 'orange', 'g', 'b'] #, 'purple']
+centr_filts = {'NB7':((7045.0/HA - 1) + (7126.0/HA - 1))/2.0, 
+               'NB816':8152.0/HA - 1, 'NB921':9193.0/HA - 1, 'NB973':9749.0/HA - 1}
 
 print '### making scatter_plots and ratio_plots'
-for (ff, cc) in zip(['NB704','NB711','NB816','NB921','NB973'], color_arr):
+# for (ff, cc) in zip(['NB704','NB711','NB816','NB921','NB973'], color_arr):
+for (ff, cc) in zip(['NB7','NB816','NB921','NB973'], color_arr):
     print ff
-    filt_index = np.array([x for x in range(len(names0)) if 'Ha-'+ff in
-                           names0[x]])
-    filt_index = np.array(filt_index,dtype=np.int32)
+    filt_index = np.array([x for x in range(len(NAME0)) if 'Ha-'+ff in
+                           NAME0[x]])
+    # filt_index = np.array(filt_index,dtype=np.int32)
 
-    nu_lnu = get_nu_lnu(filt_index)
+    nu_lnu = get_nu_lnu(filt_index, ff)
     
     make_scatter_plot(filt_index, nu_lnu, nii_ha_corr_lumin[filt_index], ff,
                       'nii_ha_corr')
     make_scatter_plot(filt_index, nu_lnu, dust_corr_lumin[filt_index], ff,
                       'dust_corr')
-    make_ratio_plot(filt_index, nu_lnu, nii_ha_corr_lumin[filt_index],
-                    stlr0[filt_index], ff, 'nii_ha_corr')
-    make_ratio_plot(filt_index, nu_lnu, dust_corr_lumin[filt_index],
-                    stlr0[filt_index], ff, 'dust_corr')
+    # make_ratio_plot(filt_index, nu_lnu, nii_ha_corr_lumin[filt_index],
+    #                 stlr0[filt_index], ff, 'nii_ha_corr')
+    # make_ratio_plot(filt_index, nu_lnu, dust_corr_lumin[filt_index],
+    #                 stlr0[filt_index], ff, 'dust_corr')
 
-print '### making all_ratio_plots'
-make_all_ratio_plot(nii_ha_corr_lumin, 'nii_ha_corr')
-make_all_ratio_plot(dust_corr_lumin, 'dust_corr')
+# print '### making all_ratio_plots'
+# make_all_ratio_plot(nii_ha_corr_lumin, 'nii_ha_corr')
+# make_all_ratio_plot(dust_corr_lumin, 'dust_corr')
 
 Ha_corrs.close()
