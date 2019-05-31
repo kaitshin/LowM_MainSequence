@@ -103,6 +103,7 @@ def make_scatter_plot(nu_lnu, l_ha, ff, ltype):
 
     plt.scatter(nu_lnu, l_ha)
     plt.gca().minorticks_on()
+    plt.gca().tick_params(axis='both', which='both', direction='in')
     plt.xlabel('log['+r'$\nu$'+'L'+r'$_{\nu}$'+'(1500 '+r'$\AA$'+')]')
     plt.ylabel('log[L'+r'$_{H\alpha}$'+']')    
     plt.xlim(36.0, 48.0)
@@ -112,7 +113,7 @@ def make_scatter_plot(nu_lnu, l_ha, ff, ltype):
     plt.close()
 
 
-def make_ratio_plot(filt_index, nu_lnu, l_ha, stlr, ff, ltype):
+def make_ratio_plot(nu_lnu, l_ha, stlr, ff, ltype):
     '''
     Makes a ratio plot (by filter) of stellar mass vs. (nu_lnu/l_ha), then
     saves and closes the figure.
@@ -129,6 +130,7 @@ def make_ratio_plot(filt_index, nu_lnu, l_ha, stlr, ff, ltype):
     ratio = nu_lnu-l_ha
     plt.scatter(stlr, ratio)
     plt.gca().minorticks_on()
+    plt.gca().tick_params(axis='both', which='both', direction='in')
     plt.xlabel('log[M/M'+r'$_{\odot}$'+']')
     plt.ylabel('log['+r'$\nu$'+'L'+r'$_{\nu}$'+'/L(H'+r'$\alpha$'+')'+']')
     plt.savefig(FULL_PATH+'Plots/main_sequence_UV_Ha/ratios/'+ff+'_'+ltype+
@@ -298,11 +300,10 @@ for (ff, cc) in zip(['NB7','NB816','NB921','NB973'], color_arr):
         corr_tbl['NAME0'].data])
     
     make_scatter_plot(nu_lnu, corr_lumin[filt_index_haii], ff, 'all_corr')
-    
-    # make_ratio_plot(filt_index, nu_lnu, nii_ha_corr_lumin[filt_index],
-    #                 stlr0[filt_index], ff, 'nii_ha_corr')
-    # make_ratio_plot(filt_index, nu_lnu, dust_corr_lumin[filt_index],
-    #                 stlr0[filt_index], ff, 'dust_corr')
+
+    make_ratio_plot(nu_lnu, corr_lumin[filt_index_haii], stlr0[filt_index],
+        ff, 'all_corr')
+
 
 # print '### making all_ratio_plots'
 # make_all_ratio_plot(nii_ha_corr_lumin, 'nii_ha_corr')
