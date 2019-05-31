@@ -88,7 +88,7 @@ def get_nu_lnu(filt_index, ff):
     return np.log10(L_nu*((constants.c.value)/1.5E-7))
 
 
-def make_scatter_plot(filt_index, nu_lnu, l_ha, ff, ltype):
+def make_scatter_plot(nu_lnu, l_ha, ff, ltype):
     '''
     Makes a scatter plot (by filter) of nu_lnu vs l_ha, then saves and
     closes the figure.
@@ -290,14 +290,18 @@ print '### making scatter_plots and ratio_plots'
 for (ff, cc) in zip(['NB7','NB816','NB921','NB973'], color_arr):
     print ff
     filt_index = np.array([x for x in range(len(NAME0)) if 'Ha-'+ff in
-                           NAME0[x]])
+        NAME0[x]])
 
     nu_lnu = get_nu_lnu(filt_index, ff)
+
+    filt_index_haii = np.array([x for x in range(len(corr_tbl)) if 'Ha-'+ff in 
+        corr_tbl['NAME0'].data])
     
-    make_scatter_plot(filt_index, nu_lnu, nii_ha_corr_lumin[filt_index], ff,
-                      'nii_ha_corr')
-    make_scatter_plot(filt_index, nu_lnu, dust_corr_lumin[filt_index], ff,
-                      'dust_corr')
+    make_scatter_plot(nu_lnu, corr_lumin[filt_index_haii], ff, 'all_corr')
+    # make_scatter_plot(filt_index, nu_lnu, nii_ha_corr_lumin[filt_index], ff,
+    #                   'nii_ha_corr')
+    # make_scatter_plot(filt_index, nu_lnu, dust_corr_lumin[filt_index], ff,
+    #                   'dust_corr')
     # make_ratio_plot(filt_index, nu_lnu, nii_ha_corr_lumin[filt_index],
     #                 stlr0[filt_index], ff, 'nii_ha_corr')
     # make_ratio_plot(filt_index, nu_lnu, dust_corr_lumin[filt_index],
