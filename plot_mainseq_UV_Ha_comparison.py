@@ -45,44 +45,45 @@ HA = 6562.80
 FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
 
 
-def get_flux(ID, lambda_arr):
-    '''
-    Reads in the relevant SED spectrum file and then interpolates the
-    function to obtain a flux, the array of which is then returned.
-    '''
-    newflux = np.zeros(len(ID))
-    for ii in range(len(ID)):
-        tempfile = asc.read(FULL_PATH+'FAST/outputs/BEST_FITS/NB_IA_emitters\
-            _allphot.emagcorr.ACpsf_fast'+fileend+'_'+str(ID[ii])+'.fit',
-            guess=False,Reader=asc.NoHeader)
-        wavelength = np.array(tempfile['col1'])
-        flux = np.array(tempfile['col2'])
-        f = interpolate.interp1d(wavelength, flux)
-        newflux[ii] = f(lambda_arr[ii])
+# def get_flux(ID, lambda_arr):
+#     '''
+#     Reads in the relevant SED spectrum file and then interpolates the
+#     function to obtain a flux, the array of which is then returned.
+#     '''
+#     newflux = np.zeros(len(ID))
+#     for ii in range(len(ID)):
+#         tempfile = asc.read(FULL_PATH+'FAST/outputs/BEST_FITS/NB_IA_emitters\
+#             _allphot.emagcorr.ACpsf_fast'+fileend+'_'+str(ID[ii])+'.fit',
+#             guess=False,Reader=asc.NoHeader)
+#         wavelength = np.array(tempfile['col1'])
+#         flux = np.array(tempfile['col2'])
+#         f = interpolate.interp1d(wavelength, flux)
+#         newflux[ii] = f(lambda_arr[ii])
 
-    return newflux
+#     return newflux
 
 
-def get_nu_lnu(filt_index, ff):
+def get_nu_lnu(filt_index_haii, ff):
     '''
     Calls get_flux with an array of redshifted wavelengths in order to get
     the corresponding flux values. Those f_lambda values are then converted
     into f_nu values, which is in turn converted into L_nu and multiplied by
     nu, the log of which is returned as nu_lnu.
     '''
-    ID    = ID0[filt_index]
-    zspec = zspec0[filt_index]
+    ID = corrID[filt_index_haii]
+    zspec = corrzspec0[filt_index_haii]
 
     goodz = np.where((zspec >= 0) & (zspec < 9))[0]
     badz  = np.where((zspec <= 0) | (zspec > 9))[0]
 
-    tempz = np.zeros(len(filt_index))
+    tempz = np.zeros(len(filt_index_haii))
     tempz[goodz] = zspec[goodz]
     tempz[badz] = centr_filts[ff]
 
     lambda_arr = (1+tempz)*1500
 
-    f_lambda = get_flux(ID, lambda_arr)
+    # f_lambda = get_flux(ID, lambda_arr)
+    f_lambda = 10**corr_fluxes[filt_index_haii]
     f_nu = f_lambda*(1E-19*(lambda_arr**2*1E-10)/(constants.c.value))
     L_nu = f_nu*4*np.pi*(cosmo.luminosity_distance(tempz).to(u.cm).value)**2
     return np.log10(L_nu*((constants.c.value)/1.5E-7))
@@ -96,18 +97,18 @@ def make_scatter_plot(nu_lnu, l_ha, ff, ltype):
     There is a value in the filter NB921 which has flux=='NAN'. That is
     ignored.
     '''
-    if ff=='NB921':
-        zero = np.where(l_ha == 0.)[0]
-        nu_lnu = np.concatenate((nu_lnu[:zero], nu_lnu[zero+1:]))
-        l_ha = np.concatenate((l_ha[:zero], l_ha[zero+1:]))
+    # if ff=='NB921':
+    #     zero = np.where(l_ha == 0.)[0]
+    #     nu_lnu = np.concatenate((nu_lnu[:zero], nu_lnu[zero+1:]))
+    #     l_ha = np.concatenate((l_ha[:zero], l_ha[zero+1:]))
 
     plt.scatter(nu_lnu, l_ha)
     plt.gca().minorticks_on()
     plt.gca().tick_params(axis='both', which='both', direction='in')
     plt.xlabel('log['+r'$\nu$'+'L'+r'$_{\nu}$'+'(1500 '+r'$\AA$'+')]')
     plt.ylabel('log[L'+r'$_{H\alpha}$'+']')    
-    plt.xlim(36.0, 48.0)
-    plt.ylim(37.0, 44.0)
+    # plt.xlim(36.0, 48.0)
+    # plt.ylim(37.0, 44.0)
     plt.savefig(FULL_PATH+'Plots/main_sequence_UV_Ha/'+ff+'_'+ltype+
         fileend+'.pdf')
     plt.close()
@@ -121,11 +122,11 @@ def make_ratio_plot(nu_lnu, l_ha, stlr, ff, ltype):
     There is a value in the filter NB921 which has flux=='NAN'. That is
     ignored.
     '''
-    if ff=='NB921':
-        zero = np.where(l_ha == 0.)[0]
-        nu_lnu = np.concatenate((nu_lnu[:zero], nu_lnu[zero+1:]))
-        l_ha = np.concatenate((l_ha[:zero], l_ha[zero+1:]))
-        stlr = np.concatenate((stlr[:zero], stlr[zero+1:]))
+    # if ff=='NB921':
+    #     zero = np.where(l_ha == 0.)[0]
+    #     nu_lnu = np.concatenate((nu_lnu[:zero], nu_lnu[zero+1:]))
+    #     l_ha = np.concatenate((l_ha[:zero], l_ha[zero+1:]))
+    #     stlr = np.concatenate((stlr[:zero], stlr[zero+1:]))
 
     ratio = nu_lnu-l_ha
     plt.scatter(stlr, ratio)
@@ -212,12 +213,12 @@ def make_all_ratio_plot(L_ha, ltype):
             corr_tbl['NAME0'].data])
         l_ha = L_ha[filt_index_haii]
 
-        if ff=='NB921':
-            zero_index = np.where(l_ha == 0.)[0]
-            l_ha = np.delete(l_ha, zero_index)
-            zspec = np.delete(zspec, zero_index)
-            stlr = np.delete(stlr, zero_index)
-            nu_lnu = np.delete(nu_lnu, zero_index)
+        # if ff=='NB921':
+        #     zero_index = np.where(l_ha == 0.)[0]
+        #     l_ha = np.delete(l_ha, zero_index)
+        #     zspec = np.delete(zspec, zero_index)
+        #     stlr = np.delete(stlr, zero_index)
+        #     nu_lnu = np.delete(nu_lnu, zero_index)
         
         ratio = nu_lnu-l_ha
         xposdata = np.append(xposdata, stlr)
@@ -264,10 +265,9 @@ fileend='.GALEX'
 
 zspec = asc.read(FULL_PATH+'Catalogs/nb_ia_zspec.txt',guess=False,
     Reader=asc.CommentedHeader)
-zspec0 = np.array(zspec_file['zspec0'])
+zspec0 = np.array(zspec['zspec0'])
 
-fout  = asc.read(FULL_PATH+'FAST/outputs/NB_IA_emitters_allphot.emagcorr\
-    .ACpsf_fast'+fileend+'.fout',guess=False,Reader=asc.NoHeader)
+fout  = asc.read(FULL_PATH+'FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast'+fileend+'.fout',guess=False,Reader=asc.NoHeader)
 zphot0 = np.array(fout['col2'])  # IDK
 stlr0 = np.array(fout['col7']) # stlr mass
 
@@ -279,12 +279,15 @@ ID0   = np.array(nbiadata['ID'])
 corr_tbl = asc.read(FULL_PATH+'Main_Sequence/mainseq_corrections_tbl.txt',
     guess=False, Reader=asc.FixedWidthTwoLine)
 corrID = np.array(corr_tbl['ID'])
+corrzspec0 = np.array(corr_tbl['zspec0'])
+corrfilts = np.array(corr_tbl['filt'])
 obs_lumin = np.array(corr_tbl['obs_lumin'])
 dust_corr_factor = np.array(corr_tbl['dust_corr_factor'])
 filt_corr_factor = np.array(corr_tbl['filt_corr_factor'])
 nii_ha_corr_factor = np.array(corr_tbl['nii_ha_corr_factor'])
 corr_factors = filt_corr_factor + nii_ha_corr_factor + dust_corr_factor
 
+corr_fluxes = corr_tbl['obs_fluxes'].data + corr_factors
 corr_lumin = obs_lumin + corr_factors
 print '### done reading input files'
 
@@ -298,17 +301,16 @@ for (ff, cc) in zip(['NB7','NB816','NB921','NB973'], color_arr):
     print ff
     filt_index = np.array([x for x in range(len(NAME0)) if 'Ha-'+ff in
         NAME0[x]])
+    filt_index_haii = np.array([x for x in range(len(corr_tbl)) if ff in
+        corrfilts[x]])
 
-    nu_lnu = get_nu_lnu(filt_index, ff)
-
-    filt_index_haii = np.array([x for x in range(len(corr_tbl)) if 'Ha-'+ff in 
-        corr_tbl['NAME0'].data])
+    nu_lnu = get_nu_lnu(filt_index, filt_index_haii, ff)
     
     make_scatter_plot(nu_lnu, corr_lumin[filt_index_haii], ff, 'all_corr')
 
-    make_ratio_plot(nu_lnu, corr_lumin[filt_index_haii], stlr0[filt_index],
-        ff, 'all_corr')
+    # make_ratio_plot(nu_lnu, corr_lumin[filt_index_haii], stlr0[filt_index],
+    #     ff, 'all_corr')
 
 
 # print '### making all_ratio_plots'
-make_all_ratio_plot(corr_lumin, 'all_corr')
+# make_all_ratio_plot(corr_lumin, 'all_corr')
