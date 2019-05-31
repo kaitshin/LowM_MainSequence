@@ -265,7 +265,8 @@ def ew_MC():
         lum_dist = cosmo.luminosity_distance(z_NB[ff]).to(u.cm).value
 
         fig, ax = plt.subplots(ncols=2, nrows=2)
-        plt.subplots_adjust(left=0.09, right=0.98, bottom=0.09, top=0.98, wspace=0.3)
+        plt.subplots_adjust(left=0.105, right=0.98, bottom=0.09, top=0.98, wspace=0.25,
+                            hspace=0.05)
 
         for mm in [len(logEW_mean)-1]: #range(len(logEW_mean)): # loop over median of EW dist
             for nn in range(len(NB)):
@@ -283,7 +284,7 @@ def ew_MC():
 
                     ax[0][0].axhline(y=minthres[ff], linestyle='dashed', color='blue')
                     ax[0][0].plot(NB, color_cut(NB, m_NB[ff], cont_lim[ff]), 'b--')
-                    ax[0][0].set_xlabel('NB')
+                    ax[0][0].set_xticklabels([])
                     ax[0][0].set_ylabel('cont - NB')
 
                     sig_limit = color_cut(t_NB, m_NB[ff], cont_lim[ff])
@@ -298,24 +299,24 @@ def ew_MC():
 
                     t_Haflux = correct_NII(t_flux, NIIHa)
 
-                    ax[0][1].scatter(t_NB[NB_sel], t_Haflux[NB_sel], alpha=0.25, s=2,
+                    ax[1][0].scatter(t_NB[NB_sel], t_Haflux[NB_sel], alpha=0.25, s=2,
                                      edgecolor='none')
-                    ax[0][1].scatter(t_NB[NB_nosel], t_Haflux[NB_nosel], alpha=0.25, s=2,
+                    ax[1][0].scatter(t_NB[NB_nosel], t_Haflux[NB_nosel], alpha=0.25, s=2,
                                      edgecolor='blue', linewidth=0.25, facecolor='none')
-                    ax[0][1].set_xlabel('NB')
-                    ax[0][1].set_ylabel(r'$\log(F_{H\alpha})$')
+                    ax[1][0].set_xlabel('NB')
+                    ax[1][0].set_ylabel(r'$\log(F_{H\alpha})$')
 
                     #ax[0][1].scatter(t_NB, t_Haflux, marker='s', color='red', alpha=0.25, s=2,
                     #                 facecolor='none')
 
                     t_HaLum = t_Haflux + np.log10(4*np.pi) + 2*np.log10(lum_dist)
 
-                    ax[1][0].scatter(logM_MC[NB_sel], t_HaLum[NB_sel], alpha=0.25, s=2,
+                    ax[0][1].scatter(logM_MC[NB_sel], t_HaLum[NB_sel], alpha=0.25, s=2,
                                      edgecolor='none')
-                    ax[1][0].scatter(logM_MC[NB_nosel], t_HaLum[NB_nosel], alpha=0.25, s=2,
+                    ax[0][1].scatter(logM_MC[NB_nosel], t_HaLum[NB_nosel], alpha=0.25, s=2,
                                      edgecolor='blue', linewidth=0.25, facecolor='none')
-                    ax[1][0].set_xlabel(r'$\log(M_{\star}/M_{\odot})$')
-                    ax[1][0].set_ylabel(r'$\log(L_{{\rm H}\alpha})$')
+                    ax[0][1].set_xticklabels([])
+                    ax[0][1].set_ylabel(r'$\log(L_{{\rm H}\alpha})$')
                     #ax[1][1].set_ylim([37.5,43.0])
 
                     logSFR_MC = HaSFR_metal_dep(logOH, t_HaLum)
