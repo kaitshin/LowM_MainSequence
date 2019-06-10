@@ -344,12 +344,18 @@ def ew_MC():
                 #endfor
 
                 EW_bins = np.arange(0.5,3.0,0.05)
-                ax[2][0].hist(EW_arr0, bins=EW_bins, align='mid', color='black', linestyle='solid',
-                              edgecolor='black', histtype='step')
+                N, bins, pa = ax[2][0].hist(EW_arr0, bins=EW_bins, align='mid', color='black',
+                                            linestyle='solid', edgecolor='black', histtype='step')
+
                 good = np.where(EW_flag0)[0]
                 ax[2][0].hist(EW_arr0[good], bins=EW_bins, align='mid', alpha=0.5, color='blue',
                               linestyle='solid', edgecolor='none', histtype='stepfilled')
 
+                nonzero = np.where(N > 0)[0]
+                ax[2][0].set_xlim(bins[nonzero[0]],bins[nonzero[-1]])
+
+                ax[2][0].set_xlabel(r'$\log({\rm EW}/\AA)$')
+                ax[2][0].set_ylabel(r'$N$')
                 fig.savefig(pp, format='pdf')
             #endfor
         #endfor
