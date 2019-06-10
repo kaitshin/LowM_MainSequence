@@ -377,20 +377,34 @@ def ew_MC():
                                       va='top', ha='left')
                 #endfor
 
+                # Read in EW and fluxes for H-alpha NB emitter sample
+                npz_NB_file = path0 + 'Completeness/ew_flux_'+prefixes[ff]+'.npz'
+                npz_NB      = np.load(npz_NB_file)
+                NB_EW   = npz_NB['NB_EW']
+                NB_Flux = npz_NB['NB_Flux']
+
                 EW_bins = np.arange(0.5,3.0,0.05)
+
                 N, bins, pa = ax[2][0].hist(EW_arr0, bins=EW_bins, align='mid', color='black',
                                             linestyle='solid', edgecolor='black', histtype='step')
 
                 good = np.where(EW_flag0)[0]
-                ax[2][0].hist(EW_arr0[good], bins=EW_bins, align='mid', alpha=0.5, color='blue',
-                              linestyle='solid', edgecolor='none', histtype='stepfilled')
+                N_good, bins_good, pa = ax[2][0].hist(EW_arr0[good], bins=EW_bins, align='mid',
+                                                      alpha=0.5, color='blue', linestyle='solid',
+                                                      edgecolor='none', histtype='stepfilled')
 
                 nonzero = np.where(N > 0)[0]
-                ax[2][0].set_xlim(bins[nonzero[0]],bins[nonzero[-1]])
+                #ax[2][0].set_xlim(bins[nonzero[0]],bins[nonzero[-1]])
+
+                NB_counts, NB_bins = np.histogram(NB_EW, np.arange(0.5,3.0,0.2))
+                norm0 = np.max(N_good)/np.max(NB_counts)
+                ax[2][0].plot(NB_bins[:-1], NB_counts*norm0, linestyle='dashed')
 
                 ax[2][0].set_xlabel(r'$\log({\rm EW}/\AA)$')
                 ax[2][0].set_ylabel(r'$N$')
                 ax[2][0].set_position([0.105,0.05,0.389,0.265])
+
+
                 ax[2][1].axis('off')
 
                 fig.set_size_inches(8,10)
