@@ -265,7 +265,7 @@ def ew_MC():
         lum_dist = cosmo.luminosity_distance(z_NB[ff]).to(u.cm).value
 
         fig, ax = plt.subplots(ncols=2, nrows=3)
-        plt.subplots_adjust(left=0.105, right=0.98, bottom=0.09, top=0.98, wspace=0.25,
+        plt.subplots_adjust(left=0.105, right=0.98, bottom=0.05, top=0.98, wspace=0.25,
                             hspace=0.05)
 
         for mm in [len(logEW_mean)-1]: #range(len(logEW_mean)): # loop over median of EW dist
@@ -356,6 +356,10 @@ def ew_MC():
 
                 ax[2][0].set_xlabel(r'$\log({\rm EW}/\AA)$')
                 ax[2][0].set_ylabel(r'$N$')
+                ax[2][1].axis('off')
+
+
+                fig.set_size_inches(7,10)
                 fig.savefig(pp, format='pdf')
             #endfor
         #endfor
