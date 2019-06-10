@@ -264,16 +264,22 @@ def ew_MC():
 
         lum_dist = cosmo.luminosity_distance(z_NB[ff]).to(u.cm).value
 
-        fig, ax = plt.subplots(ncols=2, nrows=2)
+        fig, ax = plt.subplots(ncols=2, nrows=3)
         plt.subplots_adjust(left=0.105, right=0.98, bottom=0.09, top=0.98, wspace=0.25,
                             hspace=0.05)
 
         for mm in [len(logEW_mean)-1]: #range(len(logEW_mean)): # loop over median of EW dist
             for ss in [0]: #range(len(logEW_sig)): # loop over sigma of EW dist
+                EW_arr0  = np.array([])
+                EW_flag0 = np.array([])
+
                 for nn in range(len(NB)):
                     np.random.seed = mm*ss
                     rand0    = np.random.normal(0.0, 1.0, size=100)
                     logEW_MC = logEW_mean[mm] + logEW_sig[ss]*rand0
+
+                    EW_arr0 = np.append(EW_arr0, logEW_MC)
+                    EW_flag = np.zeros(len(logEW_MC))
 
                     #print max(logEW_MC)
                     x_MC = EW_int(logEW_MC)
@@ -290,6 +296,9 @@ def ew_MC():
                     sig_limit = color_cut(t_NB, m_NB[ff], cont_lim[ff])
                     NB_sel   = np.where((x_MC >= minthres[ff]) & (x_MC >= sig_limit))[0]
                     NB_nosel = np.where((x_MC < minthres[ff]) | (x_MC < sig_limit))[0]
+
+                    EW_flag[NB_sel] = 1
+                    EW_flag0 = np.append(EW_flag0, EW_flag)
 
                     t_EW, t_flux = ew_flux_dual(t_NB, t_NB + x_MC, x_MC, filt_dict)
                     t_flux = np.log10(t_flux)
@@ -333,6 +342,13 @@ def ew_MC():
                     ax[0][0].annotate(annot_txt, [0.05,0.95], xycoords='axes fraction',
                                       va='top', ha='left')
                 #endfor
+
+                EW_bins = np.arange(0.5,3.0,0.05)
+                ax[2][0].hist(EW_arr0, bins=EW_bins, align='mid', color='black', linestyle='solid',
+                              edgecolor='black', histtype='step')
+                good = np.where(EW_flag0)[0]
+                ax[2][0].hist(EW_arr0[good], bins=EW_bins, align='mid', alpha=0.5, color='blue',
+                              linestyle='solid', edgecolor='none', histtype='stepfilled')
 
                 fig.savefig(pp, format='pdf')
             #endfor
