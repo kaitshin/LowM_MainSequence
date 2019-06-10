@@ -269,8 +269,8 @@ def ew_MC():
                             hspace=0.05)
 
         for mm in [len(logEW_mean)-1]: #range(len(logEW_mean)): # loop over median of EW dist
-            for nn in range(len(NB)):
-                for ss in [0]: #range(len(logEW_sig)): # loop over sigma of EW dist
+            for ss in [0]: #range(len(logEW_sig)): # loop over sigma of EW dist
+                for nn in range(len(NB)):
                     np.random.seed = mm*ss
                     rand0    = np.random.normal(0.0, 1.0, size=100)
                     logEW_MC = logEW_mean[mm] + logEW_sig[ss]*rand0
@@ -332,6 +332,10 @@ def ew_MC():
                     annot_txt += r'$\sigma[\log({\rm EW}_0)] = %.2f$' % logEW_sig[ss] + '\n'
                     ax[0][0].annotate(annot_txt, [0.05,0.95], xycoords='axes fraction',
                                       va='top', ha='left')
+                #endfor
 
-        fig.savefig(pp, format='pdf')
+                fig.savefig(pp, format='pdf')
+            #endfor
+        #endfor
+
         pp.close()
