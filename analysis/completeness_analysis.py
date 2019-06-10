@@ -219,6 +219,40 @@ def mag_vs_mass(silent=False, verbose=True):
     if silent == False: log.info('### End mag_vs_mass : '+systime())
 #enddef
 
+def get_EW_Flux_distribution():
+
+    # NB Ha emitter sample for ID
+    NB_file = path0 + 'Main_Sequence/mainseq_corrections_tbl (1).txt'
+    log.info("Reading : "+NB_file)
+    NB_tab     = asc.read(NB_file)
+    NB_HA_Name = NB_tab['NAME0'].data
+    NB_Ha_ID   = NB_tab['ID'].data - 1 # Relative to 0 --> indexing
+
+    NB_catfile = path0 + 'Catalogs/NB_IA_emitters.allcols.colorrev.fix.errors.fits'
+    log.info("Reading : "+NB_catfile)
+    NB_catdata = fits.getdata(NB_catfile)
+    NB_catdata = NB_catdata[NB_Ha_ID]
+
+    NB_EW   = np.zeros(len(NB_catdata))
+    NB_Flux = np.zeros(len(NB_catdata))
+
+    filts    = ['NB704','NB711','NB816','NB921','NB973']
+    prefixes = ['Ha-NB7','Ha-NB816','Ha-NB921','Ha-NB973']
+
+    for filt, prefix in zip(filts, prefixes):
+        log.info('### Working on : '+filt)
+        NB_idx = [ii for ii in range(len(NB_tab)) if 'Ha-'+filt in NB_HA_Name[ii]]
+        print(" Size : ", len(NB_idx))
+        NB_EW[NB_idx]   = np.log10(NB_catdata[filt+'_EW'][NB_idx])
+        NB_Flux[NB_idx] = NB_catdata[filt+'_FLUX'][NB_idx]
+
+        out_npz = path0 + 'Completeness/ew_flux_'+prefix+'.npz'
+        log.info("Writing : "+out_npz)
+        np.savez(out_npz, NB_EW=NB_EW, NB_Flux=NB_Flux)
+    #endfor
+
+#enddef
+
 def ew_MC():
 
     prefixes = ['Ha-NB7','Ha-NB7','Ha-NB816','Ha-NB921','Ha-NB973']
