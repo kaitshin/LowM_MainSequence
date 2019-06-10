@@ -356,10 +356,10 @@ def ew_MC():
 
                 ax[2][0].set_xlabel(r'$\log({\rm EW}/\AA)$')
                 ax[2][0].set_ylabel(r'$N$')
+                ax[2][0].set_position([0.105,0.05,0.389,0.265])
                 ax[2][1].axis('off')
 
-
-                fig.set_size_inches(7,10)
+                fig.set_size_inches(8,10)
                 fig.savefig(pp, format='pdf')
             #endfor
         #endfor
