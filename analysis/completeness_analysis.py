@@ -382,7 +382,7 @@ def ew_MC():
                 NB_EW   = npz_NB['NB_EW']
                 NB_Flux = npz_NB['NB_Flux']
 
-                EW_bins = np.arange(0.5,3.0,0.2)
+                EW_bins = np.arange(0.2,3.0,0.2)
 
                 # NB_counts, NB_bins = np.histogram(NB_EW, np.arange(0.5,3.0,0.2))
                 ax[2][0].hist(NB_EW, bins=EW_bins, align='mid', color='blue', linestyle='solid',
@@ -394,14 +394,16 @@ def ew_MC():
                 #N, bins = np.histogram(EW_arr0, EW_bins)
                 #print(max(N*norm0))
                 #ax[2][0].plot(bins[:-1], N*norm0, color='black', linestyle='solid')
-                N, bins, _ = ax[2][0].hist(EW_arr0, bins=EW_bins, weights=wht0, align='mid',
-                                           color='black', linestyle='solid', edgecolor='black',
+                N, bins, _ = ax[2][0].hist(EW_arr0, bins=EW_bins, weights=wht0,
+                                           align='mid', color='black',
+                                           linestyle='solid', edgecolor='black',
                                            histtype='step')
 
                 good = np.where(EW_flag0)[0]
-                N_good, bins_good, _ = ax[2][0].hist(EW_arr0[good], bins=EW_bins, weights=wht0[good],
-                                                     align='mid', alpha=0.5, color='red',
-                                                     linestyle='solid', edgecolor='none', histtype='stepfilled')
+                ax[2][0].hist(EW_arr0[good], bins=EW_bins, weights=wht0[good],
+                              align='mid', alpha=0.5, color='red',
+                              linestyle='solid', edgecolor='none',
+                              histtype='stepfilled')
 
                 #nonzero = np.where(N > 0)[0]
                 #ax[2][0].set_xlim(bins[nonzero[0]],bins[nonzero[-1]])
