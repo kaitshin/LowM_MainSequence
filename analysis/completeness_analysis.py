@@ -269,6 +269,8 @@ def ew_MC():
 
     for ff in range(len(filt_ref)): # loop over filter
         out_pdf = path0 + 'Completeness/ew_MC_'+filters[ff]+'.pdf'
+        print("Working on : "+filters[ff])
+
         pp = PdfPages(out_pdf)
 
         filt_dict = {'dNB': dNB[ff], 'dBB': dBB[ff], 'lambdac': lambdac[ff]}
@@ -445,8 +447,9 @@ def ew_MC():
                               linestyle='solid', edgecolor='none',
                               histtype='stepfilled')
 
-                N, bins, _ = ax[2][1].hist(Flux_arr0, bins=Flux_bins, weights=wht0,
-                                           align='mid', color='black',
+                finite = np.where(np.isfinite(Flux_arr0))
+                N, bins, _ = ax[2][1].hist(Flux_arr0[finite], bins=Flux_bins,
+                                           weights=wht0[finite], align='mid', color='black',
                                            linestyle='solid', edgecolor='black',
                                            histtype='step')
 
