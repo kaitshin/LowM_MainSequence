@@ -306,6 +306,8 @@ def ew_MC():
                 EW_arr0  = np.array([])
                 EW_flag0 = np.array([])
 
+                Flux_arr0  = np.array([])
+
                 for nn in range(len(NB)):
                     np.random.seed = mm*ss
                     rand0    = np.random.normal(0.0, 1.0, size=100)
@@ -340,6 +342,8 @@ def ew_MC():
                     NIIHa, logOH = get_NIIHa_logOH(logM_MC)
 
                     t_Haflux = correct_NII(t_flux, NIIHa)
+
+                    Flux_arr0 = np.append(Flux_arr0, t_Haflux)
 
                     ax[1][0].scatter(t_NB[NB_sel], t_Haflux[NB_sel], alpha=0.25, s=2,
                                      edgecolor='none')
@@ -435,10 +439,20 @@ def ew_MC():
                 ax[2][0].set_position([0.105,0.05,0.389,0.265])
 
 
-                Flux_bins = np.arange(-18,-14,0.25)
+                Flux_bins = np.arange(-17.75,-14.75,0.25)
+
                 ax[2][1].hist(NB_Flux, bins=Flux_bins, align='mid', color='blue',
                               linestyle='solid', edgecolor='none',
                               histtype='stepfilled')
+
+                N, bins, _ = ax[2][1].hist(Flux_arr0, bins=Flux_bins, weights=wht0,
+                                           align='mid', color='black',
+                                           linestyle='solid', edgecolor='black',
+                                           histtype='step')
+
+                ax[2][1].hist(Flux_arr0[good], bins=Flux_bins, weights=wht0[good],
+                              align='mid', alpha=0.5, color='red', edgecolor='red',
+                              linestyle='solid', histtype='stepfilled')
 
                 ax[2][1].set_xlabel(r'$\log(F_{\rm NB})$')
                 ax[2][1].set_ylabel(r'$N$')
