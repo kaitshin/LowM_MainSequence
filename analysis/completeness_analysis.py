@@ -383,27 +383,33 @@ def ew_MC():
                 NB_EW   = npz_NB['NB_EW']
                 NB_Flux = npz_NB['NB_Flux']
 
-                EW_bins = np.arange(0.5,3.0,0.05)
+                EW_bins = np.arange(0.5,3.0,0.2)
 
-                N, bins, pa = ax[2][0].hist(EW_arr0, bins=EW_bins, align='mid', color='black',
-                                            linestyle='solid', edgecolor='black', histtype='step')
+                # NB_counts, NB_bins = np.histogram(NB_EW, np.arange(0.5,3.0,0.2))
+                ax[2][0].hist(NB_EW, bins=EW_bins, align='mid', color='blue', linestyle='solid',
+                              edgecolor='none', histtype='stepfilled')
+
+                norm0 = float(len(NB_EW))/len(EW_arr0)
+                wht0  = np.repeat(norm0, len(EW_arr0))
+
+                #N, bins = np.histogram(EW_arr0, EW_bins)
+                #print(max(N*norm0))
+                #ax[2][0].plot(bins[:-1], N*norm0, color='black', linestyle='solid')
+                N, bins, _ = ax[2][0].hist(EW_arr0, bins=EW_bins, weights=wht0, align='mid',
+                                           color='black', linestyle='solid', edgecolor='black',
+                                           histtype='step')
 
                 good = np.where(EW_flag0)[0]
-                N_good, bins_good, pa = ax[2][0].hist(EW_arr0[good], bins=EW_bins, align='mid',
-                                                      alpha=0.5, color='blue', linestyle='solid',
-                                                      edgecolor='none', histtype='stepfilled')
+                N_good, bins_good, _ = ax[2][0].hist(EW_arr0[good], bins=EW_bins, weights=wht0[good],
+                                                     align='mid', alpha=0.5, color='red',
+                                                     linestyle='solid', edgecolor='none', histtype='stepfilled')
 
-                nonzero = np.where(N > 0)[0]
+                #nonzero = np.where(N > 0)[0]
                 #ax[2][0].set_xlim(bins[nonzero[0]],bins[nonzero[-1]])
-
-                NB_counts, NB_bins = np.histogram(NB_EW, np.arange(0.5,3.0,0.2))
-                norm0 = np.max(N_good)/np.max(NB_counts)
-                ax[2][0].plot(NB_bins[:-1], NB_counts*norm0, linestyle='dashed')
 
                 ax[2][0].set_xlabel(r'$\log({\rm EW}/\AA)$')
                 ax[2][0].set_ylabel(r'$N$')
                 ax[2][0].set_position([0.105,0.05,0.389,0.265])
-
 
                 ax[2][1].axis('off')
 
