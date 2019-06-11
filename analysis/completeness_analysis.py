@@ -300,8 +300,8 @@ def ew_MC():
         for mm in range(len(logEW_mean)): # loop over median of EW dist
             for ss in range(len(logEW_sig)): # loop over sigma of EW dist
                 fig, ax = plt.subplots(ncols=2, nrows=3)
-                plt.subplots_adjust(left=0.105, right=0.98, bottom=0.05, top=0.98, wspace=0.25,
-                                hspace=0.05)
+                plt.subplots_adjust(left=0.105, right=0.98, bottom=0.05, top=0.98,
+                                    wspace=0.25, hspace=0.05)
 
                 EW_arr0  = np.array([])
                 EW_flag0 = np.array([])
@@ -382,11 +382,19 @@ def ew_MC():
                 NB_EW   = npz_NB['NB_EW']
                 NB_Flux = npz_NB['NB_Flux']
 
+                avg_NB = np.average(NB_EW)
+                sig_NB = np.std(NB_EW)
+
                 EW_bins = np.arange(0.2,3.0,0.2)
 
                 # NB_counts, NB_bins = np.histogram(NB_EW, np.arange(0.5,3.0,0.2))
-                ax[2][0].hist(NB_EW, bins=EW_bins, align='mid', color='blue', linestyle='solid',
-                              edgecolor='none', histtype='stepfilled')
+                label_EW = r'N: %i  $\langle x\rangle$: %.2f  $\sigma$: %.2f' % \
+                           (len(NB_EW), avg_NB, sig_NB)
+                ax[2][0].hist(NB_EW, bins=EW_bins, align='mid', color='blue',
+                              linestyle='solid', edgecolor='none',
+                              histtype='stepfilled', label=label_EW)
+                ax[2][0].axvline(x=avg_NB, color='blue', linestyle='dashed',
+                                 linewidth=1.5)
 
                 norm0 = float(len(NB_EW))/len(EW_arr0)
                 wht0  = np.repeat(norm0, len(EW_arr0))
@@ -394,20 +402,34 @@ def ew_MC():
                 #N, bins = np.histogram(EW_arr0, EW_bins)
                 #print(max(N*norm0))
                 #ax[2][0].plot(bins[:-1], N*norm0, color='black', linestyle='solid')
+                avg_MC = np.average(EW_arr0)
+                sig_MC = np.std(EW_arr0)
+                label0 = r'N: %i  $\langle x\rangle$: %.2f  $\sigma$: %.2f ' % \
+                         (len(EW_arr0), avg_MC, sig_MC)
                 N, bins, _ = ax[2][0].hist(EW_arr0, bins=EW_bins, weights=wht0,
                                            align='mid', color='black',
                                            linestyle='solid', edgecolor='black',
-                                           histtype='step')
+                                           histtype='step', label=label0)
+                ax[2][0].axvline(x=avg_MC, color='black', linestyle='dashed',
+                                 linewidth=1.5)
 
                 good = np.where(EW_flag0)[0]
+
+                avg_gd = np.average(EW_arr0[good])
+                sig_gd = np.std(EW_arr0[good])
+                label1 = r'N: %i  $\langle x\rangle$: %.2f  $\sigma$: %.2f ' % \
+                         (len(good), avg_gd, sig_gd)
                 ax[2][0].hist(EW_arr0[good], bins=EW_bins, weights=wht0[good],
-                              align='mid', alpha=0.5, color='red',
-                              linestyle='solid', edgecolor='none',
-                              histtype='stepfilled')
+                              align='mid', alpha=0.5, color='red', edgecolor='red',
+                              linestyle='solid', histtype='stepfilled', label=label1)
+                ax[2][0].axvline(x=avg_gd, color='red', linestyle='dashed',
+                                 linewidth=1.5)
 
                 #nonzero = np.where(N > 0)[0]
                 #ax[2][0].set_xlim(bins[nonzero[0]],bins[nonzero[-1]])
 
+                ax[2][0].legend(loc='upper right', fancybox=True, fontsize=6,
+                                framealpha=0.75)
                 ax[2][0].set_xlabel(r'$\log({\rm EW}/\AA)$')
                 ax[2][0].set_ylabel(r'$N$')
                 ax[2][0].set_position([0.105,0.05,0.389,0.265])
