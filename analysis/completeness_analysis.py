@@ -248,7 +248,7 @@ def get_EW_Flux_distribution():
 
         out_npz = path0 + 'Completeness/ew_flux_'+prefix+'.npz'
         log.info("Writing : "+out_npz)
-        np.savez(out_npz, NB_EW=NB_EW, NB_Flux=NB_Flux)
+        np.savez(out_npz, NB_EW=NB_EW[NB_idx], NB_Flux=NB_Flux[NB_idx])
     #endfor
 
 #enddef
