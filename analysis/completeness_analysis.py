@@ -377,7 +377,7 @@ def ew_MC():
                 #endfor
 
                 # Read in EW and fluxes for H-alpha NB emitter sample
-                npz_NB_file = path0 + 'Completeness/ew_flux_'+prefixes[ff]+'.npz'
+                npz_NB_file = path0 + 'Completeness/ew_flux_'+filters[ff]+'.npz'
                 npz_NB      = np.load(npz_NB_file)
                 NB_EW   = npz_NB['NB_EW']
                 NB_Flux = npz_NB['NB_Flux']
