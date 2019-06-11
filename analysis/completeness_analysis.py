@@ -402,7 +402,10 @@ def ew_MC():
                 ax[2][0].axvline(x=avg_NB, color='blue', linestyle='dashed',
                                  linewidth=1.5)
 
-                norm0 = float(len(NB_EW))/len(EW_arr0)
+                good = np.where(EW_flag0)[0]
+
+                # Normalize relative to selected sample
+                norm0 = float(len(NB_EW))/len(good)
                 wht0  = np.repeat(norm0, len(EW_arr0))
 
                 #N, bins = np.histogram(EW_arr0, EW_bins)
@@ -418,8 +421,6 @@ def ew_MC():
                                            histtype='step', label=label0)
                 ax[2][0].axvline(x=avg_MC, color='black', linestyle='dashed',
                                  linewidth=1.5)
-
-                good = np.where(EW_flag0)[0]
 
                 avg_gd = np.average(EW_arr0[good])
                 sig_gd = np.std(EW_arr0[good])
