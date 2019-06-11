@@ -237,16 +237,15 @@ def get_EW_Flux_distribution():
     NB_Flux = np.zeros(len(NB_catdata))
 
     filts    = ['NB704','NB711','NB816','NB921','NB973']
-    prefixes = ['Ha-NB7','Ha-NB816','Ha-NB921','Ha-NB973']
 
-    for filt, prefix in zip(filts, prefixes):
+    for filt in filts:
         log.info('### Working on : '+filt)
         NB_idx = [ii for ii in range(len(NB_tab)) if 'Ha-'+filt in NB_HA_Name[ii]]
         print(" Size : ", len(NB_idx))
         NB_EW[NB_idx]   = np.log10(NB_catdata[filt+'_EW'][NB_idx])
         NB_Flux[NB_idx] = NB_catdata[filt+'_FLUX'][NB_idx]
 
-        out_npz = path0 + 'Completeness/ew_flux_'+prefix+'.npz'
+        out_npz = path0 + 'Completeness/ew_flux_Ha-'+filt+'.npz'
         log.info("Writing : "+out_npz)
         np.savez(out_npz, NB_EW=NB_EW[NB_idx], NB_Flux=NB_Flux[NB_idx])
     #endfor
