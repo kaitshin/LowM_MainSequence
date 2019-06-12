@@ -308,14 +308,17 @@ def NB_numbers():
         ax = ax_arr[row][col]
 
         N, m_bins, _ = ax.hist(MAG_APER, bins=bins, align='mid', color='black',
-                               linestyle='solid', histtype='step')
+                               linestyle='solid', histtype='step',
+                               label='N = '+str(len(MAG_APER)))
 
         det0  = np.where((m_bins >= 18.0) & (m_bins <= m_NB[ff]))[0]
         p_fit = np.polyfit(m_bins[det0], np.log10(N[det0]), 1)
         fit   = np.poly1d(p_fit)
-        ax.plot(m_bins, 10**(fit(m_bins)), 'r--')
+        fit_lab = 'P[0] = %.3f  P[1] = %.3f' % (p_fit[1], p_fit[0])
+        ax.plot(m_bins, 10**(fit(m_bins)), 'r--', label=fit_lab)
 
-        ax.axvline(m_NB[ff], linestyle='dashed', linewidth=1.5)
+        ax.axvline(m_NB[ff], linestyle='dashed', linewidth=1.5) #, label=r'3$\sigma$')
+        ax.legend(loc='lower right', fancybox=True, fontsize=8, framealpha=0.75)
         ax.annotate(filters[ff], [0.025,0.975], xycoords='axes fraction',
                     ha='left', va='top', fontsize=10)
         ax.set_yscale('log')
@@ -330,6 +333,8 @@ def NB_numbers():
 
         if row == 0 or (row == 1 and col == 0):
             ax.xaxis.set_ticklabels([])
+        else:
+            ax.set_xlabel('NB [mag]')
     #endfor
 
     ax_arr[2][1].axis('off')
