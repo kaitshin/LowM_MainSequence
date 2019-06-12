@@ -307,7 +307,12 @@ def NB_numbers():
 
         ax = ax_arr[row][col]
 
-        ax.hist(MAG_APER, bins=bins)
+        N, m_bins, _ = ax.hist(MAG_APER, bins=bins, align='mid', color='black',
+                               linestyle='solid', histtype='step')
+
+        ax.axvline(m_NB[ff], linestyle='dashed', linewidth=1.5)
+        ax.annotate(filters[ff], [0.025,0.975], xycoords='axes fraction',
+                    ha='left', va='top', fontsize=12)
         ax.set_yscale('log')
 
         #ax.xaxis.set_ticklabels([])
