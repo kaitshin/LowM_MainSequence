@@ -324,7 +324,6 @@ def ew_MC():
         EW_int = interp1d(EW_ref[good], x[good], bounds_error=False,
                           fill_value=(-3.0, np.max(EW_ref[good])))
 
-        #print np.max(EW_ref[good])
         NBmin = 20.0
         NBmax = m_NB[ff]-0.5
         NB = np.arange(NBmin,NBmax+NBbin,NBbin)
@@ -359,11 +358,11 @@ def ew_MC():
                     EW_arr0 = np.append(EW_arr0, logEW_MC)
                     EW_flag = np.zeros(len(logEW_MC))
 
-                    #print max(logEW_MC)
                     x_MC = EW_int(logEW_MC)
 
-                    #ax.hist(x_MC, bins=50)
                     t_NB = np.repeat(NB[nn], len(x_MC))
+
+                    # Panel (0,0) - NB excess selection plot
                     ax[0][0].scatter(t_NB, x_MC, marker=',', s=1)
 
                     ax[0][0].axhline(y=minthres[ff], linestyle='dashed',
@@ -395,6 +394,7 @@ def ew_MC():
 
                     Flux_arr0 = np.append(Flux_arr0, t_Haflux)
 
+                    # Panel (1,0) - NB mag vs H-alpha flux
                     ax[1][0].scatter(t_NB[NB_sel], t_Haflux[NB_sel], alpha=0.25,
                                      s=2, edgecolor='none')
                     ax[1][0].scatter(t_NB[NB_nosel], t_Haflux[NB_nosel],
@@ -403,11 +403,10 @@ def ew_MC():
                     ax[1][0].set_xlabel('NB')
                     ax[1][0].set_ylabel(r'$\log(F_{H\alpha})$')
 
-                    #ax[0][1].scatter(t_NB, t_Haflux, marker='s', color='red', alpha=0.25, s=2,
-                    #                 facecolor='none')
-
                     t_HaLum = t_Haflux +np.log10(4*np.pi) +2*np.log10(lum_dist)
 
+
+                    # Panel (0,1) - stellar mass vs H-alpha luminosity
                     ax[0][1].scatter(logM_MC[NB_sel], t_HaLum[NB_sel],
                                      alpha=0.25, s=2, edgecolor='none')
                     ax[0][1].scatter(logM_MC[NB_nosel], t_HaLum[NB_nosel],
@@ -417,6 +416,7 @@ def ew_MC():
                     ax[0][1].set_ylabel(r'$\log(L_{{\rm H}\alpha})$')
                     #ax[1][1].set_ylim([37.5,43.0])
 
+                    # Panel (1,1) - stellar mass vs H-alpha SFR
                     logSFR_MC = HaSFR_metal_dep(logOH, t_HaLum)
                     ax[1][1].scatter(logM_MC[NB_sel], logSFR_MC[NB_sel],
                                      alpha=0.25, s=2, edgecolor='none')
@@ -444,6 +444,8 @@ def ew_MC():
 
                 EW_bins = np.arange(0.2,3.0,0.2)
 
+                # Panel (2,0) - histogram of EW
+
                 # NB_counts, NB_bins = np.histogram(NB_EW, np.arange(0.5,3.0,0.2))
                 label_EW = r'N: %i  $\langle x\rangle$: %.2f  $\sigma$: %.2f' % \
                            (len(NB_EW), avg_NB, sig_NB)
@@ -459,9 +461,6 @@ def ew_MC():
                 norm0 = float(len(NB_EW))/len(good)
                 wht0  = np.repeat(norm0, len(EW_arr0))
 
-                #N, bins = np.histogram(EW_arr0, EW_bins)
-                #print(max(N*norm0))
-                #ax[2][0].plot(bins[:-1], N*norm0, color='black', linestyle='solid')
                 avg_MC = np.average(EW_arr0)
                 sig_MC = np.std(EW_arr0)
                 label0 = r'N: %i  $\langle x\rangle$: %.2f  $\sigma$: %.2f ' % \
@@ -492,6 +491,8 @@ def ew_MC():
                 ax[2][0].set_ylabel(r'$N$')
                 ax[2][0].set_position([0.105,0.05,0.389,0.265])
 
+
+                # Panel (2,1) - histogram of H-alpha fluxes
 
                 Flux_bins = np.arange(-17.75,-14.75,0.25)
 
