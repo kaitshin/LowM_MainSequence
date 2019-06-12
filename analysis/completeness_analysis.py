@@ -294,6 +294,10 @@ def ew_MC():
     prefixes = ['Ha-NB7','Ha-NB7','Ha-NB816','Ha-NB921','Ha-NB973']
     filters  = ['NB704', 'NB711', 'NB816', 'NB921', 'NB973']
 
+    # NB statistical filter correction
+    filt_corr = [1.289439104,   1.41022358406, 1.29344789854,
+                 1.32817034288, 1.29673596942]
+
     z_NB     = lambdac/6562.8 - 1.0
 
     logEW_mean = np.arange(1.25,1.55,0.1)
@@ -380,7 +384,9 @@ def ew_MC():
 
                     t_EW, t_flux = ew_flux_dual(t_NB, t_NB + x_MC, x_MC,
                                                 filt_dict)
-                    t_flux = np.log10(t_flux)
+
+                    # Apply NB filter correction from beginning
+                    t_flux = np.log10(t_flux * filt_corr[ff])
 
                     logM_MC = mass_int(t_NB + x_MC)
                     NIIHa, logOH = get_NIIHa_logOH(logM_MC)
