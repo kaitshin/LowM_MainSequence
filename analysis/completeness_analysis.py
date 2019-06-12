@@ -53,6 +53,9 @@ from astropy import log
 path0 = '/Users/cly/Google Drive/NASA_Summer2015/'
 
 m_AB = 48.6
+
+filters = ['NB704','NB711','NB816','NB921','NB973']
+
 def color_cut(x, lim1, lim2, mean=0.0):
     '''
     NB excess color selection based on limiting magnitudes
@@ -180,9 +183,7 @@ def mag_vs_mass(silent=False, verbose=True):
 
     fig, ax = plt.subplots(ncols=2, nrows=2)
 
-    filts = ['NB704','NB711','NB816','NB921','NB973']
-
-    for filt in filts:
+    for filt in filters:
         log.info('### Working on : '+filt)
         NB_idx = [ii for ii in range(len(NB_tab)) if 'Ha-'+filt in \
                   NB_HA_Name[ii]]
@@ -267,9 +268,7 @@ def get_EW_Flux_distribution():
     NB_EW   = np.zeros(len(NB_catdata))
     NB_Flux = np.zeros(len(NB_catdata))
 
-    filts    = ['NB704','NB711','NB816','NB921','NB973']
-
-    for filt in filts:
+    for filt in filters:
         log.info('### Working on : '+filt)
         NB_idx = [ii for ii in range(len(NB_tab)) if 'Ha-'+filt in \
                   NB_HA_Name[ii]]
@@ -292,7 +291,6 @@ def ew_MC():
     '''
 
     prefixes = ['Ha-NB7','Ha-NB7','Ha-NB816','Ha-NB921','Ha-NB973']
-    filters  = ['NB704', 'NB711', 'NB816', 'NB921', 'NB973']
 
     # NB statistical filter correction
     filt_corr = [1.289439104,   1.41022358406, 1.29344789854,
