@@ -283,6 +283,39 @@ def get_EW_Flux_distribution():
 
 #enddef
 
+def NB_numbers():
+    '''
+    Uses SExtractor catalog to look at number of NB galaxies vs magnitude
+    '''
+
+    NB_path = '/Users/cly/data/SDF/NBcat/'
+    NB_phot_files = [NB_path+filt+'/sdf_pub2_'+filt+'.cat.mask' for filt in filters]
+
+    out_pdf = path0 + 'Completeness/NB_numbers.pdf'
+
+    fig, ax_arr = plt.subplots(nrows=3, ncols=2)
+
+    bins = np.arange(17.0,28,0.25)
+
+    for ff in range(len(filters)):
+        print('Reading : '+NB_phot_files[ff])
+        phot_tab = asc.read(NB_phot_files[ff])
+        MAG_APER = phot_tab['col13'].data
+
+        row = int(ff / 2)
+        col = ff % 2
+
+        ax = ax_arr[row][col]
+
+        ax.hist(MAG_APER, bins=bins)
+        ax.set_yscale('log')
+
+        #ax.xaxis.set_ticklabels([])
+
+    fig.savefig(out_pdf, bbox_inches='tight')
+
+#enddef
+
 def ew_MC():
     '''
     Main function for Monte Carlo realization.  Adopts log-normal
