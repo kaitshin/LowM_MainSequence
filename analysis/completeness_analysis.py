@@ -310,6 +310,12 @@ def NB_numbers():
         N, m_bins, _ = ax.hist(MAG_APER, bins=bins, align='mid', color='black',
                                linestyle='solid', histtype='step')
 
+        det0  = np.where((m_bins >= 18.0) & (m_bins <= m_NB[ff]))[0]
+        p_fit = np.polyfit(m_bins[det0], np.log10(N[det0]), 1)
+        print(p_fit)
+        fit   = np.poly1d(p_fit)
+        ax.plot(m_bins, 10**(fit(m_bins)), 'r--')
+
         ax.axvline(m_NB[ff], linestyle='dashed', linewidth=1.5)
         ax.annotate(filters[ff], [0.025,0.975], xycoords='axes fraction',
                     ha='left', va='top', fontsize=12)
