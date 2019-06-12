@@ -3,7 +3,7 @@ completeness_analysis
 ====
 
 A set of Python 2.7 codes for completeness analysis of NB-selected galaxies
-in the M*-SFR plots
+in the M*-SFR plot
 """
 
 import sys, os
@@ -54,6 +54,26 @@ path0 = '/Users/cly/Google Drive/NASA_Summer2015/'
 
 m_AB = 48.6
 def color_cut(x, lim1, lim2, mean=0.0):
+    '''
+    NB excess color selection based on limiting magnitudes
+
+    Parameters
+    ----------
+
+    x : Array of NB magnitudes
+
+    lim1 : float
+      3-sigma NB limiting magnitude
+
+    lim2 : float
+      3-sigma BB limiting magnitude
+
+    Returns
+    -------
+
+    val : array of 3-sigma allowed BB - NB excess color
+    '''
+
     f1 = 10**(-0.4*(m_AB+lim1))
     f2 = 10**(-0.4*(m_AB+lim2))
 
@@ -66,12 +86,18 @@ def color_cut(x, lim1, lim2, mean=0.0):
 
 def correct_NII(log_flux, NIIHa):
     '''
-    This returns Halpha fluxes from F_NB using NII/Ha flux ratios for correction
+    This returns Halpha fluxes from F_NB using NII/Ha flux ratios for
+    correction
     '''
     return log_flux - np.log10(1+NIIHa)
 #enddef
 
 def get_NIIHa_logOH(logM):
+    '''
+    Get [NII]6548,6583/H-alpha flux ratios and oxygen abundance based on
+    stellar mass.  Metallicity is from PP04
+    '''
+
     NIIHa = np.zeros(len(logM))
 
     low_mass = np.where(logM <= 8.0)[0]
@@ -92,8 +118,8 @@ def get_NIIHa_logOH(logM):
 
 def HaSFR_metal_dep(logOH, orig_lums):
     '''
-      Determine H-alpha SFR using metallicity and luminosity to follow
-      Ly+ 2016 metallicity-dependent SFR conversion
+    Determine H-alpha SFR using metallicity and luminosity to follow
+    Ly+ 2016 metallicity-dependent SFR conversion
     '''
 
     y = logOH + 3.31
@@ -158,7 +184,8 @@ def mag_vs_mass(silent=False, verbose=True):
 
     for filt in filts:
         log.info('### Working on : '+filt)
-        NB_idx = [ii for ii in range(len(NB_tab)) if 'Ha-'+filt in NB_HA_Name[ii]]
+        NB_idx = [ii for ii in range(len(NB_tab)) if 'Ha-'+filt in \
+                  NB_HA_Name[ii]]
         print(" Size : ", len(NB_idx))
         #print(NB_catdata[filt+'_CONT_MAG'])[NB_idx]
         cont_mag[NB_idx] = NB_catdata[filt+'_CONT_MAG'][NB_idx]
@@ -179,7 +206,8 @@ def mag_vs_mass(silent=False, verbose=True):
     for ff in range(len(prefixes)):
         col = ff % 2
         row = ff / 2
-        NB_idx = np.array([ii for ii in range(len(NB_tab)) if prefixes[ff] in NB_HA_Name[ii]])
+        NB_idx = np.array([ii for ii in range(len(NB_tab)) if prefixes[ff] in \
+                           NB_HA_Name[ii]])
         t_ax = ax[row][col]
         t_ax.scatter(cont_mag[NB_idx], logM_NB_Ha[NB_idx], edgecolor='blue',
                      color='none', alpha=0.5)
@@ -220,6 +248,9 @@ def mag_vs_mass(silent=False, verbose=True):
 #enddef
 
 def get_EW_Flux_distribution():
+    '''
+    Retrieve NB excess emission-line EW and fluxes from existing tables
+    '''
 
     # NB Ha emitter sample for ID
     NB_file = path0 + 'Main_Sequence/mainseq_corrections_tbl (1).txt'
@@ -240,7 +271,8 @@ def get_EW_Flux_distribution():
 
     for filt in filts:
         log.info('### Working on : '+filt)
-        NB_idx = [ii for ii in range(len(NB_tab)) if 'Ha-'+filt in NB_HA_Name[ii]]
+        NB_idx = [ii for ii in range(len(NB_tab)) if 'Ha-'+filt in \
+                  NB_HA_Name[ii]]
         print(" Size : ", len(NB_idx))
         NB_EW[NB_idx]   = np.log10(NB_catdata[filt+'_EW'][NB_idx])
         NB_Flux[NB_idx] = NB_catdata[filt+'_FLUX'][NB_idx]
@@ -253,6 +285,11 @@ def get_EW_Flux_distribution():
 #enddef
 
 def ew_MC():
+    '''
+    Main function for Monte Carlo realization.  Adopts log-normal
+    EW distribution to determine survey sensitivity and impact on
+    M*-SFR relation
+    '''
 
     prefixes = ['Ha-NB7','Ha-NB7','Ha-NB816','Ha-NB921','Ha-NB973']
     filters  = ['NB704', 'NB711', 'NB816', 'NB921', 'NB973']
@@ -294,16 +331,16 @@ def ew_MC():
         npz_mass = np.load(npz_mass_file)
         cont_arr = npz_mass['cont_arr']
         dmag = cont_arr[1]-cont_arr[0]
-        mass_int = interp1d(cont_arr+dmag/2.0, npz_mass['avg_logM'], bounds_error=False,
-                            fill_value=(0.0,15.0))
+        mass_int = interp1d(cont_arr+dmag/2.0, npz_mass['avg_logM'],
+                            bounds_error=False, fill_value=(0.0,15.0))
 
         lum_dist = cosmo.luminosity_distance(z_NB[ff]).to(u.cm).value
 
         for mm in range(len(logEW_mean)): # loop over median of EW dist
             for ss in range(len(logEW_sig)): # loop over sigma of EW dist
                 fig, ax = plt.subplots(ncols=2, nrows=3)
-                plt.subplots_adjust(left=0.105, right=0.98, bottom=0.05, top=0.98,
-                                    wspace=0.25, hspace=0.05)
+                plt.subplots_adjust(left=0.105, right=0.98, bottom=0.05,
+                                    top=0.98, wspace=0.25, hspace=0.05)
 
                 EW_arr0  = np.array([])
                 EW_flag0 = np.array([])
@@ -325,19 +362,24 @@ def ew_MC():
                     t_NB = np.repeat(NB[nn], len(x_MC))
                     ax[0][0].scatter(t_NB, x_MC, marker=',', s=1)
 
-                    ax[0][0].axhline(y=minthres[ff], linestyle='dashed', color='blue')
-                    ax[0][0].plot(NB, color_cut(NB, m_NB[ff], cont_lim[ff]), 'b--')
+                    ax[0][0].axhline(y=minthres[ff], linestyle='dashed',
+                                     color='blue')
+                    ax[0][0].plot(NB, color_cut(NB, m_NB[ff], cont_lim[ff]),
+                                  'b--')
                     ax[0][0].set_xticklabels([])
                     ax[0][0].set_ylabel('cont - NB')
 
                     sig_limit = color_cut(t_NB, m_NB[ff], cont_lim[ff])
-                    NB_sel   = np.where((x_MC >= minthres[ff]) & (x_MC >= sig_limit))[0]
-                    NB_nosel = np.where((x_MC < minthres[ff]) | (x_MC < sig_limit))[0]
+                    NB_sel   = np.where((x_MC >= minthres[ff]) &
+                                        (x_MC >= sig_limit))[0]
+                    NB_nosel = np.where((x_MC < minthres[ff]) |
+                                        (x_MC < sig_limit))[0]
 
                     EW_flag[NB_sel] = 1
                     EW_flag0 = np.append(EW_flag0, EW_flag)
 
-                    t_EW, t_flux = ew_flux_dual(t_NB, t_NB + x_MC, x_MC, filt_dict)
+                    t_EW, t_flux = ew_flux_dual(t_NB, t_NB + x_MC, x_MC,
+                                                filt_dict)
                     t_flux = np.log10(t_flux)
 
                     logM_MC = mass_int(t_NB + x_MC)
@@ -347,39 +389,42 @@ def ew_MC():
 
                     Flux_arr0 = np.append(Flux_arr0, t_Haflux)
 
-                    ax[1][0].scatter(t_NB[NB_sel], t_Haflux[NB_sel], alpha=0.25, s=2,
-                                     edgecolor='none')
-                    ax[1][0].scatter(t_NB[NB_nosel], t_Haflux[NB_nosel], alpha=0.25, s=2,
-                                     edgecolor='blue', linewidth=0.25, facecolor='none')
+                    ax[1][0].scatter(t_NB[NB_sel], t_Haflux[NB_sel], alpha=0.25,
+                                     s=2, edgecolor='none')
+                    ax[1][0].scatter(t_NB[NB_nosel], t_Haflux[NB_nosel],
+                                     alpha=0.25, s=2, edgecolor='blue',
+                                     linewidth=0.25, facecolor='none')
                     ax[1][0].set_xlabel('NB')
                     ax[1][0].set_ylabel(r'$\log(F_{H\alpha})$')
 
                     #ax[0][1].scatter(t_NB, t_Haflux, marker='s', color='red', alpha=0.25, s=2,
                     #                 facecolor='none')
 
-                    t_HaLum = t_Haflux + np.log10(4*np.pi) + 2*np.log10(lum_dist)
+                    t_HaLum = t_Haflux +np.log10(4*np.pi) +2*np.log10(lum_dist)
 
-                    ax[0][1].scatter(logM_MC[NB_sel], t_HaLum[NB_sel], alpha=0.25, s=2,
-                                     edgecolor='none')
-                    ax[0][1].scatter(logM_MC[NB_nosel], t_HaLum[NB_nosel], alpha=0.25, s=2,
-                                     edgecolor='blue', linewidth=0.25, facecolor='none')
+                    ax[0][1].scatter(logM_MC[NB_sel], t_HaLum[NB_sel],
+                                     alpha=0.25, s=2, edgecolor='none')
+                    ax[0][1].scatter(logM_MC[NB_nosel], t_HaLum[NB_nosel],
+                                     alpha=0.25, s=2, edgecolor='blue',
+                                     linewidth=0.25, facecolor='none')
                     ax[0][1].set_xticklabels([])
                     ax[0][1].set_ylabel(r'$\log(L_{{\rm H}\alpha})$')
                     #ax[1][1].set_ylim([37.5,43.0])
 
                     logSFR_MC = HaSFR_metal_dep(logOH, t_HaLum)
-                    ax[1][1].scatter(logM_MC[NB_sel], logSFR_MC[NB_sel], alpha=0.25, s=2,
-                                     edgecolor='none')
-                    ax[1][1].scatter(logM_MC[NB_nosel], logSFR_MC[NB_nosel], alpha=0.25, s=2,
-                                     edgecolor='blue', linewidth=0.25, facecolor='none')
+                    ax[1][1].scatter(logM_MC[NB_sel], logSFR_MC[NB_sel],
+                                     alpha=0.25, s=2, edgecolor='none')
+                    ax[1][1].scatter(logM_MC[NB_nosel], logSFR_MC[NB_nosel],
+                                     alpha=0.25, s=2, edgecolor='blue',
+                                     linewidth=0.25, facecolor='none')
                     ax[1][1].set_xlabel(r'$\log(M_{\star}/M_{\odot})$')
                     ax[1][1].set_ylabel(r'$\log({\rm SFR}({\rm H}\alpha))$')
 
 
                     annot_txt  = r'$\langle\log({\rm EW}_0)\rangle = %.2f$' % logEW_mean[mm] + '\n'
                     annot_txt += r'$\sigma[\log({\rm EW}_0)] = %.2f$' % logEW_sig[ss] + '\n'
-                    ax[0][0].annotate(annot_txt, [0.05,0.95], xycoords='axes fraction',
-                                      va='top', ha='left')
+                    ax[0][0].annotate(annot_txt, [0.05,0.95], va='top',
+                                      ha='left', xycoords='axes fraction')
                 #endfor
 
                 # Read in EW and fluxes for H-alpha NB emitter sample
@@ -444,19 +489,20 @@ def ew_MC():
 
                 Flux_bins = np.arange(-17.75,-14.75,0.25)
 
-                ax[2][1].hist(NB_Flux, bins=Flux_bins, align='mid', color='blue',
-                              linestyle='solid', edgecolor='none',
+                ax[2][1].hist(NB_Flux, bins=Flux_bins, align='mid',
+                              color='blue', linestyle='solid', edgecolor='none',
                               histtype='stepfilled')
 
                 finite = np.where(np.isfinite(Flux_arr0))
                 N, bins, _ = ax[2][1].hist(Flux_arr0[finite], bins=Flux_bins,
-                                           weights=wht0[finite], align='mid', color='black',
-                                           linestyle='solid', edgecolor='black',
-                                           histtype='step')
+                                           weights=wht0[finite], align='mid',
+                                           color='black', linestyle='solid',
+                                           edgecolor='black', histtype='step')
 
-                ax[2][1].hist(Flux_arr0[good], bins=Flux_bins, weights=wht0[good],
-                              align='mid', alpha=0.5, color='red', edgecolor='red',
-                              linestyle='solid', histtype='stepfilled')
+                ax[2][1].hist(Flux_arr0[good], bins=Flux_bins, alpha=0.5,
+                              weights=wht0[good], align='mid', color='red',
+                              edgecolor='red', linestyle='solid',
+                              histtype='stepfilled')
 
                 ax[2][1].set_xlabel(r'$\log(F_{\rm NB})$')
                 ax[2][1].set_ylabel(r'$N$')
