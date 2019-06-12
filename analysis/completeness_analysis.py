@@ -312,17 +312,30 @@ def NB_numbers():
 
         det0  = np.where((m_bins >= 18.0) & (m_bins <= m_NB[ff]))[0]
         p_fit = np.polyfit(m_bins[det0], np.log10(N[det0]), 1)
-        print(p_fit)
         fit   = np.poly1d(p_fit)
         ax.plot(m_bins, 10**(fit(m_bins)), 'r--')
 
         ax.axvline(m_NB[ff], linestyle='dashed', linewidth=1.5)
         ax.annotate(filters[ff], [0.025,0.975], xycoords='axes fraction',
-                    ha='left', va='top', fontsize=12)
+                    ha='left', va='top', fontsize=10)
         ax.set_yscale('log')
+        ax.set_ylim([1,5e4])
+        ax.set_xlim([16.5,28.0])
 
-        #ax.xaxis.set_ticklabels([])
+        if col == 0:
+            ax.set_ylabel(r'$N$')
 
+        if col == 1:
+            ax.yaxis.set_ticklabels([])
+
+        if row == 0 or (row == 1 and col == 0):
+            ax.xaxis.set_ticklabels([])
+    #endfor
+
+    ax_arr[2][1].axis('off')
+
+    plt.subplots_adjust(left=0.105, right=0.98, bottom=0.05, top=0.98,
+                        wspace=0.025, hspace=0.025)
     fig.savefig(out_pdf, bbox_inches='tight')
 
 #enddef
