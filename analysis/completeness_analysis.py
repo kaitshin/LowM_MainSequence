@@ -256,9 +256,10 @@ def get_EW_Flux_distribution():
     # NB Ha emitter sample for ID
     NB_file = path0 + 'Main_Sequence/mainseq_corrections_tbl (1).txt'
     log.info("Reading : "+NB_file)
-    NB_tab     = asc.read(NB_file)
-    NB_HA_Name = NB_tab['NAME0'].data
-    NB_Ha_ID   = NB_tab['ID'].data - 1 # Relative to 0 --> indexing
+    NB_tab      = asc.read(NB_file)
+    NB_HA_Name  = NB_tab['NAME0'].data
+    NB_Ha_ID    = NB_tab['ID'].data - 1 # Relative to 0 --> indexing
+    NII_Ha_corr = NB_tab['nii_ha_corr_factor'].data # This is log(1+NII/Ha)
 
     NB_catfile = path0 + 'Catalogs/NB_IA_emitters.allcols.colorrev.fix.errors.fits'
     log.info("Reading : "+NB_catfile)
@@ -268,6 +269,9 @@ def get_EW_Flux_distribution():
     NB_EW   = np.zeros(len(NB_catdata))
     NB_Flux = np.zeros(len(NB_catdata))
 
+    Ha_EW   = np.zeros(len(NB_catdata))
+    Ha_Flux = np.zeros(len(NB_catdata))
+
     for filt in filters:
         log.info('### Working on : '+filt)
         NB_idx = [ii for ii in range(len(NB_tab)) if 'Ha-'+filt in \
@@ -276,9 +280,13 @@ def get_EW_Flux_distribution():
         NB_EW[NB_idx]   = np.log10(NB_catdata[filt+'_EW'][NB_idx])
         NB_Flux[NB_idx] = NB_catdata[filt+'_FLUX'][NB_idx]
 
+        Ha_EW[NB_idx]   = NB_EW[NB_idx]   + NII_Ha_corr[NB_idx]
+        Ha_Flux[NB_idx] = NB_Flux[NB_idx] + NII_Ha_corr[NB_idx]
+
         out_npz = path0 + 'Completeness/ew_flux_Ha-'+filt+'.npz'
         log.info("Writing : "+out_npz)
-        np.savez(out_npz, NB_EW=NB_EW[NB_idx], NB_Flux=NB_Flux[NB_idx])
+        np.savez(out_npz, NB_EW=NB_EW[NB_idx], NB_Flux=NB_Flux[NB_idx],
+                 Ha_EW=Ha_EW[NB_idx], Ha_Flux=Ha_Flux[NB_idx])
     #endfor
 
 #enddef
