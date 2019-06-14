@@ -259,13 +259,16 @@ def get_EW_Flux_distribution():
     NB_tab      = asc.read(NB_file)
     NB_HA_Name  = NB_tab['NAME0'].data
     NB_Ha_ID    = NB_tab['ID'].data - 1 # Relative to 0 --> indexing
+
     NII_Ha_corr = NB_tab['nii_ha_corr_factor'].data # This is log(1+NII/Ha)
+    filt_corr   = NB_tab['filt_corr_factor'].data # This is log(f_filt)
 
     NB_catfile = path0 + 'Catalogs/NB_IA_emitters.allcols.colorrev.fix.errors.fits'
     log.info("Reading : "+NB_catfile)
     NB_catdata = fits.getdata(NB_catfile)
     NB_catdata = NB_catdata[NB_Ha_ID]
 
+    # These are the raw measurements
     NB_EW   = np.zeros(len(NB_catdata))
     NB_Flux = np.zeros(len(NB_catdata))
 
@@ -280,8 +283,8 @@ def get_EW_Flux_distribution():
         NB_EW[NB_idx]   = np.log10(NB_catdata[filt+'_EW'][NB_idx])
         NB_Flux[NB_idx] = NB_catdata[filt+'_FLUX'][NB_idx]
 
-        Ha_EW[NB_idx]   = NB_EW[NB_idx]   + NII_Ha_corr[NB_idx]
-        Ha_Flux[NB_idx] = NB_Flux[NB_idx] + NII_Ha_corr[NB_idx]
+        Ha_EW[NB_idx]   = (NB_EW   + NII_Ha_corr + filt_corr)[NB_idx]
+        Ha_Flux[NB_idx] = (NB_Flux + NII_Ha_corr + filt_corr)[NB_idx]
 
         out_npz = path0 + 'Completeness/ew_flux_Ha-'+filt+'.npz'
         log.info("Writing : "+out_npz)
