@@ -412,6 +412,10 @@ def ew_MC():
         NB = np.arange(NBmin,NBmax+NBbin,NBbin)
         print('NB (min/max)', min(NB), max(NB))
 
+        # Compute number distribution
+        A  = Nsim*NB_slope0[ff]/(10**(NB_slope0[ff]*NBmax)-10**(NB_slope0[ff]*NBmin))*np.log(10.0)
+        y0 = A * 10**(slope*NB) * NBbin
+
         # Read in mag vs mass extrapolation
         npz_mass_file = path0 + 'Completeness/mag_vs_mass_'+prefixes[ff]+'.npz'
         npz_mass = np.load(npz_mass_file)
