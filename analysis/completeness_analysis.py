@@ -56,7 +56,7 @@ m_AB = 48.6
 
 filters = ['NB704','NB711','NB816','NB921','NB973']
 
-def color_cut(x, lim1, lim2, mean=0.0):
+def color_cut(x, lim1, lim2, mean=0.0, sigma=3.0):
     '''
     NB excess color selection based on limiting magnitudes
 
@@ -71,14 +71,17 @@ def color_cut(x, lim1, lim2, mean=0.0):
     lim2 : float
       3-sigma BB limiting magnitude
 
+    sigma : float
+      Sigma threshold.  Default: 3.0
+
     Returns
     -------
 
     val : array of 3-sigma allowed BB - NB excess color
     '''
 
-    f1 = 10**(-0.4*(m_AB+lim1))
-    f2 = 10**(-0.4*(m_AB+lim2))
+    f1 = (sigma/3.0) * 10**(-0.4*(m_AB+lim1))
+    f2 = (sigma/3.0) * 10**(-0.4*(m_AB+lim2))
 
     f = 10**(-0.4*(m_AB+x))
 
