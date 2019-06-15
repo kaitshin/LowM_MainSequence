@@ -308,6 +308,8 @@ def NB_numbers():
 
     bins = np.arange(17.0,28,0.25)
 
+    NB_slope0 = np.zeros(len(filters))
+
     for ff in range(len(filters)):
         print('Reading : '+NB_phot_files[ff])
         phot_tab = asc.read(NB_phot_files[ff])
@@ -324,6 +326,8 @@ def NB_numbers():
 
         det0  = np.where((m_bins >= 18.0) & (m_bins <= m_NB[ff]))[0]
         p_fit = np.polyfit(m_bins[det0], np.log10(N[det0]), 1)
+        NB_slope0[ff] = p_fit[0]
+
         fit   = np.poly1d(p_fit)
         fit_lab = 'P[0] = %.3f  P[1] = %.3f' % (p_fit[1], p_fit[0])
         ax.plot(m_bins, 10**(fit(m_bins)), 'r--', label=fit_lab)
@@ -354,6 +358,8 @@ def NB_numbers():
                         wspace=0.025, hspace=0.025)
     fig.savefig(out_pdf, bbox_inches='tight')
 
+    out_npz = out_pdf.replace('.pdf', '.npz')
+    np.savez(out_npz, filters=filters, NB_slope0=NB_slope0)
 #enddef
 
 def ew_MC():
