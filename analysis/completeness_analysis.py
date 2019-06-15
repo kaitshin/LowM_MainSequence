@@ -414,7 +414,7 @@ def ew_MC():
 
         # Compute number distribution
         A  = Nsim*NB_slope0[ff]/(10**(NB_slope0[ff]*NBmax)-10**(NB_slope0[ff]*NBmin))*np.log(10.0)
-        y0 = A * 10**(slope*NB) * NBbin
+        y0 = A * 10**(NB_slope0[ff]*NB) * NBbin
 
         # Read in mag vs mass extrapolation
         npz_mass_file = path0 + 'Completeness/mag_vs_mass_'+prefixes[ff]+'.npz'
