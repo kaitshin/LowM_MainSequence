@@ -523,7 +523,7 @@ def ew_MC():
                 npz_NB_file = path0 + 'Completeness/ew_flux_Ha-'+filters[ff]+'.npz'
                 npz_NB      = np.load(npz_NB_file)
                 NB_EW   = npz_NB['NB_EW']
-                NB_Flux = npz_NB['NB_Flux']
+                Ha_Flux = npz_NB['Ha_Flux']
 
                 avg_NB = np.average(NB_EW)
                 sig_NB = np.std(NB_EW)
@@ -582,7 +582,7 @@ def ew_MC():
 
                 Flux_bins = np.arange(-17.75,-14.75,0.25)
 
-                ax[2][1].hist(NB_Flux, bins=Flux_bins, align='mid',
+                ax[2][1].hist(Ha_Flux, bins=Flux_bins, align='mid',
                               color='blue', linestyle='solid', edgecolor='none',
                               histtype='stepfilled')
 
@@ -597,7 +597,7 @@ def ew_MC():
                               edgecolor='red', linestyle='solid',
                               histtype='stepfilled')
 
-                ax[2][1].set_xlabel(r'$\log(F_{\rm NB})$')
+                ax[2][1].set_xlabel(r'$\log(F_{{\rm H}\alpha})$')
                 ax[2][1].set_ylabel(r'$N$')
                 ax[2][1].set_position([0.591,0.05,0.389,0.265])
 
