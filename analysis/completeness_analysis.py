@@ -377,6 +377,9 @@ def ew_MC():
 
     z_NB     = lambdac/6562.8 - 1.0
 
+    npz_slope = np.load(path0 + 'Completeness/NB_numbers.npz')
+    NB_slope0 = npz_slope['NB_slope0']
+
     logEW_mean = np.arange(1.25,1.55,0.1)
     logEW_sig  = np.arange(0.15,0.45,0.1)
 
