@@ -436,12 +436,12 @@ def ew_MC():
                 for nn in range(len(NB)):
                     np.random.seed = mm*ss
                     rand0    = np.random.normal(0.0, 1.0, size=100)
-                    logEW_MC = logEW_mean[mm] + logEW_sig[ss]*rand0
+                    logEW_MC = logEW_mean[mm] + logEW_sig[ss]*rand0 # This is NB EW (not H-alpha)
 
                     EW_arr0 = np.append(EW_arr0, logEW_MC)
                     EW_flag = np.zeros(len(logEW_MC))
 
-                    x_MC = EW_int(logEW_MC)
+                    x_MC = EW_int(logEW_MC) # NB color excess
 
                     t_NB = np.repeat(NB[nn], len(x_MC))
 
