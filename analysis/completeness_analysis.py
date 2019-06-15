@@ -450,12 +450,15 @@ def ew_MC():
 
                     ax[0][0].axhline(y=minthres[ff], linestyle='dashed',
                                      color='blue')
-                    ax[0][0].plot(NB, color_cut(NB, m_NB[ff], cont_lim[ff]),
-                                  'b--')
+
+                    y3 = color_cut(NB, m_NB[ff], cont_lim[ff])
+                    ax[0][0].plot(NB, y3, 'b--')
+                    y4 = color_cut(NB, m_NB[ff], cont_lim[ff], sigma=4.0)
+                    ax[0][0].plot(NB, y4, 'b:')
                     ax[0][0].set_xticklabels([])
                     ax[0][0].set_ylabel('cont - NB')
 
-                    sig_limit = color_cut(t_NB, m_NB[ff], cont_lim[ff])
+                    sig_limit = color_cut(t_NB, m_NB[ff], cont_lim[ff], sigma=4.0)
                     NB_sel   = np.where((x_MC >= minthres[ff]) &
                                         (x_MC >= sig_limit))[0]
                     NB_nosel = np.where((x_MC < minthres[ff]) |
