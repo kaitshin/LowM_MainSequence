@@ -422,7 +422,7 @@ def ew_MC():
         cont_arr = npz_mass['cont_arr']
         dmag = cont_arr[1]-cont_arr[0]
         mass_int = interp1d(cont_arr+dmag/2.0, npz_mass['avg_logM'],
-                            bounds_error=False, fill_value=(0.0,15.0))
+                            bounds_error=False, fill_value=(15.0,0.0))
 
         lum_dist = cosmo.luminosity_distance(z_NB[ff]).to(u.cm).value
 
@@ -477,7 +477,8 @@ def ew_MC():
                     # Apply NB filter correction from beginning
                     t_flux = np.log10(t_flux * filt_corr[ff])
 
-                    logM_MC = mass_int(t_NB + x_MC)
+                    cont_MC = t_NB + x_MC
+                    logM_MC = mass_int(cont_MC)
                     NIIHa, logOH = get_NIIHa_logOH(logM_MC)
 
                     t_Haflux = correct_NII(t_flux, NIIHa)
