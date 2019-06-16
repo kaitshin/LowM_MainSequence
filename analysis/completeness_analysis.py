@@ -420,8 +420,9 @@ def ew_MC():
         npz_mass_file = path0 + 'Completeness/mag_vs_mass_'+prefixes[ff]+'.npz'
         npz_mass = np.load(npz_mass_file)
         cont_arr = npz_mass['cont_arr']
-        dmag = cont_arr[1]-cont_arr[0]
-        mass_int = interp1d(cont_arr+dmag/2.0, npz_mass['avg_logM'],
+        dmag     = cont_arr[1]-cont_arr[0]
+        good     = np.where(npz_mass['N_logM'] != 0)[0]
+        mass_int = interp1d(cont_arr[good]+dmag/2.0, npz_mass['avg_logM'][good],
                             bounds_error=False, fill_value=(15.0,0.0))
 
         lum_dist = cosmo.luminosity_distance(z_NB[ff]).to(u.cm).value
@@ -480,11 +481,6 @@ def ew_MC():
                     cont_MC = t_NB + x_MC
                     logM_MC = mass_int(cont_MC)
                     NIIHa, logOH = get_NIIHa_logOH(logM_MC)
-
-                    no_mass = np.where(cont_MC > max(cont_arr))[0]
-                    if len(no_mass) > 0:
-                        logM_MC[no_mass] = np.nan
-                        NIIHa[no_mass]   = 0.0
 
                     t_Haflux = correct_NII(t_flux, NIIHa)
 
