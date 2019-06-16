@@ -64,11 +64,14 @@ def create_disp_tbl(smass0, sfrs00, sfrs_resid, corr_tbl, good_sig_iis):
     for i in range(len(mbins0)):
         bin_match = np.where(bin_ii == i)[0]
         
-        mass_str = str(mbins0[i]-0.25)+'-'+str(mbins0[i]+0.25)
+        mass_str = str(mbins0[i]-0.25)+'--'+str(mbins0[i]+0.25)
         stlrmass_bins.append(mass_str)
         
         avgsfr = np.mean(sfrs00[bin_match])
-        avg_sfr.append('%.3f'%avgsfr)
+        if avgsfr < 0:
+            avg_sfr.append('-%.3f'%avgsfr)
+        else:
+            avg_sfr.append('%.3f'%avgsfr)
         
         obs_disp = np.std(sfrs_resid[bin_match])
         observed_disp.append('%.3f'%obs_disp)
@@ -269,7 +272,7 @@ def main():
     # creating a dispersion table
     tt = create_disp_tbl(smass0, sfrs00, sfrs_resid, corr_tbl, good_sig_iis)
     # asc.write(tt, FULL_PATH+'Main_Sequence/dispersion_tbl.txt', format='latex', overwrite=True)
-    # print asc.write(tt, format='latex')
+    print asc.write(tt, format='latex')
 
 if __name__ == '__main__':
     main()
