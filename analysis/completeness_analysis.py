@@ -423,7 +423,8 @@ def ew_MC():
         dmag     = cont_arr[1]-cont_arr[0]
         good     = np.where(npz_mass['N_logM'] != 0)[0]
         mass_int = interp1d(cont_arr[good]+dmag/2.0, npz_mass['avg_logM'][good],
-                            bounds_error=False, fill_value=(15.0,0.0))
+                            bounds_error=False, fill_value='extrapolate',
+                            kind='linear')
 
         lum_dist = cosmo.luminosity_distance(z_NB[ff]).to(u.cm).value
 
