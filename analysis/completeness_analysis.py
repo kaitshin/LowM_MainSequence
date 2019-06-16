@@ -481,6 +481,11 @@ def ew_MC():
                     logM_MC = mass_int(cont_MC)
                     NIIHa, logOH = get_NIIHa_logOH(logM_MC)
 
+                    no_mass = np.where(cont_MC > max(cont_arr))[0]
+                    if len(no_mass) > 0:
+                        logM_MC[no_mass] = np.nan
+                        NIIHa[no_mass]   = 0.0
+
                     t_Haflux = correct_NII(t_flux, NIIHa)
 
                     Flux_arr0 = np.append(Flux_arr0, t_Haflux)
