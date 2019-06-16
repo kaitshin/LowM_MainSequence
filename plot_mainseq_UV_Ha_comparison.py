@@ -45,22 +45,22 @@ HA = 6562.80
 FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
 
 
-# def get_flux(ID, lambda_arr):
-#     '''
-#     Reads in the relevant SED spectrum file and then interpolates the
-#     function to obtain a flux, the array of which is then returned.
-#     '''
-#     newflux = np.zeros(len(ID))
-#     for ii in range(len(ID)):
-#         tempfile = asc.read(FULL_PATH+'FAST/outputs/BEST_FITS/NB_IA_emitters\
-#             _allphot.emagcorr.ACpsf_fast'+fileend+'_'+str(ID[ii])+'.fit',
-#             guess=False,Reader=asc.NoHeader)
-#         wavelength = np.array(tempfile['col1'])
-#         flux = np.array(tempfile['col2'])
-#         f = interpolate.interp1d(wavelength, flux)
-#         newflux[ii] = f(lambda_arr[ii])
+def get_flux(ID, lambda_arr):
+    '''
+    Reads in the relevant SED spectrum file and then interpolates the
+    function to obtain a flux, the array of which is then returned.
+    '''
+    newflux = np.zeros(len(ID))
+    for ii in range(len(ID)):
+        tempfile = asc.read(FULL_PATH+
+            'FAST/outputs/BEST_FITS/NB_IA_emitters_allphot.emagcorr.ACpsf_fast'+
+            fileend+'_'+str(ID[ii])+'.fit', guess=False,Reader=asc.NoHeader)
+        wavelength = np.array(tempfile['col1'])
+        flux = np.array(tempfile['col2'])
+        f = interpolate.interp1d(wavelength, flux)
+        newflux[ii] = f(lambda_arr[ii])
 
-#     return newflux
+    return newflux
 
 
 def get_nu_lnu(filt_index_haii, ff):
@@ -82,8 +82,7 @@ def get_nu_lnu(filt_index_haii, ff):
 
     lambda_arr = (1+tempz)*1500
 
-    # f_lambda = get_flux(ID, lambda_arr)
-    f_lambda = 10**corr_fluxes[filt_index_haii]
+    f_lambda = get_flux(ID, lambda_arr)
     f_nu = f_lambda*(1E-19*(lambda_arr**2*1E-10)/(constants.c.value))
     L_nu = f_nu*4*np.pi*(cosmo.luminosity_distance(tempz).to(u.cm).value)**2
     return np.log10(L_nu*((constants.c.value)/1.5E-7))
@@ -102,13 +101,13 @@ def make_scatter_plot(nu_lnu, l_ha, ff, ltype):
     #     nu_lnu = np.concatenate((nu_lnu[:zero], nu_lnu[zero+1:]))
     #     l_ha = np.concatenate((l_ha[:zero], l_ha[zero+1:]))
 
-    plt.scatter(nu_lnu, l_ha)
+    plt.scatter(nu_lnu, l_ha, color='b', edgecolor='k', s=12)
     plt.gca().minorticks_on()
     plt.gca().tick_params(axis='both', which='both', direction='in')
     plt.xlabel('log['+r'$\nu$'+'L'+r'$_{\nu}$'+'(1500 '+r'$\AA$'+')]')
     plt.ylabel('log[L'+r'$_{H\alpha}$'+']')    
-    # plt.xlim(36.0, 48.0)
-    # plt.ylim(37.0, 44.0)
+    plt.xlim(36.0, 48.0)
+    plt.ylim(37.0, 44.0)
     plt.savefig(FULL_PATH+'Plots/main_sequence_UV_Ha/'+ff+'_'+ltype+
         fileend+'.pdf')
     plt.close()
@@ -221,8 +220,12 @@ def make_all_ratio_plot(L_ha, ltype):
         # zspec = zspec0[filt_index]
         # stlr = stlr0[filt_index]
 
-        filt_index_haii = np.array([x for x in range(len(corr_tbl)) if ff in
-        corrfilts[x]])
+        if ff == 'NB816': # GALEX file ID#4411 has flux==0
+            filt_index_haii = np.array([x for x in range(len(corr_tbl)) if ff in
+                corrfilts[x] and corrNAME0[x] != 'Ha-NB816_172306_OII-NB921_176686'])
+        else:
+            filt_index_haii = np.array([x for x in range(len(corr_tbl)) if ff in
+                corrfilts[x]])
         l_ha = L_ha[filt_index_haii]
 
         zspec = corrzspec0[filt_index_haii]
@@ -295,6 +298,7 @@ ID0   = np.array(nbiadata['ID'])
 corr_tbl = asc.read(FULL_PATH+'Main_Sequence/mainseq_corrections_tbl.txt',
     guess=False, Reader=asc.FixedWidthTwoLine)
 corrID = np.array(corr_tbl['ID'])
+corrNAME0 = np.array(corr_tbl['NAME0'])
 corrzspec0 = np.array(corr_tbl['zspec0'])
 corrfilts = np.array(corr_tbl['filt'])
 corrstlr0 = np.array(corr_tbl['stlr_mass'])
@@ -316,10 +320,20 @@ centr_filts = {'NB7':((7045.0/HA - 1) + (7126.0/HA - 1))/2.0,
 print '### making scatter_plots and ratio_plots'
 for (ff, cc) in zip(['NB7','NB816','NB921','NB973'], color_arr):
     print ff
-    filt_index = np.array([x for x in range(len(NAME0)) if 'Ha-'+ff in
-        NAME0[x]])
-    filt_index_haii = np.array([x for x in range(len(corr_tbl)) if ff in
-        corrfilts[x]])
+    # if ff == 'NB816': # GALEX file has flux==0
+    #     filt_index = np.array([x for x in range(len(NAME0)) if 'Ha-'+ff in
+    #         NAME0[x] and NAME0[x] != 'Ha-NB816_172306_OII-NB921_176686'])
+    #     print filt_index, len(filt_index)
+    # else:
+    #     filt_index = np.array([x for x in range(len(NAME0)) if 'Ha-'+ff in
+    #         NAME0[x]])
+    
+    if ff == 'NB816': # GALEX file ID#4411 has flux==0
+        filt_index_haii = np.array([x for x in range(len(corr_tbl)) if ff in
+            corrfilts[x] and corrNAME0[x] != 'Ha-NB816_172306_OII-NB921_176686'])
+    else:
+        filt_index_haii = np.array([x for x in range(len(corr_tbl)) if ff in
+            corrfilts[x]])
 
     nu_lnu = get_nu_lnu(filt_index_haii, ff)
     
