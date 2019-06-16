@@ -421,8 +421,8 @@ def ew_MC():
         npz_mass = np.load(npz_mass_file)
         cont_arr = npz_mass['cont_arr']
         dmag     = cont_arr[1]-cont_arr[0]
-        good     = np.where(npz_mass['N_logM'] != 0)[0]
-        mass_int = interp1d(cont_arr[good]+dmag/2.0, npz_mass['avg_logM'][good],
+        mgood    = np.where(npz_mass['N_logM'] != 0)[0]
+        mass_int = interp1d(cont_arr[mgood]+dmag/2.0, npz_mass['avg_logM'][mgood],
                             bounds_error=False, fill_value='extrapolate',
                             kind='linear')
 
@@ -551,32 +551,30 @@ def ew_MC():
                 good = np.where(EW_flag0)[0]
 
                 # Normalize relative to selected sample
-                norm0 = float(len(NB_EW))/len(good)
-                wht0  = np.repeat(norm0, len(EW_arr0))
+                if len(good) > 0:
+                    norm0 = float(len(NB_EW))/len(good)
+                    wht0  = np.repeat(norm0, len(EW_arr0))
 
-                avg_MC = np.average(EW_arr0)
-                sig_MC = np.std(EW_arr0)
-                label0 = r'N: %i  $\langle x\rangle$: %.2f  $\sigma$: %.2f ' % \
-                         (len(EW_arr0), avg_MC, sig_MC)
-                N, bins, _ = ax[2][0].hist(EW_arr0, bins=EW_bins, weights=wht0,
-                                           align='mid', color='black',
-                                           linestyle='solid', edgecolor='black',
-                                           histtype='step', label=label0)
-                ax[2][0].axvline(x=avg_MC, color='black', linestyle='dashed',
-                                 linewidth=1.5)
+                    avg_MC = np.average(EW_arr0)
+                    sig_MC = np.std(EW_arr0)
+                    label0 = r'N: %i  $\langle x\rangle$: %.2f  $\sigma$: %.2f ' % \
+                             (len(EW_arr0), avg_MC, sig_MC)
+                    N, bins, _ = ax[2][0].hist(EW_arr0, bins=EW_bins, weights=wht0,
+                                               align='mid', color='black',
+                                               linestyle='solid', edgecolor='black',
+                                               histtype='step', label=label0)
+                    ax[2][0].axvline(x=avg_MC, color='black', linestyle='dashed',
+                                     linewidth=1.5)
 
-                avg_gd = np.average(EW_arr0[good])
-                sig_gd = np.std(EW_arr0[good])
-                label1 = r'N: %i  $\langle x\rangle$: %.2f  $\sigma$: %.2f ' % \
-                         (len(good), avg_gd, sig_gd)
-                ax[2][0].hist(EW_arr0[good], bins=EW_bins, weights=wht0[good],
-                              align='mid', alpha=0.5, color='red', edgecolor='red',
-                              linestyle='solid', histtype='stepfilled', label=label1)
-                ax[2][0].axvline(x=avg_gd, color='red', linestyle='dashed',
-                                 linewidth=1.5)
-
-                #nonzero = np.where(N > 0)[0]
-                #ax[2][0].set_xlim(bins[nonzero[0]],bins[nonzero[-1]])
+                    avg_gd = np.average(EW_arr0[good])
+                    sig_gd = np.std(EW_arr0[good])
+                    label1 = r'N: %i  $\langle x\rangle$: %.2f  $\sigma$: %.2f ' % \
+                             (len(good), avg_gd, sig_gd)
+                    ax[2][0].hist(EW_arr0[good], bins=EW_bins, weights=wht0[good],
+                                  align='mid', alpha=0.5, color='red', edgecolor='red',
+                                  linestyle='solid', histtype='stepfilled', label=label1)
+                    ax[2][0].axvline(x=avg_gd, color='red', linestyle='dashed',
+                                     linewidth=1.5)
 
                 ax[2][0].legend(loc='upper right', fancybox=True, fontsize=6,
                                 framealpha=0.75)
@@ -593,16 +591,17 @@ def ew_MC():
                               color='blue', linestyle='solid', edgecolor='none',
                               histtype='stepfilled')
 
-                finite = np.where(np.isfinite(Flux_arr0))
-                N, bins, _ = ax[2][1].hist(Flux_arr0[finite], bins=Flux_bins,
-                                           weights=wht0[finite], align='mid',
-                                           color='black', linestyle='solid',
-                                           edgecolor='black', histtype='step')
+                if len(good) > 0:
+                    finite = np.where(np.isfinite(Flux_arr0))
+                    N, bins, _ = ax[2][1].hist(Flux_arr0[finite], bins=Flux_bins,
+                                               weights=wht0[finite], align='mid',
+                                               color='black', linestyle='solid',
+                                               edgecolor='black', histtype='step')
 
-                ax[2][1].hist(Flux_arr0[good], bins=Flux_bins, alpha=0.5,
-                              weights=wht0[good], align='mid', color='red',
-                              edgecolor='red', linestyle='solid',
-                              histtype='stepfilled')
+                    ax[2][1].hist(Flux_arr0[good], bins=Flux_bins, alpha=0.5,
+                                  weights=wht0[good], align='mid', color='red',
+                                  edgecolor='red', linestyle='solid',
+                                  histtype='stepfilled')
 
                 ax[2][1].set_xlabel(r'$\log(F_{{\rm H}\alpha})$')
                 ax[2][1].set_ylabel(r'$N$')
