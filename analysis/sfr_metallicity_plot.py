@@ -46,11 +46,13 @@ def main(silent=False, verbose=True):
     
     if silent == False: log.info('### Begin main : '+systime())
 
-    Z   = np.array([    0.05,     0.02,    0.008,    0.004,   0.0004])
+    Z       = [    0.05,     0.02,    0.008,    0.004,   0.0004]
+    Z       = np.array(Z)
     Llambda = [40.12892, 40.21840, 40.25546, 40.27597, 40.30982]
     '''
     From Starburst99 CSF 1 Msun/yr model with Kroupa IMF and
-    Padova stellar tracks.  Log units of erg/s/Ang
+    Padova stellar tracks.  Log units of erg/s/Ang. Using
+    age of 0.3E9 (except 0.1E9 for 2.5xZ_solar)
     '''
 
     lambda0 = 1500.0 * u.Angstrom
