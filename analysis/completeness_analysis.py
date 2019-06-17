@@ -315,6 +315,7 @@ def NB_numbers():
     NB_slope0 = np.zeros(len(filters))
 
     N_norm0 = []
+    mag_arr = []
 
     for ff in range(len(filters)):
         print('Reading : '+NB_phot_files[ff])
@@ -334,7 +335,8 @@ def NB_numbers():
         p_fit = np.polyfit(m_bins[det0], np.log10(N[det0]), 1)
 
         det1    = np.where((m_bins >= 20.0) & (m_bins <= m_NB[ff]))[0]
-        N_norm0 += [(N[det1] / bin_size) * np.sum(N[det1])]
+        mag_arr += [m_bins[det1]]
+        N_norm0 += [N[det1] / bin_size / np.sum(N[det1])]
 
         NB_slope0[ff] = p_fit[0]
 
@@ -370,7 +372,7 @@ def NB_numbers():
 
     out_npz = out_pdf.replace('.pdf', '.npz')
     np.savez(out_npz, filters=filters, bin_size=bin_size, NB_slope0=NB_slope0,
-             N_norm0=N_norm0)
+             mag_arr=mag_arr, N_norm0=N_norm0)
 #enddef
 
 def ew_MC():
