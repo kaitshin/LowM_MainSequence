@@ -69,31 +69,32 @@ def main(silent=False, verbose=True):
     # nu Lnu = lambda Llambda
     nuLnu = Llambda + np.log10(lambda0.value)
 
-    fit0   = np.polyfit(np.log10(Z/0.02), nuLnu, 2)
-    print(fit0)
-    p_fit0 = np.poly1d(fit0)
+    nuLnu_fit0   = np.polyfit(np.log10(Z/0.02), nuLnu, 2)
+    print(nuLnu_fit0)
+    p_nuLnu_fit0 = np.poly1d(nuLnu_fit0)
 
     Z_arr = np.arange(-2,0.5,0.001)
-    y_arr = p_fit0(Z_arr)
+    nuLnu_arr0 = p_nuLnu_fit0(Z_arr)
     
     ax[0].scatter(Z/0.02, nuLnu, color='red', marker='o', s=50,
                   edgecolor='none', alpha=0.5, label='Kroupa IMF')
 
-    ax[0].plot(10**Z_arr, y_arr, 'r--')
+    ax[0].plot(10**Z_arr, nuLnu_arr0, 'r--')
 
     ann_str0  = r'$y = P_0 + P_1\cdot\log(Z/Z_{\odot}) + P_2\cdot\log(Z/Z_{\odot})^2$' + '\n'
-    ann_str0 += r'Kroupa:   $P_0$=%.3f $P_1$=%.3f $P_2$=%.3f' % (fit0[2], fit0[1], fit0[0])
+    ann_str0 += r'Kroupa:   $P_0$=%.3f $P_1$=%.3f $P_2$=%.3f' % \
+                (nuLnu_fit0[2], nuLnu_fit0[1], nuLnu_fit0[0])
     ann_str0 += '\n'
 
-    fit1   = np.polyfit(np.log10(Z/0.02), nuLnu+imf_offset, 2)
-    p_fit1 = np.poly1d(fit1)
-    print(fit1)
+    nuLnu_fit1   = np.polyfit(np.log10(Z/0.02), nuLnu+imf_offset, 2)
+    p_nuLnu_fit1 = np.poly1d(nuLnu_fit1)
+    print(nuLnu_fit1)
 
-    y_arr1 = p_fit1(Z_arr)
-    
+    nuLnu_arr1 = p_nuLnu_fit1(Z_arr)
+
     ax[0].scatter(Z/0.02, nuLnu+imf_offset, color='blue', marker='o', s=50,
                   edgecolor='none', alpha=0.5, label='Chabrier IMF')
-    ax[0].plot(10**Z_arr, y_arr1, 'b--')
+    ax[0].plot(10**Z_arr, nuLnu_arr1, 'b--')
 
     ax[0].legend(loc='upper right', fancybox=True, fontsize=12, framealpha=0.5)
     ax[0].set_xlim([1e-2,3])
@@ -102,14 +103,60 @@ def main(silent=False, verbose=True):
     ax[0].set_xlabel(r'$Z/Z_{\odot}$')
     ax[0].set_ylabel(r'$\nu L_{\nu}(1500\AA)$/SFR [erg s$^{-1}$/$M_{\odot}$ yr$^{-1}$]')
 
-    ann_str0 += r'Chabrier: $P_0$=%.3f $P_1$=%.3f $P_2$=%.3f' % (fit1[2], fit1[1], fit1[0])
+    ann_str0 += r'Chabrier: $P_0$=%.3f $P_1$=%.3f $P_2$=%.3f' % \
+                (nuLnu_fit1[2], nuLnu_fit1[1], nuLnu_fit1[0])
 
     ax[0].annotate(ann_str0, [0.025,0.025], fontsize=10, xycoords='axes fraction',
                    ha='left', va='bottom')
 
-    plt.subplots_adjust(left=0.105, right=0.99, bottom=0.07, top=0.99)
+    # L_nu in ax[1]
+    nu_offset = np.log10(c0.to(u.m/u.s).value/lambda0.to(u.m).value)
+    Lnu = nuLnu - nu_offset
+
+    Lnu_fit0 = nuLnu_fit0.copy()
+    Lnu_fit0[2] -= nu_offset
+    p_Lnu_fit0 = np.poly1d(Lnu_fit0)
+
+    Lnu_arr0 = p_Lnu_fit0(Z_arr)
+
+    ax[1].scatter(Z/0.02, Lnu, color='red', marker='o', s=50,
+                  edgecolor='none', alpha=0.5, label='Kroupa IMF')
+
+    ax[1].plot(10**Z_arr, Lnu_arr0, 'r--')
+
+    ann_str1  = r'$y = P_0 + P_1\cdot\log(Z/Z_{\odot}) + P_2\cdot\log(Z/Z_{\odot})^2$' + '\n'
+    ann_str1 += r'Kroupa:   $P_0$=%.3f $P_1$=%.3f $P_2$=%.3f' % \
+                (Lnu_fit0[2], Lnu_fit0[1], Lnu_fit0[0])
+    ann_str1 += '\n'
+
+
+    Lnu_fit1 = nuLnu_fit1.copy()
+    Lnu_fit1[2] -= nu_offset
+    p_Lnu_fit1 = np.poly1d(Lnu_fit1)
+
+    Lnu_arr1 = p_Lnu_fit1(Z_arr)
+
+    ax[1].scatter(Z/0.02, Lnu+imf_offset, color='blue', marker='o', s=50,
+                  edgecolor='none', alpha=0.5, label='Kroupa IMF')
+
+    ax[1].plot(10**Z_arr, Lnu_arr1, 'b--')
+
+    ann_str1 += r'Chabrier: $P_0$=%.3f $P_1$=%.3f $P_2$=%.3f' % \
+                (Lnu_fit1[2], Lnu_fit1[1], Lnu_fit1[0])
+
+    ax[1].annotate(ann_str1, [0.025,0.025], fontsize=10, xycoords='axes fraction',
+                   ha='left', va='bottom')
+
+    ax[1].set_xlim([1e-2,3])
+    ax[1].set_xscale('log')
+    ax[1].minorticks_on()
+    ax[1].set_xlabel(r'$Z/Z_{\odot}$')
+    ax[1].set_ylabel(r'$L_{\nu}(1500\AA)$/SFR [erg s$^{-1}$ $\AA^{-1}$/$M_{\odot}$ yr$^{-1}$]')
+
+
+    plt.subplots_adjust(left=0.085, right=0.995, bottom=0.11, top=0.98, wspace=0.225)
     out_pdf = '/Users/cly/Google Drive/NASA_Summer2015/Plots/sfr_metallicity_plot.pdf'
-    fig.set_size_inches(8,4)
+    fig.set_size_inches(10,5)
     fig.savefig(out_pdf)
 
     if silent == False: log.info('### End main : '+systime())
