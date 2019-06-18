@@ -71,7 +71,12 @@ def main(silent=False, verbose=True):
 
     ax.scatter(Z/0.02, nuLnu, color='red', marker='o', s=50,
                edgecolor='none', alpha=0.5, label='Kroupa IMF')
+
     ax.plot(10**Z_arr, y_arr, 'r--')
+
+    ann_str0  = r'$y = P_0 + P_1\cdot\log(Z/Z_{\odot}) + P_2\cdot\log(Z/Z_{\odot})^2$' + '\n'
+    ann_str0 += r'Kroupa:   $P_0$=%.3f $P_1$=%.3f $P_2$=%.3f' % (fit0[2], fit0[1], fit0[0])
+    ann_str0 += '\n'
 
     #Kroupa to Chabrier offset
     imf_offset = -np.log10(4.4e-42) - 41.257
@@ -92,6 +97,11 @@ def main(silent=False, verbose=True):
     ax.set_xscale('log')
     ax.set_xlabel(r'$Z/Z_{\odot}$')
     ax.set_ylabel(r'$\nu L_{\nu}(1500\AA)$/SFR [erg s$^{-1}$/$M_{\odot}$ yr$^{-1}$]')
+
+    ann_str0 += r'Chabrier: $P_0$=%.3f $P_1$=%.3f $P_2$=%.3f' % (fit1[2], fit1[1], fit1[0])
+
+    ax.annotate(ann_str0, [0.025,0.025], xycoords='axes fraction',
+                ha='left', va='bottom')
 
     out_pdf = '/Users/cly/Google Drive/NASA_Summer2015/Plots/sfr_metallicity_plot.pdf'
     fig.savefig(out_pdf)
