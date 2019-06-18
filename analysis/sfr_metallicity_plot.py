@@ -92,7 +92,7 @@ def main(silent=False, verbose=True):
                edgecolor='none', alpha=0.5, label='Chabrier IMF')
     ax.plot(10**Z_arr, y_arr1, 'b--')
 
-    ax.legend(loc='upper right')
+    ax.legend(loc='upper right', fancybox=True, fontsize=12, framealpha=0.5)
     ax.set_xlim([1e-2,3])
     ax.set_xscale('log')
     ax.set_xlabel(r'$Z/Z_{\odot}$')
