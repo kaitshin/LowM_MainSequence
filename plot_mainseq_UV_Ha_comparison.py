@@ -175,14 +175,14 @@ def get_binned_stats(xposdata, yposdata):
                          fmt='none')
 
 
-def make_all_ratio_plot(L_ha, ltype):
+def make_all_ratio_plot(L_ha, ltype, xarr_type='stlr'):
     '''
     Similar as make_ratio_plot, except each filter is plotted on the graph,
     and sources with good zspec are filled points while those w/o good zspec
     are plotted as empty points. get_binned_stats and make_all_ratio_legend
     are called, before the plot is duly modified, saved, and closed.
     '''
-    print ltype
+    print ltype, '('+xarr_type+')'
     xposdata = np.array([])
     yposdata = np.array([])
     filtlabel = {}
@@ -198,11 +198,17 @@ def make_all_ratio_plot(L_ha, ltype):
         l_ha = L_ha[filt_index_haii]
 
         zspec = corrzspec0[filt_index_haii]
-        stlr = corrstlr0[filt_index_haii]
+        if xarr_type=='stlr':
+            xpos_arr = corrstlr0[filt_index_haii]
+        elif xarr_type=='sfr':
+            xpos_arr = corr_sfr[filt_index_haii]
+        else:
+            raise ValueError('Incorrect xarr_type provided (must be either \'stlr\' or \'sfr\'')
+
         nu_lnu = get_nu_lnu(filt_index_haii, ff)
         
         ratio = nu_lnu-l_ha
-        xposdata = np.append(xposdata, stlr)
+        xposdata = np.append(xposdata, xpos_arr)
         yposdata = np.append(yposdata, ratio)
 
         good_z = np.array([x for x in range(len(zspec)) if zspec[x] > 0. and
@@ -211,24 +217,29 @@ def make_all_ratio_plot(L_ha, ltype):
                            zspec[x] >= 9.])
         filtlabel[ff] = '('+str(len(good_z))+', '+str(len(bad_z))+')'
 
-        plt.scatter(stlr[good_z], ratio[good_z], facecolor=cc, edgecolor='none',
+        plt.scatter(xpos_arr[good_z], ratio[good_z], facecolor=cc, edgecolor='none',
                     alpha=0.5, s=12)
-        plt.scatter(stlr[bad_z], ratio[bad_z], facecolor='none', edgecolor=cc,
+        plt.scatter(xpos_arr[bad_z], ratio[bad_z], facecolor='none', edgecolor=cc,
                     linewidth=0.5, alpha=0.5, s=12)
 
 
     get_binned_stats(xposdata, yposdata)
     plt.gca().minorticks_on()
     plt.gca().tick_params(axis='both', which='both', direction='in')
-    plt.xlabel('log[M/M'+r'$_{\odot}$'+']')
     plt.ylabel('log['+r'$\nu$'+'L'+r'$_{\nu}$'+'(1500 '+r'$\AA$'+')/L'
                +r'$_{H\alpha}$'+']')
-    plt.xlim(4, 11)
-    plt.ylim(-2.5, 4)
     make_all_ratio_legend(filtlabel)
     plt.plot(plt.xlim(), [2.05, 2.05], 'k--', alpha=0.3, linewidth=3.0)
-    plt.savefig(FULL_PATH+'Plots/main_sequence_UV_Ha/ratios/all_filt_'+ltype+
-                fileend+'.pdf')
+    if xarr_type=='stlr':
+        plt.xlim(4, 11)
+        plt.ylim(-2.5, 4)
+        plt.xlabel('log[M/M'+r'$_{\odot}$'+']')
+        plt.savefig(FULL_PATH+'Plots/main_sequence_UV_Ha/ratios/all_filt_'+ltype+
+                    fileend+'.pdf')
+    elif xarr_type=='sfr':
+        plt.xlabel('log(SFR[H'+r'$\alpha$'+']/M'+r'$_{\odot}$'+' yr'+r'$^{-1}$'+')')
+        plt.savefig(FULL_PATH+'Plots/main_sequence_UV_Ha/ratios/all_filt_'+ltype+
+                    '_with_SFRs'+fileend+'.pdf')
     plt.close()
 
 
@@ -302,3 +313,4 @@ for (ff, cc) in zip(['NB7','NB816','NB921','NB973'], color_arr):
 
 print '### making all_ratio_plots'
 make_all_ratio_plot(corr_lumin, 'all_corr')
+make_all_ratio_plot(corr_lumin, 'all_corr', xarr_type='sfr')
