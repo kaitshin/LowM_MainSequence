@@ -450,92 +450,88 @@ def ew_MC():
 
                 Flux_arr0  = np.array([])
 
-                for nn in range(len(NB)):
-                    np.random.seed = mm*ss
-                    rand0    = np.random.normal(0.0, 1.0, size=100)
-                    logEW_MC = logEW_mean[mm] + logEW_sig[ss]*rand0 # This is NB EW (not H-alpha)
+                np.random.seed = mm*ss
+                rand0 = np.random.normal(0.0, 1.0, size=len(NB_MC))
+                logEW_MC = logEW_mean[mm] + logEW_sig[ss]*rand0 # This is NB EW (not H-alpha)
 
-                    EW_arr0 = np.append(EW_arr0, logEW_MC)
-                    EW_flag = np.zeros(len(logEW_MC))
+                EW_arr0 = np.append(EW_arr0, logEW_MC)
+                EW_flag = np.zeros(len(logEW_MC))
 
-                    x_MC = EW_int(logEW_MC) # NB color excess
+                x_MC = EW_int(logEW_MC) # NB color excess
 
-                    t_NB = np.repeat(NB[nn], len(x_MC))
+                # t_NB = np.repeat(NB_MC, len(x_MC))
 
-                    # Panel (0,0) - NB excess selection plot
-                    ax[0][0].scatter(t_NB, x_MC, marker=',', s=1)
+                # Panel (0,0) - NB excess selection plot
+                ax[0][0].scatter(NB_MC, x_MC, marker=',', s=1)
 
-                    ax[0][0].axhline(y=minthres[ff], linestyle='dashed',
-                                     color='blue')
+                ax[0][0].axhline(y=minthres[ff], linestyle='dashed',
+                                 color='blue')
 
-                    y3 = color_cut(NB, m_NB[ff], cont_lim[ff])
-                    ax[0][0].plot(NB, y3, 'b--')
-                    y4 = color_cut(NB, m_NB[ff], cont_lim[ff], sigma=4.0)
-                    ax[0][0].plot(NB, y4, 'b:')
-                    ax[0][0].set_xticklabels([])
-                    ax[0][0].set_ylabel('cont - NB')
+                y3 = color_cut(NB, m_NB[ff], cont_lim[ff])
+                ax[0][0].plot(NB, y3, 'b--')
+                y4 = color_cut(NB, m_NB[ff], cont_lim[ff], sigma=4.0)
+                ax[0][0].plot(NB, y4, 'b:')
+                ax[0][0].set_xticklabels([])
+                ax[0][0].set_ylabel('cont - NB')
 
-                    sig_limit = color_cut(t_NB, m_NB[ff], cont_lim[ff], sigma=4.0)
-                    NB_sel   = np.where((x_MC >= minthres[ff]) &
-                                        (x_MC >= sig_limit))[0]
-                    NB_nosel = np.where((x_MC < minthres[ff]) |
-                                        (x_MC < sig_limit))[0]
+                sig_limit = color_cut(NB_MC, m_NB[ff], cont_lim[ff], sigma=4.0)
+                NB_sel   = np.where((x_MC >= minthres[ff]) &
+                                    (x_MC >= sig_limit))[0]
+                NB_nosel = np.where((x_MC < minthres[ff]) |
+                                    (x_MC < sig_limit))[0]
 
-                    EW_flag[NB_sel] = 1
-                    EW_flag0 = np.append(EW_flag0, EW_flag)
+                EW_flag[NB_sel] = 1
+                EW_flag0 = np.append(EW_flag0, EW_flag)
 
-                    t_EW, t_flux = ew_flux_dual(t_NB, t_NB + x_MC, x_MC,
-                                                filt_dict)
+                t_EW, t_flux = ew_flux_dual(NB_MC, NB_MC + x_MC, x_MC,
+                                            filt_dict)
 
-                    # Apply NB filter correction from beginning
-                    t_flux = np.log10(t_flux * filt_corr[ff])
+                # Apply NB filter correction from beginning
+                t_flux = np.log10(t_flux * filt_corr[ff])
 
-                    cont_MC = t_NB + x_MC
-                    logM_MC = mass_int(cont_MC)
-                    NIIHa, logOH = get_NIIHa_logOH(logM_MC)
+                cont_MC = NB_MC + x_MC
+                logM_MC = mass_int(cont_MC)
+                NIIHa, logOH = get_NIIHa_logOH(logM_MC)
 
-                    t_Haflux = correct_NII(t_flux, NIIHa)
+                t_Haflux = correct_NII(t_flux, NIIHa)
 
-                    Flux_arr0 = np.append(Flux_arr0, t_Haflux)
+                Flux_arr0 = np.append(Flux_arr0, t_Haflux)
 
-                    # Panel (1,0) - NB mag vs H-alpha flux
-                    ax[1][0].scatter(t_NB[NB_sel], t_Haflux[NB_sel], alpha=0.25,
-                                     s=2, edgecolor='none')
-                    ax[1][0].scatter(t_NB[NB_nosel], t_Haflux[NB_nosel],
-                                     alpha=0.25, s=2, edgecolor='blue',
-                                     linewidth=0.25, facecolor='none')
-                    ax[1][0].set_xlabel('NB')
-                    ax[1][0].set_ylabel(r'$\log(F_{H\alpha})$')
+                # Panel (1,0) - NB mag vs H-alpha flux
+                ax[1][0].scatter(NB_MC[NB_sel], t_Haflux[NB_sel], alpha=0.25,
+                                 s=2, edgecolor='none')
+                ax[1][0].scatter(NB_MC[NB_nosel], t_Haflux[NB_nosel],
+                                 alpha=0.25, s=2, edgecolor='blue',
+                                 linewidth=0.25, facecolor='none')
+                ax[1][0].set_xlabel('NB')
+                ax[1][0].set_ylabel(r'$\log(F_{H\alpha})$')
 
-                    t_HaLum = t_Haflux +np.log10(4*np.pi) +2*np.log10(lum_dist)
+                t_HaLum = t_Haflux +np.log10(4*np.pi) +2*np.log10(lum_dist)
 
+                # Panel (0,1) - stellar mass vs H-alpha luminosity
+                ax[0][1].scatter(logM_MC[NB_sel], t_HaLum[NB_sel],
+                                 alpha=0.25, s=2, edgecolor='none')
+                ax[0][1].scatter(logM_MC[NB_nosel], t_HaLum[NB_nosel],
+                                 alpha=0.25, s=2, edgecolor='blue',
+                                 linewidth=0.25, facecolor='none')
+                ax[0][1].set_xticklabels([])
+                ax[0][1].set_ylabel(r'$\log(L_{{\rm H}\alpha})$')
+                #ax[1][1].set_ylim([37.5,43.0])
 
-                    # Panel (0,1) - stellar mass vs H-alpha luminosity
-                    ax[0][1].scatter(logM_MC[NB_sel], t_HaLum[NB_sel],
-                                     alpha=0.25, s=2, edgecolor='none')
-                    ax[0][1].scatter(logM_MC[NB_nosel], t_HaLum[NB_nosel],
-                                     alpha=0.25, s=2, edgecolor='blue',
-                                     linewidth=0.25, facecolor='none')
-                    ax[0][1].set_xticklabels([])
-                    ax[0][1].set_ylabel(r'$\log(L_{{\rm H}\alpha})$')
-                    #ax[1][1].set_ylim([37.5,43.0])
+                # Panel (1,1) - stellar mass vs H-alpha SFR
+                logSFR_MC = HaSFR_metal_dep(logOH, t_HaLum)
+                ax[1][1].scatter(logM_MC[NB_sel], logSFR_MC[NB_sel],
+                                 alpha=0.25, s=2, edgecolor='none')
+                ax[1][1].scatter(logM_MC[NB_nosel], logSFR_MC[NB_nosel],
+                                 alpha=0.25, s=2, edgecolor='blue',
+                                 linewidth=0.25, facecolor='none')
+                ax[1][1].set_xlabel(r'$\log(M_{\star}/M_{\odot})$')
+                ax[1][1].set_ylabel(r'$\log({\rm SFR}({\rm H}\alpha))$')
 
-                    # Panel (1,1) - stellar mass vs H-alpha SFR
-                    logSFR_MC = HaSFR_metal_dep(logOH, t_HaLum)
-                    ax[1][1].scatter(logM_MC[NB_sel], logSFR_MC[NB_sel],
-                                     alpha=0.25, s=2, edgecolor='none')
-                    ax[1][1].scatter(logM_MC[NB_nosel], logSFR_MC[NB_nosel],
-                                     alpha=0.25, s=2, edgecolor='blue',
-                                     linewidth=0.25, facecolor='none')
-                    ax[1][1].set_xlabel(r'$\log(M_{\star}/M_{\odot})$')
-                    ax[1][1].set_ylabel(r'$\log({\rm SFR}({\rm H}\alpha))$')
-
-
-                    annot_txt  = r'$\langle\log({\rm EW}_0)\rangle = %.2f$' % logEW_mean[mm] + '\n'
-                    annot_txt += r'$\sigma[\log({\rm EW}_0)] = %.2f$' % logEW_sig[ss] + '\n'
-                    ax[0][0].annotate(annot_txt, [0.05,0.95], va='top',
-                                      ha='left', xycoords='axes fraction')
-                #endfor
+                annot_txt  = r'$\langle\log({\rm EW}_0)\rangle = %.2f$' % logEW_mean[mm] + '\n'
+                annot_txt += r'$\sigma[\log({\rm EW}_0)] = %.2f$' % logEW_sig[ss] + '\n'
+                ax[0][0].annotate(annot_txt, [0.05,0.95], va='top',
+                                  ha='left', xycoords='axes fraction')
 
                 # Read in EW and fluxes for H-alpha NB emitter sample
                 npz_NB_file = path0 + 'Completeness/ew_flux_Ha-'+filters[ff]+'.npz'
