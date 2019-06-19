@@ -128,7 +128,7 @@ def make_ratio_plot(nu_lnu, l_ha, stlr, ff, ltype):
     #     stlr = np.concatenate((stlr[:zero], stlr[zero+1:]))
 
     ratio = nu_lnu-l_ha
-    plt.scatter(stlr, ratio)
+    plt.scatter(stlr, ratio, s=12)
     plt.gca().minorticks_on()
     plt.gca().tick_params(axis='both', which='both', direction='in')
     plt.xlabel('log[M/M'+r'$_{\odot}$'+']')
@@ -250,9 +250,9 @@ def make_all_ratio_plot(L_ha, ltype):
         filtlabel[ff] = '('+str(len(good_z))+', '+str(len(bad_z))+')'
 
         plt.scatter(stlr[good_z], ratio[good_z], facecolor=cc, edgecolor='none',
-                    alpha=0.5)
+                    alpha=0.5, s=12)
         plt.scatter(stlr[bad_z], ratio[bad_z], facecolor='none', edgecolor=cc,
-                    linewidth=0.5, alpha=0.5)
+                    linewidth=0.5, alpha=0.5, s=12)
 
 
     get_binned_stats(xposdata, yposdata)
@@ -261,10 +261,10 @@ def make_all_ratio_plot(L_ha, ltype):
     plt.xlabel('log[M/M'+r'$_{\odot}$'+']')
     plt.ylabel('log['+r'$\nu$'+'L'+r'$_{\nu}$'+'(1500 '+r'$\AA$'+')/L'
                +r'$_{H\alpha}$'+']')
-    # plt.xlim(4, 11)
-    # plt.ylim(-2.5, 4)
+    plt.xlim(4, 11)
+    plt.ylim(-2.5, 4)
     make_all_ratio_legend(filtlabel)
-    # plt.plot(plt.xlim(), [2.05, 2.05], 'k--', alpha=0.3, linewidth=3.0)
+    plt.plot(plt.xlim(), [2.05, 2.05], 'k--', alpha=0.3, linewidth=3.0)
     plt.savefig(FULL_PATH+'Plots/main_sequence_UV_Ha/ratios/all_filt_'+ltype+
                 fileend+'.pdf')
     plt.close()
