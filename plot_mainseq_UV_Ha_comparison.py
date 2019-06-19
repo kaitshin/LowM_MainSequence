@@ -96,11 +96,6 @@ def make_scatter_plot(nu_lnu, l_ha, ff, ltype):
     There is a value in the filter NB921 which has flux=='NAN'. That is
     ignored.
     '''
-    # if ff=='NB921':
-    #     zero = np.where(l_ha == 0.)[0]
-    #     nu_lnu = np.concatenate((nu_lnu[:zero], nu_lnu[zero+1:]))
-    #     l_ha = np.concatenate((l_ha[:zero], l_ha[zero+1:]))
-
     plt.scatter(nu_lnu, l_ha, color='b', edgecolor='k', s=12)
     plt.gca().minorticks_on()
     plt.gca().tick_params(axis='both', which='both', direction='in')
@@ -121,12 +116,6 @@ def make_ratio_plot(nu_lnu, l_ha, stlr, ff, ltype):
     There is a value in the filter NB921 which has flux=='NAN'. That is
     ignored.
     '''
-    # if ff=='NB921':
-    #     zero = np.where(l_ha == 0.)[0]
-    #     nu_lnu = np.concatenate((nu_lnu[:zero], nu_lnu[zero+1:]))
-    #     l_ha = np.concatenate((l_ha[:zero], l_ha[zero+1:]))
-    #     stlr = np.concatenate((stlr[:zero], stlr[zero+1:]))
-
     ratio = nu_lnu-l_ha
     plt.scatter(stlr, ratio, s=12)
     plt.gca().minorticks_on()
@@ -213,12 +202,6 @@ def make_all_ratio_plot(L_ha, ltype):
     filtlabel = {}
     for (ff, cc) in zip(['NB7','NB816','NB921','NB973'], color_arr):
         print ff
-        # filt_index = np.array([x for x in range(len(NAME0)) if 'Ha-'+ff in
-        #                        NAME0[x]])
-        # filt_index = np.array(filt_index,dtype=np.int32)
-        
-        # zspec = zspec0[filt_index]
-        # stlr = stlr0[filt_index]
 
         if ff == 'NB816': # GALEX file ID#4411 has flux==0
             filt_index_haii = np.array([x for x in range(len(corr_tbl)) if ff in
@@ -231,13 +214,6 @@ def make_all_ratio_plot(L_ha, ltype):
         zspec = corrzspec0[filt_index_haii]
         stlr = corrstlr0[filt_index_haii]
         nu_lnu = get_nu_lnu(filt_index_haii, ff)
-
-        # if ff=='NB921':
-        #     zero_index = np.where(l_ha == 0.)[0]
-        #     l_ha = np.delete(l_ha, zero_index)
-        #     zspec = np.delete(zspec, zero_index)
-        #     stlr = np.delete(stlr, zero_index)
-        #     nu_lnu = np.delete(nu_lnu, zero_index)
         
         ratio = nu_lnu-l_ha
         xposdata = np.append(xposdata, stlr)
@@ -320,13 +296,6 @@ centr_filts = {'NB7':((7045.0/HA - 1) + (7126.0/HA - 1))/2.0,
 print '### making scatter_plots and ratio_plots'
 for (ff, cc) in zip(['NB7','NB816','NB921','NB973'], color_arr):
     print ff
-    # if ff == 'NB816': # GALEX file has flux==0
-    #     filt_index = np.array([x for x in range(len(NAME0)) if 'Ha-'+ff in
-    #         NAME0[x] and NAME0[x] != 'Ha-NB816_172306_OII-NB921_176686'])
-    #     print filt_index, len(filt_index)
-    # else:
-    #     filt_index = np.array([x for x in range(len(NAME0)) if 'Ha-'+ff in
-    #         NAME0[x]])
     
     if ff == 'NB816': # GALEX file ID#4411 has flux==0
         filt_index_haii = np.array([x for x in range(len(corr_tbl)) if ff in
@@ -339,8 +308,6 @@ for (ff, cc) in zip(['NB7','NB816','NB921','NB973'], color_arr):
     
     make_scatter_plot(nu_lnu, corr_lumin[filt_index_haii], ff, 'all_corr')
 
-    # make_ratio_plot(nu_lnu, corr_lumin[filt_index_haii], stlr0[filt_index],
-    #     ff, 'all_corr')
     make_ratio_plot(nu_lnu, corr_lumin[filt_index_haii], corrstlr0[filt_index_haii],
         ff, 'all_corr')
 
