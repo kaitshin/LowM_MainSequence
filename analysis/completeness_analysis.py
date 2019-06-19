@@ -474,7 +474,7 @@ def ew_MC():
                 ax[0][0].set_xticklabels([])
                 ax[0][0].set_ylabel('cont - NB')
 
-                sig_limit = color_cut(NB_MC, m_NB[ff], cont_lim[ff], sigma=4.0)
+                sig_limit = color_cut(NB_MC, m_NB[ff], cont_lim[ff]) #, sigma=4.0)
                 NB_sel   = np.where((x_MC >= minthres[ff]) &
                                     (x_MC >= sig_limit))[0]
                 NB_nosel = np.where((x_MC < minthres[ff]) |
