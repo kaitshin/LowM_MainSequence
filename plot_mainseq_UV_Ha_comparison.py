@@ -136,20 +136,6 @@ def make_all_ratio_legend(filtlabel):
     '''
     import matplotlib.patches as mpatches
 
-    # red_patch = mpatches.Patch(color='red', label='H'+r'$\alpha$'+'-NB704 '
-    #                            +filtlabel['NB704'], alpha=0.5)
-    # orange_patch = mpatches.Patch(color='orange', label='H'+r'$\alpha$'
-    #                               +'-NB711 '+filtlabel['NB711'], alpha=0.5)
-    # green_patch = mpatches.Patch(color='green', label='H'+r'$\alpha$'+'-NB816 '
-    #                              +filtlabel['NB816'], alpha=0.5)
-    # blue_patch = mpatches.Patch(color='blue', label='H'+r'$\alpha$'+'-NB921 '
-    #                             +filtlabel['NB921'], alpha=0.5)
-    # purple_patch = mpatches.Patch(color='purple', label='H'+r'$\alpha$'
-    #                               +'-NB973 '+filtlabel['NB973'], alpha=0.5)
-    # legend0 = plt.legend(handles=[red_patch,orange_patch,green_patch,
-    #                               blue_patch,purple_patch],fontsize=9,
-    #                      loc='lower right', frameon=False)
-
     red_patch = mpatches.Patch(color='red', label='H'+r'$\alpha$'+'-NB7 '
                                +filtlabel['NB7'], alpha=0.5)
     orange_patch = mpatches.Patch(color='orange', label='H'+r'$\alpha$'+'-NB816 '
@@ -279,6 +265,7 @@ corrzspec0 = np.array(corr_tbl['zspec0'])
 corrfilts = np.array(corr_tbl['filt'])
 corrstlr0 = np.array(corr_tbl['stlr_mass'])
 obs_lumin = np.array(corr_tbl['obs_lumin'])
+sfr = np.array(corr_tbl['met_dep_sfr'])
 dust_corr_factor = np.array(corr_tbl['dust_corr_factor'])
 filt_corr_factor = np.array(corr_tbl['filt_corr_factor'])
 nii_ha_corr_factor = np.array(corr_tbl['nii_ha_corr_factor'])
@@ -286,6 +273,7 @@ corr_factors = filt_corr_factor + nii_ha_corr_factor + dust_corr_factor
 
 corr_fluxes = corr_tbl['obs_fluxes'].data + corr_factors
 corr_lumin = obs_lumin + corr_factors
+corr_sfr = sfr + corr_factors
 print '### done reading input files'
 
 ID_match = np.array([x for x in range(len(ID0)) if ID0[x] in corrID])
