@@ -402,10 +402,13 @@ def ew_MC():
     NBbin = 0.25
 
     for ff in range(len(filt_ref)): # loop over filter
-        out_pdf = path0 + 'Completeness/ew_MC_'+filters[ff]+'.pdf'
         print("Working on : "+filters[ff])
 
+        out_pdf = path0 + 'Completeness/ew_MC_'+filters[ff]+'.pdf'
         pp = PdfPages(out_pdf)
+
+        out_pdf2 = path0 + 'Completeness/ew_MC_'+filters[ff]+'.stats.pdf'
+        pp2 = PdfPages(out_pdf2)
 
         filt_dict = {'dNB': dNB[ff], 'dBB': dBB[ff], 'lambdac': lambdac[ff]}
 
@@ -439,6 +442,7 @@ def ew_MC():
 
         lum_dist = cosmo.luminosity_distance(z_NB[ff]).to(u.cm).value
 
+        count = 0
         for mm in range(len(logEW_mean)): # loop over median of EW dist
             for ss in range(len(logEW_sig)): # loop over sigma of EW dist
                 fig, ax = plt.subplots(ncols=2, nrows=3)
@@ -546,14 +550,19 @@ def ew_MC():
 
                 EW_bins = np.arange(0.2,3.0,0.2)
 
+                # This is for statistics plot
+                if count % 3 == 0:
+                    fig2, ax2 = plt.subplots(ncols=2, nrows=3)
+                s_row = count % 3
+
                 # Panel (2,0) - histogram of EW
 
                 # NB_counts, NB_bins = np.histogram(NB_EW, np.arange(0.5,3.0,0.2))
                 label_EW = r'N: %i  $\langle x\rangle$: %.2f  $\sigma$: %.2f' % \
                            (len(NB_EW), avg_NB, sig_NB)
-                ax[2][0].hist(NB_EW, bins=EW_bins, align='mid', color='blue',
-                              linestyle='solid', edgecolor='none',
-                              histtype='stepfilled', label=label_EW)
+                No, binso, _ = ax[2][0].hist(NB_EW, bins=EW_bins, align='mid', color='blue',
+                                             linestyle='solid', edgecolor='none',
+                                             histtype='stepfilled', label=label_EW)
                 ax[2][0].axvline(x=avg_NB, color='blue', linestyle='dashed',
                                  linewidth=1.5)
 
@@ -579,9 +588,9 @@ def ew_MC():
                     sig_gd = np.std(EW_arr0[good])
                     label1 = r'N: %i  $\langle x\rangle$: %.2f  $\sigma$: %.2f ' % \
                              (len(good), avg_gd, sig_gd)
-                    ax[2][0].hist(EW_arr0[good], bins=EW_bins, weights=wht0[good],
-                                  align='mid', alpha=0.5, color='red', edgecolor='red',
-                                  linestyle='solid', histtype='stepfilled', label=label1)
+                    Ng, binsg, _ = ax[2][0].hist(EW_arr0[good], bins=EW_bins, weights=wht0[good],
+                                                 align='mid', alpha=0.5, color='red', edgecolor='red',
+                                                 linestyle='solid', histtype='stepfilled', label=label1)
                     ax[2][0].axvline(x=avg_gd, color='red', linestyle='dashed',
                                      linewidth=1.5)
 
@@ -592,14 +601,16 @@ def ew_MC():
                 ax[2][0].set_yscale('log')
                 ax[2][0].set_position([0.105,0.05,0.389,0.265])
 
+                if len(good) > 0:
+                    ax2[s_row][0].scatter(binso[:-1], (Ng-No)/No)
 
                 # Panel (2,1) - histogram of H-alpha fluxes
 
                 Flux_bins = np.arange(-17.75,-14.75,0.25)
 
-                ax[2][1].hist(Ha_Flux, bins=Flux_bins, align='mid',
-                              color='blue', linestyle='solid', edgecolor='none',
-                              histtype='stepfilled')
+                No, binso, _ = ax[2][1].hist(Ha_Flux, bins=Flux_bins, align='mid',
+                                             color='blue', linestyle='solid', edgecolor='none',
+                                             histtype='stepfilled')
 
                 if len(good) > 0:
                     finite = np.where(np.isfinite(Flux_arr0))
@@ -608,19 +619,29 @@ def ew_MC():
                                                color='black', linestyle='solid',
                                                edgecolor='black', histtype='step')
 
-                    ax[2][1].hist(Flux_arr0[good], bins=Flux_bins, alpha=0.5,
-                                  weights=wht0[good], align='mid', color='red',
-                                  edgecolor='red', linestyle='solid',
-                                  histtype='stepfilled')
+                    Ng, binsg, _ = ax[2][1].hist(Flux_arr0[good], bins=Flux_bins, alpha=0.5,
+                                                 weights=wht0[good], align='mid', color='red',
+                                                 edgecolor='red', linestyle='solid',
+                                                 histtype='stepfilled')
 
                 ax[2][1].set_xlabel(r'$\log(F_{{\rm H}\alpha})$')
                 ax[2][1].set_ylabel(r'$N$')
                 ax[2][1].set_yscale('log')
                 ax[2][1].set_position([0.591,0.05,0.389,0.265])
 
+                if len(good) > 0:
+                    ax2[s_row][1].scatter(binso[:-1], (Ng-No)/No)
+
                 fig.set_size_inches(8,10)
                 fig.savefig(pp, format='pdf')
+
+                if s_row == 2:
+                    fig2.set_size_inches(8,10)
+                    fig2.savefig(pp2, format='pdf')
+
+                count += 1
             #endfor
         #endfor
 
         pp.close()
+        pp2.close()
