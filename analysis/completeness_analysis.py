@@ -426,7 +426,7 @@ def ew_MC():
         N_interp   = interp1d(npz_slope['mag_arr'][ff], N_mag_mock)
         Ndist_mock = np.int_(np.round(N_interp(NB)))
         NB_MC = np.repeat(NB, Ndist_mock)
-
+        
         # Read in mag vs mass extrapolation
         npz_mass_file = path0 + 'Completeness/mag_vs_mass_'+prefixes[ff]+'.npz'
         npz_mass = np.load(npz_mass_file)
@@ -473,6 +473,13 @@ def ew_MC():
                 ax[0][0].plot(NB, y4, 'b:')
                 ax[0][0].set_xticklabels([])
                 ax[0][0].set_ylabel('cont - NB')
+
+                annot_txt  = r'$\langle\log({\rm EW}_0)\rangle = %.2f$' % logEW_mean[mm] + '\n'
+                annot_txt += r'$\sigma[\log({\rm EW}_0)] = %.2f$' % logEW_sig[ss] + '\n'
+                annot_txt  = r'$N$ = %i' % len(NB_MC)
+                ax[0][0].annotate(annot_txt, [0.05,0.95], va='top',
+                                  ha='left', xycoords='axes fraction')
+
 
                 sig_limit = color_cut(NB_MC, m_NB[ff], cont_lim[ff]) #, sigma=4.0)
                 NB_sel   = np.where((x_MC >= minthres[ff]) &
@@ -527,11 +534,6 @@ def ew_MC():
                                  linewidth=0.25, facecolor='none')
                 ax[1][1].set_xlabel(r'$\log(M_{\star}/M_{\odot})$')
                 ax[1][1].set_ylabel(r'$\log({\rm SFR}({\rm H}\alpha))$')
-
-                annot_txt  = r'$\langle\log({\rm EW}_0)\rangle = %.2f$' % logEW_mean[mm] + '\n'
-                annot_txt += r'$\sigma[\log({\rm EW}_0)] = %.2f$' % logEW_sig[ss] + '\n'
-                ax[0][0].annotate(annot_txt, [0.05,0.95], va='top',
-                                  ha='left', xycoords='axes fraction')
 
                 # Read in EW and fluxes for H-alpha NB emitter sample
                 npz_NB_file = path0 + 'Completeness/ew_flux_Ha-'+filters[ff]+'.npz'
