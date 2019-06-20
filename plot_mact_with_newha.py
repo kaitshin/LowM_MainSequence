@@ -141,15 +141,19 @@ def main():
     ssfrs_with_newha = sfrs_with_newha - mass_with_newha
     for ytype, ydata in zip(['SFR', 'sSFR'], 
         [sfrs_with_newha, ssfrs_with_newha]):
-        print 'making redshift dependent plot (y-axis: '+ytype+')'
+        for fittype in ['first_order', 'second_order']:
+            print('making redshift dependent plot (y-axis: '+
+                ytype+'; '+fittype+' fit)')
 
-        f, ax = plt.subplots()
-        plot_nbia_mainseq.make_redshift_graph(f, ax, nh_z_arr, ydata,
-            mass_with_newha, zspec_with_newha00, filts_with_newha, no_spectra,
-            yes_spectra, nh_cwheel, ffarr=nh_ffarr, llarr=nh_llarr, ytype=ytype)
-        plt.savefig(FULL_PATH+'Plots/NewHa/zdep_mainseq_'+newha_sfr_type+
-            '_'+ytype+'.pdf')
-        plt.close()
+            f, ax = plt.subplots()
+            plot_nbia_mainseq.make_redshift_graph(f, ax, nh_z_arr, ydata,
+                mass_with_newha, zspec_with_newha00, filts_with_newha,
+                no_spectra, yes_spectra, nh_cwheel, ffarr=nh_ffarr,
+                llarr=nh_llarr, ytype=ytype, fittype=fittype)
+
+            plt.savefig(FULL_PATH+'Plots/NewHa/zdep_mainseq_'+newha_sfr_type+
+                '_'+ytype+'_'+fittype+'.pdf')
+            plt.close()
 
 
     print 'making sSFR plot'
