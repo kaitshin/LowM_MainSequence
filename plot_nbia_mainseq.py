@@ -145,7 +145,7 @@ def sSFR_lines(ax, xlim):
              alpha=1, fontsize=9)
 
 
-def modify_graph(ax, labelarr, xlim, ylim, title, i):
+def modify_all_graph(ax, labelarr, xlim, ylim, title, i):
     '''
     Modifies the graph (gives it limits, labels, a title, etc.)
     
@@ -267,7 +267,7 @@ def make_all_graph(stlr_mass, sfr, filtarr, markarr, z_arr, sizearr, title,
     assert np.sum(check_nums)==len(good_sig_iis)
     plot_avg_sfrs(ax, stlr_mass[good_sig_iis], sfr[good_sig_iis])
 
-    modify_graph(ax, labelarr, xlim, ylim, title, i)
+    modify_all_graph(ax, labelarr, xlim, ylim, title, i)
 
 
 def plot_zdep_avg_sfrs(ax, stlr_mass, sfrs, cc):
