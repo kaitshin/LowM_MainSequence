@@ -45,7 +45,8 @@ def whitaker_2014(ax):
 
     ax.plot(xarr1, 0.94 * (xarr1 - 10.2) + 1.11, 'r--', lw=2)
     whitaker, = ax.plot(xarr2, 0.14 * (xarr2 - 10.2) + 1.11, 'r--',
-                         label='Whitaker+14 (0.5<z<1.0)', zorder=6, lw=2)
+        label='Whitaker+14 (0.5<z<1.0)', zorder=6, lw=2)
+
     return whitaker
 
 
@@ -57,9 +58,11 @@ def delosreyes_2015(ax):
     yarr = np.array([0.06, 0.27, 0.43, 0.83, 1.05, 1.18, 1.50, 1.54])
     yerr = np.array([0.454, 0.313, 0.373, 0.329, 0.419, 0.379, 0.337, 0.424])
 
-    ax.errorbar(xarr, yarr, yerr, fmt='deepskyblue', ecolor='deepskyblue', zorder=2) 
+    ax.errorbar(xarr, yarr, yerr, fmt='deepskyblue', ecolor='deepskyblue',
+        zorder=2) 
     delosreyes = ax.scatter(xarr, yarr, color='deepskyblue', marker='s',
-                             label='de los Reyes+15 (z~0.8)', zorder=2)
+        label='de los Reyes+15 (z~0.8)', zorder=2)
+
     return delosreyes
 
 
@@ -69,11 +72,11 @@ def salim_2007(ax):
     '''
     xmin = 8.5
     xmax = 11.2
-
     xarr = np.arange(xmin, xmax+0.01, 0.01)
     
     def salim_line(xarr):
         return (-0.35 * (xarr - 10.0) - 9.83) + xarr
+
     lowlim = salim_line(xarr) - np.array([0.2]*len(xarr))
     uplim = salim_line(xarr) + np.array([0.2]*len(xarr))
 
@@ -81,7 +84,8 @@ def salim_2007(ax):
     ax.plot(xarr, uplim, 'k--', zorder=1, lw=0.5)
     ax.fill_between(xarr, lowlim, uplim, color='gray', alpha=0.4)
     salim, = ax.plot(xarr, salim_line(xarr), 'k-',
-                      label='Salim+07 (z~0)', zorder=1, lw=0.5)
+        label='Salim+07 (z~0)', zorder=1, lw=0.5)
+
     return salim
 
 
@@ -90,13 +94,14 @@ def berg_2012(ax):
     Plots the log(M*)-log(SFR) relation from Berg+12 in green. (ASCII file
     provided by Chun Ly)
     '''
-    berg = asc.read(FULL_PATH+'Main_Sequence/Berg2012_table.clean.txt',guess=False,
-                    Reader=asc.CommentedHeader,delimiter='\t')
+    berg = asc.read(FULL_PATH+'Main_Sequence/Berg2012_table.clean.txt',
+        guess=False, Reader=asc.CommentedHeader, delimiter='\t')
     berg_stlr = np.array(berg['log(M*)'])
     berg_sfr  = np.log10(np.array(berg['SFR']))
 
     berg = ax.scatter(berg_stlr, berg_sfr, color='g', marker='x',
-                        label='Berg+12 (z<0.01)', zorder=4)
+        label='Berg+12 (z<0.01)', zorder=4)
+
     return berg
 
 
@@ -105,49 +110,53 @@ def noeske_2007(ax):
     Plots the data points from Noeske+07 in orange. (ASCII file provided by
     Chun Ly)
     '''
-    noeske = asc.read(FULL_PATH+'Main_Sequence/Noeske07_fig1_z1.txt',guess=False,
-                      Reader=asc.NoHeader)
+    noeske = asc.read(FULL_PATH+'Main_Sequence/Noeske07_fig1_z1.txt',
+        guess=False, Reader=asc.NoHeader)
     logM   = np.array(noeske['col1'])
     logSFR = np.array(noeske['col2'])
     logSFR_low  = np.array(noeske['col3'])
     logSFR_high = np.array(noeske['col4'])
 
     ax.plot(logM, logSFR_low, color='orange', marker='', linestyle='',
-             zorder=1)
+        zorder=1)
     ax.plot(logM, logSFR_high, color='orange', marker='', linestyle='',
-             zorder=1)
+        zorder=1)
     ax.fill_between(logM, logSFR_low, logSFR_high, facecolor='none',
-                     hatch=3*'.', edgecolor='orange', linewidth=0.0,
-                     zorder=1)
-    noeske, = ax.plot(logM, logSFR, color='orange', marker='+', #linestyle='', 
-                       label='Noeske+07 (0.20<z<0.45)',zorder=1, mew=2, markersize=11)
+        hatch=3*'.', edgecolor='orange', linewidth=0.0, zorder=1)
+    noeske, = ax.plot(logM, logSFR, color='orange', marker='+',
+        label='Noeske+07 (0.20<z<0.45)',zorder=1, mew=2, markersize=11)
+
     return noeske
 
 
 def sSFR_lines(ax, xlim):
     '''
-    Creates the three dotted sSFR^-1 lines: 1, 10, and 100 Gyr
+    Creates the four dotted sSFR^-1 lines: 0.1, 1, 10, and 100 Gyr
     '''
     xmin = min(xlim)
     xmax = max(xlim)
     xarr = np.arange(xmin, xmax, 0.01)
-    ax.plot(xarr, xarr - 8, 'k:',zorder=8)#, alpha=.6)
+
+    ax.plot(xarr, xarr - 8, 'k:',zorder=8)
     ax.text(5.85, -1.4, 'sSFR=(0.1 Gyr)'+r'$^{-1}$', rotation=42, color='k',
              alpha=1, fontsize=9)
-    ax.plot(xarr, xarr - 9, 'k:',zorder=8)#, alpha=.6)
+
+    ax.plot(xarr, xarr - 9, 'k:',zorder=8)
     ax.text(5.85, -2.4, 'sSFR=(1.0 Gyr)'+r'$^{-1}$', rotation=42, color='k',
              alpha=1, fontsize=9)
-    ax.plot(xarr, xarr - 10, 'k:')#, alpha=.5)
+
+    ax.plot(xarr, xarr - 10, 'k:')
     ax.text(6.17, -3.04, 'sSFR=(10.0 Gyr)'+r'$^{-1}$', rotation=42, color='k',
              alpha=1, fontsize=9)
-    ax.plot(xarr, xarr - 11, 'k:')#, alpha=.5)
+
+    ax.plot(xarr, xarr - 11, 'k:')
     ax.text(7.15, -3.0, 'sSFR=(100.0 Gyr)'+r'$^{-1}$', rotation=42, color='k',
              alpha=1, fontsize=9)
 
 
 def modify_all_graph(ax, labelarr, xlim, ylim, title, i):
     '''
-    Modifies the graph (gives it limits, labels, a title, etc.)
+    Modifies the 4-panel graph (gives it limits, labels, a title, etc.)
     
     Low mass sources are overlaid with a '+' by calling lowmass().
     
