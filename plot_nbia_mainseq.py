@@ -273,7 +273,8 @@ def plot_zdep_avg_sfrs(ax, stlr_mass, sfrs, cc):
         
         min_per_bin = 5
         if len(bin_match) < min_per_bin:
-            ax.scatter(avg_mass, avg_sfr, edgecolors=cc, facecolors='none', marker='s', alpha=0.4, s=15**2, linewidth=1)
+            ax.scatter(avg_mass, avg_sfr, edgecolors=cc, facecolors='none', marker='s',
+                alpha=0.4, s=15**2, linewidth=1)
         elif len(bin_match) >= min_per_bin:
             ax.plot(avg_mass, avg_sfr, color=cc, marker='s', alpha=0.6, ms=15, mew=0)
         
@@ -281,13 +282,57 @@ def plot_zdep_avg_sfrs(ax, stlr_mass, sfrs, cc):
             xerr=np.array([[avg_mass - (mbins0[i]-0.25)], [(mbins0[i]+0.25) - avg_mass]]))
 
 
+def get_func0_eqn0(fittype):
+    '''
+    '''
+    if fittype=='first_order':
+        eqn0 = r'$log(SFR) = \alpha log(M) + \beta z + \gamma$'
+        def func0(data, a, b, c):
+            return a*data[:,0] + b*data[:,1] + c
+
+    elif fittype=='second_order':
+        eqn0 = r'$log(SFR) = \alpha\' log(M)^2 + \alpha log(M) + \beta z + \gamma$'
+        def func0(data, aprime, a, b, c):
+            return aprime*data[:,0]**2 + a*data[:,0] + b*data[:,1] + c
+
+    else:
+        raise ValueError('invalid fit type')
+
+    return func0, eqn0
+
+
+def modify_redshift_graph(f, ax, fittype, eqn0, params):
+    '''
+    '''
+    ax.set_xlabel('log(M'+r'$_\bigstar$'+'/M'+r'$_{\odot}$'+')', size=14)
+    ax.set_ylabel('log(SFR[H'+r'$\alpha$'+']/M'+r'$_{\odot}$'+' yr'+r'$^{-1}$'+')', size=14)
+    ax.legend(loc='upper left', fontsize=14, frameon=False)
+
+    if fittype=='first_order':
+        ax.text(0.50,0.12,eqn0+
+            '\n'+r'$\alpha=$'+'%.2f'%(params[0])+', '+r'$\beta=$'+'%.2f'%(params[1])+
+            ', '+r'$\gamma=$'+'%.2f'%(params[2]),
+                 transform=ax.transAxes,fontsize=15,ha='left',va='top')
+
+    elif fittype=='second_order':
+        ax.text(0.50,0.12,eqn0+
+            '\n'+r'$\alpha\'=$'+'%.2f'%(params[0])+', '+r'$\alpha=$'+'%.2f'%(params[1])+
+            ', '+r'$\beta=$'+'%.2f'%(params[2])+', '+r'$\gamma=$'+'%.2f'%(params[3]),
+                 transform=ax.transAxes,fontsize=15,ha='left',va='top')
+
+    else:
+        raise ValueError('invalid fit type')
+
+    [a.tick_params(axis='both', labelsize='10', which='both', direction='in') for a in f.axes[:]]
+    f.set_size_inches(7,6)
+
+
 def make_redshift_graph(f, ax, z_arr, corr_sfrs, stlr_mass, zspec0, filts, good_sig_iis, cwheel,
-    ffarr=['NB7', 'NB816', 'NB921', 'NB973'], llarr=['NB704,NB711', 'NB816', 'NB921', 'NB973']):
+    ffarr=['NB7', 'NB816', 'NB921', 'NB973'], llarr=['NB704,NB711', 'NB816', 'NB921', 'NB973'],
+    fittype='first_order'):
     '''
     '''
-    eqn0 = r'$log(SFR) = \alpha log(M) + \beta z + \gamma$'
-    def func0(data, a, b, c):
-        return a*data[:,0] + b*data[:,1] + c
+    func0, eqn0 = get_func0_eqn0(fittype)
 
     # getting relevant data in a good format
     sfrs00 = corr_sfrs[good_sig_iis]
@@ -344,14 +389,7 @@ def make_redshift_graph(f, ax, z_arr, corr_sfrs, stlr_mass, zspec0, filts, good_
 
         plot_zdep_avg_sfrs(ax, smass0[filt_match], sfrs00[filt_match], cc)
 
-    ax.set_xlabel('log(M'+r'$_\bigstar$'+'/M'+r'$_{\odot}$'+')', size=14)
-    ax.set_ylabel('log(SFR[H'+r'$\alpha$'+']/M'+r'$_{\odot}$'+' yr'+r'$^{-1}$'+')', size=14)
-    ax.legend(loc='upper left', fontsize=14, frameon=False)
-    ax.text(0.50,0.12,eqn0+
-        '\n'+r'$\alpha=$'+'%.2f'%(params[0])+', '+r'$\beta=$'+'%.2f'%(params[1])+', '+r'$\gamma=$'+'%.2f'%(params[2]),
-             transform=ax.transAxes,fontsize=15,ha='left',va='top')
-    [a.tick_params(axis='both', labelsize='10', which='both', direction='in') for a in f.axes[:]]
-    f.set_size_inches(7,6)
+    modify_redshift_graph(f, ax, fittype, eqn0, params)
 
 
 def bestfit_zssfr(ax, tmpzarr0, tmpsarr0):
