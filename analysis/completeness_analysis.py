@@ -476,7 +476,7 @@ def ew_MC():
 
                 annot_txt  = r'$\langle\log({\rm EW}_0)\rangle = %.2f$' % logEW_mean[mm] + '\n'
                 annot_txt += r'$\sigma[\log({\rm EW}_0)] = %.2f$' % logEW_sig[ss] + '\n'
-                annot_txt  = r'$N$ = %i' % len(NB_MC)
+                annot_txt += r'$N$ = %i' % len(NB_MC)
                 ax[0][0].annotate(annot_txt, [0.05,0.95], va='top',
                                   ha='left', xycoords='axes fraction')
 
@@ -589,6 +589,7 @@ def ew_MC():
                                 framealpha=0.75)
                 ax[2][0].set_xlabel(r'$\log({\rm EW}/\AA)$')
                 ax[2][0].set_ylabel(r'$N$')
+                ax[2][0].set_yscale('log')
                 ax[2][0].set_position([0.105,0.05,0.389,0.265])
 
 
