@@ -337,7 +337,7 @@ def modify_redshift_graph(f, ax, fittype, eqn0, params):
     else:
         raise ValueError('invalid fit type')
 
-    [a.tick_params(axis='both', labelsize='10', which='both', direction='in') \
+    [a.tick_params(axis='both', labelsize='10', which='both', direction='in')
         for a in f.axes[:]]
     f.set_size_inches(7,6)
 
@@ -350,6 +350,7 @@ def make_redshift_graph(f, ax, z_arr, corr_sfrs, stlr_mass, zspec0, filts,
     func0, eqn0 = get_func0_eqn0(fittype)
 
     # getting relevant data in a good format
+    ffs = filts[good_sig_iis]
     sfrs00 = corr_sfrs[good_sig_iis]
     smass0 = stlr_mass[good_sig_iis]
     zspec0 = zspec0[good_sig_iis]
@@ -357,19 +358,21 @@ def make_redshift_graph(f, ax, z_arr, corr_sfrs, stlr_mass, zspec0, filts,
     yes_spectra = np.where((zspec0 >= 0) & (zspec0 < 9))[0]
 
     centr_filts = {'NB7':((7045.0/HA - 1) + (7126.0/HA - 1))/2.0, 
-                   'NB816':8152.0/HA - 1, 'NB921':9193.0/HA - 1, 'NB973':9749.0/HA - 1,
-                   'NEWHA':0.8031674}
+        'NB816':8152.0/HA - 1, 'NB921':9193.0/HA - 1, 'NB973':9749.0/HA - 1,
+        'NEWHA':0.8031674}
 
 
     # for obtaining the best-fit line params
     badz_iis = np.array([x for x in range(len(zspec0)) if zspec0[x] < 0 or zspec0[x] > 9])
     filt_lambda_list = {'NB704':7045.0, 'NB711':7126.0, 'NB816':8152.0, 'NB921':9193.0, 'NB973':9749.0}
-    ffs = filts[good_sig_iis]
     for ff in filt_lambda_list.keys():
         badf_match = np.where(ffs[badz_iis] == ff)[0]
         zspec0[badz_iis[badf_match]] = (filt_lambda_list[ff]/HA) - 1
     
     data00 = np.vstack([smass0, zspec0]).T
+
+    # ----- no longer need good_sig_iis
+
     params, pcov = optimize.curve_fit(func0, data00, sfrs00, method='lm')
     perr = np.sqrt(np.diag(pcov))
 
@@ -453,7 +456,7 @@ def make_ssfr_graph(f, axes, sfrs00, smass0, filts00, zspec00, cwheel, z_arr,
     axes[0].set_ylim(ymax=-6.9)
     bestfit_zssfr(axes[1], tmpzarr0, tmpsarr0)
     f.subplots_adjust(wspace=0.01)
-    [a.tick_params(axis='both', labelsize='10', which='both', direction='in') \
+    [a.tick_params(axis='both', labelsize='10', which='both', direction='in')
         for a in f.axes[:]]
     f.set_size_inches(16,6)
 
@@ -535,6 +538,14 @@ def main():
     # redshift dependent plot
     f, ax = plt.subplots()
     corr_sfrs = sfr+filt_corr_factor+nii_ha_corr_factor+dust_corr_factor
+
+    # variable00 means we've down-selected to good_sig_iis only
+    # TODO: make this consistent across all plotting types...
+    sfrs00 = corr_sfrs[good_sig_iis]
+    smass00 = stlr_mass[good_sig_iis]
+    filts00 = filts[good_sig_iis]
+    zspec00 = zspec0[good_sig_iis]
+
     make_redshift_graph(f, ax, z_arr, corr_sfrs, stlr_mass, zspec0, filts, good_sig_iis, cwheel)
     plt.subplots_adjust(hspace=0.01, wspace=0.01, right=0.99, top=0.98, left=0.1, bottom=0.09)
     plt.savefig(FULL_PATH+'Plots/main_sequence/zdep_mainseq.pdf')
@@ -542,8 +553,8 @@ def main():
 
     print 'making sSFR plot now'
     f, axes = plt.subplots(1,2, sharey=True)
-    sfrs00 = corr_sfrs[good_sig_iis]
-    smass0 = corr_tbl['stlr_mass'][good_sig_iis].data
+    # sfrs00 = corr_sfrs[good_sig_iis]
+    # smass0 = corr_tbl['stlr_mass'][good_sig_iis].data
     filts00 = corr_tbl['filt'][good_sig_iis].data
     zspec00 = corr_tbl['zspec0'][good_sig_iis].data
     no_spectra  = np.where((zspec00 <= 0) | (zspec00 > 9))[0]
