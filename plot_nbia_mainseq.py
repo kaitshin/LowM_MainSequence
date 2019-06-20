@@ -354,13 +354,6 @@ def make_redshift_graph(f, ax, z_arr, corr_sfrs, stlr_mass, zspec0, filts,
         'NEWHA':0.8031674}
 
 
-    # for obtaining the best-fit line params
-    badz_iis = np.array([x for x in range(len(zspec0)) if zspec0[x] < 0 or zspec0[x] > 9])
-    filt_lambda_list = {'NB704':7045.0, 'NB711':7126.0, 'NB816':8152.0, 'NB921':9193.0, 'NB973':9749.0}
-    for ff in filt_lambda_list.keys():
-        badf_match = np.where(filts[badz_iis] == ff)[0]
-        zspec0[badz_iis[badf_match]] = (filt_lambda_list[ff]/HA) - 1
-    
     data00 = np.vstack([stlr_mass, zspec0]).T
 
     params, pcov = optimize.curve_fit(func0, data00, corr_sfrs, method='lm')
@@ -460,6 +453,28 @@ def get_z_arr():
     return z_arr
 
 
+def approximated_zspec0(zspec0, filts):
+    '''
+    modifying zspec0 such that all invalid zspec vals are replaced by
+    approximate values from the filters
+
+    this is for obtaining the best-fit line params for 
+    make_redshift_graph() and make_ssfr_graph()
+    '''
+    zspec00 = np.copy(zspec0)
+
+    badz_iis = np.array([x for x in range(len(zspec00)) if zspec00[x] < 0
+        or zspec00[x] > 9])
+    filt_lambda_list = {'NB704':7045.0, 'NB711':7126.0, 'NB816':8152.0,
+        'NB921':9193.0, 'NB973':9749.0}
+
+    for ff in filt_lambda_list.keys():
+        badf_match = np.where(filts[badz_iis] == ff)[0]
+        zspec00[badz_iis[badf_match]] = (filt_lambda_list[ff]/HA) - 1
+
+    return zspec00
+
+
 def main():
     '''
     '''
@@ -530,11 +545,14 @@ def main():
         plt.close()
 
 
+    # for obtaining the best-fit line params
+    zspec00 = approximated_zspec0(zspec0, filts)
+
     print 'making redshift dependent plot now'
     f, ax = plt.subplots()
     corr_sfrs = sfr+filt_corr_factor+nii_ha_corr_factor+dust_corr_factor
 
-    make_redshift_graph(f, ax, z_arr, corr_sfrs, stlr_mass, zspec0, filts,
+    make_redshift_graph(f, ax, z_arr, corr_sfrs, stlr_mass, zspec00, filts,
         no_spectra, yes_spectra, cwheel)
     plt.subplots_adjust(hspace=0.01, wspace=0.01, right=0.99, top=0.98, left=0.1, bottom=0.09)
     plt.savefig(FULL_PATH+'Plots/main_sequence/zdep_mainseq.pdf')
@@ -543,20 +561,7 @@ def main():
 
     print 'making sSFR plot now'
     f, axes = plt.subplots(1,2, sharey=True)
-    sfrs00 = corr_sfrs[good_sig_iis]
-    smass0 = corr_tbl['stlr_mass'][good_sig_iis].data
-    filts00 = corr_tbl['filt'][good_sig_iis].data
-    zspec00 = corr_tbl['zspec0'][good_sig_iis].data
-    no_spectra  = np.where((zspec00 <= 0) | (zspec00 > 9))[0]
-    yes_spectra = np.where((zspec00 >= 0) & (zspec00 < 9))[0]
-    badz_iis = np.array([x for x in range(len(zspec00)) if zspec00[x] < 0 or zspec00[x] > 9])
-    filt_lambda_list = {'NB704':7045.0, 'NB711':7126.0, 'NB816':8152.0, 'NB921':9193.0, 'NB973':9749.0}
-    ffs = filts[good_sig_iis]
-    for ff in filt_lambda_list.keys():
-        badf_match = np.where(ffs[badz_iis] == ff)[0]
-        zspec00[badz_iis[badf_match]] = (filt_lambda_list[ff]/HA) - 1
-
-    make_ssfr_graph(f, axes, sfrs00, smass0, filts00, zspec00, cwheel, z_arr)
+    make_ssfr_graph(f, axes, corr_sfrs, stlr_mass, filts, zspec00, cwheel, z_arr)
     plt.subplots_adjust(right=0.99, top=0.98, left=0.05, bottom=0.09)
     plt.savefig(FULL_PATH+'Plots/main_sequence/mainseq_sSFRs.pdf')
 
