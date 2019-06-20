@@ -233,6 +233,12 @@ def plot_avg_sfrs(ax, stlr_mass, sfrs):
 
 def get_filt_index(spectra, ff, filts):
     '''
+    returns the indexes at which the sources are in the filter
+    (and handles the special case of 'NB704+NB711')
+
+    compatible with both spectra == no_spectra and spectra == yes_spectra
+
+    called in make_all_graph() and make_redshift_graph()
     '''
     if 'NB7' in ff:
         filt_index = np.array([x for x in range(len(spectra)) if
