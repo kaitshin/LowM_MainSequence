@@ -226,11 +226,11 @@ def get_filt_index(spectra, ff, filts, good_sig_iis):
     '''
     '''
     if 'NB7' in ff:
-        filt_index = np.array([x for x in range(len(spectra)) if ff[:3] in filts[spectra][x]
-            and spectra[x] in good_sig_iis])
+        filt_index = np.array([x for x in range(len(spectra)) if
+            ff[:3] in filts[spectra][x] and spectra[x] in good_sig_iis])
     else:
-        filt_index = np.array([x for x in range(len(spectra)) if ff==filts[spectra][x]
-            and spectra[x] in good_sig_iis])
+        filt_index = np.array([x for x in range(len(spectra)) if
+            ff==filts[spectra][x] and spectra[x] in good_sig_iis])
 
     return filt_index
 
@@ -253,14 +253,14 @@ def make_all_graph(stlr_mass, sfr, filtarr, markarr, z_arr, sizearr, title,
         check_nums.append(len(filt_index_y)+len(filt_index_n))
 
         temp = ax.scatter(stlr_mass[yes_spectra][filt_index_y],
-                       sfr[yes_spectra][filt_index_y], marker=mark,
-                       facecolors=color, edgecolors='none', alpha=0.2,
-                       zorder=3, label='z~'+np.str(avg_z)+' ('+ff+')', s=size)
+            sfr[yes_spectra][filt_index_y], marker=mark,
+            facecolors=color, edgecolors='none', alpha=0.2, zorder=3, s=size,
+            label='z~'+np.str(avg_z)+' ('+ff+')')
 
-        ax.scatter(stlr_mass[no_spectra][filt_index_n], 
-                        sfr[no_spectra][filt_index_n],
-                        marker=mark, facecolors='none', edgecolors=color, alpha=0.2, 
-                        linewidth=0.5, zorder=3, label='z~'+np.str(avg_z)+' ('+ff+')', s=size)
+        ax.scatter(stlr_mass[no_spectra][filt_index_n],
+            sfr[no_spectra][filt_index_n], marker=mark,
+            facecolors='none', edgecolors=color, alpha=0.2, linewidth=0.5,
+            zorder=3, s=size, label='z~'+np.str(avg_z)+' ('+ff+')')
         
         labelarr = np.append(labelarr, temp)
     #endfor
@@ -317,31 +317,34 @@ def modify_redshift_graph(f, ax, fittype, eqn0, params):
     '''
     '''
     ax.set_xlabel('log(M'+r'$_\bigstar$'+'/M'+r'$_{\odot}$'+')', size=14)
-    ax.set_ylabel('log(SFR[H'+r'$\alpha$'+']/M'+r'$_{\odot}$'+' yr'+r'$^{-1}$'+')', size=14)
+    ax.set_ylabel('log(SFR[H'+r'$\alpha$'+']/M'+r'$_{\odot}$'+
+        ' yr'+r'$^{-1}$'+')', size=14)
     ax.legend(loc='upper left', fontsize=14, frameon=False)
 
     if fittype=='first_order':
         ax.text(0.50,0.12,eqn0+
-            '\n'+r'$\alpha=$'+'%.2f'%(params[0])+', '+r'$\beta=$'+'%.2f'%(params[1])+
-            ', '+r'$\gamma=$'+'%.2f'%(params[2]),
-                 transform=ax.transAxes,fontsize=15,ha='left',va='top')
+            '\n'+r'$\alpha=$'+'%.2f'%(params[0])+', '+r'$\beta=$'+
+            '%.2f'%(params[1])+', '+r'$\gamma=$'+'%.2f'%(params[2]),
+            transform=ax.transAxes, fontsize=15, ha='left', va='top')
 
     elif fittype=='second_order':
         ax.text(0.50,0.12,eqn0+
-            '\n'+r'$\alpha\'=$'+'%.2f'%(params[0])+', '+r'$\alpha=$'+'%.2f'%(params[1])+
-            ', '+r'$\beta=$'+'%.2f'%(params[2])+', '+r'$\gamma=$'+'%.2f'%(params[3]),
-                 transform=ax.transAxes,fontsize=15,ha='left',va='top')
+            '\n'+r'$\alpha\'=$'+'%.2f'%(params[0])+', '+r'$\alpha=$'+
+            '%.2f'%(params[1])+', '+r'$\beta=$'+'%.2f'%(params[2])+
+            ', '+r'$\gamma=$'+'%.2f'%(params[3]),
+            transform=ax.transAxes,fontsize=15, ha='left', va='top')
 
     else:
         raise ValueError('invalid fit type')
 
-    [a.tick_params(axis='both', labelsize='10', which='both', direction='in') for a in f.axes[:]]
+    [a.tick_params(axis='both', labelsize='10', which='both', direction='in') \
+        for a in f.axes[:]]
     f.set_size_inches(7,6)
 
 
-def make_redshift_graph(f, ax, z_arr, corr_sfrs, stlr_mass, zspec0, filts, good_sig_iis, cwheel,
-    ffarr=['NB7', 'NB816', 'NB921', 'NB973'], llarr=['NB704,NB711', 'NB816', 'NB921', 'NB973'],
-    fittype='first_order'):
+def make_redshift_graph(f, ax, z_arr, corr_sfrs, stlr_mass, zspec0, filts,
+    good_sig_iis, cwheel, ffarr=['NB7', 'NB816', 'NB921', 'NB973'],
+    llarr=['NB704,NB711', 'NB816', 'NB921', 'NB973'], fittype='first_order'):
     '''
     '''
     func0, eqn0 = get_func0_eqn0(fittype)
@@ -371,8 +374,6 @@ def make_redshift_graph(f, ax, z_arr, corr_sfrs, stlr_mass, zspec0, filts, good_
     perr = np.sqrt(np.diag(pcov))
 
 
-    # ffarr = ['NB7', 'NB816', 'NB921', 'NB973']
-    # llarr = ['NB704,NB711', 'NB816', 'NB921', 'NB973']
     for ff,cc,ll,zz in zip(ffarr[::-1], cwheel[::-1], llarr[::-1], z_arr[::-1]):
         if 'NB7' in ff:
             filt_index_n = np.array([x for x in range(len(no_spectra)) if ff[:3] in ffs[no_spectra][x]])
@@ -411,25 +412,30 @@ def bestfit_zssfr(ax, tmpzarr0, tmpsarr0):
         return m*x + b
     tempparams, temppcov = optimize.curve_fit(line, tmpzarr0, tmpsarr0)
     print 'sSFR a*log(1+z)+b params:', tempparams
+
     stp = 0.02
     xrange_tmp = np.arange(min(tmpzarr0)-stp, max(tmpzarr0)+2*stp, stp)
     ax.plot(xrange_tmp,  line(xrange_tmp, *tempparams), 'k--')
 
 
 def make_ssfr_graph(f, axes, sfrs00, smass0, filts00, zspec00, cwheel, z_arr,
-    ffarr=['NB7', 'NB816', 'NB921', 'NB973'], llarr=['NB704,NB711', 'NB816', 'NB921', 'NB973']):
+    ffarr=['NB7', 'NB816', 'NB921', 'NB973'],
+    llarr=['NB704,NB711', 'NB816', 'NB921', 'NB973']):
     '''
     '''
     ssfr = sfrs00-smass0
     tmpzarr0, tmpsarr0 = [], []
     for i, ax in enumerate(axes):
         for ff,cc,ll,zz in zip(ffarr, cwheel, llarr, z_arr):
-            filt_match = np.array([x for x in range(len(filts00)) if ff in filts00[x]])
+            filt_match = np.array([x for x in range(len(filts00)) if
+                ff in filts00[x]])
             
             if i==0:
-                ax.scatter(smass0[filt_match], ssfr[filt_match], 
-                           facecolors='none', edgecolors=cc, linewidth=0.5, label='z~'+zz+' ('+ll+')')
-                ax.set_xlabel('log(M'+r'$_\bigstar$'+'/M'+r'$_{\odot}$'+')', size=14)
+                ax.scatter(smass0[filt_match], ssfr[filt_match],
+                    facecolors='none', edgecolors=cc, linewidth=0.5,
+                    label='z~'+zz+' ('+ll+')')
+                ax.set_xlabel('log(M'+r'$_\bigstar$'+'/M'+r'$_{\odot}$'+')',
+                    size=14)
                 ax.set_ylabel(r'sSFR', size=14)
             else: #i==1
                 # ax.scatter(zspec00[filt_match], ssfr[filt_match],
@@ -447,7 +453,8 @@ def make_ssfr_graph(f, axes, sfrs00, smass0, filts00, zspec00, cwheel, z_arr,
     axes[0].set_ylim(ymax=-6.9)
     bestfit_zssfr(axes[1], tmpzarr0, tmpsarr0)
     f.subplots_adjust(wspace=0.01)
-    [a.tick_params(axis='both', labelsize='10', which='both', direction='in') for a in f.axes[:]]
+    [a.tick_params(axis='both', labelsize='10', which='both', direction='in') \
+        for a in f.axes[:]]
     f.set_size_inches(16,6)
 
 
@@ -455,8 +462,8 @@ def main():
     '''
     '''
     # reading in data generated by EBV_corrections.py
-    corr_tbl = asc.read(FULL_PATH+'Main_Sequence/mainseq_corrections_tbl.txt',guess=False,
-                    Reader=asc.FixedWidthTwoLine)
+    corr_tbl = asc.read(FULL_PATH+'Main_Sequence/mainseq_corrections_tbl.txt',
+        guess=False, Reader=asc.FixedWidthTwoLine)
     zspec0 = np.array(corr_tbl['zspec0'])
     no_spectra  = np.where((zspec0 <= 0) | (zspec0 > 9))[0]
     yes_spectra = np.where((zspec0 >= 0) & (zspec0 < 9))[0]
@@ -483,39 +490,46 @@ def main():
     z_arr  = np.array([x+'0' if len(x)==3 else x for x in z_arr])
 
     # defining a flux sigma and mass cutoff
-    good_sig_iis = np.where((corr_tbl['flux_sigma'] >= CUTOFF_SIGMA) & (stlr_mass >= CUTOFF_MASS))[0]
+    good_sig_iis = np.where((corr_tbl['flux_sigma'] >= CUTOFF_SIGMA) & 
+        (stlr_mass >= CUTOFF_MASS))[0]
 
     f_all, ax_all = plt.subplots(2,2)
     axarr = np.ndarray.flatten(ax_all)
     f_all.set_size_inches(14,14)
-    for title, corrs, ax, i in zip(['(a) Observed', '(b) Filter-corrected', 
-                             '(c) Filter+[N II]', '(d) Filter+[N II]+Dust Attenuation'], 
-                            [np.zeros(len(corr_tbl)), filt_corr_factor, filt_corr_factor+nii_ha_corr_factor, 
-                             filt_corr_factor+nii_ha_corr_factor+dust_corr_factor], axarr, range(4)):
+    for title, corrs, ax, i in zip(['(a) Observed', '(b) Filter-corrected',
+        '(c) Filter+[N II]', '(d) Filter+[N II]+Dust Attenuation'], 
+        [np.zeros(len(corr_tbl)), filt_corr_factor, 
+            filt_corr_factor+nii_ha_corr_factor,
+            filt_corr_factor+nii_ha_corr_factor+dust_corr_factor],
+        axarr, range(4)):
+        
         #  should pass in e.g., "sfr + corrs" to plot applied corrs
-        make_all_graph(stlr_mass, sfr+corrs, filtarr, markarr, z_arr, sizearr, title, 
-            no_spectra, yes_spectra, filts, good_sig_iis, ax, i)
+        make_all_graph(stlr_mass, sfr+corrs, filtarr, markarr, z_arr, sizearr,
+            title, no_spectra, yes_spectra, filts, good_sig_iis, ax, i)
         print 'done plotting', title
 
-    [a.tick_params(axis='both', labelsize='10', which='both', direction='in') for a in f_all.axes[:]]
-    plt.subplots_adjust(hspace=0.01, wspace=0.01, left=0.04, right=0.99, top=0.99, bottom=0.04)
+    [a.tick_params(axis='both', labelsize='10', which='both', direction='in')
+        for a in f_all.axes[:]]
+    plt.subplots_adjust(hspace=0.01, wspace=0.01, left=0.04, right=0.99,
+        top=0.99, bottom=0.04)
     plt.savefig(FULL_PATH+'Plots/main_sequence/mainseq.pdf')
     plt.close()
 
     if mainseq_fig4_only:
         i=5
         f, ax = plt.subplots()
-        make_all_graph(stlr_mass, sfr+corrs, filtarr, markarr, z_arr, sizearr, title, 
-            no_spectra, yes_spectra, filts, good_sig_iis, ax, i)
-        ax.tick_params(axis='both', labelsize='10', which='both', direction='in')
+        make_all_graph(stlr_mass, sfr+corrs, filtarr, markarr, z_arr, sizearr,
+            title, no_spectra, yes_spectra, filts, good_sig_iis, ax, i)
+        ax.tick_params(axis='both', labelsize='10', which='both',
+            direction='in')
         f.set_size_inches(8,8)
         plt.tight_layout()
         plt.savefig(FULL_PATH+'Plots/main_sequence/mainseq_allcorrs.pdf')
         plt.close()
 
     # getting colorwheel
-    cwheel = [np.array(mpl.rcParams['axes.prop_cycle'])[x]['color'] for x in range(4)]
-    # cwheel = [cwheel[3], cwheel[1], cwheel[2], cwheel[0]]
+    cwheel = [np.array(mpl.rcParams['axes.prop_cycle'])[x]['color']
+        for x in range(4)]
 
     print 'making redshift dependent plot now'
     # redshift dependent plot
