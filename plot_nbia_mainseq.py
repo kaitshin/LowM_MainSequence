@@ -317,7 +317,7 @@ def get_func0_eqn0(fittype):
             return a*data[:,0] + b*data[:,1] + c
 
     elif fittype=='second_order':
-        eqn0 = r'$log(SFR) = \alpha\' log(M)^2 + \alpha log(M) + \beta z + \gamma$'
+        eqn0 = r'$log(SFR) = \alpha ^l log(M)^2 + \alpha log(M) + \beta z + \gamma$'
         def func0(data, aprime, a, b, c):
             return aprime*data[:,0]**2 + a*data[:,0] + b*data[:,1] + c
 
@@ -327,38 +327,54 @@ def get_func0_eqn0(fittype):
     return func0, eqn0
 
 
-def modify_redshift_graph(f, ax, fittype, eqn0, params):
+def modify_redshift_graph(f, ax, fittype, eqn0, params, ytype, withnewha):
     '''
     '''
     ax.set_xlabel('log(M'+r'$_\bigstar$'+'/M'+r'$_{\odot}$'+')', size=14)
-    ax.set_ylabel('log(SFR[H'+r'$\alpha$'+']/M'+r'$_{\odot}$'+
-        ' yr'+r'$^{-1}$'+')', size=14)
-    ax.legend(loc='upper left', fontsize=14, frameon=False)
+    if withnewha:
+        xpos = 0.40
+    else:
+        xpos = 0.50
+    ypos = 0.12
+
+    if ytype == 'SFR':
+        ax.legend(loc='upper left', fontsize=14, frameon=False)
+        ax.set_ylabel('log(SFR[H'+r'$\alpha$'+']/M'+r'$_{\odot}$'+
+            ' yr'+r'$^{-1}$'+')', size=14)
+    elif ytype == 'sSFR':
+        xpos = 0.02
+        ax.legend(loc='upper right', fontsize=14, frameon=False)
+        ax.set_ylabel('log(sSFR[H'+r'$\alpha$'+']'+
+            ' yr'+r'$^{-1}$'+')', size=14)
+    else:
+        raise ValueError('invalid ytype')
 
     if fittype=='first_order':
-        ax.text(0.50,0.12,eqn0+
+        ax.text(xpos, ypos, eqn0+
             '\n'+r'$\alpha=$'+'%.2f'%(params[0])+', '+r'$\beta=$'+
             '%.2f'%(params[1])+', '+r'$\gamma=$'+'%.2f'%(params[2]),
             transform=ax.transAxes, fontsize=15, ha='left', va='top')
-
     elif fittype=='second_order':
-        ax.text(0.50,0.12,eqn0+
-            '\n'+r'$\alpha\'=$'+'%.2f'%(params[0])+', '+r'$\alpha=$'+
+        ax.text(xpos, ypos, eqn0+
+            '\n'+r'$\alpha ^l =$'+'%.2f'%(params[0])+', '+r'$\alpha=$'+
             '%.2f'%(params[1])+', '+r'$\beta=$'+'%.2f'%(params[2])+
             ', '+r'$\gamma=$'+'%.2f'%(params[3]),
-            transform=ax.transAxes,fontsize=15, ha='left', va='top')
-
+            transform=ax.transAxes, fontsize=15, ha='left', va='top')
     else:
         raise ValueError('invalid fit type')
 
     [a.tick_params(axis='both', labelsize='10', which='both', direction='in')
         for a in f.axes[:]]
-    f.set_size_inches(7,6)
+    if withnewha:
+        f.set_size_inches(10,8)
+    else:
+        f.set_size_inches(7,6)
 
 
 def make_redshift_graph(f, ax, z_arr, corr_sfrs, stlr_mass, zspec0, filts,
     no_spectra, yes_spectra, cwheel, ffarr=['NB7', 'NB816', 'NB921', 'NB973'],
-    llarr=['NB704,NB711', 'NB816', 'NB921', 'NB973'], fittype='first_order'):
+    llarr=['NB704,NB711', 'NB816', 'NB921', 'NB973'], ytype='SFR',
+    fittype='first_order', withnewha=False):
     '''
     '''
     func0, eqn0 = get_func0_eqn0(fittype)
@@ -374,31 +390,33 @@ def make_redshift_graph(f, ax, z_arr, corr_sfrs, stlr_mass, zspec0, filts,
     perr = np.sqrt(np.diag(pcov))
 
 
-    for ff,cc,ll,zz in zip(ffarr[::-1], cwheel[::-1], llarr[::-1], z_arr[::-1]):
+    for ff, cc, ll, zz in zip(ffarr[::-1], cwheel[::-1],
+        llarr[::-1], z_arr[::-1]):
+
         filt_index_n = get_filt_index(no_spectra, ff, filts)
         filt_index_y = get_filt_index(yes_spectra, ff, filts)
 
-            # if ff=='NEWHA': print filt_index_y, filt_index_n
-
         # scattering
-        ax.scatter(stlr_mass[yes_spectra][filt_index_y], corr_sfrs[yes_spectra][filt_index_y],
-            facecolors=cc, edgecolors='none', alpha=0.3,
-            zorder=3, label='z~'+zz+' ('+ll+')')
+        ax.scatter(stlr_mass[yes_spectra][filt_index_y],
+            corr_sfrs[yes_spectra][filt_index_y], facecolors=cc,
+            edgecolors='none', alpha=0.3, zorder=3, label='z~'+zz+' ('+ll+')')
         if ff != 'NEWHA':
-            ax.scatter(stlr_mass[no_spectra][filt_index_n], corr_sfrs[no_spectra][filt_index_n],
-                facecolors='none', edgecolors=cc, alpha=0.3, 
-                linewidth=0.5, zorder=3)
+            ax.scatter(stlr_mass[no_spectra][filt_index_n],
+                corr_sfrs[no_spectra][filt_index_n], facecolors='none',
+                edgecolors=cc, alpha=0.3, linewidth=0.5, zorder=3)
 
         # plotting the best-fit lines
         filt_match = np.array([x for x in range(len(filts)) if ff in filts[x]])
-        mrange = np.arange(min(stlr_mass[filt_match]), max(stlr_mass[filt_match]), 0.1)
+        mrange = np.arange(min(stlr_mass[filt_match]),
+            max(stlr_mass[filt_match]), 0.1)
         avgz = np.array([centr_filts[ff]]*len(mrange))
         tmpdata = np.vstack([mrange, avgz]).T
         ax.plot(mrange, func0(tmpdata, *params), color=cc, lw=2)
 
-        plot_zdep_avg_sfrs(ax, stlr_mass[filt_match], corr_sfrs[filt_match], cc)
+        plot_zdep_avg_sfrs(ax, stlr_mass[filt_match], corr_sfrs[filt_match],
+            cc)
 
-    modify_redshift_graph(f, ax, fittype, eqn0, params)
+    modify_redshift_graph(f, ax, fittype, eqn0, params, ytype, withnewha)
 
 
 def bestfit_zssfr(ax, tmpzarr0, tmpsarr0):
@@ -432,7 +450,8 @@ def make_ssfr_graph(f, axes, sfrs00, smass0, filts00, zspec00, cwheel, z_arr,
                     label='z~'+zz+' ('+ll+')')
                 ax.set_xlabel('log(M'+r'$_\bigstar$'+'/M'+r'$_{\odot}$'+')',
                     size=14)
-                ax.set_ylabel(r'sSFR', size=14)
+                ax.set_ylabel('log(sSFR[H'+r'$\alpha$'+']'+' yr'+
+                    r'$^{-1}$'+')', size=14)
             else: #i==1
                 # ax.scatter(zspec00[filt_match], ssfr[filt_match],
                 #            facecolors='none', edgecolors=cc, linewidth=0.5)
@@ -569,7 +588,8 @@ def main():
 
     make_redshift_graph(f, ax, z_arr, corr_sfrs, stlr_mass, zspec00, filts,
         no_spectra, yes_spectra, cwheel)
-    plt.subplots_adjust(hspace=0.01, wspace=0.01, right=0.99, top=0.98, left=0.1, bottom=0.09)
+    plt.subplots_adjust(hspace=0.01, wspace=0.01, right=0.99, top=0.98,
+        left=0.1, bottom=0.09)
     plt.savefig(FULL_PATH+'Plots/main_sequence/zdep_mainseq.pdf')
     plt.close()
 

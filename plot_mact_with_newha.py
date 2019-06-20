@@ -149,7 +149,7 @@ def main():
             plot_nbia_mainseq.make_redshift_graph(f, ax, nh_z_arr, ydata,
                 mass_with_newha, zspec_with_newha00, filts_with_newha,
                 no_spectra, yes_spectra, nh_cwheel, ffarr=nh_ffarr,
-                llarr=nh_llarr, ytype=ytype, fittype=fittype)
+                llarr=nh_llarr, ytype=ytype, fittype=fittype, withnewha=True)
 
             plt.savefig(FULL_PATH+'Plots/NewHa/zdep_mainseq_'+newha_sfr_type+
                 '_'+ytype+'_'+fittype+'.pdf')
