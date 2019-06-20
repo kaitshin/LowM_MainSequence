@@ -612,6 +612,7 @@ def ew_MC():
 
                 ax[2][1].set_xlabel(r'$\log(F_{{\rm H}\alpha})$')
                 ax[2][1].set_ylabel(r'$N$')
+                ax[2][1].set_yscale('log')
                 ax[2][1].set_position([0.591,0.05,0.389,0.265])
 
                 fig.set_size_inches(8,10)
