@@ -163,27 +163,29 @@ def modify_graph(ax, labelarr, xlim, ylim, title, i):
     if i>1:
         ax.set_xlabel('log(M'+r'$_\bigstar$'+'/M'+r'$_{\odot}$'+')', size=14)
     if i%2==0 or i==5:
-        ax.set_ylabel('log(SFR[H'+r'$\alpha$'+']/M'+r'$_{\odot}$'+' yr'+r'$^{-1}$'+')', size=14)
+        ax.set_ylabel('log(SFR[H'+r'$\alpha$'+']/M'+r'$_{\odot}$'+
+            ' yr'+r'$^{-1}$'+')', size=14)
     if i%2==1 and i!=5:
         ax.set_yticklabels([])
     if i<2:
         ax.set_xticklabels([])
-    ax.text(0.02, 0.95, title, transform=ax.transAxes, color='k', fontsize=14, fontweight='bold')
+    ax.text(0.02, 0.95, title, transform=ax.transAxes, color='k', fontsize=14,
+        fontweight='bold')
     
     noeske = noeske_2007(ax)
     delosreyes = delosreyes_2015(ax)
     whitaker = whitaker_2014(ax)
     salim = salim_2007(ax)
     berg = berg_2012(ax)
-    
-    labelarr2 = np.array([whitaker, delosreyes, noeske, salim, berg])
 
     if i==0 or i==5:
-        legend1 = ax.legend(handles=list(labelarr), loc=(0.01, 0.78), frameon=False,
-                         fontsize=11, scatterpoints=1, numpoints=1)
+        legend1 = ax.legend(handles=list(labelarr), loc=(0.01, 0.78),
+            frameon=False, fontsize=11, scatterpoints=1, numpoints=1)
         ax.add_artist(legend1)
-        legend2 = ax.legend(handles=list(labelarr2), loc='lower right', frameon=False,
-                         fontsize=11, scatterpoints=1, numpoints=1)
+        
+        labelarr2 = np.array([whitaker, delosreyes, noeske, salim, berg])
+        legend2 = ax.legend(handles=list(labelarr2), loc='lower right',
+            frameon=False, fontsize=11, scatterpoints=1, numpoints=1)
         ax.add_artist(legend2)
 
     ax.minorticks_on()
@@ -202,7 +204,8 @@ def plot_avg_sfrs(ax, stlr_mass, sfrs):
         bin_match = np.where(bin_ii == i)[0]
         sfrs_matched = sfrs[bin_match]
         ax.plot(mbins0[i], np.mean(sfrs_matched), 'ko', alpha=0.8, ms=8)
-        ax.errorbar(mbins0[i], np.mean(sfrs_matched), xerr=0.25, fmt='none', ecolor='black', alpha=0.8, lw=2)
+        ax.errorbar(mbins0[i], np.mean(sfrs_matched), xerr=0.25, fmt='none',
+            ecolor='black', alpha=0.8, lw=2)
 
         # calculating yerr assuming a uniform distribution
         np.random.seed(213078)
@@ -213,8 +216,23 @@ def plot_avg_sfrs(ax, stlr_mass, sfrs):
         avg_dist = np.average(MC_arr, axis=0)
         avg_dist = np.reshape(avg_dist,(1,num_iterations))
 
-        ysfrerr, xpeak = compute_onesig_pdf(avg_dist, [np.mean(sfrs_matched)]) #x_pdf, x_val        
-        ax.errorbar(mbins0[i], np.mean(sfrs_matched), yerr=ysfrerr, fmt='none', ecolor='black', alpha=0.8, lw=2)
+        #x_pdf, x_val
+        ysfrerr, xpeak = compute_onesig_pdf(avg_dist, [np.mean(sfrs_matched)])
+        ax.errorbar(mbins0[i], np.mean(sfrs_matched), yerr=ysfrerr, fmt='none',
+            ecolor='black', alpha=0.8, lw=2)
+
+
+def get_filt_index(spectra, ff, filts, good_sig_iis):
+    '''
+    '''
+    if 'NB7' in ff:
+        filt_index = np.array([x for x in range(len(spectra)) if ff[:3] in filts[spectra][x]
+            and spectra[x] in good_sig_iis])
+    else:
+        filt_index = np.array([x for x in range(len(spectra)) if ff==filts[spectra][x]
+            and spectra[x] in good_sig_iis])
+
+    return filt_index
 
 
 def make_all_graph(stlr_mass, sfr, filtarr, markarr, z_arr, sizearr, title,
@@ -228,16 +246,8 @@ def make_all_graph(stlr_mass, sfr, filtarr, markarr, z_arr, sizearr, title,
     labelarr = np.array([])
     check_nums = []
     for (ff, mark, avg_z, size) in zip(filtarr, markarr, z_arr, sizearr):
-        if 'NB7' in ff:
-            filt_index_n = np.array([x for x in range(len(no_spectra)) if ff[:3] in filts[no_spectra][x] 
-                and no_spectra[x] in good_sig_iis])
-            filt_index_y = np.array([x for x in range(len(yes_spectra)) if ff[:3] in filts[yes_spectra][x]
-                and yes_spectra[x] in good_sig_iis])
-        else:
-            filt_index_n = np.array([x for x in range(len(no_spectra)) if ff==filts[no_spectra][x] 
-                and no_spectra[x] in good_sig_iis])
-            filt_index_y = np.array([x for x in range(len(yes_spectra)) if ff==filts[yes_spectra][x]
-                and yes_spectra[x] in good_sig_iis])
+        filt_index_n = get_filt_index(no_spectra, ff, filts, good_sig_iis)
+        filt_index_y = get_filt_index(yes_spectra, ff, filts, good_sig_iis)
 
         print '>>>', ff, avg_z
         check_nums.append(len(filt_index_y)+len(filt_index_n))
@@ -273,13 +283,15 @@ def plot_zdep_avg_sfrs(ax, stlr_mass, sfrs, cc):
         
         min_per_bin = 5
         if len(bin_match) < min_per_bin:
-            ax.scatter(avg_mass, avg_sfr, edgecolors=cc, facecolors='none', marker='s',
-                alpha=0.4, s=15**2, linewidth=1)
+            ax.scatter(avg_mass, avg_sfr, edgecolors=cc, facecolors='none',
+                marker='s', alpha=0.4, s=15**2, linewidth=1)
         elif len(bin_match) >= min_per_bin:
-            ax.plot(avg_mass, avg_sfr, color=cc, marker='s', alpha=0.6, ms=15, mew=0)
+            ax.plot(avg_mass, avg_sfr, color=cc, marker='s', alpha=0.6,
+                ms=15, mew=0)
         
         ax.errorbar(avg_mass, avg_sfr, fmt='none', ecolor=cc, alpha=0.6, lw=2,
-            xerr=np.array([[avg_mass - (mbins0[i]-0.25)], [(mbins0[i]+0.25) - avg_mass]]))
+            xerr=np.array([[avg_mass - (mbins0[i]-0.25)],
+                [(mbins0[i]+0.25) - avg_mass]]))
 
 
 def get_func0_eqn0(fittype):
