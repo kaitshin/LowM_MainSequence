@@ -343,19 +343,11 @@ def modify_redshift_graph(f, ax, fittype, eqn0, params):
 
 
 def make_redshift_graph(f, ax, z_arr, corr_sfrs, stlr_mass, zspec0, filts,
-    good_sig_iis, cwheel, ffarr=['NB7', 'NB816', 'NB921', 'NB973'],
+    no_spectra, yes_spectra, cwheel, ffarr=['NB7', 'NB816', 'NB921', 'NB973'],
     llarr=['NB704,NB711', 'NB816', 'NB921', 'NB973'], fittype='first_order'):
     '''
     '''
     func0, eqn0 = get_func0_eqn0(fittype)
-
-    # getting relevant data in a good format
-    ffs = filts[good_sig_iis]
-    sfrs00 = corr_sfrs[good_sig_iis]
-    smass0 = stlr_mass[good_sig_iis]
-    zspec0 = zspec0[good_sig_iis]
-    no_spectra  = np.where((zspec0 <= 0) | (zspec0 > 9))[0]
-    yes_spectra = np.where((zspec0 >= 0) & (zspec0 < 9))[0]
 
     centr_filts = {'NB7':((7045.0/HA - 1) + (7126.0/HA - 1))/2.0, 
         'NB816':8152.0/HA - 1, 'NB921':9193.0/HA - 1, 'NB973':9749.0/HA - 1,
@@ -366,44 +358,38 @@ def make_redshift_graph(f, ax, z_arr, corr_sfrs, stlr_mass, zspec0, filts,
     badz_iis = np.array([x for x in range(len(zspec0)) if zspec0[x] < 0 or zspec0[x] > 9])
     filt_lambda_list = {'NB704':7045.0, 'NB711':7126.0, 'NB816':8152.0, 'NB921':9193.0, 'NB973':9749.0}
     for ff in filt_lambda_list.keys():
-        badf_match = np.where(ffs[badz_iis] == ff)[0]
+        badf_match = np.where(filts[badz_iis] == ff)[0]
         zspec0[badz_iis[badf_match]] = (filt_lambda_list[ff]/HA) - 1
     
-    data00 = np.vstack([smass0, zspec0]).T
+    data00 = np.vstack([stlr_mass, zspec0]).T
 
-    # ----- no longer need good_sig_iis
-
-    params, pcov = optimize.curve_fit(func0, data00, sfrs00, method='lm')
+    params, pcov = optimize.curve_fit(func0, data00, corr_sfrs, method='lm')
     perr = np.sqrt(np.diag(pcov))
 
 
     for ff,cc,ll,zz in zip(ffarr[::-1], cwheel[::-1], llarr[::-1], z_arr[::-1]):
-        if 'NB7' in ff:
-            filt_index_n = np.array([x for x in range(len(no_spectra)) if ff[:3] in ffs[no_spectra][x]])
-            filt_index_y = np.array([x for x in range(len(yes_spectra)) if ff[:3] in ffs[yes_spectra][x]])
-        else:
-            filt_index_n = np.array([x for x in range(len(no_spectra)) if ff==ffs[no_spectra][x]])
-            filt_index_y = np.array([x for x in range(len(yes_spectra)) if ff==ffs[yes_spectra][x]])
+        filt_index_n = get_filt_index(no_spectra, ff, filts)
+        filt_index_y = get_filt_index(yes_spectra, ff, filts)
 
             # if ff=='NEWHA': print filt_index_y, filt_index_n
 
         # scattering
-        ax.scatter(smass0[yes_spectra][filt_index_y], sfrs00[yes_spectra][filt_index_y],
+        ax.scatter(stlr_mass[yes_spectra][filt_index_y], corr_sfrs[yes_spectra][filt_index_y],
             facecolors=cc, edgecolors='none', alpha=0.3,
             zorder=3, label='z~'+zz+' ('+ll+')')
         if ff != 'NEWHA':
-            ax.scatter(smass0[no_spectra][filt_index_n], sfrs00[no_spectra][filt_index_n],
+            ax.scatter(stlr_mass[no_spectra][filt_index_n], corr_sfrs[no_spectra][filt_index_n],
                 facecolors='none', edgecolors=cc, alpha=0.3, 
                 linewidth=0.5, zorder=3)
 
         # plotting the best-fit lines
-        filt_match = np.array([x for x in range(len(ffs)) if ff in ffs[x]])
-        mrange = np.arange(min(smass0[filt_match]), max(smass0[filt_match]), 0.1)
+        filt_match = np.array([x for x in range(len(filts)) if ff in filts[x]])
+        mrange = np.arange(min(stlr_mass[filt_match]), max(stlr_mass[filt_match]), 0.1)
         avgz = np.array([centr_filts[ff]]*len(mrange))
         tmpdata = np.vstack([mrange, avgz]).T
         ax.plot(mrange, func0(tmpdata, *params), color=cc, lw=2)
 
-        plot_zdep_avg_sfrs(ax, smass0[filt_match], sfrs00[filt_match], cc)
+        plot_zdep_avg_sfrs(ax, stlr_mass[filt_match], corr_sfrs[filt_match], cc)
 
     modify_redshift_graph(f, ax, fittype, eqn0, params)
 
@@ -502,6 +488,8 @@ def main():
     markarr = np.array(['o', '^', 'D', '*'])
     sizearr = np.array([6.0, 6.0, 6.0, 9.0])**2
     z_arr = get_z_arr()
+    cwheel = [np.array(mpl.rcParams['axes.prop_cycle'])[x]['color']
+        for x in range(4)] # getting colorwheel
 
 
     print 'making 4-panel mainseq plot now' # (with 'all' types of corrs)
@@ -542,25 +530,16 @@ def main():
         plt.close()
 
 
-    # getting colorwheel
-    cwheel = [np.array(mpl.rcParams['axes.prop_cycle'])[x]['color']
-        for x in range(4)]
-
     print 'making redshift dependent plot now'
     f, ax = plt.subplots()
     corr_sfrs = sfr+filt_corr_factor+nii_ha_corr_factor+dust_corr_factor
 
-    # variable00 means we've down-selected to good_sig_iis only
-    # TODO: make this consistent across all plotting types...
-    sfrs00 = corr_sfrs[good_sig_iis]
-    smass00 = stlr_mass[good_sig_iis]
-    filts00 = filts[good_sig_iis]
-    zspec00 = zspec0[good_sig_iis]
-
-    make_redshift_graph(f, ax, z_arr, corr_sfrs, stlr_mass, zspec0, filts, good_sig_iis, cwheel)
+    make_redshift_graph(f, ax, z_arr, corr_sfrs, stlr_mass, zspec0, filts,
+        no_spectra, yes_spectra, cwheel)
     plt.subplots_adjust(hspace=0.01, wspace=0.01, right=0.99, top=0.98, left=0.1, bottom=0.09)
     plt.savefig(FULL_PATH+'Plots/main_sequence/zdep_mainseq.pdf')
     plt.close()
+
 
     print 'making sSFR plot now'
     f, axes = plt.subplots(1,2, sharey=True)
