@@ -272,10 +272,9 @@ def make_all_graph(stlr_mass, sfr, filtarr, markarr, z_arr, sizearr, title,
             zorder=3, s=size, label='z~'+np.str(avg_z)+' ('+ff+')')
         
         labelarr = np.append(labelarr, temp)
-    #endfor
+
     assert np.sum(check_nums)==len(sfr)
     plot_avg_sfrs(ax, stlr_mass, sfr)
-
     modify_all_graph(ax, labelarr, xlim, ylim, title, i)
 
 
@@ -451,14 +450,15 @@ def make_ssfr_graph(f, axes, sfrs00, smass0, filts00, zspec00, cwheel, z_arr,
 
 def get_z_arr():
     '''
+    defining an approximate redshift array for plot visualization
     '''
-    # defining an approximate redshift array for plot visualization
     z_arr0 = np.array([7045.0, 7126.0, 8152.0, 9193.0, 9749.0])/HA - 1
     z_arr0 = np.around(z_arr0, 2)
     z_arr  = np.array(z_arr0, dtype='|S9')
     z_arr[0] = ",".join(z_arr[:2])
     z_arr = np.delete(z_arr, 1)
     z_arr  = np.array([x+'0' if len(x)==3 else x for x in z_arr])
+
     return z_arr
 
 
