@@ -196,10 +196,10 @@ def main():
 
 
     # creating filter legend
-    b_patch = mpatches.Patch(color='b', label='NB704,NB711')
-    g_patch = mpatches.Patch(color='g', label='NB816')
-    o_patch = mpatches.Patch(color='orange', label='NB921')
-    r_patch = mpatches.Patch(color='r', label='NB973')
+    b_patch = mpatches.Patch(color='b', label='z~0.07,0.09 (NB704,NB711)')
+    g_patch = mpatches.Patch(color='g', label='z~0.24 (NB816)')
+    o_patch = mpatches.Patch(color='orange', label='z~0.40 (NB921)')
+    r_patch = mpatches.Patch(color='r', label='z~0.49 (NB973)')
 
     # creating instrument legend
     mmt = mlines.Line2D([], [], color='white', mec='k', marker='o', markersize=15, label='MMT')
@@ -207,11 +207,13 @@ def main():
     mrgd = mlines.Line2D([], [], color='white', mec='k', marker='s', markersize=15, label='MMT+Keck')
 
     # adding filter and instrument legends
-    legend1 = axarr[1].legend(handles=[b_patch, g_patch, o_patch, r_patch], ncol=4, fontsize=13,
-                         loc='upper left', bbox_to_anchor=(-0.45, 1.18))#, facecolor='white', frameon=1)
+    legend1 = axarr[1].legend(handles=[b_patch, g_patch, o_patch, r_patch],
+        ncol=4, fontsize=13, loc='upper left', bbox_to_anchor=(-0.75, 1.18))
+        #, facecolor='white', frameon=1)
     axarr[1].add_artist(legend1)
     legend2 = axarr[0].legend(handles=[mmt, keck, mrgd], ncol=3, fontsize=13, 
-                         loc='upper left', bbox_to_anchor=(0.69, 1.1))
+        loc='upper left', bbox_to_anchor=(0.69, 1.1))
+        # loc='upper right', bbox_to_anchor=(0.69, 1.1))
     axarr[0].add_artist(legend2)
 
 
