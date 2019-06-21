@@ -29,11 +29,12 @@ CUTOFF_SIGMA = 4.0
 CUTOFF_MASS = 6.0
 
 
-def add_legends(ax):
+def add_legends(ax, withnewha):
     '''
     adds two legends to the plot
     '''
     from matplotlib.patches import Patch
+
     # first legend
     legend1 = ax.legend(loc='upper left', frameon=False)
     ax.add_artist(legend1)
@@ -41,12 +42,16 @@ def add_legends(ax):
     # second legend
     noeske, = ax.plot(-100, 100, color='orange', marker='+',
         label='Noeske+07 (0.20<z<0.40)',mew=2,markersize=11)
-    delosreyes = ax.scatter(-100, 100, color='deepskyblue', marker='s',
-        label='de los Reyes+15 (z~0.8)', zorder=2)
-
     salim = Patch(facecolor='gray', edgecolor='None', alpha=0.4,
         label='Salim+07 (z~0)')
-    labelarr2 = np.array([delosreyes, noeske, salim])
+
+    if not withnewha:
+        delosreyes = ax.scatter(-100, 100, color='deepskyblue', marker='s',
+            label='de los Reyes+15 (z~0.8)', zorder=2)
+        labelarr2 = np.array([delosreyes, noeske, salim])
+    else:
+        labelarr2 = np.array([noeske, salim])
+
     legend2 = ax.legend(handles=list(labelarr2), loc='lower right',
         frameon=False, fontsize=11, scatterpoints=1, numpoints=1)
     ax.add_artist(legend2)
@@ -219,11 +224,10 @@ def plot_all_dispersion(f, ax, data00, corr_sfrs, stlr_mass, filts,
 
     # overlaying results from other studies
     salim_2007(ax)
-    delosreyes_2015(ax)
     noeske_2007(ax)
 
     # final touches
-    add_legends(ax)
+    add_legends(ax, withnewha)
     ax.set_xlabel('log(M'+r'$_\bigstar$'+'/M'+r'$_{\odot}$'+')', size=14)
     ax.set_ylabel(r'$\Delta$'+ytype+' [dex]', size=14)
 
@@ -235,6 +239,7 @@ def plot_all_dispersion(f, ax, data00, corr_sfrs, stlr_mass, filts,
         ax.set_ylim([-1.9,2.3])
         f.set_size_inches(10,8)
     else:
+        delosreyes_2015(ax)
         ax.set_xlim([5.5,11.5])
         ax.set_ylim([-1.1,2.0])
         f.set_size_inches(7,6)

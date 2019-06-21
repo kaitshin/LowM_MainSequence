@@ -160,9 +160,6 @@ def main():
             plt.close()
 
 
-    # for ytype, ydata in zip(['SFR', 'sSFR'], 
-    #     [sfrs_with_newha, ssfrs_with_newha]):
-    #     for fittype in ['first_order', 'second_order']:
             print('making dispersion plots (y-axis: '+
                 ytype+'; '+fittype+' fit)')
 
