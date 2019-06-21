@@ -607,7 +607,9 @@ def ew_MC():
                 ax[2][0].set_position([0.105,0.05,0.389,0.265])
 
                 if len(good) > 0:
-                    ax2[s_row][0].scatter(binso[:-1], (Ng-No)/np.sqrt(Ng**0.5 + No**0.5))
+                    delta    = (Ng-No)/np.sqrt(Ng**0.5 + No**0.5)
+                    ax2[s_row][0].scatter(binso[:-1], delta)
+
                     ax2[s_row][0].axhline(0.0, linestyle='dashed')
                     ax2[s_row][0].set_ylabel(r'1 - $N_{\rm mock}/N_{\rm data}$')
                     ax2[s_row][0].set_ylabel(r'$(N_{\rm mock} - N_{\rm data})/\sigma$')
@@ -615,6 +617,12 @@ def ew_MC():
                     annot_txt  = r'$\langle\log({\rm EW}_0)\rangle = %.2f$  ' % logEW_mean[mm]
                     annot_txt += r'$\sigma[\log({\rm EW}_0)] = %.2f$' % logEW_sig[ss]
                     ax2[s_row][0].set_title(annot_txt, fontdict={'fontsize': 10}, loc='left')
+
+                    # Compute chi^2
+                    use_bins = np.where((Ng != 0) & (No != 0))[0]
+                    fit_chi2 = np.sum(delta[use_bins]**2)/(len(use_bins)-2)
+                    ax2[s_row][0].annotate(r'$\chi^2_{\nu}$ = %.2f' % fit_chi2, [0.975,0.975],
+                                           xycoords='axes fraction', ha='right', va='top')
 
                 # Panel (2,1) - histogram of H-alpha fluxes
 
@@ -642,8 +650,15 @@ def ew_MC():
                 ax[2][1].set_position([0.591,0.05,0.389,0.265])
 
                 if len(good) > 0:
-                    ax2[s_row][1].scatter(binso[:-1], (Ng-No)/np.sqrt(Ng**0.5+No**0.5))
+                    delta = (Ng-No)/np.sqrt(Ng**0.5+No**0.5)
+                    ax2[s_row][1].scatter(binso[:-1], delta)
                     ax2[s_row][1].axhline(0.0, linestyle='dashed')
+
+                    # Compute chi^2
+                    use_bins = np.where((Ng != 0) & (No != 0))[0]
+                    fit_chi2 = np.sum(delta[use_bins]**2)/(len(use_bins)-2)
+                    ax2[s_row][1].annotate(r'$\chi^2_{\nu}$ = %.2f' % fit_chi2, [0.975,0.975],
+                                           xycoords='axes fraction', ha='right', va='top')
 
                 if s_row != nrow_stats-1:
                     ax2[s_row][0].set_xticklabels([])
