@@ -310,6 +310,11 @@ def plot_zdep_avg_sfrs(ax, stlr_mass, sfrs, cc):
 
 def get_func0_eqn0(fittype):
     '''
+    returns functions and equation strings based on the fit type (either
+    first or second order)
+
+    these functions are the 'model's that are subtracted from the data
+    to calculate the residuals
     '''
     if fittype=='first_order':
         eqn0 = r'$log(SFR) = \alpha log(M) + \beta z + \gamma$'

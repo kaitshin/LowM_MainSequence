@@ -21,7 +21,7 @@ OUTPUTS:
 """
 
 import numpy as np, matplotlib.pyplot as plt
-import plot_nbia_mainseq
+import plot_nbia_mainseq, nbia_mainseq_dispersion
 # import scipy.optimize as optimize
 import matplotlib as mpl
 from astropy.io import ascii as asc, fits as pyfits
@@ -116,8 +116,11 @@ def main():
     nii_ha_corr_factor = np.array(corr_tbl['nii_ha_corr_factor'])[good_sig_iis]
     corr_sfrs = sfr+filt_corr_factor+nii_ha_corr_factor+dust_corr_factor
     zspec00 = plot_nbia_mainseq.approximated_zspec0(zspec0, filts)
+    # data00 = np.vstack([stlr_mass, zspec00]).T
 
     # defining useful data structs for plotting
+    nh_markarr = np.array(['o','^','D','*','X'])
+    nh_sizearr = np.array([6.0,6.0,6.0,9.0,6.0])**2
     nh_ffarr = np.array(['NB7', 'NB816', 'NB921', 'NB973', 'NEWHA'])
     nh_llarr = np.array(['NB704,NB711', 'NB816', 'NB921', 'NB973', 'NEWHA'])
     z_arr = plot_nbia_mainseq.get_z_arr()
@@ -132,6 +135,7 @@ def main():
     zspec_with_newha00 = np.concatenate((zspec00, newha_zspec))
     filts_with_newha = np.concatenate((filts,
         np.array(['NEWHA']*len(newha_logsfrha))))
+    data_with_newha = np.vstack([mass_with_newha, zspec_with_newha00]).T
 
     no_spectra  = np.where((zspec_with_newha <= 0) | (zspec_with_newha > 9))[0]
     yes_spectra = np.where((zspec_with_newha >= 0) & (zspec_with_newha < 9))[0]
@@ -139,14 +143,14 @@ def main():
 
     # plotting
     ssfrs_with_newha = sfrs_with_newha - mass_with_newha
-    for ytype, ydata in zip(['SFR', 'sSFR'], 
+    for ytype, ydata_sfrs in zip(['SFR', 'sSFR'], 
         [sfrs_with_newha, ssfrs_with_newha]):
         for fittype in ['first_order', 'second_order']:
             print('making redshift dependent plot (y-axis: '+
                 ytype+'; '+fittype+' fit)')
 
             f, ax = plt.subplots()
-            plot_nbia_mainseq.make_redshift_graph(f, ax, nh_z_arr, ydata,
+            plot_nbia_mainseq.make_redshift_graph(f, ax, nh_z_arr, ydata_sfrs,
                 mass_with_newha, zspec_with_newha00, filts_with_newha,
                 no_spectra, yes_spectra, nh_cwheel, ffarr=nh_ffarr,
                 llarr=nh_llarr, ytype=ytype, fittype=fittype, withnewha=True)
@@ -154,6 +158,26 @@ def main():
             plt.savefig(FULL_PATH+'Plots/NewHa/zdep_mainseq_'+newha_sfr_type+
                 '_'+ytype+'_'+fittype+'.pdf')
             plt.close()
+
+
+    # for ytype, ydata in zip(['SFR', 'sSFR'], 
+    #     [sfrs_with_newha, ssfrs_with_newha]):
+    #     for fittype in ['first_order', 'second_order']:
+            print('making dispersion plots (y-axis: '+
+                ytype+'; '+fittype+' fit)')
+
+            f, ax = plt.subplots()
+            nbia_mainseq_dispersion.plot_all_dispersion(f, ax, data_with_newha,
+                ydata_sfrs, mass_with_newha, filts_with_newha, no_spectra,
+                yes_spectra, nh_z_arr, markarr=nh_markarr, sizearr=nh_sizearr,
+                ffarr=nh_ffarr, llarr=nh_llarr, ytype=ytype, fittype=fittype,
+                withnewha=True)
+
+            plt.savefig(FULL_PATH+'Plots/NewHa/mainseq_dispersion_'+newha_sfr_type+
+                '_'+ytype+'_'+fittype+'.pdf')
+            plt.close()
+
+            print
 
 
     print 'making sSFR plot'

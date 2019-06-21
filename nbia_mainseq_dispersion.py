@@ -113,17 +113,6 @@ def delosreyes_2015(ax):
         color='deepskyblue', marker='s', zorder=2)
 
 
-def func0(data, a, b, c):
-    '''
-    assuming sfr = a*m + b*z + c
-    eqn0 = r'$log[SFR] = a*log[M] + b*z + c$'
-
-    this is the 'model' that is subtracted from the data to calculate the
-    residuals
-    '''
-    return a*data[:,0] + b*data[:,1] + c
-
-
 def noeske_2007(ax):
     '''
     Plots the residuals of the data points from Noeske+07 in orange. 
@@ -147,12 +136,15 @@ def noeske_2007(ax):
         lw=0, mew=2, markersize=11)
 
 
-def plot_avg_resids(ax, smass0, sfrs_resid):
+def plot_avg_resids(ax, smass0, sfrs_resid, withnewha):
     '''
     plots the average residuals in each 0.5M mass bin
     '''
     # defining mass bins
-    mbins0 = np.arange(6.25, 10.75, .5)
+    if withnewha:
+        mbins0 = np.arange(6.25, 12.25, .5)
+    else:
+        mbins0 = np.arange(6.25, 10.75, .5)
     bin_ii = np.digitize(smass0, mbins0+0.25)
 
     for i in range(len(mbins0)):
@@ -164,7 +156,7 @@ def plot_avg_resids(ax, smass0, sfrs_resid):
 
 
 def plot_resids(ax, markarr, sizearr, z_arr, no_spectra, yes_spectra, smass0,
-    sfrs_resid, filts00):
+    sfrs_resid, filts00, ffarr, llarr):
     '''
     plots residuals of the ha galaxies w/ good sigma,mass params
     same scheme as plot_nbia_mainseq.py
@@ -174,13 +166,12 @@ def plot_resids(ax, markarr, sizearr, z_arr, no_spectra, yes_spectra, smass0,
     where the model is described in the function func0
     '''
     check_nums = []
-    for ff,mm,ll,size,avg_z in zip(['NB7', 'NB816', 'NB921', 'NB973'], markarr,
-        ['NB704,NB711', 'NB816', 'NB921', 'NB973'], sizearr, z_arr):
-
+    for ff,mm,ll,size,avg_z in zip(ffarr, markarr, llarr, sizearr, z_arr):
         filt_index_n = plot_nbia_mainseq.get_filt_index(no_spectra, ff,
             filts00)
         filt_index_y = plot_nbia_mainseq.get_filt_index(yes_spectra, ff,
             filts00)
+
         check_nums.append(len(filt_index_y)+len(filt_index_n))
 
         ax.scatter(smass0[yes_spectra][filt_index_y],
@@ -188,10 +179,11 @@ def plot_resids(ax, markarr, sizearr, z_arr, no_spectra, yes_spectra, smass0,
             facecolors='blue', edgecolors='none', alpha=0.2,
             label='z~'+np.str(avg_z)+' ('+ll+')', s=size)
 
-        ax.scatter(smass0[no_spectra][filt_index_n], 
-            sfrs_resid[no_spectra][filt_index_n], marker=mm,
-            facecolors='none', edgecolors='blue', alpha=0.2, 
-            linewidth=0.5, zorder=3, s=size)
+        if ff != 'NEWHA':
+            ax.scatter(smass0[no_spectra][filt_index_n], 
+                sfrs_resid[no_spectra][filt_index_n], marker=mm,
+                facecolors='none', edgecolors='blue', alpha=0.2, 
+                linewidth=0.5, zorder=3, s=size)
 
     assert np.sum(check_nums)==len(smass0)
 
@@ -204,6 +196,51 @@ def salim_2007(ax):
     xarr = np.arange(8.5, 11.2, 0.01)
     ax.fill_between(xarr, -np.array([0.2]*len(xarr)),
         np.array([0.2]*len(xarr)), color='gray', alpha=0.4)
+
+
+def plot_all_dispersion(f, ax, data00, corr_sfrs, stlr_mass, filts,
+    no_spectra, yes_spectra, z_arr, 
+    markarr = np.array(['o','^','D','*']), 
+    sizearr = np.array([6.0,6.0,6.0,9.0])**2,
+    ffarr=['NB7', 'NB816', 'NB921', 'NB973'],
+    llarr=['NB704,NB711', 'NB816', 'NB921', 'NB973'],
+    ytype='SFR', fittype = 'first_order', withnewha=False):
+    '''
+    '''
+    func0, eqn0 = plot_nbia_mainseq.get_func0_eqn0(fittype)
+
+    params, pcov = optimize.curve_fit(func0, data00, corr_sfrs, method='lm')
+    sfrs_resid = corr_sfrs - func0(data00, *params)
+    ax.axhline(0, color='k', ls='--', zorder=1)
+
+    plot_resids(ax, markarr, sizearr, z_arr, no_spectra, yes_spectra,
+        stlr_mass, sfrs_resid, filts, ffarr, llarr)
+    plot_avg_resids(ax, stlr_mass, sfrs_resid, withnewha)
+
+    # overlaying results from other studies
+    salim_2007(ax)
+    delosreyes_2015(ax)
+    noeske_2007(ax)
+
+    # final touches
+    add_legends(ax)
+    ax.set_xlabel('log(M'+r'$_\bigstar$'+'/M'+r'$_{\odot}$'+')', size=14)
+    ax.set_ylabel(r'$\Delta$'+ytype+' [dex]', size=14)
+
+    [a.tick_params(axis='both', labelsize='10', which='both', direction='in')
+        for a in f.axes[:]]
+
+    if withnewha:
+        ax.set_xlim([5.5,12.5])
+        ax.set_ylim([-1.9,2.3])
+        f.set_size_inches(10,8)
+    else:
+        ax.set_xlim([5.5,11.5])
+        ax.set_ylim([-1.1,2.0])
+        f.set_size_inches(7,6)
+        plt.subplots_adjust(hspace=0.01, wspace=0.01, right=0.99, top=0.98,
+            left=0.1, bottom=0.09)
+        return sfrs_resid
 
 
 def main():
@@ -230,50 +267,21 @@ def main():
     nii_ha_corr_factor = np.array(corr_tbl['nii_ha_corr_factor'])[good_sig_iis]
     corr_sfrs = sfr+filt_corr_factor+nii_ha_corr_factor+dust_corr_factor
 
-    # defining useful data structs for plotting
-    filtarr = np.array(['NB704,NB711', 'NB816', 'NB921', 'NB973'])
-    markarr = np.array(['o', '^', 'D', '*'])
-    sizearr = np.array([6.0, 6.0, 6.0, 9.0])**2
-    z_arr = plot_nbia_mainseq.get_z_arr()
-
-
     zspec00 = plot_nbia_mainseq.approximated_zspec0(zspec0, filts)
     data00 = np.vstack([stlr_mass, zspec00]).T
 
+    z_arr = plot_nbia_mainseq.get_z_arr() # for visualization
 
     # plotting
     f, ax = plt.subplots()
-    params, pcov = optimize.curve_fit(func0, data00, corr_sfrs, method='lm')
-    sfrs_resid = corr_sfrs - func0(data00, *params)
-    ax.plot([5.5,11.5], np.zeros(2), 'k--', zorder=1)
-    plot_resids(ax, markarr, sizearr, z_arr, no_spectra, yes_spectra,
-        stlr_mass, sfrs_resid, filts)
-    plot_avg_resids(ax, stlr_mass, sfrs_resid)
-
-    # overlaying results from other studies
-    salim_2007(ax)
-    delosreyes_2015(ax)
-    noeske_2007(ax)
-
-    # final touches
-    add_legends(ax)
-    ax.set_xlabel('log(M'+r'$_\bigstar$'+'/M'+r'$_{\odot}$'+')', size=14)
-    ax.set_ylabel(r'$\Delta$'+'SFR [dex]', size=14)
-    ax.set_xlim([5.5,11.5])
-    ax.set_ylim([-1.1,2.0])
-    f.set_size_inches(7,6)
-    [a.tick_params(axis='both', labelsize='10', which='both', direction='in')
-        for a in f.axes[:]]
-    plt.subplots_adjust(hspace=0.01, wspace=0.01, right=0.99, top=0.98,
-        left=0.1, bottom=0.09)
-
+    sfrs_resid = plot_all_dispersion(f, ax, data00, corr_sfrs, stlr_mass,
+        filts, no_spectra, yes_spectra, z_arr)
     plt.savefig(FULL_PATH+'Plots/main_sequence/mainseq_dispersion.pdf')
     plt.close()
 
-
     # creating a dispersion table
-    # meas_errs = corr_tbl['meas_errs'].data[good_sig_iis]
-    # tt = create_disp_tbl(stlr_mass, corr_sfrs, sfrs_resid, meas_errs)
+    meas_errs = corr_tbl['meas_errs'].data[good_sig_iis]
+    tt = create_disp_tbl(stlr_mass, corr_sfrs, sfrs_resid, meas_errs)
     # asc.write(tt, FULL_PATH+'Main_Sequence/dispersion_tbl.txt', 
     #     format='latex', overwrite=True)
     # print asc.write(tt, format='latex')
