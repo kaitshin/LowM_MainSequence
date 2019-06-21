@@ -607,9 +607,10 @@ def ew_MC():
                 ax[2][0].set_position([0.105,0.05,0.389,0.265])
 
                 if len(good) > 0:
-                    ax2[s_row][0].scatter(binso[:-1], 1-Ng/No)
+                    ax2[s_row][0].scatter(binso[:-1], (Ng-No)/np.sqrt(Ng**0.5 + No**0.5))
                     ax2[s_row][0].axhline(0.0, linestyle='dashed')
                     ax2[s_row][0].set_ylabel(r'1 - $N_{\rm mock}/N_{\rm data}$')
+                    ax2[s_row][0].set_ylabel(r'$(N_{\rm mock} - N_{\rm data})/\sigma$')
 
                     annot_txt  = r'$\langle\log({\rm EW}_0)\rangle = %.2f$  ' % logEW_mean[mm]
                     annot_txt += r'$\sigma[\log({\rm EW}_0)] = %.2f$' % logEW_sig[ss]
@@ -641,7 +642,7 @@ def ew_MC():
                 ax[2][1].set_position([0.591,0.05,0.389,0.265])
 
                 if len(good) > 0:
-                    ax2[s_row][1].scatter(binso[:-1], 1-Ng/No)
+                    ax2[s_row][1].scatter(binso[:-1], (Ng-No)/np.sqrt(Ng**0.5+No**0.5))
                     ax2[s_row][1].axhline(0.0, linestyle='dashed')
 
                 if s_row != nrow_stats-1:
@@ -655,7 +656,7 @@ def ew_MC():
                 fig.savefig(pp, format='pdf')
 
                 if s_row == nrow_stats-1:
-                    fig2.subplots_adjust(left=1, right=0.97, bottom=0.08, top=0.97,
+                    fig2.subplots_adjust(left=0.1, right=0.97, bottom=0.08, top=0.97,
                                          wspace=0.01)
 
                     fig2.set_size_inches(8,10)
