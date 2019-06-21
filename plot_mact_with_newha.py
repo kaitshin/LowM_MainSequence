@@ -3,29 +3,28 @@ NAME:
     plot_mact_with_newha.py
 
 PURPOSE:
+    Generates main sequence figures with fits and dispersion, and sSFR figs,
+    with both the MACT and the NEWHA dataset.
 
-    depends on mainseq_corrections.py, 
+    Depends on plot_nbia_mainseq, nbia_mainseq_dispersion, and
+    mainseq_corrections.py
 
 INPUTS:
-    FULL_PATH+'Main_Sequence/Berg2012_table.clean.txt'
-    FULL_PATH+'Main_Sequence/Noeske07_fig1_z1.txt'
+    FULL_PATH+'NewHa/NewHa.fits'
     FULL_PATH+'Main_Sequence/mainseq_corrections_tbl.txt'
 
-
 OUTPUTS:
-    FULL_PATH+'Plots/main_sequence/mainseq.pdf'
-    if mainseq_fig4_only = True:
-        FULL_PATH+'Plots/main_sequence/mainseq_allcorrs.pdf'
-    FULL_PATH+'Plots/main_sequence/zdep_mainseq.pdf'
-    FULL_PATH+'Plots/main_sequence/mainseq_sSFRs.pdf'
+    FULL_PATH+'Plots/NewHa/zdep_mainseq_'+newha_sfr_type+
+        '_'+ytype+'_'+fittype+'.pdf'
+    FULL_PATH+'Plots/NewHa/mainseq_dispersion_'+newha_sfr_type+
+        '_'+ytype+'_'+fittype+'.pdf'
+    FULL_PATH+'Plots/NewHa/mainseq_sSFRs_'+newha_sfr_type+'.pdf'
 """
 
 import numpy as np, matplotlib.pyplot as plt
 import plot_nbia_mainseq, nbia_mainseq_dispersion
-# import scipy.optimize as optimize
 import matplotlib as mpl
 from astropy.io import ascii as asc, fits as pyfits
-# from analysis.composite_errors import compute_onesig_pdf
 
 # emission line wavelengths (air)
 HA = 6562.80
@@ -85,6 +84,11 @@ def get_newha_logsfrha(newhadata, newha_sfr_type):
 
 def main():
     '''
+    Reads in data from NewHa and MACT datasets, and obtains the useful data
+    (defined by good_sig_iis for MACT). Then, iterating through appropriate
+    combinations of fittype and ytype, various plotting functions from
+    plot_nbia_mainseq and nbia_mainseq_dispersion are called. Figures are
+    then saved and closed.
     '''
     # reading in NewHa data
     newha = pyfits.open(FULL_PATH+'NewHa/NewHa.fits')
@@ -116,7 +120,6 @@ def main():
     nii_ha_corr_factor = np.array(corr_tbl['nii_ha_corr_factor'])[good_sig_iis]
     corr_sfrs = sfr+filt_corr_factor+nii_ha_corr_factor+dust_corr_factor
     zspec00 = plot_nbia_mainseq.approximated_zspec0(zspec0, filts)
-    # data00 = np.vstack([stlr_mass, zspec00]).T
 
     # defining useful data structs for plotting
     nh_markarr = np.array(['o','^','D','*','X'])
