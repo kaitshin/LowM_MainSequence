@@ -401,6 +401,8 @@ def ew_MC():
 
     NBbin = 0.25
 
+    nrow_stats = 4
+
     for ff in range(len(filt_ref)): # loop over filter
         print("Working on : "+filters[ff])
 
@@ -554,9 +556,9 @@ def ew_MC():
                 EW_bins = np.arange(0.2,3.0,0.2)
 
                 # This is for statistics plot
-                if count % 3 == 0:
-                    fig2, ax2 = plt.subplots(ncols=2, nrows=3)
-                s_row = count % 3
+                if count % nrow_stats == 0:
+                    fig2, ax2 = plt.subplots(ncols=2, nrows=nrow_stats)
+                s_row = count % nrow_stats
 
                 # Panel (2,0) - histogram of EW
 
@@ -609,6 +611,10 @@ def ew_MC():
                     ax2[s_row][0].axhline(0.0, linestyle='dashed')
                     ax2[s_row][0].set_ylabel(r'1 - $N_{\rm mock}/N_{\rm data}$')
 
+                    annot_txt  = r'$\langle\log({\rm EW}_0)\rangle = %.2f$  ' % logEW_mean[mm]
+                    annot_txt += r'$\sigma[\log({\rm EW}_0)] = %.2f$' % logEW_sig[ss]
+                    ax2[s_row][0].set_title(annot_txt, fontdict={'fontsize': 10}, loc='left')
+
                 # Panel (2,1) - histogram of H-alpha fluxes
 
                 Flux_bins = np.arange(-17.75,-14.75,0.25)
@@ -638,7 +644,7 @@ def ew_MC():
                     ax2[s_row][1].scatter(binso[:-1], 1-Ng/No)
                     ax2[s_row][1].axhline(0.0, linestyle='dashed')
 
-                if s_row != 2:
+                if s_row != nrow_stats-1:
                     ax2[s_row][0].set_xticklabels([])
                     ax2[s_row][1].set_xticklabels([])
                 else:
@@ -648,9 +654,9 @@ def ew_MC():
                 fig.set_size_inches(8,10)
                 fig.savefig(pp, format='pdf')
 
-                if s_row == 2:
-                    plt.subplots_adjust(left=0.07, right=0.97, bottom=0.08, top=0.97,
-                                        wspace=0.01)
+                if s_row == nrow_stats-1:
+                    fig2.subplots_adjust(left=1, right=0.97, bottom=0.08, top=0.97,
+                                         wspace=0.01)
 
                     fig2.set_size_inches(8,10)
                     fig2.savefig(pp2, format='pdf')
