@@ -462,6 +462,9 @@ def ew_MC():
                 EW_flag = np.zeros(len(logEW_MC))
 
                 x_MC = EW_int(logEW_MC) # NB color excess
+                negs = np.where(x_MC < 0)[0]
+                if len(negs) > 0:
+                    x_MC[negs] = 0.0
 
                 # t_NB = np.repeat(NB_MC, len(x_MC))
 
