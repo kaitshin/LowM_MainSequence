@@ -606,7 +606,6 @@ def ew_MC():
 
                 if len(good) > 0:
                     ax2[s_row][0].scatter(binso[:-1], (Ng-No)/No)
-
                 # Panel (2,1) - histogram of H-alpha fluxes
 
                 Flux_bins = np.arange(-17.75,-14.75,0.25)
@@ -634,6 +633,13 @@ def ew_MC():
 
                 if len(good) > 0:
                     ax2[s_row][1].scatter(binso[:-1], (Ng-No)/No)
+
+                if s_row != 2:
+                    ax2[s_row][0].set_xticklabels([])
+                    ax2[s_row][1].set_xticklabels([])
+                else:
+                    ax2[s_row][0].set_xlabel(r'$\log({\rm EW}/\AA)$')
+                    ax2[s_row][1].set_xlabel(r'$\log(F_{{\rm H}\alpha})$')
 
                 fig.set_size_inches(8,10)
                 fig.savefig(pp, format='pdf')
