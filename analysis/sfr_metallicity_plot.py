@@ -106,8 +106,8 @@ def main(silent=False, verbose=True):
     ann_str0 += r'Chabrier: $P_0$=%.3f $P_1$=%.3f $P_2$=%.3f' % \
                 (nuLnu_fit1[2], nuLnu_fit1[1], nuLnu_fit1[0])
 
-    ax[0].annotate(ann_str0, [0.025,0.025], fontsize=10, xycoords='axes fraction',
-                   ha='left', va='bottom')
+    ax[0].annotate(ann_str0, [0.025,0.025], fontsize=10,
+                   xycoords='axes fraction', ha='left', va='bottom')
 
     # L_nu in ax[1]
     nu_offset = np.log10(c0.to(u.m/u.s).value/lambda0.to(u.m).value)
@@ -141,11 +141,16 @@ def main(silent=False, verbose=True):
 
     ax[1].plot(10**Z_arr, Lnu_arr1, 'b--')
 
+    ax[1].scatter([1.0], -1*np.log10(1.4e-28), color='green', marker='o',
+                  s=50, edgecolor='none', alpha=0.5)
+    ax[1].annotate('K98', [1.05,-1*np.log10(1.4e-28*0.98)], xycoords='data',
+                   fontsize=8, ha='left', va='bottom')
+
     ann_str1 += r'Chabrier: $P_0$=%.3f $P_1$=%.3f $P_2$=%.3f' % \
                 (Lnu_fit1[2], Lnu_fit1[1], Lnu_fit1[0])
 
-    ax[1].annotate(ann_str1, [0.025,0.025], fontsize=10, xycoords='axes fraction',
-                   ha='left', va='bottom')
+    ax[1].annotate(ann_str1, [0.025,0.025], fontsize=10,
+                   xycoords='axes fraction', ha='left', va='bottom')
 
     ax[1].set_xlim([1e-2,3])
     ax[1].set_xscale('log')
