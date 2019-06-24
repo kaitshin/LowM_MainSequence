@@ -39,7 +39,7 @@ def plot_panel(t_ax, z_metal, sfr_convs, ylabel):
     t_ax.scatter(z_metal/0.02, sfr_convs, color='red', marker='o', s=50,
                  edgecolor='none', alpha=0.5, label='Kroupa IMF')
 
-    t_ax.plot(10**Z_arr, nuLnu_arr0, 'r--')
+    t_ax.plot(10**Z_arr, arr0, 'r--')
 
     ann_str0  = r'$y = P_0 + P_1\cdot\log(Z/Z_{\odot}) + P_2\cdot\log(Z/Z_{\odot})^2$' + '\n'
     ann_str0 += r'Kroupa:   $P_0$=%.3f $P_1$=%.3f $P_2$=%.3f' % \
