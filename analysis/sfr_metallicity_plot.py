@@ -73,6 +73,7 @@ def plot_panel(t_ax, z_metal, sfr_convs, ylabel, showlegend=False):
     t_ax.annotate(ann_str0, [0.025,0.025], fontsize=10,
                   xycoords='axes fraction', ha='left', va='bottom')
 
+    return fit0, fit1
 #enddef
 
 def main(silent=False, verbose=True):
@@ -118,14 +119,14 @@ def main(silent=False, verbose=True):
     nuLnu = Llambda + np.log10(lambda0.value)
 
     ylabel = r'$\nu L_{\nu}(1500\AA)$/SFR [erg s$^{-1}$/$M_{\odot}$ yr$^{-1}$]'
-    plot_panel(ax[0], Z, nuLnu, ylabel)
-    
+    nuLnu_fit_kr, nuLnu_fit_ch = plot_panel(ax[0], Z, nuLnu, ylabel, showlegend=True)
+
     # L_nu in ax[1]
     nu_offset = np.log10(c0.to(u.m/u.s).value/lambda0.to(u.m).value)
     Lnu = nuLnu - nu_offset
 
     ylabel = r'$L_{\nu}(1500\AA)$/SFR [erg s$^{-1}$ $\AA^{-1}$/$M_{\odot}$ yr$^{-1}$]'
-    plot_panel(ax[1], Z, Lnu, ylabel)
+    Lnu_fit_kr, Lnu_fit_ch = plot_panel(ax[1], Z, Lnu, ylabel)
 
     # Plot K98 relation
     ax[1].scatter([1.0], -1*np.log10(1.4e-28), color='green', marker='o',
@@ -140,4 +141,3 @@ def main(silent=False, verbose=True):
 
     if silent == False: log.info('### End main : '+systime())
 #enddef
-
