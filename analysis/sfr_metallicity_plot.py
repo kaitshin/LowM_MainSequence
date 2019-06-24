@@ -23,6 +23,57 @@ from astropy import log
 import astropy.units as u
 from astropy.constants import c as c0
 
+Z_arr = np.arange(-2,0.5,0.001)
+
+#Kroupa to Chabrier offset
+imf_offset = -np.log10(4.4e-42) - 41.257
+
+def plot_panel(t_ax, z_metal, sfr_convs, ylabel):
+    fit0   = np.polyfit(np.log10(z_metal/0.02), sfr_convs, 2)
+    print(fit0)
+    p_fit0 = np.poly1d(fit0)
+
+    arr0 = p_fit0(Z_arr)
+
+    # Kroupa IMF
+    t_ax.scatter(z_metal/0.02, sfr_convs, color='red', marker='o', s=50,
+                 edgecolor='none', alpha=0.5, label='Kroupa IMF')
+
+    t_ax.plot(10**Z_arr, nuLnu_arr0, 'r--')
+
+    ann_str0  = r'$y = P_0 + P_1\cdot\log(Z/Z_{\odot}) + P_2\cdot\log(Z/Z_{\odot})^2$' + '\n'
+    ann_str0 += r'Kroupa:   $P_0$=%.3f $P_1$=%.3f $P_2$=%.3f' % \
+                (fit0[2], fit0[1], fit0[0])
+    ann_str0 += '\n'
+
+    sfr_convs1 = sfr_convs + imf_offset
+    fit1   = np.polyfit(np.log10(z_metal/0.02), sfr_convs1, 2)
+    p_fit1 = np.poly1d(fit1)
+    print(fit1)
+
+    # Chabrier IMF
+
+    arr1 = p_fit1(Z_arr)
+
+    t_ax.scatter(z_metal/0.02, sfr_convs1, color='blue', marker='o', s=50,
+                 edgecolor='none', alpha=0.5, label='Chabrier IMF')
+    t_ax.plot(10**Z_arr, arr1, 'b--')
+
+    t_ax.legend(loc='upper right', fancybox=True, fontsize=12, framealpha=0.5)
+    t_ax.set_xlim([1e-2,3])
+    t_ax.set_xscale('log')
+    t_ax.minorticks_on()
+    t_ax.set_xlabel(r'$Z/Z_{\odot}$')
+    t_ax.set_ylabel(ylabel)
+
+    ann_str0 += r'Chabrier: $P_0$=%.3f $P_1$=%.3f $P_2$=%.3f' % \
+                (fit1[2], fit1[1], fit1[0])
+
+    t_ax.annotate(ann_str0, [0.025,0.025], fontsize=10,
+                  xycoords='axes fraction', ha='left', va='bottom')
+
+#enddef
+
 def main(silent=False, verbose=True):
 
     '''
@@ -57,10 +108,6 @@ def main(silent=False, verbose=True):
     '''
 
     lambda0 = 1500.0 * u.Angstrom
-
-    #Kroupa to Chabrier offset
-    imf_offset = -np.log10(4.4e-42) - 41.257
-    print(imf_offset)
 
     fig, ax = plt.subplots(ncols=2)
 
