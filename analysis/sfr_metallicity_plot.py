@@ -28,7 +28,7 @@ Z_arr = np.arange(-2,0.5,0.001)
 #Kroupa to Chabrier offset
 imf_offset = -np.log10(4.4e-42) - 41.257
 
-def plot_panel(t_ax, z_metal, sfr_convs, ylabel):
+def plot_panel(t_ax, z_metal, sfr_convs, ylabel, showlegend=False):
     fit0   = np.polyfit(np.log10(z_metal/0.02), sfr_convs, 2)
     print(fit0)
     p_fit0 = np.poly1d(fit0)
@@ -59,7 +59,8 @@ def plot_panel(t_ax, z_metal, sfr_convs, ylabel):
                  edgecolor='none', alpha=0.5, label='Chabrier IMF')
     t_ax.plot(10**Z_arr, arr1, 'b--')
 
-    t_ax.legend(loc='upper right', fancybox=True, fontsize=12, framealpha=0.5)
+    if showlegend:
+        t_ax.legend(loc='upper right', fancybox=True, fontsize=12, framealpha=0.5)
     t_ax.set_xlim([1e-2,3])
     t_ax.set_xscale('log')
     t_ax.minorticks_on()
