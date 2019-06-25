@@ -28,7 +28,7 @@ Z_arr = np.arange(-2,0.5,0.001)
 #Kroupa to Chabrier offset
 imf_offset = -np.log10(4.4e-42) - 41.257
 
-def plot_panel(t_ax, z_metal, sfr_convs, ylabel, showlegend=False):
+def plot_panel(t_ax, z_metal, sfr_convs, ylabel, showlegend=False, labelx=False):
     fit0   = np.polyfit(np.log10(z_metal/0.02), sfr_convs, 2)
     print(fit0)
     p_fit0 = np.poly1d(fit0)
@@ -64,7 +64,10 @@ def plot_panel(t_ax, z_metal, sfr_convs, ylabel, showlegend=False):
     t_ax.set_xlim([1e-2,3])
     t_ax.set_xscale('log')
     t_ax.minorticks_on()
-    t_ax.set_xlabel(r'$Z/Z_{\odot}$')
+    if labelx:
+        t_ax.set_xlabel(r'$Z/Z_{\odot}$')
+    else:
+        t_ax.set_xticklabels([])
     t_ax.set_ylabel(ylabel)
 
     ann_str0 += r'Chabrier: $P_0$=%.3f $P_1$=%.3f $P_2$=%.3f' % \
@@ -126,7 +129,7 @@ def main(silent=False, verbose=True):
     Lnu = nuLnu - nu_offset
 
     ylabel = r'$L_{\nu}(1500\AA)$/SFR [erg s$^{-1}$ Hz$^{-1}$/$M_{\odot}$ yr$^{-1}$]'
-    Lnu_fit_kr, Lnu_fit_ch = plot_panel(ax[0][1], Z, Lnu, ylabel)
+    Lnu_fit_kr, Lnu_fit_ch = plot_panel(ax[0][1], Z, Lnu, ylabel, labelx=True)
 
     # Plot K98 relation
     ax[0][1].scatter([1.0], -1*np.log10(1.4e-28), color='green', marker='o',
@@ -139,7 +142,7 @@ def main(silent=False, verbose=True):
     LHa = [41.061, 41.257, 41.381, 41.439, 41.536]
 
     ylabel = r'$L({\rm H}\alpha)$/SFR [erg s$^{-1}$/$M_{\odot}$ yr$^{-1}$]'
-    LHa_fit_kr, LHa_fit_ch = plot_panel(ax[1][0], Z, LHa, ylabel)
+    LHa_fit_kr, LHa_fit_ch = plot_panel(ax[1][0], Z, LHa, ylabel, labelx=True)
 
     ax[1][1].axis('off')
 
