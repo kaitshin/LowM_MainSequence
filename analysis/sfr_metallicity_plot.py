@@ -105,7 +105,7 @@ def main(silent=False, verbose=True):
 
     Z       = [    0.05,     0.02,    0.008,    0.004,   0.0004]
     Z       = np.array(Z)
-    Llambda = [40.12892, 40.21840, 40.25546, 40.27597, 40.30982]
+    Llambda = np.array([40.12892, 40.21840, 40.25546, 40.27597, 40.30982])
     '''
     From Starburst99 CSF 1 Msun/yr model with Kroupa IMF and
     Padova stellar tracks.  Log units of erg/s/Ang. Using
@@ -129,7 +129,7 @@ def main(silent=False, verbose=True):
     Lnu = nuLnu - nu_offset
 
     ylabel = r'$L_{\nu}(1500\AA)$/SFR [erg s$^{-1}$ Hz$^{-1}$/$M_{\odot}$ yr$^{-1}$]'
-    Lnu_fit_kr, Lnu_fit_ch = plot_panel(ax[0][1], Z, Lnu, ylabel, labelx=True)
+    Lnu_fit_kr, Lnu_fit_ch = plot_panel(ax[0][1], Z, Lnu, ylabel)
 
     # Plot K98 relation
     ax[0][1].scatter([1.0], -1*np.log10(1.4e-28), color='green', marker='o',
@@ -139,12 +139,17 @@ def main(silent=False, verbose=True):
 
 
     # Plot H-alpha in ax[1][0]
-    LHa = [41.061, 41.257, 41.381, 41.439, 41.536]
+    LHa = np.array([41.061, 41.257, 41.381, 41.439, 41.536])
 
     ylabel = r'$L({\rm H}\alpha)$/SFR [erg s$^{-1}$/$M_{\odot}$ yr$^{-1}$]'
     LHa_fit_kr, LHa_fit_ch = plot_panel(ax[1][0], Z, LHa, ylabel, labelx=True)
 
-    ax[1][1].axis('off')
+
+    # Plot nuLnu vs LHa in ax[1][1]
+    ylabel = r'$\nu L_{\nu}(1500\AA)/L({\rm H}\alpha)$'
+    nuLnu_LHa_fit_kr, nuLnu_LHa_fit_ch = plot_panel(ax[1][1], Z, nuLnu-LHa, ylabel,
+                                                    labelx=True)
+
 
     plt.subplots_adjust(left=0.085, right=0.995, bottom=0.07, top=0.98, wspace=0.225,
                         hspace=0.04)
