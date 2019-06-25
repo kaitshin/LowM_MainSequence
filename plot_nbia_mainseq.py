@@ -87,7 +87,7 @@ def salim_2007(ax):
 
     ax.plot(xarr, lowlim, 'k--', zorder=1, lw=0.5)
     ax.plot(xarr, uplim, 'k--', zorder=1, lw=0.5)
-    ax.fill_between(xarr, lowlim, uplim, color='gray', alpha=0.4)
+    ax.fill_between(xarr, lowlim, uplim, color='gray', alpha=0.2)
     salim, = ax.plot(xarr, salim_line(xarr), 'k-',
         label='Salim+07 (z~0)', zorder=1, lw=0.5)
 
