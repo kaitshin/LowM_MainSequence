@@ -111,28 +111,36 @@ def main(silent=False, verbose=True):
 
     lambda0 = 1500.0 * u.Angstrom
 
-    fig, ax = plt.subplots(ncols=2)
+    fig, ax = plt.subplots(ncols=2, nrows=2)
 
-    # nuL_nu in ax[0]
+    # nuL_nu in ax[0][0]
 
     # nu Lnu = lambda Llambda
     nuLnu = Llambda + np.log10(lambda0.value)
 
     ylabel = r'$\nu L_{\nu}(1500\AA)$/SFR [erg s$^{-1}$/$M_{\odot}$ yr$^{-1}$]'
-    nuLnu_fit_kr, nuLnu_fit_ch = plot_panel(ax[0], Z, nuLnu, ylabel, showlegend=True)
+    nuLnu_fit_kr, nuLnu_fit_ch = plot_panel(ax[0][0], Z, nuLnu, ylabel, showlegend=True)
 
-    # L_nu in ax[1]
+    # L_nu in ax[0][1]
     nu_offset = np.log10(c0.to(u.m/u.s).value/lambda0.to(u.m).value)
     Lnu = nuLnu - nu_offset
 
     ylabel = r'$L_{\nu}(1500\AA)$/SFR [erg s$^{-1}$ $\AA^{-1}$/$M_{\odot}$ yr$^{-1}$]'
-    Lnu_fit_kr, Lnu_fit_ch = plot_panel(ax[1], Z, Lnu, ylabel)
+    Lnu_fit_kr, Lnu_fit_ch = plot_panel(ax[0][1], Z, Lnu, ylabel)
 
     # Plot K98 relation
-    ax[1].scatter([1.0], -1*np.log10(1.4e-28), color='green', marker='o',
+    ax[0][1].scatter([1.0], -1*np.log10(1.4e-28), color='green', marker='o',
                   s=50, edgecolor='none', alpha=0.5)
-    ax[1].annotate('K98', [1.05,-1*np.log10(1.4e-28*0.98)], xycoords='data',
+    ax[0][1].annotate('K98', [1.05,-1*np.log10(1.4e-28*0.98)], xycoords='data',
                    fontsize=8, ha='left', va='bottom')
+
+
+    # Plot H-alpha in ax[1][0]
+    LHa = [41.061, 41.257, 41.381, 41.439, 41.536]
+
+    ylabel = r'$L({\rm H}\alpha})$/SFR [erg s$^{-1}$/$M_{\odot}$ yr$^{-1}$]'
+    LHa_fit_kr, LHa_fit_ch = plot_panel(ax[1][0], Z, LHa, ylabel)
+    
 
     plt.subplots_adjust(left=0.085, right=0.995, bottom=0.11, top=0.98, wspace=0.225)
     out_pdf = '/Users/cly/Google Drive/NASA_Summer2015/Plots/sfr_metallicity_plot.pdf'
