@@ -125,7 +125,7 @@ def main(silent=False, verbose=True):
     nu_offset = np.log10(c0.to(u.m/u.s).value/lambda0.to(u.m).value)
     Lnu = nuLnu - nu_offset
 
-    ylabel = r'$L_{\nu}(1500\AA)$/SFR [erg s$^{-1}$ $\AA^{-1}$/$M_{\odot}$ yr$^{-1}$]'
+    ylabel = r'$L_{\nu}(1500\AA)$/SFR [erg s$^{-1}$ Hz$^{-1}$/$M_{\odot}$ yr$^{-1}$]'
     Lnu_fit_kr, Lnu_fit_ch = plot_panel(ax[0][1], Z, Lnu, ylabel)
 
     # Plot K98 relation
@@ -138,13 +138,15 @@ def main(silent=False, verbose=True):
     # Plot H-alpha in ax[1][0]
     LHa = [41.061, 41.257, 41.381, 41.439, 41.536]
 
-    ylabel = r'$L({\rm H}\alpha})$/SFR [erg s$^{-1}$/$M_{\odot}$ yr$^{-1}$]'
+    ylabel = r'$L({\rm H}\alpha)$/SFR [erg s$^{-1}$/$M_{\odot}$ yr$^{-1}$]'
     LHa_fit_kr, LHa_fit_ch = plot_panel(ax[1][0], Z, LHa, ylabel)
-    
 
-    plt.subplots_adjust(left=0.085, right=0.995, bottom=0.11, top=0.98, wspace=0.225)
+    ax[1][1].axis('off')
+
+    plt.subplots_adjust(left=0.085, right=0.995, bottom=0.07, top=0.98, wspace=0.225,
+                        hspace=0.04)
     out_pdf = '/Users/cly/Google Drive/NASA_Summer2015/Plots/sfr_metallicity_plot.pdf'
-    fig.set_size_inches(10,5)
+    fig.set_size_inches(10,8)
     fig.savefig(out_pdf)
 
     if silent == False: log.info('### End main : '+systime())
