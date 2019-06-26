@@ -157,5 +157,12 @@ def main(silent=False, verbose=True):
     fig.set_size_inches(10,8)
     fig.savefig(out_pdf)
 
+    out_npzfile = out_pdf.replace('.pdf', '_fit.npz')
+    np.savez(out_npzfile, nuLnu_fit_kr=nuLnu_fit_kr, nuLnu_fit_ch=nuLnu_fit_ch,
+             Lnu_fit_kr=Lnu_fit_kr, Lnu_fit_ch=Lnu_fit_ch,
+             LHa_fit_kr=LHa_fit_kr, LHa_fit_ch=LHa_fit_ch,
+             nuLnu_LHa_fit_kr=nuLnu_LHa_fit_kr,
+             nuLnu_LHa_fit_ch=nuLnu_LHa_fit_ch)
+
     if silent == False: log.info('### End main : '+systime())
 #enddef
