@@ -122,7 +122,8 @@ def main(silent=False, verbose=True):
     nuLnu = Llambda + np.log10(lambda0.value)
 
     ylabel = r'$\nu L_{\nu}(1500\AA)$/SFR [erg s$^{-1}$/$M_{\odot}$ yr$^{-1}$]'
-    nuLnu_fit_kr, nuLnu_fit_ch = plot_panel(ax[0][0], Z, nuLnu, ylabel, showlegend=True)
+    nuLnu_fit_kr, nuLnu_fit_ch = plot_panel(ax[0][0], Z, nuLnu, ylabel,
+                                            showlegend=True)
 
     # L_nu in ax[0][1]
     nu_offset = np.log10(c0.to(u.m/u.s).value/lambda0.to(u.m).value)
@@ -147,12 +148,13 @@ def main(silent=False, verbose=True):
 
     # Plot nuLnu vs LHa in ax[1][1]
     ylabel = r'$\nu L_{\nu}(1500\AA)/L({\rm H}\alpha)$'
-    nuLnu_LHa_fit_kr, nuLnu_LHa_fit_ch = plot_panel(ax[1][1], Z, nuLnu-LHa, ylabel,
-                                                    labelx=True)
+    nuLnu_LHa_fit_kr, \
+        nuLnu_LHa_fit_ch = plot_panel(ax[1][1], Z, nuLnu-LHa, ylabel,
+                                      labelx=True)
 
 
-    plt.subplots_adjust(left=0.085, right=0.995, bottom=0.07, top=0.98, wspace=0.225,
-                        hspace=0.04)
+    plt.subplots_adjust(left=0.085, right=0.995, bottom=0.07, top=0.98,
+                        wspace=0.225, hspace=0.04)
     out_pdf = '/Users/cly/Google Drive/NASA_Summer2015/Plots/sfr_metallicity_plot.pdf'
     fig.set_size_inches(10,8)
     fig.savefig(out_pdf)
