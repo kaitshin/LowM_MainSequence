@@ -69,13 +69,13 @@ def get_flux(ID, lambda_arr):
     return newflux
 
 
-#----get_lnu-----------------------------------------------------------------#
-# o Calls get_flux with an array of redshifted wavelengths in order to get
-#   the corresponding flux values. Those f_lambda values are then converted
-#   into f_nu values, which is in turn converted into L_nu, the log of
-#   which is returned as nu_lnu.
-#----------------------------------------------------------------------------#
 def get_lnu(filt_index):
+    '''
+    Calls get_flux with an array of redshifted wavelengths in order to get
+    the corresponding flux values. Those f_lambda values are then converted
+    into f_nu values, which is in turn converted into L_nu, the log of
+    which is returned as nu_lnu.
+    '''
     ID    = ha_id[filt_index]
     zspec = ha_zspec[filt_index]
     zphot = ha_zphot[filt_index]
@@ -98,13 +98,14 @@ def get_lnu(filt_index):
 #endef
 
 
-#----get_bad_FUV_NUV---------------------------------------------------------#
-# o This code first looks at the filter to determine whether it'll look at
-#   the FUV or the NUV flux. Then, the indexes where that flux doesn't
-#   exist (==-99) are returned as well as a color (for plotting).
-# o Note: the indexes are returned as 'the indexes of filt_match'
-#----------------------------------------------------------------------------#
 def get_bad_FUV_NUV(ff, filt_match):
+    '''
+    This code first looks at the filter to determine whether it'll look at
+    the FUV or the NUV flux. Then, the indexes where that flux doesn't
+    exist (==-99) are returned as well as a color (for plotting).
+
+    Note: the indexes are returned as 'the indexes of filt_match'
+    '''
     if ff=='NB704' or ff=='NB711':
         flux_filt = f_FUV[filt_match]
         tempcolor='teal'
@@ -117,25 +118,29 @@ def get_bad_FUV_NUV(ff, filt_match):
 #enddef
 
 
-#----plot_SFR_Ha_vs_SED------------------------------------------------------#
-# o Plots the SFR from the SED fits against the Ha luminosity (observed, but
-#   corrected for filter and nii/ha). There are four different subplots:
-#   * (a) SED SFR vs. observed Ha luminosity
-#   * (b) SED SFR vs. Ha luminosity+0.4dex (corrected for 1 mag. extinction)
-#   * (c) SED SFR vs. Hopkins corrected Ha luminosity (N/A as of 170815)
-#   * (d) SED SFR vs. dust-corrected Ha luminosity
-# o Iterates by filter to plot the points in different colors. Good zspec
-#   sources are filled, while bad zspec sources are empty.
-# o The 'ideal' line is plotted in red, with the median line (obtained from
-#   yarr_values-xarr_values) plotted in a dashed black. The last plot
-#   has cyan dotted lines marking a 'cutoff' above which SED plots were
-#   generated.
-# o The plot is modified, with labels added before the figure is saved and
-#   closed.
-# o If using GALEX files, get_bad_FUV_NUV is called to find where there is
-#   no UV photometry (filter-dependent whether code looks at FUV or NUV).
-#----------------------------------------------------------------------------#
 def plot_SFR_Ha_vs_SED():
+    '''
+    Plots the SFR from the SED fits against the Ha luminosity (observed, but
+    corrected for filter and nii/ha). There are four different subplots:
+    * (a) SED SFR vs. observed Ha luminosity
+    * (b) SED SFR vs. Ha luminosity+0.4dex (corrected for 1 mag. extinction)
+    * (c) SED SFR vs. Hopkins corrected Ha luminosity (N/A as of 170815)
+    * (d) SED SFR vs. dust-corrected Ha luminosity
+
+    Iterates by filter to plot the points in different colors. Good zspec
+    sources are filled, while bad zspec sources are empty.
+
+    The 'ideal' line is plotted in red, with the median line (obtained from
+    yarr_values-xarr_values) plotted in a dashed black. The last plot
+    has cyan dotted lines marking a 'cutoff' above which SED plots were
+    generated.
+
+    The plot is modified, with labels added before the figure is saved and
+    closed.
+
+    If using GALEX files, get_bad_FUV_NUV is called to find where there is
+    no UV photometry (filter-dependent whether code looks at FUV or NUV).
+    '''
     print '### plotting SFR_Ha vs. SFR_SED'
     f, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, sharex='col', sharey='row')
     f.subplots_adjust(hspace=0.05)
@@ -241,11 +246,11 @@ def plot_SFR_Ha_vs_SED():
 #enddef
 
 
-#----get_corr0---------------------------------------------------------------#
-# o Returns the correction factor for the UV luminosity based on 1 magnitude
-#   of Halpha extinction in the UV band.
-#----------------------------------------------------------------------------#
 def get_corr0():
+    '''
+    Returns the correction factor for the UV luminosity based on 1 magnitude
+    of Halpha extinction in the UV band.
+    '''
     Ha_lambda = 0.6563
     K_Ha      = (2.659*(-1.857 + 1.040/Ha_lambda) + 4.05)
     Estar     = 1.0 * 0.44 / K_Ha
@@ -258,18 +263,22 @@ def get_corr0():
 #enddef
 
 
-#----get_corr12--------------------------------------------------------------#
-# o Method is function is called on a filter-by-filter case.
-# o Reads in the EBV file and then finds the indexes at which there are the
-#   Ha+ff emitters in both cases. At those indexes, the 2nd correciton
-#   factor uses those Egas values*0.44 instead of the Estar values obtained
-#   from the .fout file.
-# o Returns the 1st correction factor for the UV luminosity
-# o Returns the 2nd correction factor for the Ha luminosity
-# o Returns the relevant index matches from the original 9264-source-long
-#   file. Important really only for the Balmer decrements only plot.
-#----------------------------------------------------------------------------#
 def get_corr12(filt_match):
+    '''
+    Method is function is called on a filter-by-filter case.
+
+    Reads in the EBV file and then finds the indexes at which there are the
+    Ha+ff emitters in both cases. At those indexes, the 2nd correciton
+    factor uses those Egas values*0.44 instead of the Estar values obtained
+    from the .fout file.
+
+    Returns the 1st correction factor for the UV luminosity
+
+    Returns the 2nd correction factor for the Ha luminosity
+
+    Returns the relevant index matches from the original 9264-source-long
+    file. Important really only for the Balmer decrements only plot.
+    '''
     UV_lambda  = 0.15
     K_UV       = (2.659*(-2.156 + 1.509/UV_lambda - 0.198/UV_lambda**2
                          + 0.011/UV_lambda**3)+ 4.05)
@@ -306,24 +315,28 @@ def get_corr12(filt_match):
 #enddef
 
     
-#----plot_SFR_Ha_vs_UV-------------------------------------------------------#
-# o Plots the luminosity from the UV photometry (at 1500 angstroms) against
-#   the Ha luminosity (observed, but corrected for filter and nii/ha). There
-#   are four different subplots:
-#   * (a) L_nu vs. observed Ha luminosity
-#   * (b) L_nu+corr0 vs. Ha lumin+0.4dex (corrected for 1 mag. extinction)
-#   * (c) L_nu+(??) vs. Hopkins corrected Ha luminosity (N/A as of 170815)
-#   * (d) L_nu+corr1 vs. dust-corrected Ha luminosity+corr2
-# o Iterates by filter to plot the points in different colors. Good zspec
-#   sources are filled, while bad zspec sources are empty.
-# o The median line (obtained from yarr_values-xarr_values) is plotted in a
-#   dashed black.
-# o The plot is modified, with labels added before the figure is saved and
-#   closed.
-# o If using GALEX files, get_bad_FUV_NUV is called to find where there is
-#   no UV photometry (filter-dependent whether code looks at FUV or NUV).
-#----------------------------------------------------------------------------#
 def plot_SFR_Ha_vs_UV():
+    '''
+    Plots the luminosity from the UV photometry (at 1500 angstroms) against
+    the Ha luminosity (observed, but corrected for filter and nii/ha). There
+    are four different subplots:
+    * (a) L_nu vs. observed Ha luminosity
+    * (b) L_nu+corr0 vs. Ha lumin+0.4dex (corrected for 1 mag. extinction)
+    * (c) L_nu+(??) vs. Hopkins corrected Ha luminosity (N/A as of 170815)
+    * (d) L_nu+corr1 vs. dust-corrected Ha luminosity+corr2
+
+    Iterates by filter to plot the points in different colors. Good zspec
+    sources are filled, while bad zspec sources are empty.
+
+    The median line (obtained from yarr_values-xarr_values) is plotted in a
+    dashed black.
+
+    The plot is modified, with labels added before the figure is saved and
+    closed.
+
+    If using GALEX files, get_bad_FUV_NUV is called to find where there is
+    no UV photometry (filter-dependent whether code looks at FUV or NUV).
+    '''
     print '### plotting SFR_Ha vs. SFR_UV'
     f, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, sharex='col', sharey='row')
     f.subplots_adjust(hspace=0.05)
@@ -426,16 +439,18 @@ def plot_SFR_Ha_vs_UV():
 #enddef
 
 
-#----plot_just_balmer_decrements---------------------------------------------#
-# o Iterating by filter, plots only those sources that had a Balmer
-#   correction applied to it (different filter->different color). Good zspec
-#   sources are filled; bad zspec sources are empty.
-# o By subtracting the xarr values from the yarr values, the median is
-#   obtained; that line is then plotted (assuming a slope of 1) and the
-#   value of that and the standard deviation are in the lower right corner.
-# o The plot is then saved and closed.
-#----------------------------------------------------------------------------#
 def plot_just_balmer_decrements():
+    '''
+    Iterating by filter, plots only those sources that had a Balmer
+    correction applied to it (different filter->different color). Good zspec
+    sources are filled; bad zspec sources are empty.
+
+    By subtracting the xarr values from the yarr values, the median is
+    obtained; that line is then plotted (assuming a slope of 1) and the
+    value of that and the standard deviation are in the lower right corner.
+
+    The plot is then saved and closed.
+    '''
     print '### plotting just_balmer_decrements'
     f, ax = plt.subplots()
     for (ff, cc) in zip(filt_arr, color_arr):
