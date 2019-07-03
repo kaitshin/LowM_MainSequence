@@ -50,21 +50,23 @@ fileend='.GALEX'
 
 FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
 
-#----get_flux----------------------------------------------------------------#
-# o Reads in the relevant SED spectrum file and then interpolates the
-#   function to obtain a flux, the array of which is then returned.
-#----------------------------------------------------------------------------#
+
 def get_flux(ID, lambda_arr):
+    '''
+    Reads in the relevant SED spectrum file and then interpolates the
+    function to obtain a flux, the array of which is then returned.
+    '''
     newflux = np.zeros(len(ID))
     for ii in range(len(ID)):
-        tempfile = asc.read('FAST/outputs/BEST_FITS/NB_IA_emitters_allphot.emagcorr.ACpsf_fast'+fileend+'_'+str(ID[ii])+'.fit',guess=False,Reader=asc.NoHeader)
+        tempfile = asc.read(FULL_PATH+
+            'FAST/outputs/BEST_FITS/NB_IA_emitters_allphot.emagcorr.ACpsf_fast'+
+            fileend+'_'+str(ID[ii])+'.fit', guess=False,Reader=asc.NoHeader)
         wavelength = np.array(tempfile['col1'])
         flux = np.array(tempfile['col2'])
         f = interpolate.interp1d(wavelength, flux)
         newflux[ii] = f(lambda_arr[ii])
-    #endfor
+
     return newflux
-#enddef
 
 
 #----get_lnu-----------------------------------------------------------------#
@@ -144,9 +146,8 @@ def plot_SFR_Ha_vs_SED():
         filt_match = np.array([x for x in range(len(names)) if 'Ha-'+ff in
                                names[x]])
         filtz = ha_zspec[filt_match]
-        if 'GALEX' in fileend:
-            bad_UV, tempcolor = get_bad_FUV_NUV(ff, filt_match)
-        #endif
+        bad_UV, tempcolor = get_bad_FUV_NUV(ff, filt_match)
+
         goodz = np.array([x for x in range(len(filtz)) if filtz[x]>0 and
                           filtz[x] < 9])
         badz  = np.array([x for x in range(len(filtz)) if filtz[x]<=0 or
@@ -155,34 +156,29 @@ def plot_SFR_Ha_vs_SED():
                     facecolor=cc, edgecolor='none', alpha=0.5)
         ax1.scatter(sed_sfr[filt_match][badz], nii_lumin[filt_match][badz],
                     facecolor='none', edgecolor=cc, linewidth=0.5, alpha=0.5)
-        if 'GALEX' in fileend:
-            ax1.scatter(sed_sfr[filt_match][bad_UV],
-                        nii_lumin[filt_match][bad_UV], marker='x',
-                        color=tempcolor,alpha=0.5,linewidth=0.5)
-        #endif
+        ax1.scatter(sed_sfr[filt_match][bad_UV],
+                    nii_lumin[filt_match][bad_UV], marker='x',
+                    color=tempcolor,alpha=0.5,linewidth=0.5)
+
         
         ax2.scatter(sed_sfr[filt_match][goodz],
                     nii_lumin[filt_match][goodz]+0.4, facecolor=cc,
                     edgecolor='none', alpha=0.5)
         ax2.scatter(sed_sfr[filt_match][badz], nii_lumin[filt_match][badz]+0.4,
                     facecolor='none', edgecolor=cc, linewidth=0.5, alpha=0.5)
-        if 'GALEX' in fileend:
-            ax2.scatter(sed_sfr[filt_match][bad_UV],
-                        nii_lumin[filt_match][bad_UV]+0.4, marker='x',
-                        color=tempcolor,alpha=0.5,linewidth=0.5)
-        #endif
-        
+        ax2.scatter(sed_sfr[filt_match][bad_UV],
+                    nii_lumin[filt_match][bad_UV]+0.4, marker='x',
+                    color=tempcolor,alpha=0.5,linewidth=0.5)        
     
     
         ax4.scatter(sed_sfr[filt_match][goodz], dust_lumin[filt_match][goodz],
                     facecolor=cc, edgecolor='none', alpha=0.5)
         ax4.scatter(sed_sfr[filt_match][badz], dust_lumin[filt_match][badz],
                     facecolor='none', edgecolor=cc, linewidth=0.5, alpha=0.5)
-        if 'GALEX' in fileend:
-            ax4.scatter(sed_sfr[filt_match][bad_UV],
-                        dust_lumin[filt_match][bad_UV], marker='x',
-                        color=tempcolor,alpha=0.5,linewidth=0.5)
-        #endif
+        ax4.scatter(sed_sfr[filt_match][bad_UV],
+                    dust_lumin[filt_match][bad_UV], marker='x',
+                    color=tempcolor,alpha=0.5,linewidth=0.5)
+
     #endfor
     plt.setp([a.minorticks_on() for a in f.axes[:]])
     plt.setp([a.set_xlim(-6, 4) and a.set_ylim(37, 44) for a in f.axes[:]])
@@ -231,14 +227,11 @@ def plot_SFR_Ha_vs_SED():
                             linewidth=0.5, label='median='
                             +str(np.around(median, 3))+'\nstd dev='
                             +str(np.around(stddev, 3)))
-            if 'GALEX' in fileend:
-                legend0 = ax.legend(handles=[line,f0,n0],fontsize=9,
-                                    loc='lower right',frameon=False,
-                                    numpoints=1)
-            else:
-                legend0 = ax.legend(handles=[line],fontsize=9,
-                                    loc='lower right',frameon=False,
-                                    numpoints=1)
+
+            legend0 = ax.legend(handles=[line,f0,n0],fontsize=9,
+                                loc='lower right',frameon=False,
+                                numpoints=1)
+
             ax.add_artist(legend0)
         #endif
     #endfor
@@ -342,9 +335,8 @@ def plot_SFR_Ha_vs_UV():
                                names[x]])
         filtz = ha_zspec[filt_match]
         lnu = get_lnu(filt_match)
-        if 'GALEX' in fileend:
-            bad_UV, tempcolor = get_bad_FUV_NUV(ff, filt_match)
-        #endif
+        bad_UV, tempcolor = get_bad_FUV_NUV(ff, filt_match)
+
         goodz = np.array([x for x in range(len(filtz)) if filtz[x]>0 and
                           filtz[x] < 9])
         badz  = np.array([x for x in range(len(filtz)) if filtz[x]<=0 or
@@ -353,20 +345,16 @@ def plot_SFR_Ha_vs_UV():
                     edgecolor='none', alpha=0.5)
         ax1.scatter(lnu[badz], nii_lumin[filt_match][badz], facecolor='none',
                     edgecolor=cc, linewidth=0.5, alpha=0.5)
-        if 'GALEX' in fileend:
-            ax1.scatter(lnu[bad_UV], nii_lumin[filt_match][bad_UV], marker='x',
-                        color=tempcolor,alpha=0.5,linewidth=0.5)
-        #endif
+        ax1.scatter(lnu[bad_UV], nii_lumin[filt_match][bad_UV], marker='x',
+                    color=tempcolor,alpha=0.5,linewidth=0.5)
 
         corr0 = get_corr0()        
         ax2.scatter(lnu[goodz]+corr0, nii_lumin[filt_match][goodz]+0.4,
                     facecolor=cc, edgecolor='none', alpha=0.5)
         ax2.scatter(lnu[badz]+corr0, nii_lumin[filt_match][badz]+0.4,
                     facecolor='none', edgecolor=cc, linewidth=0.5, alpha=0.5)
-        if 'GALEX' in fileend:
-            ax2.scatter(lnu[bad_UV]+corr0, nii_lumin[filt_match][bad_UV]+0.4,
-                        marker='x', color=tempcolor,alpha=0.5,linewidth=0.5)
-        #endif
+        ax2.scatter(lnu[bad_UV]+corr0, nii_lumin[filt_match][bad_UV]+0.4,
+                    marker='x', color=tempcolor,alpha=0.5,linewidth=0.5)
         
         corr1, corr2, indexa = get_corr12(filt_match)
         ax4.scatter(lnu[goodz]+corr1[goodz],
@@ -375,11 +363,10 @@ def plot_SFR_Ha_vs_UV():
         ax4.scatter(lnu[badz]+corr1[badz],
                     dust_lumin[filt_match][badz]+corr2[badz], facecolor='none',
                     edgecolor=cc, linewidth=0.5, alpha=0.5)
-        if 'GALEX' in fileend:
-            ax4.scatter(lnu[bad_UV]+corr1[bad_UV],
-                        dust_lumin[filt_match][bad_UV]+corr2[bad_UV],
-                        marker='x',color=tempcolor,alpha=0.5,linewidth=0.5)
-        #endif
+        ax4.scatter(lnu[bad_UV]+corr1[bad_UV],
+                    dust_lumin[filt_match][bad_UV]+corr2[bad_UV],
+                    marker='x',color=tempcolor,alpha=0.5,linewidth=0.5)
+
     #endfor
     plt.setp([a.minorticks_on() for a in f.axes[:]])
     plt.setp([a.set_xlim(23, 32) and a.set_ylim(37, 47) for a in f.axes[:]])
@@ -425,14 +412,11 @@ def plot_SFR_Ha_vs_UV():
                             linewidth=0.5, label='median='
                             +str(np.around(median, 3))+'\nstd dev='
                             +str(np.around(stddev, 3)))
-            if 'GALEX' in fileend:
-                legend0 = ax.legend(handles=[line,f0,n0],fontsize=9,
-                                    loc='lower right',frameon=False,
-                                    numpoints=1)
-            else:
-                legend0 = ax.legend(handles=[line],fontsize=9,
-                                    loc='lower right',frameon=False,
-                                    numpoints=1)
+
+            legend0 = ax.legend(handles=[line,f0,n0],fontsize=9,
+                                loc='lower right',frameon=False,
+                                numpoints=1)
+
             ax.add_artist(legend0)
         #endif
     #endfor
@@ -526,12 +510,11 @@ nii_sfr  = corrdata['nii_ha_corr_sfr']
 dust_lumin = corrdata['dust_corr_lumin']
 dust_sfr = corrdata['dust_corr_sfr']
 
-if 'GALEX' in fileend:
-    catfile = asc.read('Catalogs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast'
-                       +fileend+'.cat',guess=False,Reader=asc.CommentedHeader)
-    f_FUV = np.array(catfile['f_FUV'])
-    f_NUV = np.array(catfile['f_NUV'])
-#endif
+
+catfile = asc.read('Catalogs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast'
+    +fileend+'.cat',guess=False,Reader=asc.CommentedHeader)
+f_FUV = np.array(catfile['f_FUV'])
+f_NUV = np.array(catfile['f_NUV'])
 
 fout = asc.read('FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast'
                 +fileend+'.fout',guess=False,Reader=asc.NoHeader)
@@ -546,15 +529,13 @@ id_match = np.array([x for x in range(len(fout_ID)) if fout_ID[x] in ha_id])
 sed_sfr = sed_sfr[id_match]
 ha_zphot = fout_zphot[id_match]
 A_V = A_V[id_match]
-if 'GALEX' in fileend:
-    f_FUV = f_FUV[id_match]
-    f_NUV = f_NUV[id_match]
+f_FUV = f_FUV[id_match]
+f_NUV = f_NUV[id_match]
 
 
 #getting rid of the 'bad' sed_sfr fits
-bad_index = np.array([x for x in range(len(sed_sfr)) if (sed_sfr[x]==-99. or
-                                                         sed_sfr[x]==-1. or
-                                                         sed_sfr[x] <=-5)])
+bad_index = np.array([x for x in range(len(sed_sfr)) 
+    if (sed_sfr[x]==-99. or sed_sfr[x]==-1. or sed_sfr[x] <=-5)])
 bad_index = np.array(bad_index,dtype=np.int32)
 names = np.delete(names, bad_index)
 sed_sfr = np.delete(sed_sfr, bad_index)
@@ -566,9 +547,8 @@ ha_zspec = np.delete(ha_zspec, bad_index)
 ha_id = np.delete(ha_id, bad_index)
 ha_zphot = np.delete(ha_zphot, bad_index)
 A_V = np.delete(A_V, bad_index)
-if 'GALEX' in fileend:
-    f_FUV = np.delete(f_FUV, bad_index)
-    f_NUV = np.delete(f_NUV, bad_index)
+f_FUV = np.delete(f_FUV, bad_index)
+f_NUV = np.delete(f_NUV, bad_index)
 
 filt_arr = ['NB704','NB711','NB816','NB921','NB973']
 color_arr = ['red','orange','green','blue','purple']
