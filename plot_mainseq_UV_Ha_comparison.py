@@ -63,12 +63,12 @@ def get_flux(ID, lambda_arr):
     return newflux
 
 
-def get_nu_lnu(filt_index_haii, ff):
+def get_lnu(filt_index_haii, ff):
     '''
     Calls get_flux with an array of redshifted wavelengths in order to get
     the corresponding flux values. Those f_lambda values are then converted
-    into f_nu values, which is in turn converted into L_nu and multiplied by
-    nu, the log of which is returned as nu_lnu.
+    into f_nu values, which is in turn converted into L_nu, the log of which
+    is returned as nu_lnu.
     '''
     ID = corrID[filt_index_haii]
     zspec = corrzspec0[filt_index_haii]
@@ -84,8 +84,21 @@ def get_nu_lnu(filt_index_haii, ff):
 
     f_lambda = get_flux(ID, lambda_arr)
     f_nu = f_lambda*(1E-19*(lambda_arr**2*1E-10)/(constants.c.value))
-    L_nu = f_nu*4*np.pi*(cosmo.luminosity_distance(tempz).to(u.cm).value)**2
-    return np.log10(L_nu*((constants.c.value)/1.5E-7))
+    # L_nu = f_nu*4*np.pi*(cosmo.luminosity_distance(tempz).to(u.cm).value)**2
+    # return np.log10(L_nu*((constants.c.value)/1.5E-7)) # getting nu from 1500AA
+    log_L_nu = np.log10(f_nu*4*np.pi) + \
+        2*np.log10(cosmo.luminosity_distance(tempz).to(u.cm).value)
+    return log_L_nu
+
+
+def get_nu_lnu(filt_index_haii, ff):
+    '''
+    Calls get_lnu to get log(L_nu) and multiplied by log(nu), which is
+    then returned as log(nu_lnu)
+    '''
+    log_L_nu = get_lnu(filt_index_haii, ff)
+    return (np.log10(constants.c.value) - np.log10((1500*u.AA).to(u.m).value)) \
+        + log_L_nu
 
 
 def make_scatter_plot(nu_lnu, l_ha, ff, ltype):
@@ -206,7 +219,11 @@ def make_all_ratio_plot(L_ha, ltype, xarr_type='stlr'):
             raise ValueError('Incorrect xarr_type provided (must be either \'stlr\' or \'sfr\'')
 
         nu_lnu = get_nu_lnu(filt_index_haii, ff)
-        
+        lmbda = (1500*u.AA).to(u.um).value
+        K_1500 = (2.659*(-2.156 + 1.509/lmbda - 0.198/lmbda**2 + 0.011/lmbda**3)+ 4.05)
+        A_1500 = K_1500 * corr_tbl['EBV'].data[filt_index_haii]
+        nu_lnu += 0.4*A_1500 # (dust correction: A_V = A(1500AA) = 10.33)
+ 
         ratio = nu_lnu-l_ha
         xposdata = np.append(xposdata, xpos_arr)
         yposdata = np.append(yposdata, ratio)
