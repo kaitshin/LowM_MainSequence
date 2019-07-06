@@ -144,10 +144,10 @@ def illustris(ax, filename):
     SFR = np.genfromtxt(filename, skip_header=1, delimiter=',', dtype='float', usecols=1)
 
     # Make plot
-    illustris = ax.hist2d(Mstar, SFR, bins=[10,20], cmap='binary', norm=colors.LogNorm())
+    illustris = ax.hist2d(Mstar, SFR, bins=[20,30], cmap='binary', norm=colors.LogNorm())
 
     # Make colorbar
-    cbar = fig.colorbar(illustris[3], ax=ax, label=r'N', format='%d', ticks=[1,5,10,20])
+    cbar = fig.colorbar(illustris[3], ax=ax, label=r'N', format='%d', ticks=[1,5,10,50])
     cbar.update_ticks()
 
     return
