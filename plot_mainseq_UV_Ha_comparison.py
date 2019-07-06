@@ -84,10 +84,9 @@ def get_lnu(filt_index_haii, ff):
 
     f_lambda = get_flux(ID, lambda_arr)
     f_nu = f_lambda*(1E-19*(lambda_arr**2*1E-10)/(constants.c.value))
-    # L_nu = f_nu*4*np.pi*(cosmo.luminosity_distance(tempz).to(u.cm).value)**2
-    # return np.log10(L_nu*((constants.c.value)/1.5E-7)) # getting nu from 1500AA
     log_L_nu = np.log10(f_nu*4*np.pi) + \
         2*np.log10(cosmo.luminosity_distance(tempz).to(u.cm).value)
+
     return log_L_nu
 
 
