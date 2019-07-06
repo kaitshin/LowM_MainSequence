@@ -133,6 +133,24 @@ def noeske_2007(ax):
 
     return noeske
 
+def illustris(ax, filename):
+    '''
+    Plots the data from Illustris-TNG-1 simulations as a 2D histogram in gray.
+    (Input file provided by Mia de los Reyes)
+    '''
+
+    # Get data
+    Mstar = np.genfromtxt(filename, skip_header=1, delimiter=',', dtype='float', usecols=0)
+    SFR = np.genfromtxt(filename, skip_header=1, delimiter=',', dtype='float', usecols=1)
+
+    # Make plot
+    illustris = ax.hist2d(Mstar, SFR, bins=[20,30], cmap='binary', norm=colors.LogNorm())
+
+    # Make colorbar
+    cbar = fig.colorbar(illustris[3], ax=ax, label=r'N', format='%d', ticks=[1,5,10,50])
+    cbar.update_ticks()
+
+    return
 
 def sSFR_lines(ax, xlim):
     '''
