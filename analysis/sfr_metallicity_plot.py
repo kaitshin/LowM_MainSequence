@@ -145,6 +145,11 @@ def main(silent=False, verbose=True):
     ylabel = r'$L({\rm H}\alpha)$/SFR [erg s$^{-1}$/$M_{\odot}$ yr$^{-1}$]'
     LHa_fit_kr, LHa_fit_ch = plot_panel(ax[1][0], Z, LHa, ylabel, labelx=True)
 
+    # Plot K98 relation
+    ax[1][0].scatter([1.0], -1*np.log10(7.9e-42), color='green', marker='o',
+                  s=50, edgecolor='none', alpha=0.5)
+    ax[1][0].annotate('K98', [1.05,-1*np.log10(7.9e-42*0.98)], xycoords='data',
+                   fontsize=8, ha='left', va='bottom')
 
     # Plot nuLnu vs LHa in ax[1][1]
     ylabel = r'$\nu L_{\nu}(1500\AA)/L({\rm H}\alpha)$'
