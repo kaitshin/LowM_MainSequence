@@ -431,7 +431,7 @@ def ew_MC():
         N_interp   = interp1d(npz_slope['mag_arr'][ff], N_mag_mock)
         Ndist_mock = np.int_(np.round(N_interp(NB)))
         NB_MC = np.repeat(NB, Ndist_mock)
-        
+
         # Read in mag vs mass extrapolation
         npz_mass_file = path0 + 'Completeness/mag_vs_mass_'+prefixes[ff]+'.npz'
         npz_mass = np.load(npz_mass_file)
@@ -448,10 +448,52 @@ def ew_MC():
         NB_EW   = npz_NB['NB_EW']
         Ha_Flux = npz_NB['Ha_Flux']
 
+        filt_dict = {'dNB': dNB[ff], 'dBB': dBB[ff], 'lambdac': lambdac[ff]}
+
+        x      = np.arange(0.01,10.00,0.01)
+        y_temp = 10**(-0.4 * x)
+        EW_ref = np.log10(dNB[ff]*(1 - y_temp)/(y_temp - dNB[ff]/dBB[ff]))
+
+        good = np.where(np.isfinite(EW_ref))[0]
+        EW_int = interp1d(EW_ref[good], x[good], bounds_error=False,
+                          fill_value=(-3.0, np.max(EW_ref[good])))
+
+        NBmin = 20.0
+        NBmax = m_NB[ff]-0.5
+        NB = np.arange(NBmin,NBmax+NBbin,NBbin)
+        print('NB (min/max)', min(NB), max(NB))
+
+        N_mag_mock = npz_slope['N_norm0'][ff] * Nsim * NBbin
+        N_interp   = interp1d(npz_slope['mag_arr'][ff], N_mag_mock)
+        Ndist_mock = np.int_(np.round(N_interp(NB)))
+        NB_MC = np.repeat(NB, Ndist_mock)
+        
+        # Read in mag vs mass extrapolation
+        npz_mass_file = path0 + 'Completeness/mag_vs_mass_'+prefixes[ff]+'.npz'
+        npz_mass = np.load(npz_mass_file)
+        cont_arr = npz_mass['cont_arr']
+        dmag     = cont_arr[1]-cont_arr[0]
+        mgood    = np.where(npz_mass['N_logM'] != 0)[0]
+        mass_int = interp1d(cont_arr[mgood]+dmag/2.0, npz_mass['avg_logM'][mgood],
+                            bounds_error=False, fill_value='extrapolate',
+                            kind='linear')
+
+        lum_dist = cosmo.luminosity_distance(z_NB[ff]).to(u.cm).value
+
+        # Read in EW and fluxes for H-alpha NB emitter sample
+        npz_NB_file = path0 + 'Completeness/ew_flux_Ha-'+filters[ff]+'.npz'
+        npz_NB      = np.load(npz_NB_file)
+        NB_EW   = npz_NB['NB_EW']
+        Ha_Flux = npz_NB['Ha_Flux']
+
         avg_NB = np.average(NB_EW)
         sig_NB = np.std(NB_EW)
 
-        lum_dist = cosmo.luminosity_distance(z_NB[ff]).to(u.cm).value
+        fig3, ax3 = plt.subplots(ncols=2, nrows=1)
+        ax3[0].axhline(y=avg_NB, color='black', linestyle='dashed')
+        ax3[0].axhspan(avg_NB-sig_NB, avg_NB+sig_NB, alpha=0.5, color='black')
+        ax3[0].set_xlim([min(logEW_mean)-0.05,max(logEW_mean)+0.05])
+        ax3[0].set_xlabel(r'$\log({\rm EW}/\AA)$')
 
         count = 0
         for mm in range(len(logEW_mean)): # loop over median of EW dist
@@ -679,7 +721,13 @@ def ew_MC():
 
                 count += 1
             #endfor
+
         #endfor
+
 
         pp.close()
         pp2.close()
+
+        out_pdf3 = path0 + 'Completeness/ew_MC_'+filters[ff]+'.avg_sigma.pdf'
+        fig3.savefig(out_pdf3, format='pdf')
+
