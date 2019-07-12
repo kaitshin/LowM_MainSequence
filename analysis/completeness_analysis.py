@@ -641,6 +641,11 @@ def ew_MC():
                     ax[2][0].axvline(x=avg_gd, color='red', linestyle='dashed',
                                      linewidth=1.5)
 
+                    ax3[0].scatter([logEW_mean[mm]], [avg_gd], marker='o', color='blue') #, alpha=0.5)
+                    ax3[0].errorbar([logEW_mean[mm]], [avg_gd], yerr=[sig_gd],
+                                    marker='o', color='blue', alpha=0.5)
+
+
                 ax[2][0].legend(loc='upper right', fancybox=True, fontsize=6,
                                 framealpha=0.75)
                 ax[2][0].set_xlabel(r'$\log({\rm EW}/\AA)$')
@@ -729,5 +734,6 @@ def ew_MC():
         pp2.close()
 
         out_pdf3 = path0 + 'Completeness/ew_MC_'+filters[ff]+'.avg_sigma.pdf'
+        fig3.set_size_inches(10,8)
         fig3.savefig(out_pdf3, format='pdf')
 
