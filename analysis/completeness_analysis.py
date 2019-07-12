@@ -442,6 +442,15 @@ def ew_MC():
                             bounds_error=False, fill_value='extrapolate',
                             kind='linear')
 
+        # Read in EW and fluxes for H-alpha NB emitter sample
+        npz_NB_file = path0 + 'Completeness/ew_flux_Ha-'+filters[ff]+'.npz'
+        npz_NB      = np.load(npz_NB_file)
+        NB_EW   = npz_NB['NB_EW']
+        Ha_Flux = npz_NB['Ha_Flux']
+
+        avg_NB = np.average(NB_EW)
+        sig_NB = np.std(NB_EW)
+
         lum_dist = cosmo.luminosity_distance(z_NB[ff]).to(u.cm).value
 
         count = 0
@@ -543,15 +552,6 @@ def ew_MC():
                                  linewidth=0.25, facecolor='none')
                 ax[1][1].set_xlabel(r'$\log(M_{\star}/M_{\odot})$')
                 ax[1][1].set_ylabel(r'$\log({\rm SFR}({\rm H}\alpha))$')
-
-                # Read in EW and fluxes for H-alpha NB emitter sample
-                npz_NB_file = path0 + 'Completeness/ew_flux_Ha-'+filters[ff]+'.npz'
-                npz_NB      = np.load(npz_NB_file)
-                NB_EW   = npz_NB['NB_EW']
-                Ha_Flux = npz_NB['Ha_Flux']
-
-                avg_NB = np.average(NB_EW)
-                sig_NB = np.std(NB_EW)
 
                 EW_bins = np.arange(0.2,3.0,0.2)
 
