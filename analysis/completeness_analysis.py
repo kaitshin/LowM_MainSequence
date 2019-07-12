@@ -672,7 +672,7 @@ def ew_MC():
 
                 if s_row == nrow_stats-1:
                     fig2.subplots_adjust(left=0.1, right=0.97, bottom=0.08, top=0.97,
-                                         wspace=0.01)
+                                         wspace=0.13)
 
                     fig2.set_size_inches(8,10)
                     fig2.savefig(pp2, format='pdf')
