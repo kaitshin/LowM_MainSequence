@@ -137,6 +137,10 @@ def confidence(x):
     low = bin_edges[0]+low1*size
     high = bin_edges[0]+high1*size
 
+    #n,bins,patches = plt.hist(x,nbins, facecolor='green',align='mid')
+    #plt.plot((np.min(x),np.max(x)),(sig_levels, sig_levels))
+    #plt.show()
+
     low_limit = np.median(x)-low
     high_limit = high-np.median(x)
 
