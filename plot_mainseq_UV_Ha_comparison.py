@@ -70,6 +70,9 @@ def get_lnu(filt_index_haii, ff):
     into f_nu values, which is in turn converted into L_nu, the log of which
     is returned as nu_lnu.
     '''
+    centr_filts = {'NB7':((7045.0/HA - 1) + (7126.0/HA - 1))/2.0, 
+        'NB816':8152.0/HA - 1, 'NB921':9193.0/HA - 1, 'NB973':9749.0/HA - 1}
+
     ID = corrID[filt_index_haii]
     zspec = corrzspec0[filt_index_haii]
 
@@ -271,31 +274,31 @@ def make_all_ratio_plot(L_ha, ltype, xarr_type='stlr'):
 # +190531: only GALEX files will be used
 fileend='.GALEX'
 
-zspec = asc.read(FULL_PATH+'Catalogs/nb_ia_zspec.txt',guess=False,
-    Reader=asc.CommentedHeader)
-zspec0 = np.array(zspec['zspec0'])
-
 fout  = asc.read(FULL_PATH+'FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast'+fileend+'.fout',guess=False,Reader=asc.NoHeader)
 zphot0 = np.array(fout['col2'])  # IDK
 stlr0 = np.array(fout['col7']) # stlr mass
 
-nbia = pyfits.open(FULL_PATH+'Catalogs/NB_IA_emitters.nodup.colorrev.fix.fits')
-nbiadata = nbia[1].data
-NAME0 = np.array(nbiadata['NAME'])
-ID0   = np.array(nbiadata['ID'])
+# nbia = pyfits.open(FULL_PATH+'Catalogs/NB_IA_emitters.nodup.colorrev.fix.fits')
+# nbiadata = nbia[1].data
+# NAME0 = np.array(nbiadata['NAME'])
+# ID0   = np.array(nbiadata['ID'])
 
 corr_tbl = asc.read(FULL_PATH+'Main_Sequence/mainseq_corrections_tbl.txt',
     guess=False, Reader=asc.FixedWidthTwoLine)
-corrID = np.array(corr_tbl['ID'])
-corrNAME0 = np.array(corr_tbl['NAME0'])
-corrzspec0 = np.array(corr_tbl['zspec0'])
-corrfilts = np.array(corr_tbl['filt'])
-corrstlr0 = np.array(corr_tbl['stlr_mass'])
-obs_lumin = np.array(corr_tbl['obs_lumin'])
-sfr = np.array(corr_tbl['met_dep_sfr'])
-dust_corr_factor = np.array(corr_tbl['dust_corr_factor'])
-filt_corr_factor = np.array(corr_tbl['filt_corr_factor'])
-nii_ha_corr_factor = np.array(corr_tbl['nii_ha_corr_factor'])
+good_sig_iis = np.where((corr_tbl['flux_sigma'] >= CUTOFF_SIGMA) & 
+    (corr_tbl['stlr_mass'] >= CUTOFF_MASS))[0]
+corr_tbl = corr_tbl[good_sig_iis]
+
+corrID = corr_tbl['ID'].data
+corrNAME0 = corr_tbl['NAME0'].data
+corrzspec0 = corr_tbl['zspec0'].data
+corrfilts = corr_tbl['filt'].data
+corrstlr0 = corr_tbl['stlr_mass'].data
+obs_lumin = corr_tbl['obs_lumin'].data
+sfr = corr_tbl['met_dep_sfr'].data
+dust_corr_factor = corr_tbl['dust_corr_factor'].data
+filt_corr_factor = corr_tbl['filt_corr_factor'].data
+nii_ha_corr_factor = corr_tbl['nii_ha_corr_factor'].data
 corr_factors = filt_corr_factor + nii_ha_corr_factor + dust_corr_factor
 
 corr_fluxes = corr_tbl['obs_fluxes'].data + corr_factors
@@ -303,12 +306,10 @@ corr_lumin = obs_lumin + corr_factors
 corr_sfr = sfr + corr_factors
 print '### done reading input files'
 
-ID_match = np.array([x for x in range(len(ID0)) if ID0[x] in corrID])
+# ID_match = np.array([x for x in range(len(ID0)) if ID0[x] in corrID])
 color_arr = ['r', 'orange', 'g', 'b']
-centr_filts = {'NB7':((7045.0/HA - 1) + (7126.0/HA - 1))/2.0, 
-               'NB816':8152.0/HA - 1, 'NB921':9193.0/HA - 1, 'NB973':9749.0/HA - 1}
 
-print '### making scatter_plots and ratio_plots'
+# print '### making scatter_plots and ratio_plots'
 for (ff, cc) in zip(['NB7','NB816','NB921','NB973'], color_arr):
     print ff
     
