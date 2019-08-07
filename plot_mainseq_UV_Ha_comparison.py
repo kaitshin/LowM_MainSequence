@@ -201,69 +201,69 @@ def get_flux(ID, lambda_arr):
     are plotted as empty points. get_binned_stats and make_all_ratio_legend
     are called, before the plot is duly modified, saved, and closed.
     '''
-    print ltype, '('+xarr_type+')'
-    xposdata = np.array([])
-    yposdata = np.array([])
-    filtlabel = {}
-    for (ff, cc) in zip(['NB7','NB816','NB921','NB973'], color_arr):
-        print ff
+    # print ltype, '('+xarr_type+')'
+    # xposdata = np.array([])
+    # yposdata = np.array([])
+    # filtlabel = {}
+    # for (ff, cc) in zip(['NB7','NB816','NB921','NB973'], color_arr):
+    #     print ff
 
-        if ff == 'NB816': # GALEX file ID#4411 has flux==0
-            filt_index_haii = np.array([x for x in range(len(corr_tbl)) if ff in
-                corrfilts[x] and corrNAME0[x] != 'Ha-NB816_172306_OII-NB921_176686'])
-        else:
-            filt_index_haii = np.array([x for x in range(len(corr_tbl)) if ff in
-                corrfilts[x]])
-        l_ha = L_ha[filt_index_haii]
+    #     if ff == 'NB816': # GALEX file ID#4411 has flux==0
+    #         filt_index_haii = np.array([x for x in range(len(corr_tbl)) if ff in
+    #             corrfilts[x] and corrNAME0[x] != 'Ha-NB816_172306_OII-NB921_176686'])
+    #     else:
+    #         filt_index_haii = np.array([x for x in range(len(corr_tbl)) if ff in
+    #             corrfilts[x]])
+    #     l_ha = L_ha[filt_index_haii]
 
-        zspec = corrzspec0[filt_index_haii]
-        if xarr_type=='stlr':
-            xpos_arr = corrstlr0[filt_index_haii]
-        elif xarr_type=='sfr':
-            xpos_arr = corr_sfr[filt_index_haii]
-        else:
-            raise ValueError('Incorrect xarr_type provided (must be either \'stlr\' or \'sfr\'')
+    #     zspec = corrzspec0[filt_index_haii]
+    #     if xarr_type=='stlr':
+    #         xpos_arr = corrstlr0[filt_index_haii]
+    #     elif xarr_type=='sfr':
+    #         xpos_arr = corr_sfr[filt_index_haii]
+    #     else:
+    #         raise ValueError('Incorrect xarr_type provided (must be either \'stlr\' or \'sfr\'')
 
-        nu_lnu = get_nu_lnu(filt_index_haii, ff)
-        lmbda = (1500*u.AA).to(u.um).value
-        K_1500 = (2.659*(-2.156 + 1.509/lmbda - 0.198/lmbda**2 + 0.011/lmbda**3)+ 4.05)
-        A_1500 = K_1500 * corr_tbl['EBV'].data[filt_index_haii]
-        nu_lnu += 0.4*A_1500 # (dust correction: A_V = A(1500AA) = 10.33)
+    #     nu_lnu = get_nu_lnu(filt_index_haii, ff)
+    #     lmbda = (1500*u.AA).to(u.um).value
+    #     K_1500 = (2.659*(-2.156 + 1.509/lmbda - 0.198/lmbda**2 + 0.011/lmbda**3)+ 4.05)
+    #     A_1500 = K_1500 * corr_tbl['EBV'].data[filt_index_haii]
+    #     nu_lnu += 0.4*A_1500 # (dust correction: A_V = A(1500AA) = 10.33)
  
-        ratio = nu_lnu-l_ha
-        xposdata = np.append(xposdata, xpos_arr)
-        yposdata = np.append(yposdata, ratio)
+    #     ratio = nu_lnu-l_ha
+    #     xposdata = np.append(xposdata, xpos_arr)
+    #     yposdata = np.append(yposdata, ratio)
 
-        good_z = np.array([x for x in range(len(zspec)) if zspec[x] > 0. and
-                           zspec[x] < 9.])
-        bad_z  = np.array([x for x in range(len(zspec)) if zspec[x] <= 0. or
-                           zspec[x] >= 9.])
-        filtlabel[ff] = '('+str(len(good_z))+', '+str(len(bad_z))+')'
+    #     good_z = np.array([x for x in range(len(zspec)) if zspec[x] > 0. and
+    #                        zspec[x] < 9.])
+    #     bad_z  = np.array([x for x in range(len(zspec)) if zspec[x] <= 0. or
+    #                        zspec[x] >= 9.])
+    #     filtlabel[ff] = '('+str(len(good_z))+', '+str(len(bad_z))+')'
 
-        plt.scatter(xpos_arr[good_z], ratio[good_z], facecolor=cc, edgecolor='none',
-                    alpha=0.5, s=12)
-        plt.scatter(xpos_arr[bad_z], ratio[bad_z], facecolor='none', edgecolor=cc,
-                    linewidth=0.5, alpha=0.5, s=12)
+    #     plt.scatter(xpos_arr[good_z], ratio[good_z], facecolor=cc, edgecolor='none',
+    #                 alpha=0.5, s=12)
+    #     plt.scatter(xpos_arr[bad_z], ratio[bad_z], facecolor='none', edgecolor=cc,
+    #                 linewidth=0.5, alpha=0.5, s=12)
 
 
-    get_binned_stats(xposdata, yposdata)
-    plt.gca().minorticks_on()
-    plt.gca().tick_params(axis='both', which='both', direction='in')
-    plt.ylabel('log['+r'$\nu$'+'L'+r'$_{\nu}$'+'(1500 '+r'$\AA$'+')/L'
-               +r'$_{H\alpha}$'+']')
-    make_all_ratio_legend(filtlabel)
-    plt.plot(plt.xlim(), [2.05, 2.05], 'k--', alpha=0.3, linewidth=3.0)
-    if xarr_type=='stlr':
-        plt.xlim(4, 11)
-        plt.ylim(-2.5, 4)
-        plt.xlabel('log[M/M'+r'$_{\odot}$'+']')
-        plt.savefig(FULL_PATH+'Plots/main_sequence_UV_Ha/ratios/all_filt_'+ltype+
-                    fileend+'.pdf')
-    elif xarr_type=='sfr':
-        plt.xlabel('log(SFR[H'+r'$\alpha$'+']/M'+r'$_{\odot}$'+' yr'+r'$^{-1}$'+')')
-        plt.savefig(FULL_PATH+'Plots/main_sequence_UV_Ha/ratios/all_filt_'+ltype+
-                    '_with_SFRs'+fileend+'.pdf')
-    plt.close()
+    # get_binned_stats(xposdata, yposdata)
+    # plt.gca().minorticks_on()
+    # plt.gca().tick_params(axis='both', which='both', direction='in')
+    # plt.ylabel('log['+r'$\nu$'+'L'+r'$_{\nu}$'+'(1500 '+r'$\AA$'+')/L'
+    #            +r'$_{H\alpha}$'+']')
+    # make_all_ratio_legend(filtlabel)
+    # plt.plot(plt.xlim(), [2.05, 2.05], 'k--', alpha=0.3, linewidth=3.0)
+    # if xarr_type=='stlr':
+    #     plt.xlim(4, 11)
+    #     plt.ylim(-2.5, 4)
+    #     plt.xlabel('log[M/M'+r'$_{\odot}$'+']')
+    #     plt.savefig(FULL_PATH+'Plots/main_sequence_UV_Ha/ratios/all_filt_'+ltype+
+    #                 fileend+'.pdf')
+    # elif xarr_type=='sfr':
+    #     plt.xlabel('log(SFR[H'+r'$\alpha$'+']/M'+r'$_{\odot}$'+' yr'+r'$^{-1}$'+')')
+    #     plt.savefig(FULL_PATH+'Plots/main_sequence_UV_Ha/ratios/all_filt_'+ltype+
+    #                 '_with_SFRs'+fileend+'.pdf')
+    # plt.close()
 
 
 
@@ -292,24 +292,63 @@ def get_LUV(corrID, corrzspec0, centr_filts, filt_index_haii, ff):
     return log_L_nu
 
 
-def plot_SFR_comparison(log_SFR_Ha, log_SFR_UV):
+def plot_ff_zz_color_filled(ax, xvals, yvals, corr_tbl,
+    ff_arr=['NB7', 'NB816', 'NB921', 'NB973'],
+    color_arr = ['r', 'orange', 'g', 'b'],
+    ll_arr=['NB704,NB711', 'NB816', 'NB921', 'NB973']):
     '''
-    Lee+08
     '''
-    # jlee_logSFRHa = np.array([0.25,-0.25,-0.75,-1.25,-1.75,-2.25,-2.75,-3.5,-4.5])
-    # jlee_logSFRUV = np.array([-2.21,-1.45,-0.7,-0.4,-0.26,-1.94,-2.04,-2.05,-2.52,-2.3])
-    # jlee_logSFR_ratio = np.array([0.2,0.17,0.07,-0.02,-.1,-.23,-.46,-.49,-1.29])
+    from plot_nbia_mainseq import get_z_arr
+    z_arr = get_z_arr()
 
-    plt.plot(log_SFR_Ha, log_SFR_UV, 'o')
-    plt.xlabel('log SFR(Ha)')
-    plt.ylabel('log SFR(UV)')
-    # plt.plot(jlee_logSFRHa, jlee_logSFRUV, 'rs')
-    plt.plot(xtmparr, 0.79*xtmparr-0.2, 'r--', lw=2)
-    plt.gca().tick_params(axis='both', labelsize='10', which='both',
+    zspec0 = corr_tbl['zspec0'].data
+    for (ff, cc, zz, ll) in zip(ff_arr, color_arr, z_arr, ll_arr):
+        filt_index_haii = np.array([x for x in range(len(corr_tbl)) if ff in
+            corr_tbl['filt'].data[x]])
+        
+        zspec = zspec0[filt_index_haii]
+        good_z = np.array([x for x in range(len(zspec)) if zspec[x] > 0. and
+                           zspec[x] < 9.])
+        bad_z  = np.array([x for x in range(len(zspec)) if zspec[x] <= 0. or
+                           zspec[x] >= 9.])
+        
+        ax.scatter(xvals[filt_index_haii][good_z], yvals[filt_index_haii][good_z],
+            facecolor=cc, edgecolor='none', alpha=0.5, s=30,
+            label='z~'+zz+' ('+ll+')')
+        ax.scatter(xvals[filt_index_haii][bad_z], yvals[filt_index_haii][bad_z],
+            facecolor='none', edgecolor=cc, linewidth=0.5, alpha=0.5, s=30)
+
+    return ax
+
+
+def plot_SFR_comparison(log_SFR_HA, log_SFR_UV, corr_tbl):
+    '''
+    comparing with Lee+08 fig 1 relation
+    '''
+    f, ax = plt.subplots()
+
+    # plotting data
+    ax = plot_ff_zz_color_filled(ax, log_SFR_HA, log_SFR_UV, corr_tbl)
+
+    # plotting 1-1 correspondence
+    xlims = [min(log_SFR_HA)-0.2, max(log_SFR_HA)+0.2]
+    ylims = [min(log_SFR_UV)-0.4, max(log_SFR_UV)+0.4]
+    ax.plot(xlims, xlims, 'k')
+
+    # plotting relation from Lee+08
+    xtmparr = np.linspace(xlims[0], xlims[1], 10)
+    ax.plot(xtmparr, 0.79*xtmparr-0.2, 'k--')
+
+    # final touches
+    ax.set_xlim(xlims)
+    ax.set_ylim(ylims)
+    ax.set_xlabel('log SFR(Ha)')
+    ax.set_ylabel('log SFR(UV)')
+    ax.tick_params(axis='both', labelsize='10', which='both',
         direction='in')
-    plt.gcf().set_size_inches(8,10)
-    plt.show()
-    # plt.savefig(FULL_PATH+)
+    f.set_size_inches(6,6)
+    ax.legend(frameon=False, loc='best')
+    plt.savefig(FULL_PATH+'Plots/main_sequence_UV_Ha/SFR_UV_vs_HA.pdf')
 
 
 def get_UV_SFR(corr_tbl):
@@ -330,7 +369,7 @@ def get_UV_SFR(corr_tbl):
     logOH = niiha_oh_determine(np.log10(NII6583_Ha), 'PP04_N2') - 12
     y = logOH + 3.31
 
-    log_SFR_LUV = log_SFR_from_L(y, P2, P1, P0)
+    log_SFR_LUV = log_SFR_from_L(y)
 
     return log_SFR_LUV
 
@@ -359,26 +398,28 @@ def main():
     good_sig_iis = np.where((corr_tbl['flux_sigma'] >= CUTOFF_SIGMA) & 
         (corr_tbl['stlr_mass'] >= CUTOFF_MASS))[0]
     corr_tbl = corr_tbl[good_sig_iis]
-
-    corrID = corr_tbl['ID'].data
-    corrNAME0 = corr_tbl['NAME0'].data
-    corrzspec0 = corr_tbl['zspec0'].data
-    corrfilts = corr_tbl['filt'].data
-    corrstlr0 = corr_tbl['stlr_mass'].data
     print '### done reading input files'
 
 
     # defining useful things
+    corrID = corr_tbl['ID'].data
+    corrzspec0 = corr_tbl['zspec0'].data
+    corrfilts = corr_tbl['filt'].data
+
     color_arr = ['r', 'orange', 'g', 'b']
     centr_filts = {'NB7':((7045.0/HA - 1) + (7126.0/HA - 1))/2.0, 
         'NB816':8152.0/HA - 1, 'NB921':9193.0/HA - 1, 'NB973':9749.0/HA - 1}
+
+    # jlee_logSFR_ratio = np.array([0.2,0.17,0.07,-0.02,-.1,-.23,-.46,-.49,-1.29])
+    # jlee_logSFRHa = np.array([0.25,-0.25,-0.75,-1.25,-1.75,-2.25,-2.75,-3.5,-4.5])
+    # jlee_logSFRUV = np.array([-2.21,-1.45,-0.7,-0.4,-0.26,-1.94,-2.04,-2.05,-2.52,-2.3])
 
 
     # getting SFR values
     log_SFR_LUV = get_UV_SFR(corr_tbl)
 
     LUV = np.zeros(len(corr_tbl))
-    for (ff, cc) in zip(['NB7','NB816','NB921','NB973'], color_arr):
+    for ff in ['NB7','NB816','NB921','NB973']:
         print ff
 
         filt_index_haii = np.array([x for x in range(len(corr_tbl)) if ff in
@@ -392,11 +433,7 @@ def main():
 
 
     # plotting
-
-    # print '### making all_ratio_plots'
-    # make_all_ratio_plot(corr_lumin, 'all_corr')
-    # make_all_ratio_plot(corr_lumin, 'all_corr', xarr_type='sfr')
-
+    plot_SFR_comparison(log_SFR_HA, log_SFR_UV, corr_tbl)
 
 if __name__ == '__main__':
     main()
