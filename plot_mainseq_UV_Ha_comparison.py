@@ -69,6 +69,7 @@ def get_flux(ID, lambda_arr):
 
 def get_LUV(corrID, corrzspec0, centr_filts, filt_index_haii, ff):
     '''
+    get UV luminosity
     '''
     ID = corrID[filt_index_haii]
     zspec = corrzspec0[filt_index_haii]
@@ -111,10 +112,44 @@ def plot_ff_zz_color_filled(ax, xvals, yvals, corr_tbl,
                            zspec[x] >= 9.])
         
         ax.scatter(xvals[filt_index_haii][good_z], yvals[filt_index_haii][good_z],
-            facecolor=cc, edgecolor='none', alpha=0.5, s=30,
+            facecolor=cc, edgecolor='none', alpha=0.3, s=30,
             label='z~'+zz+' ('+ll+')')
         ax.scatter(xvals[filt_index_haii][bad_z], yvals[filt_index_haii][bad_z],
-            facecolor='none', edgecolor=cc, linewidth=0.5, alpha=0.5, s=30)
+            facecolor='none', edgecolor=cc, linewidth=0.5, alpha=0.3, s=30)
+
+    return ax
+
+
+def plot_binned(ax, xvals, yvals, plot_bins, zspec0=None):
+    '''
+    xvals = log_SFR_HA
+    '''
+    iis = np.digitize(xvals, bins=plot_bins)
+    range_iis = np.arange(len(plot_bins[:-1])) + 1
+    xvals_binned = np.array([np.mean([plot_bins[ii],plot_bins[ii+1]]) 
+        for ii in range_iis-1])
+
+    yvals_binned = np.array([np.mean(yvals[np.where(iis==ii)])
+        for ii in range_iis])
+    yerrs = np.array([np.std(yvals[np.where(iis==ii)])
+            for ii in range_iis])
+
+    if zspec0 is None:
+        ax.plot(xvals_binned, yvals_binned, 'md')
+    else:
+        min_yesz_per_bin = 10
+        yesz_num = np.array([len(np.where((zspec0[np.where(iis==ii)] >= 0) & 
+            (zspec0[np.where(iis==ii)] < 9))[0]) for ii in range_iis])
+        
+        for yesz, xval, yval in zip(yesz_num, xvals_binned, yvals_binned):
+            if yesz > min_yesz_per_bin:
+                ax.plot(xval, yval, 'md')
+            else:
+                ax.scatter(xval, yval, edgecolors='m', facecolors='none',
+                    marker='d', zorder=10)
+
+    ax.errorbar(xvals_binned, yvals_binned, fmt='none', ecolor='m', lw=1,
+        capsize=5, yerr=yerrs, zorder=11)
 
     return ax
 
@@ -122,6 +157,7 @@ def plot_ff_zz_color_filled(ax, xvals, yvals, corr_tbl,
 def plot_SFR_comparison(log_SFR_HA, log_SFR_UV, corr_tbl):
     '''
     comparing with Lee+08 fig 1 relation
+    without dust correction
     '''
     f, ax = plt.subplots()
 
@@ -174,9 +210,8 @@ def get_UV_SFR(corr_tbl):
 
 def plot_SFR_ratios(log_SFR_HA, log_SFR_UV, corr_tbl):
     '''
+    without dust correction
     '''
-    jlee_logSFR_ratio = np.array([0.2,0.17,0.07,-0.02,-.1,-.23,-.46,-.49,-1.29])
-    jlee_logSFRHa = np.array([0.25,-0.25,-0.75,-1.25,-1.75,-2.25,-2.75,-3.5,-4.5])
     log_SFR_ratio = log_SFR_HA - log_SFR_UV
     stlr_mass = corr_tbl['stlr_mass'].data
 
@@ -194,9 +229,19 @@ def plot_SFR_ratios(log_SFR_HA, log_SFR_UV, corr_tbl):
     [ax.axhline(0, color='k') for ax in [ax0,ax1]]
 
     # plotting relation from Lee+08
-    xtmparr0 = np.linspace(xlims0[0], xlims0[1], 10)
+    jlee_logSFRHa = np.array([0.25,-0.25,-0.75,-1.25,-1.75,-2.25,-2.75,-3.5,-4.5])
+    jlee_logSFR_ratio = np.array([0.2,0.17,0.07,-0.02,-.1,-.23,-.46,-.49,-1.29])
+    jlee_logSFR_ratio_errs = np.array([0.37,0.30,0.26,0.25,0.22,0.22,0.26,0.58,0.57])
     ax0.plot(jlee_logSFRHa, jlee_logSFR_ratio, 'ks')
+    ax0.errorbar(jlee_logSFRHa, jlee_logSFR_ratio, fmt='none', ecolor='k', lw=2,
+        capsize=5, yerr=jlee_logSFR_ratio_errs)
+    xtmparr0 = np.linspace(min(jlee_logSFRHa)-0.1, xlims0[1], 10)
     ax0.plot(xtmparr0, 0.26*xtmparr0+0.3, 'k--')
+
+    # plotting our own avgs
+    plot_bins = np.array([-4.0, -3.0, -2.5, -2.0, -1.5, -1.0, -0.5, 0.0, 0.5])
+    ax0 = plot_binned(ax0, log_SFR_HA, log_SFR_ratio, plot_bins,
+        zspec0=corr_tbl['zspec0'].data)
 
 
     # final touches
