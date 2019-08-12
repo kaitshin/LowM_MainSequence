@@ -93,8 +93,8 @@ def get_LUV(corrID, corrzspec0, centr_filts, filt_index_haii, ff):
 
 def plot_ff_zz_color_filled(ax, xvals, yvals, corr_tbl,
     ff_arr=['NB7', 'NB816', 'NB921', 'NB973'],
-    color_arr = ['r', 'orange', 'g', 'b'],
-    ll_arr=['NB704,NB711', 'NB816', 'NB921', 'NB973']):
+    ll_arr=['NB704,NB711', 'NB816', 'NB921', 'NB973'],
+    color_arr = ['r', 'orange', 'g', 'b']):
     '''
     '''
     from plot_nbia_mainseq import get_z_arr
@@ -116,6 +116,44 @@ def plot_ff_zz_color_filled(ax, xvals, yvals, corr_tbl,
             label='z~'+zz+' ('+ll+')')
         ax.scatter(xvals[filt_index_haii][bad_z], yvals[filt_index_haii][bad_z],
             facecolor='none', edgecolor=cc, linewidth=0.5, alpha=0.3, s=30)
+
+    return ax
+
+
+def plot_zz_shapes_filled(ax, xvals, yvals, corr_tbl, color, legend_on=False,
+    ff_arr=['NB7', 'NB816', 'NB921', 'NB973'],
+    ll_arr=['NB704,NB711', 'NB816', 'NB921', 'NB973'],
+    mark_arr=['o', '^', 'D', '*'], size_arr=np.array([6.0, 6.0, 6.0, 9.0])**2):
+    '''
+    '''
+    from plot_nbia_mainseq import get_z_arr
+    z_arr = get_z_arr()
+
+    labelarr = np.array([])
+    zspec0 = corr_tbl['zspec0'].data
+    for (ff, mark, avg_z, size) in zip(ff_arr, mark_arr, z_arr, size_arr):
+        filt_index_haii = np.array([x for x in range(len(corr_tbl)) if ff in
+            corr_tbl['filt'].data[x]])
+        
+        zspec = zspec0[filt_index_haii]
+        good_z = np.array([x for x in range(len(zspec)) if zspec[x] > 0. and
+                           zspec[x] < 9.])
+        bad_z  = np.array([x for x in range(len(zspec)) if zspec[x] <= 0. or
+                           zspec[x] >= 9.])
+
+        temp = ax.scatter(xvals[filt_index_haii][good_z], yvals[filt_index_haii][good_z],
+            marker=mark, facecolors=color, edgecolors='none', alpha=0.2,
+            zorder=3, s=size, label='z~'+np.str(avg_z)+' ('+ff+')')
+
+        ax.scatter(xvals[filt_index_haii][bad_z], yvals[filt_index_haii][bad_z],
+            marker=mark, facecolors='none', edgecolors=color, alpha=0.2,
+            linewidth=0.5, zorder=3, s=size)
+
+        labelarr = np.append(labelarr, temp)
+
+    if legend_on:
+        leg1 = ax.legend(handles=list(labelarr), loc='upper right', frameon=False)
+        ax.add_artist(leg1)
 
     return ax
 
@@ -162,7 +200,9 @@ def plot_SFR_comparison(log_SFR_HA, log_SFR_UV, corr_tbl):
     f, ax = plt.subplots()
 
     # plotting data
-    ax = plot_ff_zz_color_filled(ax, log_SFR_HA, log_SFR_UV, corr_tbl)
+    # ax = plot_ff_zz_color_filled(ax, log_SFR_HA, log_SFR_UV, corr_tbl)
+    ax = plot_zz_shapes_filled(ax, log_SFR_HA, log_SFR_UV, corr_tbl,
+        color='blue', legend_on=True)
 
     # plotting 1-1 correspondence
     xlims = [min(log_SFR_HA)-0.2, max(log_SFR_HA)+0.2]
@@ -208,6 +248,24 @@ def get_UV_SFR(corr_tbl):
     return log_SFR_LUV
 
 
+def lee_08(ax, xlims0):
+    '''
+    '''
+    jlee_logSFRHa = np.array([0.25,-0.25,-0.75,-1.25,-1.75,-2.25,-2.75,-3.5,-4.5])
+    jlee_logSFR_ratio = np.array([0.2,0.17,0.07,-0.02,-.1,-.23,-.46,-.49,-1.29])
+    jlee_logSFR_ratio_errs = np.array([0.37,0.30,0.26,0.25,0.22,0.22,0.26,0.58,0.57])
+    ax.plot(jlee_logSFRHa, jlee_logSFR_ratio, 'ks')
+    ax.errorbar(jlee_logSFRHa, jlee_logSFR_ratio, fmt='none', ecolor='k', lw=2,
+        capsize=5, yerr=jlee_logSFR_ratio_errs)
+    xtmparr0 = np.linspace(min(jlee_logSFRHa)-0.1, xlims0[1], 10)
+    jlee08, = ax.plot(xtmparr0, 0.26*xtmparr0+0.3, 'k--', 
+        label='Lee+08: '+r'$\log(\rm SFR(H\alpha)/SFR(FUV)) = 0.26 \log(SFR(H\alpha))+0.30$')
+    legend_jlee08 = ax.legend(handles=[jlee08], loc='lower right', frameon=False)
+    ax.add_artist(legend_jlee08)
+
+    return ax
+
+
 def plot_SFR_ratios(log_SFR_HA, log_SFR_UV, corr_tbl):
     '''
     without dust correction
@@ -220,8 +278,13 @@ def plot_SFR_ratios(log_SFR_HA, log_SFR_UV, corr_tbl):
     ax1 = axarr[1]
 
     # plotting data
-    ax0 = plot_ff_zz_color_filled(ax0, log_SFR_HA, log_SFR_ratio, corr_tbl)
-    ax1 = plot_ff_zz_color_filled(ax1, stlr_mass, log_SFR_ratio, corr_tbl)
+    # ax0 = plot_ff_zz_color_filled(ax0, log_SFR_HA, log_SFR_ratio, corr_tbl)
+    # ax1 = plot_ff_zz_color_filled(ax1, stlr_mass, log_SFR_ratio, corr_tbl)
+    ax0 = plot_zz_shapes_filled(ax0, log_SFR_HA, log_SFR_ratio, corr_tbl,
+        color='blue', legend_on=True)
+    # leg1 = ax0.legend(frameon=False, loc='best')
+    # ax0.add_artist(leg1, loc='upper right')
+    ax1 = plot_zz_shapes_filled(ax1, stlr_mass, log_SFR_ratio, corr_tbl, color='blue')
 
     xlims0 = [min(log_SFR_HA)-0.2, max(log_SFR_HA)+0.2]
     xlims1 = [min(stlr_mass)-0.2, max(stlr_mass)+0.2]
@@ -229,14 +292,7 @@ def plot_SFR_ratios(log_SFR_HA, log_SFR_UV, corr_tbl):
     [ax.axhline(0, color='k') for ax in [ax0,ax1]]
 
     # plotting relation from Lee+08
-    jlee_logSFRHa = np.array([0.25,-0.25,-0.75,-1.25,-1.75,-2.25,-2.75,-3.5,-4.5])
-    jlee_logSFR_ratio = np.array([0.2,0.17,0.07,-0.02,-.1,-.23,-.46,-.49,-1.29])
-    jlee_logSFR_ratio_errs = np.array([0.37,0.30,0.26,0.25,0.22,0.22,0.26,0.58,0.57])
-    ax0.plot(jlee_logSFRHa, jlee_logSFR_ratio, 'ks')
-    ax0.errorbar(jlee_logSFRHa, jlee_logSFR_ratio, fmt='none', ecolor='k', lw=2,
-        capsize=5, yerr=jlee_logSFR_ratio_errs)
-    xtmparr0 = np.linspace(min(jlee_logSFRHa)-0.1, xlims0[1], 10)
-    ax0.plot(xtmparr0, 0.26*xtmparr0+0.3, 'k--')
+    ax0 = lee_08(ax0, xlims0)
 
     # plotting our own avgs
     plot_bins = np.array([-4.0, -3.0, -2.5, -2.0, -1.5, -1.0, -0.5, 0.0, 0.5])
@@ -254,7 +310,6 @@ def plot_SFR_ratios(log_SFR_HA, log_SFR_UV, corr_tbl):
     [ax.tick_params(axis='both', labelsize='10', which='both',
         direction='in') for ax in [ax0,ax1]]
     f.set_size_inches(6,10)
-    ax0.legend(frameon=False, loc='best')
     plt.tight_layout()
     plt.savefig(FULL_PATH+'Plots/main_sequence_UV_Ha/SFR_ratio.pdf')
 
