@@ -756,7 +756,7 @@ def ew_MC():
                 fig.savefig(pp, format='pdf')
 
                 # Save figure for each full page completed
-                if s_row == nrow_stats-1:
+                if s_row == nrow_stats-1 or count == len(logEW_mean)*len(logEW_sig)-1:
                     fig2.subplots_adjust(left=0.1, right=0.97, bottom=0.08, top=0.97,
                                          wspace=0.13)
 
