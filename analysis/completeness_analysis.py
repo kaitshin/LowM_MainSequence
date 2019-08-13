@@ -489,11 +489,20 @@ def ew_MC():
         avg_NB = np.average(NB_EW)
         sig_NB = np.std(NB_EW)
 
+        avg_NB_flux = np.average(Ha_Flux)
+        sig_NB_flux = np.std(Ha_Flux)
+
         fig3, ax3 = plt.subplots(ncols=2, nrows=1)
         ax3[0].axhline(y=avg_NB, color='black', linestyle='dashed')
         ax3[0].axhspan(avg_NB-sig_NB, avg_NB+sig_NB, alpha=0.5, color='black')
         ax3[0].set_xlim([min(logEW_mean)-0.05,max(logEW_mean)+0.05])
         ax3[0].set_xlabel(r'$\log({\rm EW}/\AA)$')
+
+        ax3[1].axhline(y=avg_NB_flux, color='black', linestyle='dashed')
+        ax3[1].axhspan(avg_NB_flux-sig_NB_flux, avg_NB_flux+sig_NB_flux,
+                       alpha=0.5, color='black')
+        ax3[1].set_xlim([min(logEW_mean)-0.05,max(logEW_mean)+0.05])
+        ax3[1].set_xlabel(r'$\log({\rm EW}/\AA)$')
 
         count = 0
         for mm in range(len(logEW_mean)): # loop over median of EW dist
@@ -675,8 +684,6 @@ def ew_MC():
 
                 Flux_bins = np.arange(-17.75,-14.75,0.25)
 
-                avg_NB_flux = np.average(Ha_Flux)
-                sig_NB_flux = np.std(Ha_Flux)
                 label_flux = r'N: %i  $\langle x\rangle$: %.2f  $\sigma$: %.2f' % \
                              (len(NB_EW), avg_NB_flux, sig_NB_flux)
                 No, binso, _ = ax[2][1].hist(Ha_Flux, bins=Flux_bins, align='mid',
@@ -709,6 +716,10 @@ def ew_MC():
                                                  histtype='stepfilled', label=label1)
                     ax[2][1].axvline(x=avg_gd, color='red', linestyle='dashed',
                                      linewidth=1.5)
+
+                    ax3[1].scatter([logEW_mean[mm]], [avg_gd], marker='o', color='blue')
+                    ax3[1].errorbar([logEW_mean[mm]], [avg_gd], yerr=[sig_gd],
+                                    marker='o', color='blue', alpha=0.5)
 
                 ax[2][1].set_xlabel(r'$\log(F_{{\rm H}\alpha})$')
                 ax[2][1].set_ylabel(r'$N$')
