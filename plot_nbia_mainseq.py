@@ -29,6 +29,7 @@ import scipy.optimize as optimize
 import matplotlib as mpl
 from astropy.io import ascii as asc
 from analysis.composite_errors import compute_onesig_pdf
+from MACT_utils import get_z_arr
 
 # emission line wavelengths (air)
 HA = 6562.80
@@ -133,6 +134,7 @@ def noeske_2007(ax):
 
     return noeske
 
+
 def illustris(ax, filename):
     '''
     Plots the data from Illustris-TNG-1 simulations as a 2D histogram in gray.
@@ -151,6 +153,7 @@ def illustris(ax, filename):
     cbar.update_ticks()
 
     return
+
 
 def sSFR_lines(ax, xlim):
     '''
@@ -523,20 +526,6 @@ def make_ssfr_graph(f, axes, sfrs00, smass0, filts00, zspec00, cwheel, z_arr,
     [a.tick_params(axis='both', labelsize='10', which='both', direction='in')
         for a in f.axes[:]]
     f.set_size_inches(16,6)
-
-
-def get_z_arr():
-    '''
-    defining an approximate redshift array for plot visualization
-    '''
-    z_arr0 = np.array([7045.0, 7126.0, 8152.0, 9193.0, 9749.0])/HA - 1
-    z_arr0 = np.around(z_arr0, 2)
-    z_arr  = np.array(z_arr0, dtype='|S9')
-    z_arr[0] = ",".join(z_arr[:2])
-    z_arr = np.delete(z_arr, 1)
-    z_arr  = np.array([x+'0' if len(x)==3 else x for x in z_arr])
-
-    return z_arr
 
 
 def approximated_zspec0(zspec0, filts):

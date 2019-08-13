@@ -38,6 +38,7 @@ from astropy import constants
 from astropy.io import fits as pyfits, ascii as asc
 from astropy.cosmology import FlatLambdaCDM
 from mainseq_corrections import niiha_oh_determine
+from MACT_utils import get_flux_from_FAST
 cosmo = FlatLambdaCDM(H0 = 70 * u.km / u.s / u.Mpc, Om0=0.3)
 
 # emission line wavelengths (air)
@@ -49,32 +50,32 @@ CUTOFF_MASS = 6.0
 fileend='.GALEX'
 
 
-def get_flux_from_FAST(ID, lambda_arr, byarr=True):
-    '''
-    Reads in the relevant SED spectrum file and then interpolates the
-    function to obtain a flux, the array of which is then returned.
-    '''
-    if byarr:
-        newflux = np.zeros(len(ID))
-        for ii in range(len(ID)):
-            tempfile = asc.read(FULL_PATH+
-                'FAST/outputs/BEST_FITS/NB_IA_emitters_allphot.emagcorr.ACpsf_fast'+
-                fileend+'_'+str(ID[ii])+'.fit', guess=False,Reader=asc.NoHeader)
-            wavelength = np.array(tempfile['col1'])
-            flux = np.array(tempfile['col2'])
-            f = interpolate.interp1d(wavelength, flux)
-            newflux[ii] = f(lambda_arr[ii])
+# def get_flux_from_FAST(ID, lambda_arr, byarr=True):
+#     '''
+#     Reads in the relevant SED spectrum file and then interpolates the
+#     function to obtain a flux, the array of which is then returned.
+#     '''
+#     if byarr:
+#         newflux = np.zeros(len(ID))
+#         for ii in range(len(ID)):
+#             tempfile = asc.read(FULL_PATH+
+#                 'FAST/outputs/BEST_FITS/NB_IA_emitters_allphot.emagcorr.ACpsf_fast'+
+#                 fileend+'_'+str(ID[ii])+'.fit', guess=False,Reader=asc.NoHeader)
+#             wavelength = np.array(tempfile['col1'])
+#             flux = np.array(tempfile['col2'])
+#             f = interpolate.interp1d(wavelength, flux)
+#             newflux[ii] = f(lambda_arr[ii])
 
-    else:
-        tempfile = asc.read(FULL_PATH+
-            'FAST/outputs/BEST_FITS/NB_IA_emitters_allphot.emagcorr.ACpsf_fast'+
-            fileend+'_'+str(ID)+'.fit', guess=False,Reader=asc.NoHeader)
-        wavelength = np.array(tempfile['col1'])
-        flux = np.array(tempfile['col2'])
-        f = interpolate.interp1d(wavelength, flux)
-        newflux = f(lambda_arr)
+#     else:
+#         tempfile = asc.read(FULL_PATH+
+#             'FAST/outputs/BEST_FITS/NB_IA_emitters_allphot.emagcorr.ACpsf_fast'+
+#             fileend+'_'+str(ID)+'.fit', guess=False,Reader=asc.NoHeader)
+#         wavelength = np.array(tempfile['col1'])
+#         flux = np.array(tempfile['col2'])
+#         f = interpolate.interp1d(wavelength, flux)
+#         newflux = f(lambda_arr)
 
-    return newflux
+#     return newflux
 
 
 def get_LUV(corrID, corrzspec0, centr_filts, filt_index_haii, ff):
@@ -115,7 +116,7 @@ def plot_ff_zz_color_filled(ax, xvals, yvals, corr_tbl,
     a scatter plot where the colors depend on the filts, and filled/open shapes
     correspond to yes_spec_z/no_spec_z sources
     '''
-    from plot_nbia_mainseq import get_z_arr
+    from MACT_utils import get_z_arr
     z_arr = get_z_arr()
 
     zspec0 = corr_tbl['zspec0'].data
@@ -150,7 +151,7 @@ def plot_zz_shapes_filled(ax, xvals, yvals, corr_tbl, color, legend_on=False,
     if legend_on, then a legend for the corresponding shapes is created in the
     upper right corner of the panel
     '''
-    from plot_nbia_mainseq import get_z_arr
+    from MACT_utils import get_z_arr
     z_arr = get_z_arr()
 
     labelarr = np.array([])
