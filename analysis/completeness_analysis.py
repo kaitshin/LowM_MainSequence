@@ -403,6 +403,10 @@ def ew_MC():
 
     nrow_stats = 4
 
+    # One file written for all avg and sigma comparisons
+    out_pdf3 = path0 + 'Completeness/ew_MC.avg_sigma.pdf'
+    pp3 = PdfPages(out_pdf3)
+
     for ff in range(len(filt_ref)): # loop over filter
         print("Working on : "+filters[ff])
 
@@ -768,11 +772,12 @@ def ew_MC():
 
         #endfor
 
-
         pp.close()
         pp2.close()
 
-        out_pdf3 = path0 + 'Completeness/ew_MC_'+filters[ff]+'.avg_sigma.pdf'
         fig3.set_size_inches(10,8)
-        fig3.savefig(out_pdf3, format='pdf')
+        fig3.savefig(pp3, format='pdf')
 
+    #endfor
+
+    pp3.close()
