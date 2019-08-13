@@ -101,6 +101,9 @@ def plot_ff_zz_color_filled(ax, xvals, yvals, corr_tbl,
     ll_arr=['NB704,NB711', 'NB816', 'NB921', 'NB973'],
     color_arr = ['r', 'orange', 'g', 'b']):
     '''
+    given xvals, yvals, and other information (incl. zspec and filts), creates
+    a scatter plot where the colors depend on the filts, and filled/open shapes
+    correspond to yes_spec_z/no_spec_z sources
     '''
     from plot_nbia_mainseq import get_z_arr
     z_arr = get_z_arr()
@@ -130,6 +133,12 @@ def plot_zz_shapes_filled(ax, xvals, yvals, corr_tbl, color, legend_on=False,
     ll_arr=['NB704,NB711', 'NB816', 'NB921', 'NB973'],
     mark_arr=['o', '^', 'D', '*'], size_arr=np.array([6.0, 6.0, 6.0, 9.0])**2):
     '''
+    given xvals, yvals, and other information (incl. zspec and filts), creates
+    a scatter plot where the shapes depend on the filts, and filled/open shapes
+    correspond to yes_spec_z/no_spec_z sources
+
+    if legend_on, then a legend for the corresponding shapes is created in the
+    upper right corner of the panel
     '''
     from plot_nbia_mainseq import get_z_arr
     z_arr = get_z_arr()
@@ -249,8 +258,7 @@ def plot_binned_percbins(ax, xvals, yvals, corr_tbl, yesz=True, num_bins=8):
 
 def plot_SFR_comparison(log_SFR_HA, log_SFR_UV, corr_tbl):
     '''
-    comparing with Lee+09 fig 1 relation
-    without dust correction
+    comparing with Lee+09 fig 1 (without dust correction)
     '''
     f, ax = plt.subplots()
 
@@ -355,7 +363,7 @@ def plot_SFR_ratios_final_touches(f, ax0, ax1):
 
 def plot_SFR_ratios(log_SFR_HA, log_SFR_UV, corr_tbl):
     '''
-    without dust correction
+    comparing with Lee+09 fig 2 (without dust correction)
     '''
     log_SFR_ratio = log_SFR_HA - log_SFR_UV
     stlr_mass = corr_tbl['stlr_mass'].data
