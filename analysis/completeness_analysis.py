@@ -486,12 +486,14 @@ def ew_MC():
         NB_EW   = npz_NB['NB_EW']
         Ha_Flux = npz_NB['Ha_Flux']
 
+        # Statistics for comparisons
         avg_NB = np.average(NB_EW)
         sig_NB = np.std(NB_EW)
 
         avg_NB_flux = np.average(Ha_Flux)
         sig_NB_flux = np.std(Ha_Flux)
 
+        # Plot sigma and average
         fig3, ax3 = plt.subplots(ncols=2, nrows=1)
         ax3[0].axhline(y=avg_NB, color='black', linestyle='dashed')
         ax3[0].axhspan(avg_NB-sig_NB, avg_NB+sig_NB, alpha=0.5, color='black')
@@ -609,7 +611,7 @@ def ew_MC():
                 # This is for statistics plot
                 if count % nrow_stats == 0:
                     fig2, ax2 = plt.subplots(ncols=2, nrows=nrow_stats)
-                s_row = count % nrow_stats
+                s_row = count % nrow_stats # For statistics plot
 
                 # Panel (2,0) - histogram of EW
 
@@ -662,6 +664,7 @@ def ew_MC():
                 ax[2][0].set_yscale('log')
                 ax[2][0].set_position([0.105,0.05,0.389,0.265])
 
+                # Model comparison plots
                 if len(good) > 0:
                     delta    = (Ng-No)/np.sqrt(Ng**0.5 + No**0.5)
                     ax2[s_row][0].scatter(binso[:-1], delta)
@@ -729,6 +732,7 @@ def ew_MC():
                 ax[2][1].legend(loc='upper right', fancybox=True, fontsize=6,
                                 framealpha=0.75)
 
+                # Model comparison plots
                 if len(good) > 0:
                     delta = (Ng-No)/np.sqrt(Ng**0.5+No**0.5)
                     ax2[s_row][1].scatter(binso[:-1], delta)
@@ -747,9 +751,11 @@ def ew_MC():
                     ax2[s_row][0].set_xlabel(r'$\log({\rm EW}/\AA)$')
                     ax2[s_row][1].set_xlabel(r'$\log(F_{{\rm H}\alpha})$')
 
+                # Save each page after each model iteration
                 fig.set_size_inches(8,10)
                 fig.savefig(pp, format='pdf')
 
+                # Save figure for each full page completed
                 if s_row == nrow_stats-1:
                     fig2.subplots_adjust(left=0.1, right=0.97, bottom=0.08, top=0.97,
                                          wspace=0.13)
