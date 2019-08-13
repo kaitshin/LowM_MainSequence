@@ -131,7 +131,7 @@ def plot_zz_shapes_filled(ax, xvals, yvals, corr_tbl, color, legend_on=False,
 
     labelarr = np.array([])
     zspec0 = corr_tbl['zspec0'].data
-    for (ff, mark, avg_z, size) in zip(ff_arr, mark_arr, z_arr, size_arr):
+    for (ff, mark, avg_z, size, ll) in zip(ff_arr, mark_arr, z_arr, size_arr, ll_arr):
         filt_index_haii = np.array([x for x in range(len(corr_tbl)) if ff in
             corr_tbl['filt'].data[x]])
         
@@ -143,11 +143,11 @@ def plot_zz_shapes_filled(ax, xvals, yvals, corr_tbl, color, legend_on=False,
 
         temp = ax.scatter(xvals[filt_index_haii][good_z], yvals[filt_index_haii][good_z],
             marker=mark, facecolors=color, edgecolors='none', alpha=0.2,
-            zorder=3, s=size, label='z~'+np.str(avg_z)+' ('+ff+')')
+            zorder=1, s=size, label='z~'+np.str(avg_z)+' ('+ll+')')
 
         ax.scatter(xvals[filt_index_haii][bad_z], yvals[filt_index_haii][bad_z],
             marker=mark, facecolors='none', edgecolors=color, alpha=0.2,
-            linewidth=0.5, zorder=3, s=size)
+            linewidth=0.5, zorder=1, s=size)
 
         labelarr = np.append(labelarr, temp)
 
@@ -187,8 +187,44 @@ def plot_binned(ax, xvals, yvals, plot_bins, zspec0=None):
                     marker='d', zorder=10)
 
     ax.errorbar(xvals_binned, yvals_binned, fmt='none', ecolor='m', lw=1,
-        capsize=5, yerr=yerrs, zorder=11)
+        yerr=yerrs, zorder=11)
 
+    return ax
+
+
+def plot_binned_2(ax, xvals, yvals, corr_tbl, yesz=True):
+    '''
+    '''
+    if yesz:
+        # limiting to yesz only
+        zspec0 = corr_tbl['zspec0'].data
+        good_z = np.array([x for x in range(len(zspec0)) if zspec0[x] > 0. and
+            zspec0[x] < 9.])
+        xvals = xvals[good_z]
+        yvals = yvals[good_z]
+
+    bin_edges = np.linspace(0, 100, 8+1)
+    step_size = bin_edges[1] - bin_edges[0]
+
+    xvals_perc_ii = np.array([[i for i in range(len(xvals)) if 
+        (xvals[i] <= np.percentile(xvals,NUM) 
+            and xvals[i] > np.percentile(xvals,NUM-step_size))] 
+        for NUM in bin_edges[1:]])
+    # edge case: add in 0th percentile value which isn't accounted for above
+    xvals_perc_ii[0] = np.insert(xvals_perc_ii[0], 0, np.argmin(xvals))
+
+    for i in range(xvals_perc_ii.shape[0]):
+        xarr = xvals[xvals_perc_ii[i]]
+        xval = np.mean(xarr)
+
+        yarr = yvals[xvals_perc_ii[i]]
+        yval = np.mean(yarr)
+
+        ax.plot(xval, yval, 'kd', zorder=12)
+        ax.errorbar(xval, yval, fmt='none', ecolor='k', lw=1,
+            zorder=11, yerr=np.std(yarr),
+            xerr=np.array([[xval - min(xarr)],
+                [max(xarr) - xval]]))
     return ax
 
 
@@ -200,7 +236,6 @@ def plot_SFR_comparison(log_SFR_HA, log_SFR_UV, corr_tbl):
     f, ax = plt.subplots()
 
     # plotting data
-    # ax = plot_ff_zz_color_filled(ax, log_SFR_HA, log_SFR_UV, corr_tbl)
     ax = plot_zz_shapes_filled(ax, log_SFR_HA, log_SFR_UV, corr_tbl,
         color='blue', legend_on=True)
 
@@ -220,6 +255,7 @@ def plot_SFR_comparison(log_SFR_HA, log_SFR_UV, corr_tbl):
     ax.set_ylabel('log SFR(UV)')
     ax.tick_params(axis='both', labelsize='10', which='both',
         direction='in')
+    ax.minorticks_on()
     f.set_size_inches(6,6)
     ax.legend(frameon=False, loc='best')
     plt.savefig(FULL_PATH+'Plots/main_sequence_UV_Ha/SFR_UV_vs_HA.pdf')
@@ -254,11 +290,11 @@ def lee_08(ax, xlims0):
     jlee_logSFRHa = np.array([0.25,-0.25,-0.75,-1.25,-1.75,-2.25,-2.75,-3.5,-4.5])
     jlee_logSFR_ratio = np.array([0.2,0.17,0.07,-0.02,-.1,-.23,-.46,-.49,-1.29])
     jlee_logSFR_ratio_errs = np.array([0.37,0.30,0.26,0.25,0.22,0.22,0.26,0.58,0.57])
-    ax.plot(jlee_logSFRHa, jlee_logSFR_ratio, 'ks')
-    ax.errorbar(jlee_logSFRHa, jlee_logSFR_ratio, fmt='none', ecolor='k', lw=2,
-        capsize=5, yerr=jlee_logSFR_ratio_errs)
+    ax.plot(jlee_logSFRHa, jlee_logSFR_ratio, 'cs', alpha=0.7)
+    ax.errorbar(jlee_logSFRHa, jlee_logSFR_ratio, fmt='none', ecolor='c', lw=2,
+        yerr=jlee_logSFR_ratio_errs, alpha=0.7)
     xtmparr0 = np.linspace(min(jlee_logSFRHa)-0.1, xlims0[1], 10)
-    jlee08, = ax.plot(xtmparr0, 0.26*xtmparr0+0.3, 'k--', 
+    jlee08, = ax.plot(xtmparr0, 0.26*xtmparr0+0.3, 'c--', alpha=0.7, 
         label='Lee+08: '+r'$\log(\rm SFR(H\alpha)/SFR(FUV)) = 0.26 \log(SFR(H\alpha))+0.30$')
     legend_jlee08 = ax.legend(handles=[jlee08], loc='lower right', frameon=False)
     ax.add_artist(legend_jlee08)
@@ -273,18 +309,14 @@ def plot_SFR_ratios(log_SFR_HA, log_SFR_UV, corr_tbl):
     log_SFR_ratio = log_SFR_HA - log_SFR_UV
     stlr_mass = corr_tbl['stlr_mass'].data
 
-    f, axarr = plt.subplots(2,1)
+    f, axarr = plt.subplots(1,2)
     ax0 = axarr[0]
     ax1 = axarr[1]
 
     # plotting data
-    # ax0 = plot_ff_zz_color_filled(ax0, log_SFR_HA, log_SFR_ratio, corr_tbl)
-    # ax1 = plot_ff_zz_color_filled(ax1, stlr_mass, log_SFR_ratio, corr_tbl)
     ax0 = plot_zz_shapes_filled(ax0, log_SFR_HA, log_SFR_ratio, corr_tbl,
-        color='blue', legend_on=True)
-    # leg1 = ax0.legend(frameon=False, loc='best')
-    # ax0.add_artist(leg1, loc='upper right')
-    ax1 = plot_zz_shapes_filled(ax1, stlr_mass, log_SFR_ratio, corr_tbl, color='blue')
+        color='gray', legend_on=True)
+    ax1 = plot_zz_shapes_filled(ax1, stlr_mass, log_SFR_ratio, corr_tbl, color='gray')
 
     xlims0 = [min(log_SFR_HA)-0.2, max(log_SFR_HA)+0.2]
     xlims1 = [min(stlr_mass)-0.2, max(stlr_mass)+0.2]
@@ -296,20 +328,22 @@ def plot_SFR_ratios(log_SFR_HA, log_SFR_UV, corr_tbl):
 
     # plotting our own avgs
     plot_bins = np.array([-4.0, -3.0, -2.5, -2.0, -1.5, -1.0, -0.5, 0.0, 0.5])
-    ax0 = plot_binned(ax0, log_SFR_HA, log_SFR_ratio, plot_bins,
-        zspec0=corr_tbl['zspec0'].data)
+    # ax0 = plot_binned(ax0, log_SFR_HA, log_SFR_ratio, plot_bins,
+    #     zspec0=corr_tbl['zspec0'].data)
+    ax0 = plot_binned_2(ax0, log_SFR_HA, log_SFR_ratio, corr_tbl)
 
 
     # final touches
-    ax0.set_xlabel('log SFR(Ha)')
-    ax0.set_ylabel('log[SFR(Ha)/SFR(UV)]')
+    ax0.set_xlabel(r'$\log \rm SFR(H\alpha)$')
+    ax0.set_ylabel(r'$\log(\rm SFR(H\alpha)/SFR(FUV))$')
 
-    ax1.set_xlabel('stlr_mass')
-    ax1.set_ylabel('log[SFR(Ha)/SFR(UV)]')
+    ax1.set_xlabel('log(M'+r'$_\bigstar$'+'/M'+r'$_{\odot}$'+')')
+    ax1.set_ylabel(r'$\log(\rm SFR(H\alpha)/SFR(FUV))$')
 
     [ax.tick_params(axis='both', labelsize='10', which='both',
         direction='in') for ax in [ax0,ax1]]
-    f.set_size_inches(6,10)
+    [ax.minorticks_on() for ax in [ax0,ax1]]
+    f.set_size_inches(12,5)
     plt.tight_layout()
     plt.savefig(FULL_PATH+'Plots/main_sequence_UV_Ha/SFR_ratio.pdf')
 
