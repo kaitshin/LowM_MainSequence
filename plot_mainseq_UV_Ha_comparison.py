@@ -49,20 +49,30 @@ CUTOFF_MASS = 6.0
 fileend='.GALEX'
 
 
-def get_flux_from_FAST(ID, lambda_arr):
+def get_flux_from_FAST(ID, lambda_arr, byarr=True):
     '''
     Reads in the relevant SED spectrum file and then interpolates the
     function to obtain a flux, the array of which is then returned.
     '''
-    newflux = np.zeros(len(ID))
-    for ii in range(len(ID)):
+    if byarr:
+        newflux = np.zeros(len(ID))
+        for ii in range(len(ID)):
+            tempfile = asc.read(FULL_PATH+
+                'FAST/outputs/BEST_FITS/NB_IA_emitters_allphot.emagcorr.ACpsf_fast'+
+                fileend+'_'+str(ID[ii])+'.fit', guess=False,Reader=asc.NoHeader)
+            wavelength = np.array(tempfile['col1'])
+            flux = np.array(tempfile['col2'])
+            f = interpolate.interp1d(wavelength, flux)
+            newflux[ii] = f(lambda_arr[ii])
+
+    else:
         tempfile = asc.read(FULL_PATH+
             'FAST/outputs/BEST_FITS/NB_IA_emitters_allphot.emagcorr.ACpsf_fast'+
-            fileend+'_'+str(ID[ii])+'.fit', guess=False,Reader=asc.NoHeader)
+            fileend+'_'+str(ID)+'.fit', guess=False,Reader=asc.NoHeader)
         wavelength = np.array(tempfile['col1'])
         flux = np.array(tempfile['col2'])
         f = interpolate.interp1d(wavelength, flux)
-        newflux[ii] = f(lambda_arr[ii])
+        newflux = f(lambda_arr)
 
     return newflux
 
