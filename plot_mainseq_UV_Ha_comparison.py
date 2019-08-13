@@ -49,7 +49,7 @@ CUTOFF_MASS = 6.0
 fileend='.GALEX'
 
 
-def get_flux(ID, lambda_arr):
+def get_flux_from_FAST(ID, lambda_arr):
     '''
     Reads in the relevant SED spectrum file and then interpolates the
     function to obtain a flux, the array of which is then returned.
@@ -69,7 +69,7 @@ def get_flux(ID, lambda_arr):
 
 def get_LUV(corrID, corrzspec0, centr_filts, filt_index_haii, ff):
     '''
-    get FUV luminosity (at 1500 AA) by converting the flux (get_flux())
+    get FUV luminosity (at 1500 AA) by converting the flux (get_flux_from_FAST())
 
     sources without spectroscopic z are estimated by the center of the
     filter profile
@@ -88,7 +88,7 @@ def get_LUV(corrID, corrzspec0, centr_filts, filt_index_haii, ff):
 
     lambda_arr = (1+tempz)*1500
 
-    f_lambda = get_flux(ID, lambda_arr)
+    f_lambda = get_flux_from_FAST(ID, lambda_arr)
     f_nu = f_lambda*(1E-19*(lambda_arr**2*1E-10)/(constants.c.value))
     log_L_nu = np.log10(f_nu*4*np.pi) + \
         2*np.log10(cosmo.luminosity_distance(tempz).to(u.cm).value)
@@ -318,6 +318,7 @@ def lee_09(ax, xlims0, lee_fig_num):
     if lee_fig_num=='1':
         xtmparr = np.linspace(xlims0[0], xlims0[1], 10)
         ax.plot(xtmparr, 0.79*xtmparr-0.2, 'k--')
+        return ax
 
     elif lee_fig_num=='2A':
         jlee_logSFRHa = np.array([0.25,-0.25,-0.75,-1.25,-1.75,-2.25,-2.75,-3.5,-4.5])
@@ -329,14 +330,11 @@ def lee_09(ax, xlims0, lee_fig_num):
         xtmparr0 = np.linspace(min(jlee_logSFRHa)-0.1, xlims0[1], 10)
         jlee09, = ax.plot(xtmparr0, 0.26*xtmparr0+0.3, 'c--', alpha=0.7, 
             label='Lee+09: '+r'$\log(\rm SFR(H\alpha)/SFR(FUV)) = 0.26 \log(SFR(H\alpha))+0.30$')
-        legend_jlee09 = ax.legend(handles=[jlee09], loc='lower right', frameon=False)
-        ax.add_artist(legend_jlee09)
+        return ax, jlee09
 
     else:
         raise ValueError('Invalid fig_num. So far only Lee+09 figs 1 and 2A are\
             valid comparisons')
-
-    return ax
 
 
 def plot_SFR_ratios_final_touches(f, ax0, ax1):
@@ -368,7 +366,7 @@ def plot_SFR_ratios(log_SFR_HA, log_SFR_UV, corr_tbl):
     log_SFR_ratio = log_SFR_HA - log_SFR_UV
     stlr_mass = corr_tbl['stlr_mass'].data
 
-    f, axarr = plt.subplots(1,2)
+    f, axarr = plt.subplots(1,2, sharey=True)
     ax0 = axarr[0]
     ax1 = axarr[1]
 
@@ -384,15 +382,58 @@ def plot_SFR_ratios(log_SFR_HA, log_SFR_UV, corr_tbl):
     [ax.axhline(0, color='k') for ax in [ax0,ax1]]
 
     # plotting relation from Lee+09
-    ax0 = lee_09(ax0, xlims0, lee_fig_num='2A')
+    ax0, jlee09 = lee_09(ax0, xlims0, lee_fig_num='2A')
 
     # plotting our own avgs
     plot_bins = np.array([-4.0, -3.0, -2.5, -2.0, -1.5, -1.0, -0.5, 0.0, 0.5])
     ax0 = plot_binned_percbins(ax0, log_SFR_HA, log_SFR_ratio, corr_tbl)
     ax1 = plot_binned_percbins(ax1, stlr_mass, log_SFR_ratio, corr_tbl)
 
+    # plotting line of best fit
+    yesz_ii = np.where((corr_tbl['zspec0'].data > 0.) & (corr_tbl['zspec0'].data < 9.))[0]
+    ax0, MACT_SFRHA = line_fit(ax0, log_SFR_HA[yesz_ii], log_SFR_ratio[yesz_ii],
+        np.linspace(-4.6, xlims0[1], 10), 'SFRHA')
+    ax1, MACT_MASS = line_fit(ax1, stlr_mass[yesz_ii], log_SFR_ratio[yesz_ii],
+        np.linspace(xlims1[0], xlims1[1], 10), 'MASS')
+
+    # legends
+    legend_SFRHA = ax0.legend(handles=[MACT_SFRHA, jlee09], loc='lower right', frameon=False)
+    ax0.add_artist(legend_SFRHA)
+    legend_MASS = ax1.legend(handles=[MACT_MASS], loc='lower right', frameon=False)
+    ax1.add_artist(legend_MASS)
+
     # final touches
     plot_SFR_ratios_final_touches(f, ax0, ax1)
+
+
+def line_fit(ax, xvals, yvals, xlin_arr, datatype):
+    '''
+    fits a y=mx+b line to the xvals, yvals data
+    '''
+    from scipy.optimize import curve_fit
+    def line(x, m, b):
+        return m*x + b
+
+    coeffs, covar = curve_fit(line, xvals, yvals)
+    m, b = coeffs[0], coeffs[1]
+
+    if datatype=='SFRHA':
+        MACT_SFRHA, = ax.plot(xlin_arr, m*xlin_arr+b, 'k--',
+            label=r'$\mathcal{MACT}:$ '+r'$\log(\rm SFR(H\alpha)/SFR(FUV)) = %.2f \log(SFR(H\alpha))+%.2f$'%(m,b))
+        return ax, MACT_SFRHA
+
+    elif datatype=='MAG_B':
+        MACT_MAGB, = ax.plot(xlin_arr, m*xlin_arr+b, 'k--',
+            label=r'$\mathcal{MACT}:$ '+r'$\log(\rm SFR(H\alpha)/SFR(FUV)) = %.2f \rm M_B+%.2f$'%(m,b))
+        return ax, MACT_MAGB
+
+    elif datatype =='MASS':
+        MACT_MASS, = ax.plot(xlin_arr, m*xlin_arr+b, 'k--',
+            label=r'$\mathcal{MACT}:$ '+r'$\log(\rm{SFR(H\alpha)/SFR(FUV)}) = %.2f \log(M_\bigstar/M_\odot)%.2f$'%(m,b))
+        return ax, MACT_MASS
+
+    else:
+        raise ValueError('incorrect datatype')
 
 
 def main():
