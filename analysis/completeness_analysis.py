@@ -682,6 +682,8 @@ def ew_MC():
                 No, binso, _ = ax[2][1].hist(Ha_Flux, bins=Flux_bins, align='mid',
                                              color='blue', linestyle='solid', edgecolor='none',
                                              histtype='stepfilled', label=label_flux)
+                ax[2][1].axvline(x=avg_NB_flux, color='blue', linestyle='dashed',
+                                 linewidth=1.5)
 
                 if len(good) > 0:
                     finite = np.where(np.isfinite(Flux_arr0))
@@ -694,6 +696,8 @@ def ew_MC():
                                                color='black', linestyle='solid',
                                                edgecolor='black', histtype='step',
                                                label=label0)
+                    ax[2][1].axvline(x=avg_MC, color='black', linestyle='dashed',
+                                     linewidth=1.5)
 
                     avg_gd = np.average(Flux_arr0[good])
                     sig_gd = np.std(Flux_arr0[good])
@@ -703,6 +707,8 @@ def ew_MC():
                                                  weights=wht0[good], align='mid', color='red',
                                                  edgecolor='red', linestyle='solid',
                                                  histtype='stepfilled', label=label1)
+                    ax[2][1].axvline(x=avg_gd, color='red', linestyle='dashed',
+                                     linewidth=1.5)
 
                 ax[2][1].set_xlabel(r'$\log(F_{{\rm H}\alpha})$')
                 ax[2][1].set_ylabel(r'$N$')
