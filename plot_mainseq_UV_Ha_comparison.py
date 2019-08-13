@@ -230,7 +230,7 @@ def plot_binned_2(ax, xvals, yvals, corr_tbl, yesz=True):
 
 def plot_SFR_comparison(log_SFR_HA, log_SFR_UV, corr_tbl):
     '''
-    comparing with Lee+08 fig 1 relation
+    comparing with Lee+09 fig 1 relation
     without dust correction
     '''
     f, ax = plt.subplots()
@@ -244,7 +244,7 @@ def plot_SFR_comparison(log_SFR_HA, log_SFR_UV, corr_tbl):
     ylims = [min(log_SFR_UV)-0.4, max(log_SFR_UV)+0.4]
     ax.plot(xlims, xlims, 'k')
 
-    # plotting relation from Lee+08
+    # plotting relation from Lee+09
     xtmparr = np.linspace(xlims[0], xlims[1], 10)
     ax.plot(xtmparr, 0.79*xtmparr-0.2, 'k--')
 
@@ -284,7 +284,7 @@ def get_UV_SFR(corr_tbl):
     return log_SFR_LUV
 
 
-def lee_08(ax, xlims0):
+def lee_09(ax, xlims0):
     '''
     '''
     jlee_logSFRHa = np.array([0.25,-0.25,-0.75,-1.25,-1.75,-2.25,-2.75,-3.5,-4.5])
@@ -294,12 +294,30 @@ def lee_08(ax, xlims0):
     ax.errorbar(jlee_logSFRHa, jlee_logSFR_ratio, fmt='none', ecolor='c', lw=2,
         yerr=jlee_logSFR_ratio_errs, alpha=0.7)
     xtmparr0 = np.linspace(min(jlee_logSFRHa)-0.1, xlims0[1], 10)
-    jlee08, = ax.plot(xtmparr0, 0.26*xtmparr0+0.3, 'c--', alpha=0.7, 
-        label='Lee+08: '+r'$\log(\rm SFR(H\alpha)/SFR(FUV)) = 0.26 \log(SFR(H\alpha))+0.30$')
-    legend_jlee08 = ax.legend(handles=[jlee08], loc='lower right', frameon=False)
-    ax.add_artist(legend_jlee08)
+    jlee09, = ax.plot(xtmparr0, 0.26*xtmparr0+0.3, 'c--', alpha=0.7, 
+        label='Lee+09: '+r'$\log(\rm SFR(H\alpha)/SFR(FUV)) = 0.26 \log(SFR(H\alpha))+0.30$')
+    legend_jlee09 = ax.legend(handles=[jlee09], loc='lower right', frameon=False)
+    ax.add_artist(legend_jlee09)
 
     return ax
+
+
+def plot_SFR_ratios_final_touches(f, ax0, ax1):
+    '''
+    '''
+    ax0.set_xlabel(r'$\log \rm SFR(H\alpha)$')
+    ax0.set_ylabel(r'$\log(\rm SFR(H\alpha)/SFR(FUV))$')
+
+    ax1.set_xlabel('log(M'+r'$_\bigstar$'+'/M'+r'$_{\odot}$'+')')
+    ax1.set_ylabel(r'$\log(\rm SFR(H\alpha)/SFR(FUV))$')
+
+    [ax.tick_params(axis='both', labelsize='10', which='both',
+        direction='in') for ax in [ax0,ax1]]
+    [ax.minorticks_on() for ax in [ax0,ax1]]
+
+    f.set_size_inches(12,5)
+    plt.tight_layout()
+    plt.savefig(FULL_PATH+'Plots/main_sequence_UV_Ha/SFR_ratio.pdf')
 
 
 def plot_SFR_ratios(log_SFR_HA, log_SFR_UV, corr_tbl):
@@ -316,36 +334,24 @@ def plot_SFR_ratios(log_SFR_HA, log_SFR_UV, corr_tbl):
     # plotting data
     ax0 = plot_zz_shapes_filled(ax0, log_SFR_HA, log_SFR_ratio, corr_tbl,
         color='gray', legend_on=True)
-    ax1 = plot_zz_shapes_filled(ax1, stlr_mass, log_SFR_ratio, corr_tbl, color='gray')
+    ax1 = plot_zz_shapes_filled(ax1, stlr_mass, log_SFR_ratio, corr_tbl,
+        color='gray')
 
     xlims0 = [min(log_SFR_HA)-0.2, max(log_SFR_HA)+0.2]
     xlims1 = [min(stlr_mass)-0.2, max(stlr_mass)+0.2]
     ylims = [min(log_SFR_ratio)-0.4, max(log_SFR_ratio)+0.4]
     [ax.axhline(0, color='k') for ax in [ax0,ax1]]
 
-    # plotting relation from Lee+08
-    ax0 = lee_08(ax0, xlims0)
+    # plotting relation from Lee+09
+    ax0 = lee_09(ax0, xlims0)
 
     # plotting our own avgs
     plot_bins = np.array([-4.0, -3.0, -2.5, -2.0, -1.5, -1.0, -0.5, 0.0, 0.5])
-    # ax0 = plot_binned(ax0, log_SFR_HA, log_SFR_ratio, plot_bins,
-    #     zspec0=corr_tbl['zspec0'].data)
     ax0 = plot_binned_2(ax0, log_SFR_HA, log_SFR_ratio, corr_tbl)
-
+    ax1 = plot_binned_2(ax1, stlr_mass, log_SFR_ratio, corr_tbl)
 
     # final touches
-    ax0.set_xlabel(r'$\log \rm SFR(H\alpha)$')
-    ax0.set_ylabel(r'$\log(\rm SFR(H\alpha)/SFR(FUV))$')
-
-    ax1.set_xlabel('log(M'+r'$_\bigstar$'+'/M'+r'$_{\odot}$'+')')
-    ax1.set_ylabel(r'$\log(\rm SFR(H\alpha)/SFR(FUV))$')
-
-    [ax.tick_params(axis='both', labelsize='10', which='both',
-        direction='in') for ax in [ax0,ax1]]
-    [ax.minorticks_on() for ax in [ax0,ax1]]
-    f.set_size_inches(12,5)
-    plt.tight_layout()
-    plt.savefig(FULL_PATH+'Plots/main_sequence_UV_Ha/SFR_ratio.pdf')
+    plot_SFR_ratios_final_touches(f, ax0, ax1)
 
 
 def main():
