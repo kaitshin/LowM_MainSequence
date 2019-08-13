@@ -341,7 +341,7 @@ def lee_09(ax, xlims0, lee_fig_num):
 
             xtmparr0 = np.linspace(min(jlee_xarr)-0.1, xlims0[1], 10)
             jlee09, = ax.plot(xtmparr0, 0.26*xtmparr0+0.3, 'c--', alpha=0.7, 
-                label='Lee+09: '+r'$\log(\rm SFR(H\alpha)/SFR(FUV)) = 0.26 \log(SFR(H\alpha))+0.30$')
+                label='Lee+09: '+r'$0.26 \log(\rm SFR(H\alpha))+0.30$')
 
         elif lee_fig_num=='2B':  # xarr is M_B (b magnitude)
             jlee_xarr = np.array([-20.5,-19.5,-18.5,-17.5,-16.5,-15.5,-14.5,
@@ -353,7 +353,7 @@ def lee_09(ax, xlims0, lee_fig_num):
             
             xtmparr0 = np.linspace(xlims0[0], xlims0[1], 10)
             jlee09, = ax.plot(xtmparr0, -0.08*xtmparr0-1.39, 'c--', alpha=0.7, 
-                label='Lee+09: '+r'$\log(\rm SFR(H\alpha)/SFR(FUV)) = -0.08 \rm M_B-1.39$')
+                label='Lee+09: '+r'$-0.08 \rm M_B-1.39$')
 
         else:
             raise ValueError('Invalid fig_num. So far only Lee+09 figs \
@@ -364,30 +364,6 @@ def lee_09(ax, xlims0, lee_fig_num):
             yerr=jlee_logSFR_ratio_errs, alpha=0.7)
 
         return ax, jlee09
-
-    # elif lee_fig_num=='2A':
-    #     jlee_logSFRHa = np.array([0.25,-0.25,-0.75,-1.25,-1.75,-2.25,-2.75,-3.5,-4.5])
-    #     jlee_logSFR_ratio = np.array([0.2,0.17,0.07,-0.02,-.1,-.23,-.46,-.49,-1.29])
-    #     jlee_logSFR_ratio_errs = np.array([0.37,0.30,0.26,0.25,0.22,0.22,0.26,0.58,0.57])
-    #     ax.plot(jlee_logSFRHa, jlee_logSFR_ratio, 'cs', alpha=0.7)
-    #     ax.errorbar(jlee_logSFRHa, jlee_logSFR_ratio, fmt='none', ecolor='c', lw=2,
-    #         yerr=jlee_logSFR_ratio_errs, alpha=0.7)
-    #     xtmparr0 = np.linspace(min(jlee_logSFRHa)-0.1, xlims0[1], 10)
-    #     jlee09, = ax.plot(xtmparr0, 0.26*xtmparr0+0.3, 'c--', alpha=0.7, 
-    #         label='Lee+09: '+r'$\log(\rm SFR(H\alpha)/SFR(FUV)) = 0.26 \log(SFR(H\alpha))+0.30$')
-    #     return ax, jlee09
-
-    # elif lee_fig_num=='2B':
-    #     jlee_M_B = np.array([-20.5,-19.5,-18.5,-17.5,-16.5,-15.5,-14.5,-13.5,-12.5,-11.5])
-    #     jlee_logSFR_ratio = np.array([-0.21,-0.10,-0.10,-0.16,-0.12,-0.27,-0.30,-0.34,-0.45,-0.51])
-    #     jlee_logSFR_ratio_errs = np.array([0.23,0.36,0.23,0.17,0.18,0.36,0.28,0.30,0.67,0.61])
-    #     ax.plot(jlee_logSFRHa, jlee_logSFR_ratio, 'cs', alpha=0.7)
-    #     ax.errorbar(jlee_logSFRHa, jlee_logSFR_ratio, fmt='none', ecolor='c', lw=2,
-    #         yerr=jlee_logSFR_ratio_errs, alpha=0.7)
-    #     xtmparr0 = np.linspace(min(jlee_logSFRHa)-0.1, xlims0[1], 10)
-    #     jlee09, = ax.plot(xtmparr0, 0.26*xtmparr0+0.3, 'c--', alpha=0.7, 
-    #         label='Lee+09: '+r'$\log(\rm SFR(H\alpha)/SFR(FUV)) = 0.26 \log(SFR(H\alpha))+0.30$')
-    #     return ax, jlee09
 
     else:
         raise ValueError('Invalid fig_num. So far only Lee+09 figs 1 and 2A are\
@@ -464,9 +440,9 @@ def plot_SFR_ratios_final_touches(f, ax0, ax1, ax2):
     ax1.set_xlim(ax1.get_xlim()[::-1])
 
     # sizing+saving
-    f.set_size_inches(16,5)
+    f.set_size_inches(14,5)
     plt.tight_layout()
-    plt.subplots_adjust(wspace=0.015, left=0.035, bottom=0.09)
+    plt.subplots_adjust(wspace=0.015, left=0.04, bottom=0.09)
     plt.savefig(FULL_PATH+'Plots/main_sequence_UV_Ha/SFR_ratio.pdf')
 
 
@@ -531,6 +507,7 @@ def plot_SFR_ratios(log_SFR_HA, log_SFR_UV, corr_tbl):
 def line_fit(ax, xvals, yvals, xlin_arr, datatype):
     '''
     fits a y=mx+b line to the xvals, yvals data
+    label=r'$\mathcal{MACT}:$ '+r'$\log(\rm SFR(H\alpha)/SFR(FUV)) = %.2f xvals +%.2f$'%(m,b)
     '''
     from scipy.optimize import curve_fit
     def line(x, m, b):
@@ -541,17 +518,17 @@ def line_fit(ax, xvals, yvals, xlin_arr, datatype):
 
     if datatype=='SFRHA':
         MACT_SFRHA, = ax.plot(xlin_arr, m*xlin_arr+b, 'k--',
-            label=r'$\mathcal{MACT}:$ '+r'$\log(\rm SFR(H\alpha)/SFR(FUV)) = %.2f \log(SFR(H\alpha))+%.2f$'%(m,b))
+            label=r'$\mathcal{MACT}:$ '+r'$%.2f \log(\rm SFR(H\alpha))+%.2f$'%(m,b))
         return ax, MACT_SFRHA
 
     elif datatype=='MAGB':
         MACT_MAGB, = ax.plot(xlin_arr, m*xlin_arr+b, 'k--',
-            label=r'$\mathcal{MACT}:$ '+r'$\log(\rm SFR(H\alpha)/SFR(FUV)) = %.2f \rm M_B %.2f$'%(m,b))
+            label=r'$\mathcal{MACT}:$ '+r'$%.2f \rm M_B %.2f$'%(m,b))
         return ax, MACT_MAGB
 
     elif datatype =='MASS':
         MACT_MASS, = ax.plot(xlin_arr, m*xlin_arr+b, 'k--',
-            label=r'$\mathcal{MACT}:$ '+r'$\log(\rm{SFR(H\alpha)/SFR(FUV)}) = %.2f \log(M_\bigstar/M_\odot)%.2f$'%(m,b))
+            label=r'$\mathcal{MACT}:$ '+r'$%.2f \log(M_\bigstar/M_\odot)%.2f$'%(m,b))
         return ax, MACT_MASS
 
     else:
