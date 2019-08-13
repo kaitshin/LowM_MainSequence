@@ -69,7 +69,12 @@ def get_flux(ID, lambda_arr):
 
 def get_LUV(corrID, corrzspec0, centr_filts, filt_index_haii, ff):
     '''
-    get UV luminosity
+    get FUV luminosity (at 1500 AA) by converting the flux (get_flux())
+
+    sources without spectroscopic z are estimated by the center of the
+    filter profile
+
+    returns the log of the luminosity log_L_nu (nu=1500AA)
     '''
     ID = corrID[filt_index_haii]
     zspec = corrzspec0[filt_index_haii]
@@ -158,9 +163,15 @@ def plot_zz_shapes_filled(ax, xvals, yvals, corr_tbl, color, legend_on=False,
     return ax
 
 
-def plot_binned(ax, xvals, yvals, plot_bins, zspec0=None):
+def plot_binned_with_yesz(ax, xvals, yvals, plot_bins, zspec0=None):
     '''
-    xvals = log_SFR_HA
+    plots bins, where the bin edges are passed in as the param `plot_bins`
+
+    if there are less than `min_yesz_per_bin` number of sources with
+    spectroscopic confirmation in that bin, then the binned avg point
+    is plotted with an open shape
+
+    plots mean(x), mean(y), and 1 stddev y-error bars (std(y))
     '''
     iis = np.digitize(xvals, bins=plot_bins)
     range_iis = np.arange(len(plot_bins[:-1])) + 1
@@ -192,8 +203,16 @@ def plot_binned(ax, xvals, yvals, plot_bins, zspec0=None):
     return ax
 
 
-def plot_binned_2(ax, xvals, yvals, corr_tbl, yesz=True):
+def plot_binned_percbins(ax, xvals, yvals, corr_tbl, yesz=True, num_bins=8):
     '''
+    if yesz (default=True), then only sources with spectroscopic confirmation
+    are considered in the binning
+
+    splits the data into num_bins bins (default=8) and plots the avg(z) and
+    avg(y) per bin.
+
+    yerr bars are 1stddev in y (std(y)), and xerr bars are the xrange
+    of the particular bin.
     '''
     if yesz:
         # limiting to yesz only
@@ -203,7 +222,7 @@ def plot_binned_2(ax, xvals, yvals, corr_tbl, yesz=True):
         xvals = xvals[good_z]
         yvals = yvals[good_z]
 
-    bin_edges = np.linspace(0, 100, 8+1)
+    bin_edges = np.linspace(0, 100, num_bins+1)
     step_size = bin_edges[1] - bin_edges[0]
 
     xvals_perc_ii = np.array([[i for i in range(len(xvals)) if 
@@ -245,8 +264,7 @@ def plot_SFR_comparison(log_SFR_HA, log_SFR_UV, corr_tbl):
     ax.plot(xlims, xlims, 'k')
 
     # plotting relation from Lee+09
-    xtmparr = np.linspace(xlims[0], xlims[1], 10)
-    ax.plot(xtmparr, 0.79*xtmparr-0.2, 'k--')
+    ax = lee_09(ax, xlims, lee_fig_num='1')
 
     # final touches
     ax.set_xlim(xlims)
@@ -284,37 +302,52 @@ def get_UV_SFR(corr_tbl):
     return log_SFR_LUV
 
 
-def lee_09(ax, xlims0):
+def lee_09(ax, xlims0, lee_fig_num):
     '''
+    overlays data points and theoretical relations from Lee+09
+    figures 1 and 2, depending on which one is being compared
     '''
-    jlee_logSFRHa = np.array([0.25,-0.25,-0.75,-1.25,-1.75,-2.25,-2.75,-3.5,-4.5])
-    jlee_logSFR_ratio = np.array([0.2,0.17,0.07,-0.02,-.1,-.23,-.46,-.49,-1.29])
-    jlee_logSFR_ratio_errs = np.array([0.37,0.30,0.26,0.25,0.22,0.22,0.26,0.58,0.57])
-    ax.plot(jlee_logSFRHa, jlee_logSFR_ratio, 'cs', alpha=0.7)
-    ax.errorbar(jlee_logSFRHa, jlee_logSFR_ratio, fmt='none', ecolor='c', lw=2,
-        yerr=jlee_logSFR_ratio_errs, alpha=0.7)
-    xtmparr0 = np.linspace(min(jlee_logSFRHa)-0.1, xlims0[1], 10)
-    jlee09, = ax.plot(xtmparr0, 0.26*xtmparr0+0.3, 'c--', alpha=0.7, 
-        label='Lee+09: '+r'$\log(\rm SFR(H\alpha)/SFR(FUV)) = 0.26 \log(SFR(H\alpha))+0.30$')
-    legend_jlee09 = ax.legend(handles=[jlee09], loc='lower right', frameon=False)
-    ax.add_artist(legend_jlee09)
+    if lee_fig_num=='1':
+        xtmparr = np.linspace(xlims0[0], xlims0[1], 10)
+        ax.plot(xtmparr, 0.79*xtmparr-0.2, 'k--')
+
+    elif lee_fig_num=='2A':
+        jlee_logSFRHa = np.array([0.25,-0.25,-0.75,-1.25,-1.75,-2.25,-2.75,-3.5,-4.5])
+        jlee_logSFR_ratio = np.array([0.2,0.17,0.07,-0.02,-.1,-.23,-.46,-.49,-1.29])
+        jlee_logSFR_ratio_errs = np.array([0.37,0.30,0.26,0.25,0.22,0.22,0.26,0.58,0.57])
+        ax.plot(jlee_logSFRHa, jlee_logSFR_ratio, 'cs', alpha=0.7)
+        ax.errorbar(jlee_logSFRHa, jlee_logSFR_ratio, fmt='none', ecolor='c', lw=2,
+            yerr=jlee_logSFR_ratio_errs, alpha=0.7)
+        xtmparr0 = np.linspace(min(jlee_logSFRHa)-0.1, xlims0[1], 10)
+        jlee09, = ax.plot(xtmparr0, 0.26*xtmparr0+0.3, 'c--', alpha=0.7, 
+            label='Lee+09: '+r'$\log(\rm SFR(H\alpha)/SFR(FUV)) = 0.26 \log(SFR(H\alpha))+0.30$')
+        legend_jlee09 = ax.legend(handles=[jlee09], loc='lower right', frameon=False)
+        ax.add_artist(legend_jlee09)
+
+    else:
+        raise ValueError('Invalid fig_num. So far only Lee+09 figs 1 and 2A are\
+            valid comparisons')
 
     return ax
 
 
 def plot_SFR_ratios_final_touches(f, ax0, ax1):
     '''
+    does final touches for the SFR ratios, SFR_ratio.pdf
+    incl. x labels, ticks, sizing, and saving
     '''
-    ax0.set_xlabel(r'$\log \rm SFR(H\alpha)$')
-    ax0.set_ylabel(r'$\log(\rm SFR(H\alpha)/SFR(FUV))$')
+    # labels
+    ax0.set_xlabel(r'$\log \rm SFR(H\alpha)$', fontsize=12)
+    ax1.set_xlabel('log(M'+r'$_\bigstar$'+'/M'+r'$_{\odot}$'+')', fontsize=12)
+    [ax.set_ylabel(r'$\log(\rm SFR(H\alpha)/SFR(FUV))$',
+        fontsize=12) for ax in [ax0,ax1]]
 
-    ax1.set_xlabel('log(M'+r'$_\bigstar$'+'/M'+r'$_{\odot}$'+')')
-    ax1.set_ylabel(r'$\log(\rm SFR(H\alpha)/SFR(FUV))$')
-
+    # ticks
     [ax.tick_params(axis='both', labelsize='10', which='both',
         direction='in') for ax in [ax0,ax1]]
     [ax.minorticks_on() for ax in [ax0,ax1]]
 
+    # sizing+saving
     f.set_size_inches(12,5)
     plt.tight_layout()
     plt.savefig(FULL_PATH+'Plots/main_sequence_UV_Ha/SFR_ratio.pdf')
@@ -343,12 +376,12 @@ def plot_SFR_ratios(log_SFR_HA, log_SFR_UV, corr_tbl):
     [ax.axhline(0, color='k') for ax in [ax0,ax1]]
 
     # plotting relation from Lee+09
-    ax0 = lee_09(ax0, xlims0)
+    ax0 = lee_09(ax0, xlims0, lee_fig_num='2A')
 
     # plotting our own avgs
     plot_bins = np.array([-4.0, -3.0, -2.5, -2.0, -1.5, -1.0, -0.5, 0.0, 0.5])
-    ax0 = plot_binned_2(ax0, log_SFR_HA, log_SFR_ratio, corr_tbl)
-    ax1 = plot_binned_2(ax1, stlr_mass, log_SFR_ratio, corr_tbl)
+    ax0 = plot_binned_percbins(ax0, log_SFR_HA, log_SFR_ratio, corr_tbl)
+    ax1 = plot_binned_percbins(ax1, stlr_mass, log_SFR_ratio, corr_tbl)
 
     # final touches
     plot_SFR_ratios_final_touches(f, ax0, ax1)
