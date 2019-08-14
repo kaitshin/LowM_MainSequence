@@ -460,36 +460,7 @@ def ew_MC(debug=False):
         Ndist_mock = np.int_(np.round(N_interp(NB)))
         NB_MC = np.repeat(NB, Ndist_mock)
 
-        # Read in mag vs mass extrapolation
-        npz_mass_file = path0 + 'Completeness/mag_vs_mass_'+prefixes[ff]+'.npz'
-        npz_mass = np.load(npz_mass_file)
-        cont_arr = npz_mass['cont_arr']
-        dmag     = cont_arr[1]-cont_arr[0]
-        mgood    = np.where(npz_mass['N_logM'] != 0)[0]
-        mass_int = interp1d(cont_arr[mgood]+dmag/2.0, npz_mass['avg_logM'][mgood],
-                            bounds_error=False, fill_value='extrapolate',
-                            kind='linear')
-
-        # Read in EW and fluxes for H-alpha NB emitter sample
-        npz_NB_file = path0 + 'Completeness/ew_flux_Ha-'+filters[ff]+'.npz'
-        npz_NB      = np.load(npz_NB_file)
-        NB_EW   = npz_NB['NB_EW']
-        Ha_Flux = npz_NB['Ha_Flux']
-
         filt_dict = {'dNB': dNB[ff], 'dBB': dBB[ff], 'lambdac': lambdac[ff]}
-
-        x      = np.arange(0.01,10.00,0.01)
-        y_temp = 10**(-0.4 * x)
-        EW_ref = np.log10(dNB[ff]*(1 - y_temp)/(y_temp - dNB[ff]/dBB[ff]))
-
-        good = np.where(np.isfinite(EW_ref))[0]
-        EW_int = interp1d(EW_ref[good], x[good], bounds_error=False,
-                          fill_value=(-3.0, np.max(EW_ref[good])))
-
-        NBmin = 20.0
-        NBmax = m_NB[ff]-0.5
-        NB = np.arange(NBmin,NBmax+NBbin,NBbin)
-        print('NB (min/max)', min(NB), max(NB))
 
         # Read in mag vs mass extrapolation
         npz_mass_file = path0 + 'Completeness/mag_vs_mass_'+prefixes[ff]+'.npz'
