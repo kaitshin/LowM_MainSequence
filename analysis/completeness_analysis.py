@@ -77,6 +77,14 @@ def avg_sig_label(str0, avg, sigma, type=''):
     return str0
 #enddef
 
+def N_avg_sig_label(x0, avg, sigma):
+    '''
+    String containing average and sigma for ax.legend() labels
+    '''
+
+    return r'N: %i  $\langle x\rangle$: %.2f  $\sigma$: %.2f' % (len(x0), avg, sigma)
+#enddef
+
 def color_cut(x, lim1, lim2, mean=0.0, sigma=3.0):
     '''
     NB excess color selection based on limiting magnitudes
