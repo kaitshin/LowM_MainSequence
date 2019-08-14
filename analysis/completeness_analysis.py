@@ -60,6 +60,23 @@ filters = ['NB704','NB711','NB816','NB921','NB973']
 EW_lab   = r'$\log({\rm EW}/\AA)$'
 Flux_lab = r'$\log(F_{{\rm H}\alpha})$'
 
+def avg_sig_label(str0, avg, sigma, type=''):
+    '''
+    Generate raw strings that contain proper formatting for average and sigma
+    EW and fluxes
+    '''
+
+    if type == 'EW':
+        str0 += r'$\langle\log({\rm EW}_0)\rangle$ = %.2f' % avg
+        str0 += '\n' + r'$\sigma[\log({\rm EW}_0)]$ = %.2f' % sigma
+
+    if type == 'Flux':
+        str0 += r'$\langle\log(F_{{\rm H}\alpha})\rangle$ = %.2f' % avg
+        str0 += '\n' + r'$\sigma[\log(F_{{\rm H}\alpha})]$ = %.2f' % sigma
+
+    return str0
+#enddef
+
 def color_cut(x, lim1, lim2, mean=0.0, sigma=3.0):
     '''
     NB excess color selection based on limiting magnitudes
