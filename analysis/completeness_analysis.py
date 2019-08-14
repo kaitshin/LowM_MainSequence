@@ -488,11 +488,6 @@ def ew_MC():
         NB = np.arange(NBmin,NBmax+NBbin,NBbin)
         print('NB (min/max)', min(NB), max(NB))
 
-        N_mag_mock = npz_slope['N_norm0'][ff] * Nsim * NBbin
-        N_interp   = interp1d(npz_slope['mag_arr'][ff], N_mag_mock)
-        Ndist_mock = np.int_(np.round(N_interp(NB)))
-        NB_MC = np.repeat(NB, Ndist_mock)
-        
         # Read in mag vs mass extrapolation
         npz_mass_file = path0 + 'Completeness/mag_vs_mass_'+prefixes[ff]+'.npz'
         npz_mass = np.load(npz_mass_file)
