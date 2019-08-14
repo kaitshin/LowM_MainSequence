@@ -396,7 +396,7 @@ def NB_numbers():
              mag_arr=mag_arr, N_norm0=N_norm0)
 #enddef
 
-def ew_MC():
+def ew_MC(debug=False):
     '''
     Main function for Monte Carlo realization.  Adopts log-normal
     EW distribution to determine survey sensitivity and impact on
@@ -428,7 +428,10 @@ def ew_MC():
     out_pdf3 = path0 + 'Completeness/ew_MC.avg_sigma.pdf'
     pp3 = PdfPages(out_pdf3)
 
-    for ff in range(len(filt_ref)): # loop over filter
+    ff_range = [0] if debug else range(len(filt_ref))
+    ss_range = [0] if debug else range(len(logEW_sig))
+
+    for ff in ff_range: # loop over filter
         print("Working on : "+filters[ff])
 
         out_pdf = path0 + 'Completeness/ew_MC_'+filters[ff]+'.pdf'
@@ -540,7 +543,7 @@ def ew_MC():
 
         count = 0
         for mm in range(len(logEW_mean)): # loop over median of EW dist
-            for ss in range(len(logEW_sig)): # loop over sigma of EW dist
+            for ss in ss_range: # loop over sigma of EW dist
                 fig, ax = plt.subplots(ncols=2, nrows=3)
                 plt.subplots_adjust(left=0.105, right=0.98, bottom=0.05,
                                     top=0.98, wspace=0.25, hspace=0.05)
