@@ -504,6 +504,8 @@ def ew_MC():
         ax3[0].set_xlim([min(logEW_mean)-0.05,max(logEW_mean)+0.05])
         ax3[0].set_xlabel(r'$\log({\rm EW}/\AA)$')
         ax3[0].set_ylabel(r'$\log({\rm EW}/\AA)$')
+        ax3[0].annotate(filters[ff], (0.025,0.975), xycoords='axes fraction',
+                        ha='left', va='top')
 
         ax3[1].axhline(y=avg_NB_flux, color='black', linestyle='dashed')
         ax3[1].axhspan(avg_NB_flux-sig_NB_flux, avg_NB_flux+sig_NB_flux,
@@ -661,8 +663,11 @@ def ew_MC():
                     ax[2][0].axvline(x=avg_gd, color='red', linestyle='dashed',
                                      linewidth=1.5)
 
+                    as_label = ''
+                    if mm == 0: as_label = '%.2f' % logEW_sig[ss]
+
                     ax3[0].scatter([logEW_mean[mm]+0.005*ss], [avg_gd], marker='o', s=40,
-                                   color=avg_sig_ctype[ss], edgecolor='none') #, alpha=0.5)
+                                   color=avg_sig_ctype[ss], edgecolor='none', label=as_label)
                     ax3[0].errorbar([logEW_mean[mm]+0.005*ss], [avg_gd], yerr=[sig_gd], capsize=0,
                                     elinewidth=1.5, ecolor=avg_sig_ctype[ss], fmt=None)
 
@@ -780,6 +785,9 @@ def ew_MC():
 
         pp.close()
         pp2.close()
+
+        ax3[0].legend(loc='upper right', title=r'$\sigma[\log({\rm EW}_0)]$',
+                      fancybox=True, fontsize=8, framealpha=0.75, numpoints=1)
 
         fig3.set_size_inches(10,5)
         fig3.subplots_adjust(left=0.075, right=0.97, bottom=0.10, top=0.97,
