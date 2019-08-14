@@ -8,11 +8,16 @@ PURPOSE:
 
 import numpy as np
 
-def get_flux_from_FAST(ID, lambda_arr, byarr=True):
+FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
+
+def get_flux_from_FAST(ID, lambda_arr, byarr=True, fileend='GALEX'):
     '''
     Reads in the relevant SED spectrum file and then interpolates the
     function to obtain a flux, the array of which is then returned.
     '''
+    from scipy import interpolate
+    from astropy.io import ascii as asc
+
     if byarr:
         newflux = np.zeros(len(ID))
         for ii in range(len(ID)):
