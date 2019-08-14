@@ -504,7 +504,10 @@ def ew_MC():
         ax3[0].set_xlim([min(logEW_mean)-0.05,max(logEW_mean)+0.05])
         ax3[0].set_xlabel(r'$\log({\rm EW}/\AA)$')
         ax3[0].set_ylabel(r'$\log({\rm EW}/\AA)$')
-        ax3[0].annotate(filters[ff], (0.025,0.975), xycoords='axes fraction',
+        ax3_txt  = filters[ff] + '\n'
+        ax3_txt += r'$\langle\log({\rm EW}_0)\rangle$ = %.2f' % avg_NB
+        ax3_txt += '\n' + r'$\sigma[\log({\rm EW}_0)]$ = %.2f' % sig_NB
+        ax3[0].annotate(ax3_txt, (0.025,0.975), xycoords='axes fraction',
                         ha='left', va='top')
 
         ax3[1].axhline(y=avg_NB_flux, color='black', linestyle='dashed')
