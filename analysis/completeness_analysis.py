@@ -502,13 +502,14 @@ def ew_MC():
         ax3[0].axhline(y=avg_NB, color='black', linestyle='dashed')
         ax3[0].axhspan(avg_NB-sig_NB, avg_NB+sig_NB, alpha=0.5, color='black')
         ax3[0].set_xlim([min(logEW_mean)-0.05,max(logEW_mean)+0.05])
+        ax3[0].set_ylim([1.2, 2.5])
         ax3[0].set_xlabel(r'$\log({\rm EW}/\AA)$')
         ax3[0].set_ylabel(r'$\log({\rm EW}/\AA)$')
         ax3_txt  = filters[ff] + '\n'
         ax3_txt += r'$\langle\log({\rm EW}_0)\rangle$ = %.2f' % avg_NB
         ax3_txt += '\n' + r'$\sigma[\log({\rm EW}_0)]$ = %.2f' % sig_NB
         ax3[0].annotate(ax3_txt, (0.025,0.975), xycoords='axes fraction',
-                        ha='left', va='top', fontsize=9)
+                        ha='left', va='top', fontsize=11)
 
         ax3[1].axhline(y=avg_NB_flux, color='black', linestyle='dashed')
         ax3[1].axhspan(avg_NB_flux-sig_NB_flux, avg_NB_flux+sig_NB_flux,
@@ -519,7 +520,7 @@ def ew_MC():
         ax3_txt  = '\n'+r'$\langle\log(F_{{\rm H}\alpha})\rangle$ = %.2f' % avg_NB_flux
         ax3_txt += '\n' + r'$\sigma[\log(F_{{\rm H}\alpha})]$ = %.2f' % sig_NB_flux
         ax3[1].annotate(ax3_txt, (0.025,0.975), xycoords='axes fraction',
-                        ha='left', va='top', fontsize=9)
+                        ha='left', va='top', fontsize=11)
 
         # Colors for each separate points on avg_sigma plots
         avg_sig_ctype = ['m','r','g','b','k']
@@ -794,7 +795,7 @@ def ew_MC():
         pp2.close()
 
         ax3[0].legend(loc='upper right', title=r'$\sigma[\log({\rm EW}_0)]$',
-                      fancybox=True, fontsize=8, framealpha=0.75, numpoints=1)
+                      fancybox=True, fontsize=8, framealpha=0.75, scatterpoints=1)
 
         fig3.set_size_inches(10,5)
         fig3.subplots_adjust(left=0.075, right=0.97, bottom=0.10, top=0.97,
