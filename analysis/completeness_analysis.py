@@ -396,6 +396,37 @@ def NB_numbers():
              mag_arr=mag_arr, N_norm0=N_norm0)
 #enddef
 
+def avg_sig_plot_init(t_filt, logEW_mean, avg_NB, sig_NB, avg_NB_flux,
+                      sig_NB_flux):
+    '''
+    Initialize fig and axes objects for avg_sigma plot and set matplotlib
+    aesthetics
+    '''
+
+    fig3, ax3 = plt.subplots(ncols=2, nrows=1)
+    ax3[0].axhline(y=avg_NB, color='black', linestyle='dashed')
+    ax3[0].axhspan(avg_NB-sig_NB, avg_NB+sig_NB, alpha=0.5, color='black')
+    ax3[0].set_xlim([min(logEW_mean)-0.05,max(logEW_mean)+0.05])
+    ax3[0].set_ylim([1.2, 2.5])
+    ax3[0].set_xlabel(EW_lab)
+    ax3[0].set_ylabel(EW_lab)
+    ax3_txt = avg_sig_label(t_filt+'\n', avg_NB, sig_NB, type='EW')
+    ax3[0].annotate(ax3_txt, (0.025,0.975), xycoords='axes fraction',
+                    ha='left', va='top', fontsize=11)
+
+    ax3[1].axhline(y=avg_NB_flux, color='black', linestyle='dashed')
+    ax3[1].axhspan(avg_NB_flux-sig_NB_flux, avg_NB_flux+sig_NB_flux,
+                   alpha=0.5, color='black')
+    ax3[1].set_xlim([min(logEW_mean)-0.05,max(logEW_mean)+0.05])
+    ax3[1].set_xlabel(EW_lab)
+    ax3[1].set_ylabel(Flux_lab)
+    ax3_txt = avg_sig_label('\n', avg_NB_flux, sig_NB_flux, type='Flux')
+    ax3[1].annotate(ax3_txt, (0.025,0.975), xycoords='axes fraction',
+                    ha='left', va='top', fontsize=11)
+
+    return fig3, ax3
+#endef
+
 def ew_MC(debug=False):
     '''
     Main function for Monte Carlo realization.  Adopts log-normal
@@ -488,26 +519,8 @@ def ew_MC(debug=False):
         sig_NB_flux = np.std(Ha_Flux)
 
         # Plot sigma and average
-        fig3, ax3 = plt.subplots(ncols=2, nrows=1)
-        ax3[0].axhline(y=avg_NB, color='black', linestyle='dashed')
-        ax3[0].axhspan(avg_NB-sig_NB, avg_NB+sig_NB, alpha=0.5, color='black')
-        ax3[0].set_xlim([min(logEW_mean)-0.05,max(logEW_mean)+0.05])
-        ax3[0].set_ylim([1.2, 2.5])
-        ax3[0].set_xlabel(EW_lab)
-        ax3[0].set_ylabel(EW_lab)
-        ax3_txt = avg_sig_label(filters[ff]+'\n', avg_NB, sig_NB, type='EW')
-        ax3[0].annotate(ax3_txt, (0.025,0.975), xycoords='axes fraction',
-                        ha='left', va='top', fontsize=11)
-
-        ax3[1].axhline(y=avg_NB_flux, color='black', linestyle='dashed')
-        ax3[1].axhspan(avg_NB_flux-sig_NB_flux, avg_NB_flux+sig_NB_flux,
-                       alpha=0.5, color='black')
-        ax3[1].set_xlim([min(logEW_mean)-0.05,max(logEW_mean)+0.05])
-        ax3[1].set_xlabel(EW_lab)
-        ax3[1].set_ylabel(Flux_lab)
-        ax3_txt = avg_sig_label('\n', avg_NB_flux, sig_NB_flux, type='Flux')
-        ax3[1].annotate(ax3_txt, (0.025,0.975), xycoords='axes fraction',
-                        ha='left', va='top', fontsize=11)
+        fig3, ax3 = avg_sig_plot_init(filters[ff], logEW_mean, avg_NB, sig_NB,
+                                      avg_NB_flux, sig_NB_flux)
 
         # Colors for each separate points on avg_sigma plots
         avg_sig_ctype = ['m','r','g','b','k']
