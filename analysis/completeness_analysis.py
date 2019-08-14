@@ -56,6 +56,10 @@ m_AB = 48.6
 
 filters = ['NB704','NB711','NB816','NB921','NB973']
 
+# Common text for labels
+EW_lab   = r'$\log({\rm EW}/\AA)$'
+Flux_lab = r'$\log(F_{{\rm H}\alpha})$'
+
 def color_cut(x, lim1, lim2, mean=0.0, sigma=3.0):
     '''
     NB excess color selection based on limiting magnitudes
@@ -503,8 +507,8 @@ def ew_MC():
         ax3[0].axhspan(avg_NB-sig_NB, avg_NB+sig_NB, alpha=0.5, color='black')
         ax3[0].set_xlim([min(logEW_mean)-0.05,max(logEW_mean)+0.05])
         ax3[0].set_ylim([1.2, 2.5])
-        ax3[0].set_xlabel(r'$\log({\rm EW}/\AA)$')
-        ax3[0].set_ylabel(r'$\log({\rm EW}/\AA)$')
+        ax3[0].set_xlabel(EW_lab)
+        ax3[0].set_ylabel(EW_lab)
         ax3_txt  = filters[ff] + '\n'
         ax3_txt += r'$\langle\log({\rm EW}_0)\rangle$ = %.2f' % avg_NB
         ax3_txt += '\n' + r'$\sigma[\log({\rm EW}_0)]$ = %.2f' % sig_NB
@@ -515,8 +519,8 @@ def ew_MC():
         ax3[1].axhspan(avg_NB_flux-sig_NB_flux, avg_NB_flux+sig_NB_flux,
                        alpha=0.5, color='black')
         ax3[1].set_xlim([min(logEW_mean)-0.05,max(logEW_mean)+0.05])
-        ax3[1].set_xlabel(r'$\log({\rm EW}/\AA)$')
-        ax3[1].set_ylabel(r'$\log(F_{{\rm H}\alpha})$')
+        ax3[1].set_xlabel(EW_lab)
+        ax3[1].set_ylabel(Flux_lab)
         ax3_txt  = '\n'+r'$\langle\log(F_{{\rm H}\alpha})\rangle$ = %.2f' % avg_NB_flux
         ax3_txt += '\n' + r'$\sigma[\log(F_{{\rm H}\alpha})]$ = %.2f' % sig_NB_flux
         ax3[1].annotate(ax3_txt, (0.025,0.975), xycoords='axes fraction',
@@ -601,7 +605,7 @@ def ew_MC():
                                  alpha=0.25, s=2, edgecolor='blue',
                                  linewidth=0.25, facecolor='none')
                 ax[1][0].set_xlabel('NB')
-                ax[1][0].set_ylabel(r'$\log(F_{H\alpha})$')
+                ax[1][0].set_ylabel(Flux_lab)
 
                 t_HaLum = t_Haflux +np.log10(4*np.pi) +2*np.log10(lum_dist)
 
@@ -681,7 +685,7 @@ def ew_MC():
 
                 ax[2][0].legend(loc='upper right', fancybox=True, fontsize=6,
                                 framealpha=0.75)
-                ax[2][0].set_xlabel(r'$\log({\rm EW}/\AA)$')
+                ax[2][0].set_xlabel(EW_lab)
                 ax[2][0].set_ylabel(r'$N$')
                 ax[2][0].set_yscale('log')
                 ax[2][0].set_position([0.105,0.05,0.389,0.265])
@@ -747,7 +751,7 @@ def ew_MC():
                     ax3[1].errorbar([logEW_mean[mm]+0.005*ss], [avg_gd], yerr=[sig_gd], capsize=0,
                                     elinewidth=1.5, ecolor=avg_sig_ctype[ss], fmt=None)
 
-                ax[2][1].set_xlabel(r'$\log(F_{{\rm H}\alpha})$')
+                ax[2][1].set_xlabel(Flux_lab)
                 ax[2][1].set_ylabel(r'$N$')
                 ax[2][1].set_yscale('log')
                 ax[2][1].set_position([0.591,0.05,0.389,0.265])
@@ -771,8 +775,8 @@ def ew_MC():
                     ax2[s_row][0].set_xticklabels([])
                     ax2[s_row][1].set_xticklabels([])
                 else:
-                    ax2[s_row][0].set_xlabel(r'$\log({\rm EW}/\AA)$')
-                    ax2[s_row][1].set_xlabel(r'$\log(F_{{\rm H}\alpha})$')
+                    ax2[s_row][0].set_xlabel(EW_lab)
+                    ax2[s_row][1].set_xlabel(Flux_lab)
 
                 # Save each page after each model iteration
                 fig.set_size_inches(8,10)
