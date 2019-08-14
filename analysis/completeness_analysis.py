@@ -526,9 +526,7 @@ def ew_MC():
         ax3[0].set_ylim([1.2, 2.5])
         ax3[0].set_xlabel(EW_lab)
         ax3[0].set_ylabel(EW_lab)
-        ax3_txt  = filters[ff] + '\n'
-        ax3_txt += r'$\langle\log({\rm EW}_0)\rangle$ = %.2f' % avg_NB
-        ax3_txt += '\n' + r'$\sigma[\log({\rm EW}_0)]$ = %.2f' % sig_NB
+        ax3_txt = avg_sig_label(filters[ff]+'\n', avg_NB, sig_NB, type='EW')
         ax3[0].annotate(ax3_txt, (0.025,0.975), xycoords='axes fraction',
                         ha='left', va='top', fontsize=11)
 
@@ -538,8 +536,7 @@ def ew_MC():
         ax3[1].set_xlim([min(logEW_mean)-0.05,max(logEW_mean)+0.05])
         ax3[1].set_xlabel(EW_lab)
         ax3[1].set_ylabel(Flux_lab)
-        ax3_txt  = '\n'+r'$\langle\log(F_{{\rm H}\alpha})\rangle$ = %.2f' % avg_NB_flux
-        ax3_txt += '\n' + r'$\sigma[\log(F_{{\rm H}\alpha})]$ = %.2f' % sig_NB_flux
+        ax3_txt = avg_sig_label('\n', avg_NB_flux, sig_NB_flux, type='Flux')
         ax3[1].annotate(ax3_txt, (0.025,0.975), xycoords='axes fraction',
                         ha='left', va='top', fontsize=11)
 
@@ -585,9 +582,8 @@ def ew_MC():
                 ax[0][0].set_xticklabels([])
                 ax[0][0].set_ylabel('cont - NB')
 
-                annot_txt  = r'$\langle\log({\rm EW}_0)\rangle = %.2f$' % logEW_mean[mm] + '\n'
-                annot_txt += r'$\sigma[\log({\rm EW}_0)] = %.2f$' % logEW_sig[ss] + '\n'
-                annot_txt += r'$N$ = %i' % len(NB_MC)
+                annot_txt = avg_sig_label('', logEW_mean[mm], logEW_sig[ss], type='EW')
+                annot_txt += '\n' + r'$N$ = %i' % len(NB_MC)
                 ax[0][0].annotate(annot_txt, [0.05,0.95], va='top',
                                   ha='left', xycoords='axes fraction')
 
