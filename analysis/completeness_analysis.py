@@ -672,7 +672,7 @@ def ew_MC():
 
                 # Model comparison plots
                 if len(good) > 0:
-                    delta    = (Ng-No)/np.sqrt(Ng**0.5 + No**0.5)
+                    delta    = (Ng-No)/np.sqrt(Ng + No)
                     ax2[s_row][0].scatter(binso[:-1], delta)
 
                     ax2[s_row][0].axhline(0.0, linestyle='dashed')
@@ -740,7 +740,7 @@ def ew_MC():
 
                 # Model comparison plots
                 if len(good) > 0:
-                    delta = (Ng-No)/np.sqrt(Ng**0.5+No**0.5)
+                    delta = (Ng-No)/np.sqrt(Ng+No)
                     ax2[s_row][1].scatter(binso[:-1], delta)
                     ax2[s_row][1].axhline(0.0, linestyle='dashed')
 
