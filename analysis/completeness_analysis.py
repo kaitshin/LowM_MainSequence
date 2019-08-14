@@ -512,6 +512,9 @@ def ew_MC():
         ax3[1].set_xlabel(r'$\log({\rm EW}/\AA)$')
         ax3[1].set_ylabel(r'$\log(F_{H\alpha})$')
 
+        # Colors for each separate points on avg_sigma plots
+        avg_sig_ctype = ['m','r','g','b','k']
+
         count = 0
         for mm in range(len(logEW_mean)): # loop over median of EW dist
             for ss in range(len(logEW_sig)): # loop over sigma of EW dist
@@ -658,10 +661,10 @@ def ew_MC():
                     ax[2][0].axvline(x=avg_gd, color='red', linestyle='dashed',
                                      linewidth=1.5)
 
-                    ax3[0].scatter([logEW_mean[mm]], [avg_gd], marker='o', color='blue') #, alpha=0.5)
-                    ax3[0].errorbar([logEW_mean[mm]], [avg_gd], yerr=[sig_gd],
-                                    marker='o', color='blue', alpha=0.5)
-
+                    ax3[0].scatter([logEW_mean[mm]+0.005*ss], [avg_gd], marker='o', s=40,
+                                   color=avg_sig_ctype[ss], edgecolor='none') #, alpha=0.5)
+                    ax3[0].errorbar([logEW_mean[mm]+0.005*ss], [avg_gd], yerr=[sig_gd], capsize=0,
+                                    elinewidth=1.5, ecolor=avg_sig_ctype[ss], fmt=None)
 
                 ax[2][0].legend(loc='upper right', fancybox=True, fontsize=6,
                                 framealpha=0.75)
@@ -726,9 +729,10 @@ def ew_MC():
                     ax[2][1].axvline(x=avg_gd, color='red', linestyle='dashed',
                                      linewidth=1.5)
 
-                    ax3[1].scatter([logEW_mean[mm]], [avg_gd], marker='o', color='blue')
-                    ax3[1].errorbar([logEW_mean[mm]], [avg_gd], yerr=[sig_gd],
-                                    marker='o', color='blue', alpha=0.5)
+                    ax3[1].scatter([logEW_mean[mm]+0.005*ss], [avg_gd], marker='o', s=40,
+                                   color=avg_sig_ctype[ss], edgecolor='none')
+                    ax3[1].errorbar([logEW_mean[mm]+0.005*ss], [avg_gd], yerr=[sig_gd], capsize=0,
+                                    elinewidth=1.5, ecolor=avg_sig_ctype[ss], fmt=None)
 
                 ax[2][1].set_xlabel(r'$\log(F_{{\rm H}\alpha})$')
                 ax[2][1].set_ylabel(r'$N$')
