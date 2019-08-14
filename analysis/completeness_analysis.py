@@ -642,8 +642,7 @@ def ew_MC(debug=False):
                 # Panel (2,0) - histogram of EW
 
                 # NB_counts, NB_bins = np.histogram(NB_EW, np.arange(0.5,3.0,0.2))
-                label_EW = r'N: %i  $\langle x\rangle$: %.2f  $\sigma$: %.2f' % \
-                           (len(NB_EW), avg_NB, sig_NB)
+                label_EW = N_avg_sig_label(NB_EW, avg_NB, sig_NB)
                 No, binso, _ = ax[2][0].hist(NB_EW, bins=EW_bins, align='mid', color='blue',
                                              linestyle='solid', edgecolor='none',
                                              histtype='stepfilled', label=label_EW)
@@ -659,8 +658,7 @@ def ew_MC(debug=False):
 
                     avg_MC = np.average(EW_arr0)
                     sig_MC = np.std(EW_arr0)
-                    label0 = r'N: %i  $\langle x\rangle$: %.2f  $\sigma$: %.2f ' % \
-                             (len(EW_arr0), avg_MC, sig_MC)
+                    label0 = N_avg_sig_label(EW_arr0, avg_MC, sig_MC)
                     N, bins, _ = ax[2][0].hist(EW_arr0, bins=EW_bins, weights=wht0,
                                                align='mid', color='black',
                                                linestyle='solid', edgecolor='black',
@@ -670,8 +668,7 @@ def ew_MC(debug=False):
 
                     avg_gd = np.average(EW_arr0[good])
                     sig_gd = np.std(EW_arr0[good])
-                    label1 = r'N: %i  $\langle x\rangle$: %.2f  $\sigma$: %.2f ' % \
-                             (len(good), avg_gd, sig_gd)
+                    label1 = N_avg_sig_label(good, avg_gd, sig_gd)
                     Ng, binsg, _ = ax[2][0].hist(EW_arr0[good], bins=EW_bins, weights=wht0[good],
                                                  align='mid', alpha=0.5, color='red', edgecolor='red',
                                                  linestyle='solid', histtype='stepfilled', label=label1)
@@ -716,8 +713,7 @@ def ew_MC(debug=False):
 
                 Flux_bins = np.arange(-17.75,-14.75,0.25)
 
-                label_flux = r'N: %i  $\langle x\rangle$: %.2f  $\sigma$: %.2f' % \
-                             (len(NB_EW), avg_NB_flux, sig_NB_flux)
+                label_flux = N_avg_sig_label(NB_EW, avg_NB_flux, sig_NB_flux)
                 No, binso, _ = ax[2][1].hist(Ha_Flux, bins=Flux_bins, align='mid',
                                              color='blue', linestyle='solid', edgecolor='none',
                                              histtype='stepfilled', label=label_flux)
@@ -728,8 +724,7 @@ def ew_MC(debug=False):
                     finite = np.where(np.isfinite(Flux_arr0))
                     avg_MC = np.average(Flux_arr0[finite])
                     sig_MC = np.std(Flux_arr0[finite])
-                    label0 = r'N: %i  $\langle x\rangle$: %.2f  $\sigma$: %.2f ' % \
-                             (len(EW_arr0), avg_MC, sig_MC)
+                    label0 = N_avg_sig_label(EW_arr0, avg_MC, sig_MC)
                     N, bins, _ = ax[2][1].hist(Flux_arr0[finite], bins=Flux_bins,
                                                weights=wht0[finite], align='mid',
                                                color='black', linestyle='solid',
@@ -740,8 +735,7 @@ def ew_MC(debug=False):
 
                     avg_gd = np.average(Flux_arr0[good])
                     sig_gd = np.std(Flux_arr0[good])
-                    label1 = r'N: %i  $\langle x\rangle$: %.2f  $\sigma$: %.2f ' % \
-                             (len(good), avg_gd, sig_gd)
+                    label1 = N_avg_sig_label(good, avg_gd, sig_gd)
                     Ng, binsg, _ = ax[2][1].hist(Flux_arr0[good], bins=Flux_bins, alpha=0.5,
                                                  weights=wht0[good], align='mid', color='red',
                                                  edgecolor='red', linestyle='solid',
