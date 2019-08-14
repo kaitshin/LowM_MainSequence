@@ -503,12 +503,14 @@ def ew_MC():
         ax3[0].axhspan(avg_NB-sig_NB, avg_NB+sig_NB, alpha=0.5, color='black')
         ax3[0].set_xlim([min(logEW_mean)-0.05,max(logEW_mean)+0.05])
         ax3[0].set_xlabel(r'$\log({\rm EW}/\AA)$')
+        ax3[0].set_ylabel(r'$\log({\rm EW}/\AA)$')
 
         ax3[1].axhline(y=avg_NB_flux, color='black', linestyle='dashed')
         ax3[1].axhspan(avg_NB_flux-sig_NB_flux, avg_NB_flux+sig_NB_flux,
                        alpha=0.5, color='black')
         ax3[1].set_xlim([min(logEW_mean)-0.05,max(logEW_mean)+0.05])
         ax3[1].set_xlabel(r'$\log({\rm EW}/\AA)$')
+        ax3[1].set_ylabel(r'$\log(F_{H\alpha})$')
 
         count = 0
         for mm in range(len(logEW_mean)): # loop over median of EW dist
@@ -775,7 +777,9 @@ def ew_MC():
         pp.close()
         pp2.close()
 
-        fig3.set_size_inches(10,8)
+        fig3.set_size_inches(10,5)
+        fig3.subplots_adjust(left=0.075, right=0.97, bottom=0.10, top=0.97,
+                             wspace=0.25)
         fig3.savefig(pp3, format='pdf')
 
     #endfor
