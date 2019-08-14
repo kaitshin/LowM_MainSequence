@@ -482,7 +482,7 @@ def ew_MC(debug=False):
                           fill_value=(-3.0, np.max(EW_ref[good])))
 
         NBmin = 20.0
-        NBmax = m_NB[ff]-0.5
+        NBmax = m_NB[ff]-0.25
         NB = np.arange(NBmin,NBmax+NBbin,NBbin)
         print('NB (min/max)', min(NB), max(NB))
 
