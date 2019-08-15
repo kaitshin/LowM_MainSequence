@@ -627,7 +627,7 @@ def ew_MC(debug=False):
                 ax[1][1].scatter(logM_MC[NB_sel], logSFR_MC[NB_sel],
                                  alpha=0.25, s=2, edgecolor='none')
                 ax[1][1].scatter(logM_MC[NB_nosel], logSFR_MC[NB_nosel],
-                                 alpha=0.25, s=2, edgecolor='blue',
+                                 alpha=0.25, s=2, edgecolor='red',
                                  linewidth=0.25, facecolor='none')
                 ax[1][1].set_xlabel(r'$\log(M_{\star}/M_{\odot})$')
                 ax[1][1].set_ylabel(r'$\log({\rm SFR}({\rm H}\alpha))$')
