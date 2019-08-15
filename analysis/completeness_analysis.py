@@ -414,6 +414,7 @@ def avg_sig_plot_init(t_filt, logEW_mean, avg_NB, sig_NB, avg_NB_flux,
     xlim = [min(logEW_mean)-0.05,max(logEW_mean)+0.05]
 
     fig3, ax3 = plt.subplots(ncols=2, nrows=2)
+
     ax3[0][0].axhline(y=avg_NB, color='black', linestyle='dashed')
     ax3[0][0].axhspan(avg_NB-sig_NB, avg_NB+sig_NB, alpha=0.5, color='black')
     ax3[0][0].set_xlim(xlim)
@@ -433,6 +434,18 @@ def avg_sig_plot_init(t_filt, logEW_mean, avg_NB, sig_NB, avg_NB_flux,
     ax3_txt = avg_sig_label('', avg_NB_flux, sig_NB_flux, type='Flux')
     ax3[1][0].annotate(ax3_txt, (0.025,0.975), xycoords='axes fraction',
                        ha='left', va='top', fontsize=11)
+
+    ax3[0][1].set_xlim(xlim)
+    ax3[0][1].set_ylabel(r'$\chi^2_{\nu}$')
+    ax3[0][1].set_xticklabels([])
+    ax3[0][1].set_ylim([0.11,100])
+    ax3[0][1].set_yscale('log')
+
+    ax3[1][1].set_xlim(xlim)
+    ax3[1][1].set_ylabel(r'$\chi^2_{\nu}$')
+    ax3[1][1].set_xlabel(EW_lab)
+    ax3[1][1].set_ylim([0.1,100])
+    ax3[1][1].set_yscale('log')
 
     return fig3, ax3
 #endef
