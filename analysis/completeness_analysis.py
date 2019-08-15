@@ -60,6 +60,9 @@ filters = ['NB704','NB711','NB816','NB921','NB973']
 EW_lab   = r'$\log({\rm EW}/\AA)$'
 Flux_lab = r'$\log(F_{{\rm H}\alpha})$'
 
+# Colors for each separate points on avg_sigma plots
+avg_sig_ctype = ['m','r','g','b','k']
+
 def avg_sig_label(str0, avg, sigma, type=''):
     '''
     Generate raw strings that contain proper formatting for average and sigma
@@ -450,16 +453,16 @@ def avg_sig_plot_init(t_filt, logEW_mean, avg_NB, sig_NB, avg_NB_flux,
     return fig3, ax3
 #endef
 
-def ew_flux_hist(mm, t_ax, x0_lab, x0, avg_x0, sig_x0, x0_bins, logEW_mean,
-                 EW_flag0, x0_arr0, ax3=None):
+def ew_flux_hist(mm, ss, t_ax, x0_lab, x0, avg_x0, sig_x0, x0_bins, logEW_mean,
+                 logEW_sig, EW_flag0, x0_arr0, ax3=None):
     '''
     Generate histogram plots for EW or flux
     '''
 
     label_x0 = N_avg_sig_label(x0, avg_x0, sig_x0)
-    No, binso, _ = ax[2][0].hist(x0, bins=x0_bins, align='mid', color='blue',
-                                 linestyle='solid', edgecolor='none',
-                                 histtype='stepfilled', label=label_x0)
+    No, binso, _ = t_ax.hist(x0, bins=x0_bins, align='mid', color='blue',
+                             linestyle='solid', edgecolor='none',
+                             histtype='stepfilled', label=label_x0)
     t_ax.axvline(x=avg_x0, color='blue', linestyle='dashed',
                  linewidth=1.5)
 
@@ -503,6 +506,8 @@ def ew_flux_hist(mm, t_ax, x0_lab, x0, avg_x0, sig_x0, x0_bins, logEW_mean,
                         color=avg_sig_ctype[ss], label=as_label)
             ax3.errorbar(temp_x, [avg_gd], yerr=[sig_gd], capsize=0,
                          elinewidth=1.5, ecolor=avg_sig_ctype[ss], fmt=None)
+
+        return No, Ng, binso, wht0
 #enddef
 
 def ew_MC(debug=False):
@@ -603,9 +608,6 @@ def ew_MC(debug=False):
         ax3ll = ax3[1][0]
         ax3ur = ax3[0][1]
         ax3lr = ax3[1][1]
-
-        # Colors for each separate points on avg_sigma plots
-        avg_sig_ctype = ['m','r','g','b','k']
 
         count = 0
         for mm in range(len(logEW_mean)): # loop over median of EW dist
@@ -715,54 +717,10 @@ def ew_MC(debug=False):
 
                 # Panel (2,0) - histogram of EW
 
-                # NB_counts, NB_bins = np.histogram(NB_EW, np.arange(0.5,3.0,0.2))
-                label_EW = N_avg_sig_label(NB_EW, avg_NB, sig_NB)
-                No, binso, _ = ax[2][0].hist(NB_EW, bins=EW_bins, align='mid', color='blue',
-                                             linestyle='solid', edgecolor='none',
-                                             histtype='stepfilled', label=label_EW)
-                ax[2][0].axvline(x=avg_NB, color='blue', linestyle='dashed',
-                                 linewidth=1.5)
-
-                good = np.where(EW_flag0)[0]
-
-                # Normalize relative to selected sample
-                if len(good) > 0:
-                    norm0 = float(len(NB_EW))/len(good)
-                    wht0  = np.repeat(norm0, len(EW_arr0))
-
-                    avg_MC = np.average(EW_arr0)
-                    sig_MC = np.std(EW_arr0)
-                    label0 = N_avg_sig_label(EW_arr0, avg_MC, sig_MC)
-                    N, bins, _ = ax[2][0].hist(EW_arr0, bins=EW_bins, weights=wht0,
-                                               align='mid', color='black',
-                                               linestyle='solid', edgecolor='black',
-                                               histtype='step', label=label0)
-                    ax[2][0].axvline(x=avg_MC, color='black', linestyle='dashed',
-                                     linewidth=1.5)
-
-                    avg_gd = np.average(EW_arr0[good])
-                    sig_gd = np.std(EW_arr0[good])
-                    label1 = N_avg_sig_label(good, avg_gd, sig_gd)
-                    Ng, binsg, _ = ax[2][0].hist(EW_arr0[good], bins=EW_bins, weights=wht0[good],
-                                                 align='mid', alpha=0.5, color='red', edgecolor='red',
-                                                 linestyle='solid', histtype='stepfilled', label=label1)
-                    ax[2][0].axvline(x=avg_gd, color='red', linestyle='dashed',
-                                     linewidth=1.5)
-
-                    as_label = ''
-                    if mm == 0: as_label = '%.2f' % logEW_sig[ss]
-
-                    ax3ul.scatter([logEW_mean[mm]+0.005*ss], [avg_gd], marker='o', s=40,
-                                  color=avg_sig_ctype[ss], edgecolor='none', label=as_label)
-                    ax3ul.errorbar([logEW_mean[mm]+0.005*ss], [avg_gd], yerr=[sig_gd], capsize=0,
-                                   elinewidth=1.5, ecolor=avg_sig_ctype[ss], fmt=None)
-
-                ax[2][0].legend(loc='upper right', fancybox=True, fontsize=6,
-                                framealpha=0.75)
-                ax[2][0].set_xlabel(EW_lab)
-                ax[2][0].set_ylabel(r'$N$')
-                ax[2][0].set_yscale('log')
-                ax[2][0].set_position([0.105,0.05,0.389,0.265])
+                No, Ng, \
+                    binso, wht0 = ew_flux_hist(mm, ss, ax[2][0], EW_lab, NB_EW, avg_NB,
+                                               sig_NB, EW_bins, logEW_mean, logEW_sig,
+                                               EW_flag0, EW_arr0, ax3=ax3ul)
 
                 # Model comparison plots
                 if len(good) > 0:
