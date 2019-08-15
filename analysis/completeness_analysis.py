@@ -453,17 +453,15 @@ def avg_sig_plot_init(t_filt, logEW_mean, avg_NB, sig_NB, avg_NB_flux,
     return fig3, ax3
 #endef
 
-def ew_flux_hist(type0, mm, ss, ax, x0, avg_x0, sig_x0, x0_bins, logEW_mean,
+def ew_flux_hist(type0, mm, ss, t2_ax, x0, avg_x0, sig_x0, x0_bins, logEW_mean,
                  logEW_sig, EW_flag0, x0_arr0, ax3=None):
     '''
     Generate histogram plots for EW or flux
     '''
 
     if type0 == 'EW':
-        t2_ax = ax[2,0]
         x0_lab = EW_lab
     if type0 == 'Flux':
-        t2_ax = ax[2,1]
         x0_lab = Flux_lab
 
     label_x0 = N_avg_sig_label(x0, avg_x0, sig_x0)
@@ -514,7 +512,7 @@ def ew_flux_hist(type0, mm, ss, ax, x0, avg_x0, sig_x0, x0_bins, logEW_mean,
             ax3.errorbar(temp_x, [avg_gd], yerr=[sig_gd], capsize=0,
                          elinewidth=1.5, ecolor=avg_sig_ctype[ss], fmt=None)
 
-    return ax, No, Ng, binso, wht0
+    return No, Ng, binso, wht0
 #enddef
 
 def ew_MC(debug=False):
@@ -619,7 +617,7 @@ def ew_MC(debug=False):
         count = 0
         for mm in range(len(logEW_mean)): # loop over median of EW dist
             for ss in ss_range: # loop over sigma of EW dist
-                fig, ax = plt.subplots(ncols=2, nrows=3)
+                fig, [[ax00,ax01],[ax10,ax11],[ax20,ax21]] = plt.subplots(ncols=2, nrows=3)
                 plt.subplots_adjust(left=0.105, right=0.98, bottom=0.05,
                                     top=0.98, wspace=0.25, hspace=0.05)
 
@@ -643,22 +641,22 @@ def ew_MC(debug=False):
                 # t_NB = np.repeat(NB_MC, len(x_MC))
 
                 # Panel (0,0) - NB excess selection plot
-                ax[0][0].scatter(NB_MC, x_MC, marker=',', s=1)
+                ax00.scatter(NB_MC, x_MC, marker=',', s=1)
 
-                ax[0][0].axhline(y=minthres[ff], linestyle='dashed',
-                                 color='blue')
+                ax00.axhline(y=minthres[ff], linestyle='dashed',
+                             color='blue')
 
                 y3 = color_cut(NB, m_NB[ff], cont_lim[ff])
-                ax[0][0].plot(NB, y3, 'b--')
+                ax00.plot(NB, y3, 'b--')
                 y4 = color_cut(NB, m_NB[ff], cont_lim[ff], sigma=4.0)
-                ax[0][0].plot(NB, y4, 'b:')
-                ax[0][0].set_xticklabels([])
-                ax[0][0].set_ylabel('cont - NB')
+                ax00.plot(NB, y4, 'b:')
+                ax00.set_xticklabels([])
+                ax00.set_ylabel('cont - NB')
 
                 annot_txt = avg_sig_label('', logEW_mean[mm], logEW_sig[ss], type='EW')
                 annot_txt += '\n' + r'$N$ = %i' % len(NB_MC)
-                ax[0][0].annotate(annot_txt, [0.05,0.95], va='top',
-                                  ha='left', xycoords='axes fraction')
+                ax00.annotate(annot_txt, [0.05,0.95], va='top',
+                              ha='left', xycoords='axes fraction')
 
 
                 sig_limit = color_cut(NB_MC, m_NB[ff], cont_lim[ff]) #, sigma=4.0)
@@ -685,35 +683,35 @@ def ew_MC(debug=False):
                 Flux_arr0 = np.append(Flux_arr0, t_Haflux)
 
                 # Panel (1,0) - NB mag vs H-alpha flux
-                ax[1][0].scatter(NB_MC[NB_sel], t_Haflux[NB_sel], alpha=0.25,
-                                 s=2, edgecolor='none')
-                ax[1][0].scatter(NB_MC[NB_nosel], t_Haflux[NB_nosel],
-                                 alpha=0.25, s=2, edgecolor='red',
-                                 linewidth=0.25, facecolor='none')
-                ax[1][0].set_xlabel('NB')
-                ax[1][0].set_ylabel(Flux_lab)
+                ax10.scatter(NB_MC[NB_sel], t_Haflux[NB_sel], alpha=0.25,
+                             s=2, edgecolor='none')
+                ax10.scatter(NB_MC[NB_nosel], t_Haflux[NB_nosel],
+                             alpha=0.25, s=2, edgecolor='red',
+                             linewidth=0.25, facecolor='none')
+                ax10.set_xlabel('NB')
+                ax10.set_ylabel(Flux_lab)
 
                 t_HaLum = t_Haflux +np.log10(4*np.pi) +2*np.log10(lum_dist)
 
                 # Panel (0,1) - stellar mass vs H-alpha luminosity
-                ax[0][1].scatter(logM_MC[NB_sel], t_HaLum[NB_sel],
-                                 alpha=0.25, s=2, edgecolor='none')
-                ax[0][1].scatter(logM_MC[NB_nosel], t_HaLum[NB_nosel],
-                                 alpha=0.25, s=2, edgecolor='red',
-                                 linewidth=0.25, facecolor='none')
-                ax[0][1].set_xticklabels([])
-                ax[0][1].set_ylabel(r'$\log(L_{{\rm H}\alpha})$')
+                ax01.scatter(logM_MC[NB_sel], t_HaLum[NB_sel],
+                             alpha=0.25, s=2, edgecolor='none')
+                ax01.scatter(logM_MC[NB_nosel], t_HaLum[NB_nosel],
+                             alpha=0.25, s=2, edgecolor='red',
+                             linewidth=0.25, facecolor='none')
+                ax01.set_xticklabels([])
+                ax01.set_ylabel(r'$\log(L_{{\rm H}\alpha})$')
                 #ax[1][1].set_ylim([37.5,43.0])
 
                 # Panel (1,1) - stellar mass vs H-alpha SFR
                 logSFR_MC = HaSFR_metal_dep(logOH, t_HaLum)
-                ax[1][1].scatter(logM_MC[NB_sel], logSFR_MC[NB_sel],
-                                 alpha=0.25, s=2, edgecolor='none')
-                ax[1][1].scatter(logM_MC[NB_nosel], logSFR_MC[NB_nosel],
-                                 alpha=0.25, s=2, edgecolor='red',
-                                 linewidth=0.25, facecolor='none')
-                ax[1][1].set_xlabel(r'$\log(M_{\star}/M_{\odot})$')
-                ax[1][1].set_ylabel(r'$\log({\rm SFR}({\rm H}\alpha))$')
+                ax11.scatter(logM_MC[NB_sel], logSFR_MC[NB_sel],
+                             alpha=0.25, s=2, edgecolor='none')
+                ax11.scatter(logM_MC[NB_nosel], logSFR_MC[NB_nosel],
+                             alpha=0.25, s=2, edgecolor='red',
+                             linewidth=0.25, facecolor='none')
+                ax11.set_xlabel(r'$\log(M_{\star}/M_{\odot})$')
+                ax11.set_ylabel(r'$\log({\rm SFR}({\rm H}\alpha))$')
 
                 EW_bins = np.arange(0.2,3.0,0.2)
 
@@ -724,8 +722,8 @@ def ew_MC(debug=False):
 
                 # Panel (2,0) - histogram of EW
 
-                ax, No, Ng, binso, \
-                    wht0 = ew_flux_hist('EW', mm, ss, ax, NB_EW, avg_NB,
+                No, Ng, binso, \
+                    wht0 = ew_flux_hist('EW', mm, ss, ax20, NB_EW, avg_NB,
                                         sig_NB, EW_bins, logEW_mean, logEW_sig,
                                         EW_flag0, EW_arr0, ax3=ax3ul)
 
@@ -763,11 +761,56 @@ def ew_MC(debug=False):
 
                 Flux_bins = np.arange(-17.75,-14.75,0.25)
 
+                '''
                 ax, No, Ng, binso, \
                     wht0 = ew_flux_hist('Flux', mm, ss, ax, Ha_Flux,
                                         avg_NB_flux, sig_NB_flux, Flux_bins,
                                         logEW_mean, logEW_sig,
                                         EW_flag0, Flux_arr0)
+                '''
+
+                label_flux = N_avg_sig_label(NB_EW, avg_NB_flux, sig_NB_flux)
+                No, binso, _ = ax21.hist(Ha_Flux, bins=Flux_bins, align='mid',
+                                         color='blue', linestyle='solid', edgecolor='none',
+                                         histtype='stepfilled', label=label_flux)
+                ax21.axvline(x=avg_NB_flux, color='blue', linestyle='dashed',
+                             linewidth=1.5)
+
+                if len(good) > 0:
+                    finite = np.where(np.isfinite(Flux_arr0))
+                    avg_MC = np.average(Flux_arr0[finite])
+                    sig_MC = np.std(Flux_arr0[finite])
+                    label0 = N_avg_sig_label(EW_arr0, avg_MC, sig_MC)
+                    N, bins, _ = ax21.hist(Flux_arr0[finite], bins=Flux_bins,
+                                           weights=wht0[finite], align='mid',
+                                           color='black', linestyle='solid',
+                                           edgecolor='black', histtype='step',
+                                           label=label0)
+                    ax21.axvline(x=avg_MC, color='black', linestyle='dashed',
+                                 linewidth=1.5)
+
+                    avg_gd = np.average(Flux_arr0[good])
+                    sig_gd = np.std(Flux_arr0[good])
+                    label1 = N_avg_sig_label(good, avg_gd, sig_gd)
+                    Ng, binsg, _ = ax21.hist(Flux_arr0[good], bins=Flux_bins, alpha=0.5,
+                                             weights=wht0[good], align='mid', color='red',
+                                             edgecolor='red', linestyle='solid',
+                                             histtype='stepfilled', label=label1)
+                    ax21.axvline(x=avg_gd, color='red', linestyle='dashed',
+                                 linewidth=1.5)
+
+                    ax3ll.scatter([logEW_mean[mm]+0.005*ss], [avg_gd], marker='o', s=40,
+                                  color=avg_sig_ctype[ss], edgecolor='none')
+                    ax3ll.errorbar([logEW_mean[mm]+0.005*ss], [avg_gd], yerr=[sig_gd], capsize=0,
+                                   elinewidth=1.5, ecolor=avg_sig_ctype[ss], fmt=None)
+
+                ax21.set_xlabel(Flux_lab)
+                ax21.set_ylabel(r'$N$')
+                ax21.set_yscale('log')
+                ax21.set_position([0.591,0.05,0.389,0.265])
+
+                ax21.legend(loc='upper right', fancybox=True, fontsize=6,
+                                framealpha=0.75)
 
                 # Model comparison plots
                 if len(good) > 0:
