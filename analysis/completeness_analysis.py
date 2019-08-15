@@ -411,26 +411,27 @@ def avg_sig_plot_init(t_filt, logEW_mean, avg_NB, sig_NB, avg_NB_flux,
     aesthetics
     '''
 
-    fig3, ax3 = plt.subplots(ncols=2, nrows=1)
-    ax3[0].axhline(y=avg_NB, color='black', linestyle='dashed')
-    ax3[0].axhspan(avg_NB-sig_NB, avg_NB+sig_NB, alpha=0.5, color='black')
-    ax3[0].set_xlim([min(logEW_mean)-0.05,max(logEW_mean)+0.05])
-    ax3[0].set_ylim([1.2, 2.5])
-    ax3[0].set_xlabel(EW_lab)
-    ax3[0].set_ylabel(EW_lab)
+    xlim = [min(logEW_mean)-0.05,max(logEW_mean)+0.05]
+
+    fig3, ax3 = plt.subplots(ncols=2, nrows=2)
+    ax3[0][0].axhline(y=avg_NB, color='black', linestyle='dashed')
+    ax3[0][0].axhspan(avg_NB-sig_NB, avg_NB+sig_NB, alpha=0.5, color='black')
+    ax3[0][0].set_xlim(xlim)
+    ax3[0][0].set_ylim([1.2, 2.5])
+    ax3[0][0].set_ylabel(EW_lab)
     ax3_txt = avg_sig_label(t_filt+'\n', avg_NB, sig_NB, type='EW')
-    ax3[0].annotate(ax3_txt, (0.025,0.975), xycoords='axes fraction',
+    ax3[0][0].annotate(ax3_txt, (0.025,0.975), xycoords='axes fraction',
                     ha='left', va='top', fontsize=11)
 
-    ax3[1].axhline(y=avg_NB_flux, color='black', linestyle='dashed')
-    ax3[1].axhspan(avg_NB_flux-sig_NB_flux, avg_NB_flux+sig_NB_flux,
-                   alpha=0.5, color='black')
-    ax3[1].set_xlim([min(logEW_mean)-0.05,max(logEW_mean)+0.05])
-    ax3[1].set_xlabel(EW_lab)
-    ax3[1].set_ylabel(Flux_lab)
-    ax3_txt = avg_sig_label('\n', avg_NB_flux, sig_NB_flux, type='Flux')
-    ax3[1].annotate(ax3_txt, (0.025,0.975), xycoords='axes fraction',
-                    ha='left', va='top', fontsize=11)
+    ax3[1][0].axhline(y=avg_NB_flux, color='black', linestyle='dashed')
+    ax3[1][0].axhspan(avg_NB_flux-sig_NB_flux, avg_NB_flux+sig_NB_flux,
+                      alpha=0.5, color='black')
+    ax3[1][0].set_xlim(xlim)
+    ax3[1][0].set_xlabel(EW_lab)
+    ax3[1][0].set_ylabel(Flux_lab)
+    ax3_txt = avg_sig_label('', avg_NB_flux, sig_NB_flux, type='Flux')
+    ax3[1][0].annotate(ax3_txt, (0.025,0.975), xycoords='axes fraction',
+                       ha='left', va='top', fontsize=11)
 
     return fig3, ax3
 #endef
@@ -529,6 +530,8 @@ def ew_MC(debug=False):
         # Plot sigma and average
         fig3, ax3 = avg_sig_plot_init(filters[ff], logEW_mean, avg_NB, sig_NB,
                                       avg_NB_flux, sig_NB_flux)
+        ax3ul = ax3[0][0]
+        ax3ll = ax3[1][0]
 
         # Colors for each separate points on avg_sigma plots
         avg_sig_ctype = ['m','r','g','b','k']
@@ -678,10 +681,10 @@ def ew_MC(debug=False):
                     as_label = ''
                     if mm == 0: as_label = '%.2f' % logEW_sig[ss]
 
-                    ax3[0].scatter([logEW_mean[mm]+0.005*ss], [avg_gd], marker='o', s=40,
-                                   color=avg_sig_ctype[ss], edgecolor='none', label=as_label)
-                    ax3[0].errorbar([logEW_mean[mm]+0.005*ss], [avg_gd], yerr=[sig_gd], capsize=0,
-                                    elinewidth=1.5, ecolor=avg_sig_ctype[ss], fmt=None)
+                    ax3ul.scatter([logEW_mean[mm]+0.005*ss], [avg_gd], marker='o', s=40,
+                                  color=avg_sig_ctype[ss], edgecolor='none', label=as_label)
+                    ax3ul.errorbar([logEW_mean[mm]+0.005*ss], [avg_gd], yerr=[sig_gd], capsize=0,
+                                   elinewidth=1.5, ecolor=avg_sig_ctype[ss], fmt=None)
 
                 ax[2][0].legend(loc='upper right', fancybox=True, fontsize=6,
                                 framealpha=0.75)
@@ -750,10 +753,10 @@ def ew_MC(debug=False):
                     ax[2][1].axvline(x=avg_gd, color='red', linestyle='dashed',
                                      linewidth=1.5)
 
-                    ax3[1].scatter([logEW_mean[mm]+0.005*ss], [avg_gd], marker='o', s=40,
-                                   color=avg_sig_ctype[ss], edgecolor='none')
-                    ax3[1].errorbar([logEW_mean[mm]+0.005*ss], [avg_gd], yerr=[sig_gd], capsize=0,
-                                    elinewidth=1.5, ecolor=avg_sig_ctype[ss], fmt=None)
+                    ax3ll.scatter([logEW_mean[mm]+0.005*ss], [avg_gd], marker='o', s=40,
+                                  color=avg_sig_ctype[ss], edgecolor='none')
+                    ax3ll.errorbar([logEW_mean[mm]+0.005*ss], [avg_gd], yerr=[sig_gd], capsize=0,
+                                   elinewidth=1.5, ecolor=avg_sig_ctype[ss], fmt=None)
 
                 ax[2][1].set_xlabel(Flux_lab)
                 ax[2][1].set_ylabel(r'$N$')
@@ -803,10 +806,10 @@ def ew_MC(debug=False):
         pp.close()
         pp2.close()
 
-        ax3[0].legend(loc='upper right', title=r'$\sigma[\log({\rm EW}_0)]$',
-                      fancybox=True, fontsize=8, framealpha=0.75, scatterpoints=1)
+        ax3ul.legend(loc='upper right', title=r'$\sigma[\log({\rm EW}_0)]$',
+                         fancybox=True, fontsize=8, framealpha=0.75, scatterpoints=1)
 
-        fig3.set_size_inches(10,5)
+        fig3.set_size_inches(8,8)
         fig3.subplots_adjust(left=0.075, right=0.97, bottom=0.10, top=0.97,
                              wspace=0.25)
         fig3.savefig(pp3, format='pdf')
