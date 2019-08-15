@@ -419,6 +419,7 @@ def avg_sig_plot_init(t_filt, logEW_mean, avg_NB, sig_NB, avg_NB_flux,
     ax3[0][0].set_xlim(xlim)
     ax3[0][0].set_ylim([1.2, 2.5])
     ax3[0][0].set_ylabel(EW_lab)
+    ax3[0][0].set_xticklabels([])
     ax3_txt = avg_sig_label(t_filt+'\n', avg_NB, sig_NB, type='EW')
     ax3[0][0].annotate(ax3_txt, (0.025,0.975), xycoords='axes fraction',
                     ha='left', va='top', fontsize=11)
@@ -810,8 +811,8 @@ def ew_MC(debug=False):
                          fancybox=True, fontsize=8, framealpha=0.75, scatterpoints=1)
 
         fig3.set_size_inches(8,8)
-        fig3.subplots_adjust(left=0.075, right=0.97, bottom=0.10, top=0.97,
-                             wspace=0.25)
+        fig3.subplots_adjust(left=0.105, right=0.97, bottom=0.065, top=0.99,
+                             wspace=0.25, hspace=0.01)
         fig3.savefig(pp3, format='pdf')
         plt.close(fig3)
     #endfor
