@@ -460,10 +460,10 @@ def ew_flux_hist(type0, mm, ss, ax, x0, avg_x0, sig_x0, x0_bins, logEW_mean,
     '''
 
     if type0 == 'EW':
-        t2_ax = ax[2][0]
+        t2_ax = ax[2,0]
         x0_lab = EW_lab
     if type0 == 'Flux':
-        t2_ax = ax[2][1]
+        t2_ax = ax[2,1]
         x0_lab = Flux_lab
 
     label_x0 = N_avg_sig_label(x0, avg_x0, sig_x0)
@@ -514,7 +514,7 @@ def ew_flux_hist(type0, mm, ss, ax, x0, avg_x0, sig_x0, x0_bins, logEW_mean,
             ax3.errorbar(temp_x, [avg_gd], yerr=[sig_gd], capsize=0,
                          elinewidth=1.5, ecolor=avg_sig_ctype[ss], fmt=None)
 
-    return No, Ng, binso, wht0
+    return ax, No, Ng, binso, wht0
 #enddef
 
 def ew_MC(debug=False):
@@ -724,7 +724,7 @@ def ew_MC(debug=False):
 
                 # Panel (2,0) - histogram of EW
 
-                No, Ng, binso, \
+                ax, No, Ng, binso, \
                     wht0 = ew_flux_hist('EW', mm, ss, ax, NB_EW, avg_NB,
                                         sig_NB, EW_bins, logEW_mean, logEW_sig,
                                         EW_flag0, EW_arr0, ax3=ax3ul)
@@ -763,7 +763,7 @@ def ew_MC(debug=False):
 
                 Flux_bins = np.arange(-17.75,-14.75,0.25)
 
-                No, Ng, binso, \
+                ax, No, Ng, binso, \
                     wht0 = ew_flux_hist('Flux', mm, ss, ax, Ha_Flux,
                                         avg_NB_flux, sig_NB_flux, Flux_bins,
                                         logEW_mean, logEW_sig,
