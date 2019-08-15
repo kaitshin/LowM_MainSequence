@@ -450,6 +450,61 @@ def avg_sig_plot_init(t_filt, logEW_mean, avg_NB, sig_NB, avg_NB_flux,
     return fig3, ax3
 #endef
 
+def ew_flux_hist(mm, t_ax, x0_lab, x0, avg_x0, sig_x0, x0_bins, logEW_mean,
+                 EW_flag0, x0_arr0, ax3=None):
+    '''
+    Generate histogram plots for EW or flux
+    '''
+
+    label_x0 = N_avg_sig_label(x0, avg_x0, sig_x0)
+    No, binso, _ = ax[2][0].hist(x0, bins=x0_bins, align='mid', color='blue',
+                                 linestyle='solid', edgecolor='none',
+                                 histtype='stepfilled', label=label_x0)
+    t_ax.axvline(x=avg_x0, color='blue', linestyle='dashed',
+                 linewidth=1.5)
+
+    good = np.where(EW_flag0)[0]
+
+    # Normalize relative to selected sample
+    if len(good) > 0:
+        norm0 = float(len(x0))/len(good)
+        wht0  = np.repeat(norm0, len(x0_arr0))
+
+        avg_MC = np.average(x0_arr0)
+        sig_MC = np.std(x0_arr0)
+        label0 = N_avg_sig_label(x0_arr0, avg_MC, sig_MC)
+        N, bins, _ = t_ax.hist(x0_arr0, bins=x0_bins, weights=wht0, align='mid',
+                               color='black', linestyle='solid',
+                               edgecolor='black', histtype='step', label=label0)
+        t_ax.axvline(x=avg_MC, color='black', linestyle='dashed', linewidth=1.5)
+
+        avg_gd = np.average(x0_arr0[good])
+        sig_gd = np.std(x0_arr0[good])
+        label1 = N_avg_sig_label(good, avg_gd, sig_gd)
+        Ng, binsg, _ = t_ax.hist(x0_arr0[good], bins=x0_bins, weights=wht0[good],
+                                 align='mid', alpha=0.5, color='red',
+                                 edgecolor='red', linestyle='solid',
+                                 histtype='stepfilled', label=label1)
+        t_ax.axvline(x=avg_gd, color='red', linestyle='dashed',
+                     linewidth=1.5)
+
+        t_ax.legend(loc='upper right', fancybox=True, fontsize=6, framealpha=0.75)
+        t_ax.set_xlabel(x0_lab)
+        t_ax.set_ylabel(r'$N$')
+        t_ax.set_yscale('log')
+        t_ax.set_position([0.105,0.05,0.389,0.265])
+
+        as_label = ''
+        if mm == 0: as_label = '%.2f' % logEW_sig[ss]
+
+        if type(ax3) != type(None):
+            temp_x = [logEW_mean[mm]+0.005*ss]
+            ax3.scatter(temp_x, [avg_gd], marker='o', s=40, edgecolor='none',
+                        color=avg_sig_ctype[ss], label=as_label)
+            ax3.errorbar(temp_x, [avg_gd], yerr=[sig_gd], capsize=0,
+                         elinewidth=1.5, ecolor=avg_sig_ctype[ss], fmt=None)
+#enddef
+
 def ew_MC(debug=False):
     '''
     Main function for Monte Carlo realization.  Adopts log-normal
