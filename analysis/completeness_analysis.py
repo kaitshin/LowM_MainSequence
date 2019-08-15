@@ -705,9 +705,16 @@ def ew_MC(debug=False):
 
                     # Compute chi^2
                     use_bins = np.where((Ng != 0) & (No != 0))[0]
-                    fit_chi2 = np.sum(delta[use_bins]**2)/(len(use_bins)-2)
-                    ax2[s_row][0].annotate(r'$\chi^2_{\nu}$ = %.2f' % fit_chi2, [0.975,0.975],
-                                           xycoords='axes fraction', ha='right', va='top')
+                    if len(use_bins) > 2:
+                        fit_chi2 = np.sum(delta[use_bins]**2)/(len(use_bins)-2)
+                        c_txt = r'$\chi^2_{\nu}$ = %.2f' % fit_chi2
+                    else:
+                        print("Too few bins")
+                        c_txt = r'$\chi^2_{\nu}$ = Unavailable'
+
+                    c_txt + '\n' + r'N = %i' % len(use_bins)
+                    ax2[s_row][0].annotate(c_txt, [0.975,0.975], ha='right',
+                                           xycoords='axes fraction', va='top')
 
                 # Panel (2,1) - histogram of H-alpha fluxes
 
