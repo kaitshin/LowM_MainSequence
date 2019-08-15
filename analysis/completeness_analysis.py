@@ -447,7 +447,7 @@ def avg_sig_plot_init(t_filt, logEW_mean, avg_NB, sig_NB, avg_NB_flux,
     ax3[1][1].set_xlim(xlim)
     ax3[1][1].set_ylabel(r'$\chi^2_{\nu}$')
     ax3[1][1].set_xlabel(EW_lab)
-    ax3[1][1].set_ylim([0.1,100])
+    ax3[1][1].set_ylim([0.11,100])
     ax3[1][1].set_yscale('log')
 
     return fig3, ax3
