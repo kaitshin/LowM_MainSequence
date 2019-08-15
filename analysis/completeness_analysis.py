@@ -546,6 +546,8 @@ def ew_MC(debug=False):
                                       avg_NB_flux, sig_NB_flux)
         ax3ul = ax3[0][0]
         ax3ll = ax3[1][0]
+        ax3ur = ax3[0][1]
+        ax3lr = ax3[1][1]
 
         # Colors for each separate points on avg_sigma plots
         avg_sig_ctype = ['m','r','g','b','k']
@@ -725,6 +727,10 @@ def ew_MC(debug=False):
                     if len(use_bins) > 2:
                         fit_chi2 = np.sum(delta[use_bins]**2)/(len(use_bins)-2)
                         c_txt = r'$\chi^2_{\nu}$ = %.2f' % fit_chi2
+
+                        ax3ur.scatter([logEW_mean[mm]+0.005*ss], [fit_chi2],
+                                      marker='o', s=40, color=avg_sig_ctype[ss],
+                                      edgecolor='none')
                     else:
                         print("Too few bins")
                         c_txt = r'$\chi^2_{\nu}$ = Unavailable'
@@ -788,8 +794,19 @@ def ew_MC(debug=False):
 
                     # Compute chi^2
                     use_bins = np.where((Ng != 0) & (No != 0))[0]
-                    fit_chi2 = np.sum(delta[use_bins]**2)/(len(use_bins)-2)
-                    ax2[s_row][1].annotate(r'$\chi^2_{\nu}$ = %.2f' % fit_chi2, [0.975,0.975],
+                    if len(use_bins) > 2:
+                        fit_chi2 = np.sum(delta[use_bins]**2)/(len(use_bins)-2)
+                        c_txt = r'$\chi^2_{\nu}$ = %.2f' % fit_chi2
+
+                        ax3lr.scatter([logEW_mean[mm]+0.005*ss], [fit_chi2],
+                                      marker='o', s=40, color=avg_sig_ctype[ss],
+                                      edgecolor='none')
+                    else:
+                        print("Too few bins")
+                        c_txt = r'$\chi^2_{\nu}$ = Unavailable'
+
+                    c_txt + '\n' + r'N = %i' % len(use_bins)
+                    ax2[s_row][1].annotate(c_txt, [0.975,0.975],
                                            xycoords='axes fraction', ha='right', va='top')
 
                 if s_row != nrow_stats-1:
@@ -824,7 +841,7 @@ def ew_MC(debug=False):
                          fancybox=True, fontsize=8, framealpha=0.75, scatterpoints=1)
 
         fig3.set_size_inches(8,8)
-        fig3.subplots_adjust(left=0.105, right=0.97, bottom=0.065, top=0.99,
+        fig3.subplots_adjust(left=0.105, right=0.97, bottom=0.065, top=0.98,
                              wspace=0.25, hspace=0.01)
         fig3.savefig(pp3, format='pdf')
         plt.close(fig3)
