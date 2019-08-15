@@ -624,7 +624,7 @@ def ew_MC(debug=False):
                 ax[1][0].scatter(NB_MC[NB_sel], t_Haflux[NB_sel], alpha=0.25,
                                  s=2, edgecolor='none')
                 ax[1][0].scatter(NB_MC[NB_nosel], t_Haflux[NB_nosel],
-                                 alpha=0.25, s=2, edgecolor='blue',
+                                 alpha=0.25, s=2, edgecolor='red',
                                  linewidth=0.25, facecolor='none')
                 ax[1][0].set_xlabel('NB')
                 ax[1][0].set_ylabel(Flux_lab)
@@ -635,7 +635,7 @@ def ew_MC(debug=False):
                 ax[0][1].scatter(logM_MC[NB_sel], t_HaLum[NB_sel],
                                  alpha=0.25, s=2, edgecolor='none')
                 ax[0][1].scatter(logM_MC[NB_nosel], t_HaLum[NB_nosel],
-                                 alpha=0.25, s=2, edgecolor='blue',
+                                 alpha=0.25, s=2, edgecolor='red',
                                  linewidth=0.25, facecolor='none')
                 ax[0][1].set_xticklabels([])
                 ax[0][1].set_ylabel(r'$\log(L_{{\rm H}\alpha})$')
