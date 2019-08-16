@@ -60,6 +60,9 @@ filters = ['NB704','NB711','NB816','NB921','NB973']
 EW_lab   = r'$\log({\rm EW}/\AA)$'
 Flux_lab = r'$\log(F_{{\rm H}\alpha})$'
 
+EW_bins   = np.arange(0.2,3.0,0.2)
+Flux_bins = np.arange(-17.75,-14.75,0.25)
+
 # Colors for each separate points on avg_sigma plots
 avg_sig_ctype = ['m','r','g','b','k']
 
@@ -513,8 +516,7 @@ def ew_flux_hist(type0, mm, ss, t2_ax, x0, avg_x0, sig_x0, x0_bins, logEW_mean,
                                   align='mid', alpha=0.5, color='blue',
                                   edgecolor='blue', linestyle='solid',
                                   histtype='stepfilled', label=label1)
-        t2_ax.axvline(x=avg_gd, color='blue', linestyle='solid',
-                     linewidth=1.5)
+        t2_ax.axvline(x=avg_gd, color='blue', linestyle='solid', linewidth=1.5)
 
         t2_ax.legend(loc='upper right', fancybox=True, fontsize=6, framealpha=0.75)
         t2_ax.set_xlabel(x0_lab)
@@ -764,8 +766,6 @@ def ew_MC(debug=False):
                 ax11.set_ylabel(r'$\log({\rm SFR}({\rm H}\alpha))$')
 
 
-                EW_bins = np.arange(0.2,3.0,0.2)
-
                 # This is for statistics plot
                 if count % nrow_stats == 0:
                     fig2, ax2 = plt.subplots(ncols=2, nrows=nrow_stats)
@@ -810,8 +810,6 @@ def ew_MC(debug=False):
 
                 # Panel (2,1) - histogram of H-alpha fluxes
 
-                Flux_bins = np.arange(-17.75,-14.75,0.25)
-
                 '''
                 No, Ng, binso, \
                     wht0 = ew_flux_hist('Flux', mm, ss, ax21, Ha_Flux,
@@ -822,9 +820,9 @@ def ew_MC(debug=False):
 
                 label_flux = N_avg_sig_label(NB_EW, avg_NB_flux, sig_NB_flux)
                 No, binso, _ = ax21.hist(Ha_Flux, bins=Flux_bins, align='mid',
-                                         color='blue', linestyle='solid', edgecolor='none',
+                                         color='black', linestyle='solid', edgecolor='none',
                                          histtype='stepfilled', label=label_flux)
-                ax21.axvline(x=avg_NB_flux, color='blue', linestyle='dashed',
+                ax21.axvline(x=avg_NB_flux, color='black', linestyle='solid',
                              linewidth=1.5)
 
                 if len(good) > 0:
@@ -834,7 +832,7 @@ def ew_MC(debug=False):
                     label0 = N_avg_sig_label(EW_arr0, avg_MC, sig_MC)
                     N, bins, _ = ax21.hist(Flux_arr0[finite], bins=Flux_bins,
                                            weights=wht0[finite], align='mid',
-                                           color='black', linestyle='solid',
+                                           color='black', linestyle='dashed',
                                            edgecolor='black', histtype='step',
                                            label=label0)
                     ax21.axvline(x=avg_MC, color='black', linestyle='dashed',
@@ -845,9 +843,9 @@ def ew_MC(debug=False):
                     label1 = N_avg_sig_label(good, avg_gd, sig_gd)
                     Ng, binsg, _ = ax21.hist(Flux_arr0[good], bins=Flux_bins, alpha=0.5,
                                              weights=wht0[good], align='mid', color='red',
-                                             edgecolor='red', linestyle='solid',
+                                             edgecolor='blue', linestyle='solid',
                                              histtype='stepfilled', label=label1)
-                    ax21.axvline(x=avg_gd, color='red', linestyle='dashed',
+                    ax21.axvline(x=avg_gd, color='blue', linestyle='solid',
                                  linewidth=1.5)
 
                     ax3ll.scatter([logEW_mean[mm]+0.005*ss], [avg_gd], marker='o', s=40,
