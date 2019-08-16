@@ -525,6 +525,7 @@ def ew_flux_hist(type0, mm, ss, t2_ax, x0, avg_x0, sig_x0, x0_bins, logEW_mean,
         t2_ax.set_xlabel(x0_lab)
         t2_ax.set_ylabel(r'$N$')
         t2_ax.set_yscale('log')
+        t2_ax.set_ylim([0.1,1e3])
         t2_ax.set_position([0.105,0.05,0.389,0.265])
 
         as_label = ''
@@ -866,6 +867,7 @@ def ew_MC(debug=False):
                 ax21.set_xlabel(Flux_lab)
                 ax21.set_ylabel(r'$N$')
                 ax21.set_yscale('log')
+                ax21.set_ylim([0.1,1e3])
                 ax21.set_position([0.591,0.05,0.389,0.265])
 
                 ax21.legend(loc='upper right', fancybox=True, fontsize=6,
