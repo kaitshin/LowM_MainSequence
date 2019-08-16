@@ -780,6 +780,8 @@ def ew_MC(debug=False):
                                         sig_NB, EW_bins, logEW_mean, logEW_sig,
                                         EW_flag0, EW_arr0, ax3=ax3ul)
 
+                good = np.where(EW_flag0)[0]
+
                 # Model comparison plots
                 if len(good) > 0:
                     delta    = (Ng-No)/np.sqrt(Ng + No)
