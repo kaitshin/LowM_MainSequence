@@ -602,8 +602,10 @@ def ew_MC(debug=False):
         # Read in EW and fluxes for H-alpha NB emitter sample
         npz_NB_file = path0 + 'Completeness/ew_flux_Ha-'+filters[ff]+'.npz'
         npz_NB      = np.load(npz_NB_file)
-        NB_EW   = npz_NB['NB_EW']
-        Ha_Flux = npz_NB['Ha_Flux']
+        NB_EW    = npz_NB['NB_EW']
+        Ha_Flux  = npz_NB['Ha_Flux']
+        logMstar = npz_NB['logMstar']
+        Ha_SFR   = npz_NB['Ha_SFR'] # metallicity-dependent observed SFR
 
         # Statistics for comparisons
         avg_NB = np.average(NB_EW)
@@ -710,6 +712,11 @@ def ew_MC(debug=False):
                 #ax[1][1].set_ylim([37.5,43.0])
 
                 # Panel (1,1) - stellar mass vs H-alpha SFR
+
+                # Plot MACT data
+                ax11.scatter(logMstar, Ha_SFR, color='k', edgecolor='none',
+                             alpha=0.5, s=5)
+
                 logSFR_MC = HaSFR_metal_dep(logOH, t_HaLum)
                 ax11.scatter(logM_MC[NB_sel], logSFR_MC[NB_sel],
                              alpha=0.25, s=2, edgecolor='none')
@@ -718,6 +725,7 @@ def ew_MC(debug=False):
                              linewidth=0.25, facecolor='none')
                 ax11.set_xlabel(r'$\log(M_{\star}/M_{\odot})$')
                 ax11.set_ylabel(r'$\log({\rm SFR}({\rm H}\alpha))$')
+
 
                 EW_bins = np.arange(0.2,3.0,0.2)
 
