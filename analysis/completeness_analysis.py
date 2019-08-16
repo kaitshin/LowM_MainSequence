@@ -312,6 +312,9 @@ def get_EW_Flux_distribution():
     logMstar = np.zeros(len(NB_catdata))
     Ha_SFR   = np.zeros(len(NB_catdata))
 
+    NBmag   = np.zeros(len(NB_catdata))
+    contmag = np.zeros(len(NB_catdata))
+
     for filt in filters:
         log.info('### Working on : '+filt)
         NB_idx = [ii for ii in range(len(NB_tab)) if 'Ha-'+filt in \
@@ -323,6 +326,9 @@ def get_EW_Flux_distribution():
         Ha_EW[NB_idx]   = (NB_EW   + NII_Ha_corr + filt_corr)[NB_idx]
         Ha_Flux[NB_idx] = (NB_Flux + NII_Ha_corr + filt_corr)[NB_idx]
 
+        NBmag[NB_idx]   = NB_catdata[filt+'_MAG'][NB_idx]
+        contmag[NB_idx] = NB_catdata[filt+'_CONT_MAG'][NB_idx]
+
         logMstar[NB_idx] = NB_tab['stlr_mass'][NB_idx]
         Ha_SFR[NB_idx]   = NB_tab['met_dep_sfr'][NB_idx]
 
@@ -330,6 +336,7 @@ def get_EW_Flux_distribution():
         log.info("Writing : "+out_npz)
         np.savez(out_npz, NB_ID=NB_catdata['ID'][NB_idx], NB_EW=NB_EW[NB_idx],
                  NB_Flux=NB_Flux[NB_idx], Ha_EW=Ha_EW[NB_idx], Ha_Flux=Ha_Flux[NB_idx],
+                 NBmag=NBmag[NB_idx], contmag=contmag[NB_idx],
                  logMstar=logMstar[NB_idx], Ha_SFR=Ha_SFR[NB_idx])
     #endfor
 
