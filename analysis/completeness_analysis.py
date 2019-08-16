@@ -804,6 +804,8 @@ def ew_MC(debug=False):
                         print("Too few bins")
                         c_txt = r'$\chi^2_{\nu}$ = Unavailable'
 
+                    ax20.annotate(c_txt, [0.025,0.975], xycoords='axes fraction',
+                                  ha='left', va='top')
                     c_txt += '\n' + r'N = %i' % len(use_bins)
                     ax2[s_row][0].annotate(c_txt, [0.975,0.975], ha='right',
                                            xycoords='axes fraction', va='top')
@@ -881,6 +883,8 @@ def ew_MC(debug=False):
                         print("Too few bins")
                         c_txt = r'$\chi^2_{\nu}$ = Unavailable'
 
+                    ax21.annotate(c_txt, [0.025,0.975], xycoords='axes fraction',
+                                  ha='left', va='top')
                     c_txt += '\n' + r'N = %i' % len(use_bins)
                     ax2[s_row][1].annotate(c_txt, [0.975,0.975],
                                            xycoords='axes fraction', ha='right', va='top')
