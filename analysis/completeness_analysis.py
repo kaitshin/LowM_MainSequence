@@ -820,8 +820,9 @@ def ew_MC(debug=False):
 
                 label_flux = N_avg_sig_label(NB_EW, avg_NB_flux, sig_NB_flux)
                 No, binso, _ = ax21.hist(Ha_Flux, bins=Flux_bins, align='mid',
-                                         color='black', linestyle='solid', edgecolor='none',
-                                         histtype='stepfilled', label=label_flux)
+                                         color='black', alpha=0.5, linestyle='solid',
+                                         edgecolor='none', histtype='stepfilled',
+                                         label=label_flux)
                 ax21.axvline(x=avg_NB_flux, color='black', linestyle='solid',
                              linewidth=1.5)
 
@@ -842,7 +843,7 @@ def ew_MC(debug=False):
                     sig_gd = np.std(Flux_arr0[good])
                     label1 = N_avg_sig_label(good, avg_gd, sig_gd)
                     Ng, binsg, _ = ax21.hist(Flux_arr0[good], bins=Flux_bins, alpha=0.5,
-                                             weights=wht0[good], align='mid', color='red',
+                                             weights=wht0[good], align='mid', color='blue',
                                              edgecolor='blue', linestyle='solid',
                                              histtype='stepfilled', label=label1)
                     ax21.axvline(x=avg_gd, color='blue', linestyle='solid',
