@@ -611,6 +611,9 @@ def ew_MC(debug=False):
         npz_NB      = np.load(npz_NB_file)
         NB_EW    = npz_NB['NB_EW']
         Ha_Flux  = npz_NB['Ha_Flux']
+
+        NBmag    = npz_NB['NBmag']
+        contmag  = npz_NB['contmag']
         logMstar = npz_NB['logMstar']
         Ha_SFR   = npz_NB['Ha_SFR'] # metallicity-dependent observed SFR
 
@@ -656,6 +659,11 @@ def ew_MC(debug=False):
                 # t_NB = np.repeat(NB_MC, len(x_MC))
 
                 # Panel (0,0) - NB excess selection plot
+
+                # Plot MACT data
+                ax00.scatter(NBmag, contmag-NBmag, color='k', edgecolor='none',
+                             alpha=0.5, s=5)
+
                 ax00.scatter(NB_MC, x_MC, marker=',', s=1)
 
                 ax00.axhline(y=minthres[ff], linestyle='dashed',
@@ -665,6 +673,7 @@ def ew_MC(debug=False):
                 ax00.plot(NB, y3, 'b--')
                 y4 = color_cut(NB, m_NB[ff], cont_lim[ff], sigma=4.0)
                 ax00.plot(NB, y4, 'b:')
+
                 ax00.set_xticklabels([])
                 ax00.set_ylabel('cont - NB')
 
