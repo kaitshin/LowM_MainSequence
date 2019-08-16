@@ -625,6 +625,10 @@ def ew_MC(debug=False):
         logMstar = npz_NB['logMstar']
         Ha_SFR   = npz_NB['Ha_SFR'] # metallicity-dependent observed SFR
 
+        spec_flag = npz_NB['spec_flag']
+        w_spec    = np.where(spec_flag)[0]
+        wo_spec   = np.where(spec_flag == 0)[0]
+
         # Statistics for comparisons
         avg_NB = np.average(NB_EW)
         sig_NB = np.std(NB_EW)
@@ -669,8 +673,11 @@ def ew_MC(debug=False):
                 # Panel (0,0) - NB excess selection plot
 
                 # Plot MACT data
-                ax00.scatter(NBmag, contmag-NBmag, color='k', edgecolor='none',
-                             alpha=0.5, s=5)
+                temp_x = contmag-NBmag
+                ax00.scatter(NBmag[w_spec], temp_x[w_spec], color='k',
+                             edgecolor='none', alpha=0.5, s=5)
+                ax00.scatter(NBmag[wo_spec], temp_x[wo_spec], facecolor='none',
+                             edgecolor='k', alpha=0.5, s=5)
 
                 ax00.scatter(NB_MC, x_MC, marker=',', s=1)
 
@@ -715,8 +722,10 @@ def ew_MC(debug=False):
                 Flux_arr0 = np.append(Flux_arr0, t_Haflux)
 
                 # Panel (1,0) - NB mag vs H-alpha flux
-                ax10.scatter(NBmag, Ha_Flux, color='k', edgecolor='none',
-                             alpha=0.5, s=5)
+                ax10.scatter(NBmag[w_spec], Ha_Flux[w_spec], color='k',
+                             edgecolor='none', alpha=0.5, s=5)
+                ax10.scatter(NBmag[wo_spec], Ha_Flux[wo_spec], facecolor='none',
+                             edgecolor='k', alpha=0.5, s=5)
 
                 ax10.scatter(NB_MC[NB_sel], t_Haflux[NB_sel], alpha=0.25,
                              s=2, edgecolor='none')
@@ -741,8 +750,10 @@ def ew_MC(debug=False):
                 # Panel (1,1) - stellar mass vs H-alpha SFR
 
                 # Plot MACT data
-                ax11.scatter(logMstar, Ha_SFR, color='k', edgecolor='none',
-                             alpha=0.5, s=5)
+                ax11.scatter(logMstar[w_spec], Ha_SFR[w_spec], color='k',
+                             edgecolor='none', alpha=0.5, s=5)
+                ax11.scatter(logMstar[wo_spec], Ha_SFR[wo_spec], edgecolor='k',
+                             facecolor='none', alpha=0.5, s=5)
 
                 logSFR_MC = HaSFR_metal_dep(logOH, t_HaLum)
                 ax11.scatter(logM_MC[NB_sel], logSFR_MC[NB_sel],
