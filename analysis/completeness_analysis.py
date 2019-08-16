@@ -707,6 +707,9 @@ def ew_MC(debug=False):
                 Flux_arr0 = np.append(Flux_arr0, t_Haflux)
 
                 # Panel (1,0) - NB mag vs H-alpha flux
+                ax10.scatter(NBmag, Ha_Flux, color='k', edgecolor='none',
+                             alpha=0.5, s=5)
+
                 ax10.scatter(NB_MC[NB_sel], t_Haflux[NB_sel], alpha=0.25,
                              s=2, edgecolor='none')
                 ax10.scatter(NB_MC[NB_nosel], t_Haflux[NB_nosel],
