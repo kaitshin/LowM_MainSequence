@@ -486,11 +486,10 @@ def ew_flux_hist(type0, mm, ss, t2_ax, x0, avg_x0, sig_x0, x0_bins, logEW_mean,
         x0_lab = Flux_lab
 
     label_x0 = N_avg_sig_label(x0, avg_x0, sig_x0)
-    No, binso, _ = t2_ax.hist(x0, bins=x0_bins, align='mid', color='blue',
-                              linestyle='solid', edgecolor='none',
+    No, binso, _ = t2_ax.hist(x0, bins=x0_bins, align='mid', color='black',
+                              alpha=0.5, linestyle='solid', edgecolor='none',
                               histtype='stepfilled', label=label_x0)
-    t2_ax.axvline(x=avg_x0, color='blue', linestyle='dashed',
-                 linewidth=1.5)
+    t2_ax.axvline(x=avg_x0, color='black', linestyle='solid', linewidth=1.5)
 
     good = np.where(EW_flag0)[0]
 
@@ -503,7 +502,7 @@ def ew_flux_hist(type0, mm, ss, t2_ax, x0, avg_x0, sig_x0, x0_bins, logEW_mean,
         sig_MC = np.std(x0_arr0)
         label0 = N_avg_sig_label(x0_arr0, avg_MC, sig_MC)
         N, bins, _ = t2_ax.hist(x0_arr0, bins=x0_bins, weights=wht0, align='mid',
-                                color='black', linestyle='solid',
+                                color='black', linestyle='dashed',
                                 edgecolor='black', histtype='step', label=label0)
         t2_ax.axvline(x=avg_MC, color='black', linestyle='dashed', linewidth=1.5)
 
@@ -511,10 +510,10 @@ def ew_flux_hist(type0, mm, ss, t2_ax, x0, avg_x0, sig_x0, x0_bins, logEW_mean,
         sig_gd = np.std(x0_arr0[good])
         label1 = N_avg_sig_label(good, avg_gd, sig_gd)
         Ng, binsg, _ = t2_ax.hist(x0_arr0[good], bins=x0_bins, weights=wht0[good],
-                                  align='mid', alpha=0.5, color='red',
-                                  edgecolor='red', linestyle='solid',
+                                  align='mid', alpha=0.5, color='blue',
+                                  edgecolor='blue', linestyle='solid',
                                   histtype='stepfilled', label=label1)
-        t2_ax.axvline(x=avg_gd, color='red', linestyle='dashed',
+        t2_ax.axvline(x=avg_gd, color='blue', linestyle='solid',
                      linewidth=1.5)
 
         t2_ax.legend(loc='upper right', fancybox=True, fontsize=6, framealpha=0.75)
