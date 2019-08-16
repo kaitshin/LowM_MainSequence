@@ -762,8 +762,8 @@ def ew_MC(debug=False):
                 Flux_bins = np.arange(-17.75,-14.75,0.25)
 
                 '''
-                ax, No, Ng, binso, \
-                    wht0 = ew_flux_hist('Flux', mm, ss, ax, Ha_Flux,
+                No, Ng, binso, \
+                    wht0 = ew_flux_hist('Flux', mm, ss, ax21, Ha_Flux,
                                         avg_NB_flux, sig_NB_flux, Flux_bins,
                                         logEW_mean, logEW_sig,
                                         EW_flag0, Flux_arr0)
