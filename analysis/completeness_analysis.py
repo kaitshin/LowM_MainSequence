@@ -691,7 +691,7 @@ def ew_MC(debug=False):
     logEW_mean_start = [1.25, 1.45, 1.25, 1.25, 1.75]
     logEW_sig  = np.arange(0.15,0.45,0.1)
 
-    Nsim = 2000.
+    Nsim = 5000.
     print('Nsim : ', Nsim)
 
     NBbin = 0.25
@@ -798,7 +798,7 @@ def ew_MC(debug=False):
 
                 Flux_arr0  = np.array([])
 
-                np.random.seed = mm*ss
+                np.random.seed = mm*len(ss_range) + ss
                 rand0 = np.random.normal(0.0, 1.0, size=len(NB_MC))
                 logEW_MC = logEW_mean[mm] + logEW_sig[ss]*rand0 # This is NB EW (not H-alpha)
 
