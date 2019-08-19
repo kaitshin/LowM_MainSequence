@@ -597,7 +597,7 @@ def ew_flux_hist(type0, mm, ss, t2_ax, x0, avg_x0, sig_x0, x0_bins, logEW_mean,
         if mm == 0: as_label = '%.2f' % logEW_sig[ss]
 
         if type(ax3) != type(None):
-            temp_x = [logEW_mean[mm]+0.005*ss]
+            temp_x = [logEW_mean[mm]+0.005*(ss-3/2.)]
             ax3.scatter(temp_x, [avg_gd], marker='o', s=40, edgecolor='none',
                         color=avg_sig_ctype[ss], label=as_label)
             ax3.errorbar(temp_x, [avg_gd], yerr=[sig_gd], capsize=0,
@@ -656,7 +656,7 @@ def stats_plot(type0, ax2, ax3, ax, s_row, Ng, No, binso, EW_mean, EW_sig, ss):
         fit_chi2 = np.sum(delta[use_bins]**2)/(len(use_bins)-2)
         c_txt = r'$\chi^2_{\nu}$ = %.2f' % fit_chi2
 
-        ax3.scatter([EW_mean+0.005*ss], [fit_chi2],
+        ax3.scatter([EW_mean+0.005*(ss-3/2.)], [fit_chi2],
                     marker='o', s=40, color=avg_sig_ctype[ss],
                     edgecolor='none')
     else:
