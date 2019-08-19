@@ -713,6 +713,11 @@ def ew_MC(debug=False):
                 plt.subplots_adjust(left=0.105, right=0.98, bottom=0.05,
                                     top=0.98, wspace=0.25, hspace=0.05)
 
+                # This is for statistics plot
+                if count % nrow_stats == 0:
+                    fig2, ax2 = plt.subplots(ncols=2, nrows=nrow_stats)
+                s_row = count % nrow_stats # For statistics plot
+
                 EW_arr0  = np.array([])
                 EW_flag0 = np.array([])
 
@@ -808,13 +813,7 @@ def ew_MC(debug=False):
                           r'$\log(M_{\star}/M_{\odot})$', r'$\log({\rm SFR}({\rm H}\alpha))$')
 
 
-                # This is for statistics plot
-                if count % nrow_stats == 0:
-                    fig2, ax2 = plt.subplots(ncols=2, nrows=nrow_stats)
-                s_row = count % nrow_stats # For statistics plot
-
                 # Panel (2,0) - histogram of EW
-
                 No, Ng, binso, \
                     wht0 = ew_flux_hist('EW', mm, ss, ax20, NB_EW, avg_NB,
                                         sig_NB, EW_bins, logEW_mean, logEW_sig,
