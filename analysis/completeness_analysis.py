@@ -315,6 +315,7 @@ def get_EW_Flux_distribution():
 
     logMstar = np.zeros(len(NB_catdata))
     Ha_SFR   = np.zeros(len(NB_catdata))
+    Ha_Lum   = np.zeros(len(NB_catdata))
 
     NBmag   = np.zeros(len(NB_catdata))
     contmag = np.zeros(len(NB_catdata))
@@ -337,6 +338,8 @@ def get_EW_Flux_distribution():
 
         logMstar[NB_idx] = NB_tab['stlr_mass'][NB_idx]
         Ha_SFR[NB_idx]   = NB_tab['met_dep_sfr'][NB_idx]
+        Ha_Lum[NB_idx]   = NB_tab['obs_lumin'][NB_idx] + \
+                           (NII_Ha_corr + filt_corr)[NB_idx]
 
         with_spec = np.where((zspec0[NB_idx] > 0) & (zspec0[NB_idx] < 9))[0]
         with_spec = NB_idx[with_spec]
@@ -348,7 +351,8 @@ def get_EW_Flux_distribution():
                  NB_Flux=NB_Flux[NB_idx], Ha_EW=Ha_EW[NB_idx],
                  Ha_Flux=Ha_Flux[NB_idx], NBmag=NBmag[NB_idx],
                  contmag=contmag[NB_idx], spec_flag=spec_flag[NB_idx],
-                 logMstar=logMstar[NB_idx], Ha_SFR=Ha_SFR[NB_idx])
+                 logMstar=logMstar[NB_idx], Ha_SFR=Ha_SFR[NB_idx],
+                 Ha_Lum=Ha_Lum[NB_idx])
     #endfor
 
 #enddef
