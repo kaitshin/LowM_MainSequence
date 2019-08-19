@@ -899,7 +899,7 @@ def ew_MC(debug=False):
                     wht0 = ew_flux_hist('Flux', mm, ss, ax21, Ha_Flux,
                                         avg_NB_flux, sig_NB_flux, Flux_bins,
                                         logEW_mean, logEW_sig,
-                                        EW_flag0, Flux_arr0, ax3=ax3ll)
+                                        EW_flag0, HaFlux_MC, ax3=ax3ll)
                 ax21.set_position([0.591,0.05,0.389,0.265])
 
                 ax21.legend(loc='upper right', fancybox=True, fontsize=6,
@@ -944,6 +944,7 @@ def ew_MC(debug=False):
         fig3.set_size_inches(8,8)
         fig3.subplots_adjust(left=0.105, right=0.97, bottom=0.065, top=0.98,
                              wspace=0.25, hspace=0.01)
+
         fig3.savefig(pp3, format='pdf')
         plt.close(fig3)
     #endfor
