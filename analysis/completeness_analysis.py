@@ -484,6 +484,21 @@ def avg_sig_plot_init(t_filt, logEW_mean, avg_NB, sig_NB, avg_NB_flux,
     return fig3, ax3
 #endef
 
+def plot_MACT(ax, x0, y0, w_spec, wo_spec):
+    ax.scatter(x0[w_spec], y0[w_spec], color='k', edgecolor='none',
+               alpha=0.5, s=5)
+    ax.scatter(x0[wo_spec], y0[wo_spec], facecolor='none', edgecolor='k',
+               alpha=0.5, s=5)
+#enddef
+
+def plot_mock(ax, x0, y0, NB_sel, NB_nosel, xlabel, ylabel):
+    ax.scatter(x0[NB_sel], y0[NB_sel], alpha=0.25, s=2, edgecolor='none')
+    ax.scatter(x0[NB_nosel], y0[NB_nosel], alpha=0.25, s=2, edgecolor='red',
+                 linewidth=0.25, facecolor='none')
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+#enddef
+
 def ew_flux_hist(type0, mm, ss, t2_ax, x0, avg_x0, sig_x0, x0_bins, logEW_mean,
                  logEW_sig, EW_flag0, x0_arr0, ax3=None):
     '''
@@ -544,20 +559,6 @@ def ew_flux_hist(type0, mm, ss, t2_ax, x0, avg_x0, sig_x0, x0_bins, logEW_mean,
     return No, Ng, binso, wht0
 #enddef
 
-def plot_MACT(ax, x0, y0, w_spec, wo_spec):
-    ax.scatter(x0[w_spec], y0[w_spec], color='k', edgecolor='none',
-               alpha=0.5, s=5)
-    ax.scatter(x0[wo_spec], y0[wo_spec], facecolor='none', edgecolor='k',
-               alpha=0.5, s=5)
-#enddef
-
-def plot_mock(ax, x0, y0, NB_sel, NB_nosel, xlabel, ylabel):
-    ax.scatter(x0[NB_sel], y0[NB_sel], alpha=0.25, s=2, edgecolor='none')
-    ax.scatter(x0[NB_nosel], y0[NB_nosel], alpha=0.25, s=2, edgecolor='red',
-                 linewidth=0.25, facecolor='none')
-    ax.set_xlabel(xlabel)
-    ax.set_ylabel(ylabel)
-#enddef
 
 def ew_MC(debug=False):
     '''
