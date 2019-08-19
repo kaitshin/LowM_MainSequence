@@ -635,6 +635,7 @@ def ew_MC(debug=False):
         contmag  = npz_NB['contmag']
         logMstar = npz_NB['logMstar']
         Ha_SFR   = npz_NB['Ha_SFR'] # metallicity-dependent observed SFR
+        Ha_Lum   = npz_NB['Ha_Lum'] # filter and [NII] corrected
 
         spec_flag = npz_NB['spec_flag']
         w_spec    = np.where(spec_flag)[0]
@@ -749,6 +750,13 @@ def ew_MC(debug=False):
                 t_HaLum = t_Haflux +np.log10(4*np.pi) +2*np.log10(lum_dist)
 
                 # Panel (0,1) - stellar mass vs H-alpha luminosity
+
+                # Plot MACT
+                ax01.scatter(logMstar[w_spec], Ha_Lum[w_spec], color='k',
+                             edgecolor='none', alpha=0.5, s=5)
+                ax01.scatter(logMstar[wo_spec], Ha_Lum[wo_spec], edgecolor='k',
+                             facecolor='none', alpha=0.5, s=5)
+                
                 ax01.scatter(logM_MC[NB_sel], t_HaLum[NB_sel],
                              alpha=0.25, s=2, edgecolor='none')
                 ax01.scatter(logM_MC[NB_nosel], t_HaLum[NB_nosel],
