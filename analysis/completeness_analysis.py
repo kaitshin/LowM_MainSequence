@@ -545,6 +545,13 @@ def ew_flux_hist(type0, mm, ss, t2_ax, x0, avg_x0, sig_x0, x0_bins, logEW_mean,
     return No, Ng, binso, wht0
 #enddef
 
+def plot_MACT(ax, x0, y0, w_spec, wo_spec):
+    ax.scatter(x0[w_spec], y0[w_spec], color='k', edgecolor='none',
+               alpha=0.5, s=5)
+    ax.scatter(x0[wo_spec], y0[wo_spec], facecolor='none', edgecolor='k',
+               alpha=0.5, s=5)
+#enddef
+
 def ew_MC(debug=False):
     '''
     Main function for Monte Carlo realization.  Adopts log-normal
@@ -686,10 +693,7 @@ def ew_MC(debug=False):
 
                 # Plot MACT data
                 temp_x = contmag-NBmag
-                ax00.scatter(NBmag[w_spec], temp_x[w_spec], color='k',
-                             edgecolor='none', alpha=0.5, s=5)
-                ax00.scatter(NBmag[wo_spec], temp_x[wo_spec], facecolor='none',
-                             edgecolor='k', alpha=0.5, s=5)
+                plot_MACT(ax00, NBmag, temp_x, w_spec, wo_spec)
 
                 ax00.scatter(NB_MC, x_MC, marker=',', s=1)
 
@@ -734,10 +738,9 @@ def ew_MC(debug=False):
                 Flux_arr0 = np.append(Flux_arr0, t_Haflux)
 
                 # Panel (1,0) - NB mag vs H-alpha flux
-                ax10.scatter(NBmag[w_spec], Ha_Flux[w_spec], color='k',
-                             edgecolor='none', alpha=0.5, s=5)
-                ax10.scatter(NBmag[wo_spec], Ha_Flux[wo_spec], facecolor='none',
-                             edgecolor='k', alpha=0.5, s=5)
+
+                # Plot MACT
+                plot_MACT(ax10, NBmag, Ha_Flux, w_spec, wo_spec)
 
                 ax10.scatter(NB_MC[NB_sel], t_Haflux[NB_sel], alpha=0.25,
                              s=2, edgecolor='none')
@@ -752,10 +755,7 @@ def ew_MC(debug=False):
                 # Panel (0,1) - stellar mass vs H-alpha luminosity
 
                 # Plot MACT
-                ax01.scatter(logMstar[w_spec], Ha_Lum[w_spec], color='k',
-                             edgecolor='none', alpha=0.5, s=5)
-                ax01.scatter(logMstar[wo_spec], Ha_Lum[wo_spec], edgecolor='k',
-                             facecolor='none', alpha=0.5, s=5)
+                plot_MACT(ax01, logMstar, Ha_Lum, w_spec, wo_spec)
                 
                 ax01.scatter(logM_MC[NB_sel], t_HaLum[NB_sel],
                              alpha=0.25, s=2, edgecolor='none')
@@ -769,10 +769,7 @@ def ew_MC(debug=False):
                 # Panel (1,1) - stellar mass vs H-alpha SFR
 
                 # Plot MACT data
-                ax11.scatter(logMstar[w_spec], Ha_SFR[w_spec], color='k',
-                             edgecolor='none', alpha=0.5, s=5)
-                ax11.scatter(logMstar[wo_spec], Ha_SFR[wo_spec], edgecolor='k',
-                             facecolor='none', alpha=0.5, s=5)
+                plot_MACT(ax11, logMstar, Ha_SFR, w_spec, wo_spec)
 
                 logSFR_MC = HaSFR_metal_dep(logOH, t_HaLum)
                 ax11.scatter(logM_MC[NB_sel], logSFR_MC[NB_sel],
