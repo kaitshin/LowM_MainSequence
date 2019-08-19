@@ -828,8 +828,7 @@ def ew_MC(debug=False):
                                         avg_NB_flux, sig_NB_flux, Flux_bins,
                                         logEW_mean, logEW_sig,
                                         EW_flag0, Flux_arr0)
-
-                #ax21.set_position([0.591,0.05,0.389,0.265])
+                ax21.set_position([0.591,0.05,0.389,0.265])
 
                 ax21.legend(loc='upper right', fancybox=True, fontsize=6,
                                 framealpha=0.75)
