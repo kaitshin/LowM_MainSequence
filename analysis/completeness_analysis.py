@@ -699,8 +699,9 @@ def ew_MC(debug=False):
     nrow_stats = 4
 
     # One file written for all avg and sigma comparisons
-    out_pdf3 = path0 + 'Completeness/ew_MC.avg_sigma.pdf'
-    pp3 = PdfPages(out_pdf3)
+    if not debug:
+        out_pdf3 = path0 + 'Completeness/ew_MC.avg_sigma.pdf'
+        pp3 = PdfPages(out_pdf3)
 
     ff_range = [0] if debug else range(len(filt_ref))
     ss_range = [0] if debug else range(len(logEW_sig))
@@ -948,8 +949,10 @@ def ew_MC(debug=False):
         out_pdf3_each = path0 + 'Completeness/ew_MC_'+filters[ff]+'.avg_sigma.pdf'
         fig3.savefig(out_pdf3_each, format='pdf')
 
-        fig3.savefig(pp3, format='pdf')
+        if not debug:
+            fig3.savefig(pp3, format='pdf')
         plt.close(fig3)
     #endfor
 
-    pp3.close()
+    if not debug:
+        pp3.close()
