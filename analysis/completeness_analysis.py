@@ -558,7 +558,6 @@ def plot_mock(ax, x0, y0, NB_sel, NB_nosel, xlabel, ylabel):
                  linewidth=0.25, facecolor='none')
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
-
 #enddef
 
 def ew_MC(debug=False):
@@ -751,28 +750,19 @@ def ew_MC(debug=False):
                 # Plot MACT
                 plot_MACT(ax10, NBmag, Ha_Flux, w_spec, wo_spec)
 
-                ax10.scatter(NB_MC[NB_sel], t_Haflux[NB_sel], alpha=0.25,
-                             s=2, edgecolor='none')
-                ax10.scatter(NB_MC[NB_nosel], t_Haflux[NB_nosel],
-                             alpha=0.25, s=2, edgecolor='red',
-                             linewidth=0.25, facecolor='none')
-                ax10.set_xlabel('NB')
-                ax10.set_ylabel(Flux_lab)
+                plot_mock(ax10, NB_MC, t_Haflux, NB_sel, NB_nosel, 'NB', Flux_lab)
 
                 t_HaLum = t_Haflux +np.log10(4*np.pi) +2*np.log10(lum_dist)
+
 
                 # Panel (0,1) - stellar mass vs H-alpha luminosity
 
                 # Plot MACT
                 plot_MACT(ax01, logMstar, Ha_Lum, w_spec, wo_spec)
-                
-                ax01.scatter(logM_MC[NB_sel], t_HaLum[NB_sel],
-                             alpha=0.25, s=2, edgecolor='none')
-                ax01.scatter(logM_MC[NB_nosel], t_HaLum[NB_nosel],
-                             alpha=0.25, s=2, edgecolor='red',
-                             linewidth=0.25, facecolor='none')
+
+                plot_mock(ax01, logM_MC, t_HaLum, NB_sel, NB_nosel, '',
+                          r'$\log(L_{{\rm H}\alpha})$')
                 ax01.set_xticklabels([])
-                ax01.set_ylabel(r'$\log(L_{{\rm H}\alpha})$')
                 #ax[1][1].set_ylim([37.5,43.0])
 
                 # Panel (1,1) - stellar mass vs H-alpha SFR
@@ -781,13 +771,8 @@ def ew_MC(debug=False):
                 plot_MACT(ax11, logMstar, Ha_SFR, w_spec, wo_spec)
 
                 logSFR_MC = HaSFR_metal_dep(logOH, t_HaLum)
-                ax11.scatter(logM_MC[NB_sel], logSFR_MC[NB_sel],
-                             alpha=0.25, s=2, edgecolor='none')
-                ax11.scatter(logM_MC[NB_nosel], logSFR_MC[NB_nosel],
-                             alpha=0.25, s=2, edgecolor='red',
-                             linewidth=0.25, facecolor='none')
-                ax11.set_xlabel(r'$\log(M_{\star}/M_{\odot})$')
-                ax11.set_ylabel(r'$\log({\rm SFR}({\rm H}\alpha))$')
+                plot_mock(ax11, logM_MC, logSFR_MC, NB_sel, NB_nosel,
+                          r'$\log(M_{\star}/M_{\odot})$', r'$\log({\rm SFR}({\rm H}\alpha))$')
 
 
                 # This is for statistics plot
