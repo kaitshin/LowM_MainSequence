@@ -945,6 +945,9 @@ def ew_MC(debug=False):
         fig3.subplots_adjust(left=0.105, right=0.97, bottom=0.065, top=0.98,
                              wspace=0.25, hspace=0.01)
 
+        out_pdf3_each = path0 + 'Completeness/ew_MC_'+filters[ff]+'.avg_sigma.pdf'
+        fig3.savefig(out_pdf3_each, format='pdf')
+
         fig3.savefig(pp3, format='pdf')
         plt.close(fig3)
     #endfor
