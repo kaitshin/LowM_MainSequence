@@ -61,7 +61,7 @@ EW_lab   = r'$\log({\rm EW}/\AA)$'
 Flux_lab = r'$\log(F_{{\rm H}\alpha})$'
 
 EW_bins   = np.arange(0.2,3.0,0.2)
-Flux_bins = np.arange(-17.75,-14.75,0.25)
+Flux_bins = np.arange(-17.75,-14.00,0.25)
 
 # Colors for each separate points on avg_sigma plots
 avg_sig_ctype = ['m','r','g','b','k']
