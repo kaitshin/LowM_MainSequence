@@ -552,6 +552,15 @@ def plot_MACT(ax, x0, y0, w_spec, wo_spec):
                alpha=0.5, s=5)
 #enddef
 
+def plot_mock(ax, x0, y0, NB_sel, NB_nosel, xlabel, ylabel):
+    ax.scatter(x0[NB_sel], y0[NB_sel], alpha=0.25, s=2, edgecolor='none')
+    ax.scatter(x0[NB_nosel], y0[NB_nosel], alpha=0.25, s=2, edgecolor='red',
+                 linewidth=0.25, facecolor='none')
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+
+#enddef
+
 def ew_MC(debug=False):
     '''
     Main function for Monte Carlo realization.  Adopts log-normal
