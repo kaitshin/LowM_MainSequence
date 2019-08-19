@@ -793,17 +793,11 @@ def ew_MC(debug=False):
                     fig2, ax2 = plt.subplots(ncols=2, nrows=nrow_stats)
                 s_row = count % nrow_stats # For statistics plot
 
-                EW_arr0  = np.array([])
-                EW_flag0 = np.array([])
-
-                Flux_arr0  = np.array([])
-
                 np.random.seed = mm*len(ss_range) + ss
                 rand0 = np.random.normal(0.0, 1.0, size=len(NB_MC))
                 logEW_MC = logEW_mean[mm] + logEW_sig[ss]*rand0 # This is NB EW (not H-alpha)
 
-                EW_arr0 = np.append(EW_arr0, logEW_MC)
-                EW_flag = np.zeros(len(logEW_MC))
+                EW_flag0 = np.zeros(len(logEW_MC))
 
                 x_MC = EW_int(logEW_MC) # NB color excess
                 negs = np.where(x_MC < 0)[0]
@@ -843,8 +837,7 @@ def ew_MC(debug=False):
                 NB_nosel = np.where((x_MC < minthres[ff]) |
                                     (x_MC < sig_limit))[0]
 
-                EW_flag[NB_sel] = 1
-                EW_flag0 = np.append(EW_flag0, EW_flag)
+                EW_flag0[NB_sel] = 1
 
                 t_EW, t_flux = ew_flux_dual(NB_MC, NB_MC + x_MC, x_MC,
                                             filt_dict)
@@ -858,22 +851,20 @@ def ew_MC(debug=False):
 
 
                 # Panel (1,0) - NB mag vs H-alpha flux
-                t_Haflux = correct_NII(t_flux, NIIHa)
-                Flux_arr0 = np.append(Flux_arr0, t_Haflux)
-
                 # Plot MACT
                 plot_MACT(ax10, NBmag, Ha_Flux, w_spec, wo_spec)
 
-                plot_mock(ax10, NB_MC, t_Haflux, NB_sel, NB_nosel, 'NB', Flux_lab)
+                HaFlux_MC = correct_NII(t_flux, NIIHa)
+                plot_mock(ax10, NB_MC, HaFlux_MC, NB_sel, NB_nosel, 'NB', Flux_lab)
 
 
                 # Panel (0,1) - stellar mass vs H-alpha luminosity
-                t_HaLum = t_Haflux +np.log10(4*np.pi) +2*np.log10(lum_dist)
+                HaLum_MC = HaFlux_MC +np.log10(4*np.pi) +2*np.log10(lum_dist)
 
                 # Plot MACT
                 plot_MACT(ax01, logMstar, Ha_Lum, w_spec, wo_spec)
 
-                plot_mock(ax01, logM_MC, t_HaLum, NB_sel, NB_nosel, '',
+                plot_mock(ax01, logM_MC, HaLum_MC, NB_sel, NB_nosel, '',
                           r'$\log(L_{{\rm H}\alpha})$')
                 ax01.set_xticklabels([])
                 #ax[1][1].set_ylim([37.5,43.0])
@@ -883,7 +874,7 @@ def ew_MC(debug=False):
                 # Plot MACT data
                 plot_MACT(ax11, logMstar, Ha_SFR, w_spec, wo_spec)
 
-                logSFR_MC = HaSFR_metal_dep(logOH, t_HaLum)
+                logSFR_MC = HaSFR_metal_dep(logOH, HaLum_MC)
                 plot_mock(ax11, logM_MC, logSFR_MC, NB_sel, NB_nosel,
                           r'$\log(M_{\star}/M_{\odot})$', r'$\log({\rm SFR}({\rm H}\alpha))$')
 
@@ -892,7 +883,7 @@ def ew_MC(debug=False):
                 No, Ng, binso, \
                     wht0 = ew_flux_hist('EW', mm, ss, ax20, NB_EW, avg_NB,
                                         sig_NB, EW_bins, logEW_mean, logEW_sig,
-                                        EW_flag0, EW_arr0, ax3=ax3ul)
+                                        EW_flag0, logEW_MC, ax3=ax3ul)
                 ax20.set_position([0.105,0.05,0.389,0.265])
 
                 good = np.where(EW_flag0)[0]
