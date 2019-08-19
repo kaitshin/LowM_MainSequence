@@ -485,6 +485,25 @@ def avg_sig_plot_init(t_filt, logEW_mean, avg_NB, sig_NB, avg_NB_flux,
 #endef
 
 def plot_MACT(ax, x0, y0, w_spec, wo_spec):
+    '''
+    Plot MACT spectroscopic and photometric sample in various sub-panel
+
+    ax : matplotlib.axes._subplots.AxesSubplot
+       sub-Axis to plot
+
+    x0 : list or numpy.array
+       Array to plot on x-axis
+
+    y0 : list or numpy.array
+       Array to plot on y-axis
+
+    w_spec: numpy.array
+       Index array indicating which sources with spectra
+
+    wo_spec: numpy.array
+       Index array indicating which sources without spectra (i.e., photometric)
+    '''
+
     ax.scatter(x0[w_spec], y0[w_spec], color='k', edgecolor='none',
                alpha=0.5, s=5)
     ax.scatter(x0[wo_spec], y0[wo_spec], facecolor='none', edgecolor='k',
@@ -492,6 +511,31 @@ def plot_MACT(ax, x0, y0, w_spec, wo_spec):
 #enddef
 
 def plot_mock(ax, x0, y0, NB_sel, NB_nosel, xlabel, ylabel):
+    '''
+    Plot mocked galaxies in various sub-panel
+
+    ax : matplotlib.axes._subplots.AxesSubplot
+       sub-Axis to plot
+
+    x0 : list or numpy.array
+       Array to plot on x-axis
+
+    y0 : list or numpy.array
+       Array to plot on y-axis
+
+    NB_sel: numpy.array
+       Index array indicating which sources are NB selected
+
+    wo_spec: numpy.array
+       Index array indicating which sources are not NB selected
+
+    xlabel: str
+       String for x-axis.  Set to '' to not show a label
+
+    xlabel: str
+       String for y-axis.  Set to '' to not show a label
+    '''
+
     ax.scatter(x0[NB_sel], y0[NB_sel], alpha=0.25, s=2, edgecolor='none')
     ax.scatter(x0[NB_nosel], y0[NB_nosel], alpha=0.25, s=2, edgecolor='red',
                  linewidth=0.25, facecolor='none')
@@ -560,6 +604,34 @@ def ew_flux_hist(type0, mm, ss, t2_ax, x0, avg_x0, sig_x0, x0_bins, logEW_mean,
 #enddef
 
 def stats_plot(type0, ax2, ax3, ax, s_row, Ng, No, binso, EW_mean, EW_sig, ss):
+    '''
+    Plot statistics (chi^2, model vs data comparison) for each model
+
+    type0: str
+       Either 'EW' or 'Flux'
+
+    ax2 : matplotlib.axes._subplots.AxesSubplot
+       matplotlib axes for stats plot
+
+    ax3 : matplotlib.axes._subplots.AxesSubplot
+       matplotlib axes for avg_sigma plot
+
+    ax : matplotlib.axes._subplots.AxesSubplot
+       matplotlib axes for main plot
+
+    s_row: int
+       Integer for row for ax2
+
+    EW_mean: float
+       Value of median logEW in model
+
+    EW_sig: float
+       Value of sigma logEW in model
+
+    ss: int
+       Integer indicating index for sigma
+    '''
+
     delta    = (Ng-No)/np.sqrt(Ng + No)
 
     if type0 == 'EW':   pn = 0
