@@ -559,6 +559,41 @@ def ew_flux_hist(type0, mm, ss, t2_ax, x0, avg_x0, sig_x0, x0_bins, logEW_mean,
     return No, Ng, binso, wht0
 #enddef
 
+def stats_plot(type0, ax2, ax3, ax, s_row, Ng, No, binso, EW_mean, EW_sig, ss):
+    delta    = (Ng-No)/np.sqrt(Ng + No)
+
+    if type0 == 'EW':   pn = 0
+    if type0 == 'Flux': pn = 1
+
+    ax2[s_row][pn].scatter(binso[:-1], delta)
+    ax2[s_row][pn].axhline(0.0, linestyle='dashed')
+    #ax2[s_row][pn].set_ylabel(r'1 - $N_{\rm mock}/N_{\rm data}$')
+    if type0 == 'EW':
+        ax2[s_row][pn].set_ylabel(r'$(N_{\rm mock} - N_{\rm data})/\sigma$')
+
+        annot_txt  = r'$\langle\log({\rm EW}_0)\rangle = %.2f$  ' % EW_mean
+        annot_txt += r'$\sigma[\log({\rm EW}_0)] = %.2f$' % EW_sig
+        ax2[s_row][pn].set_title(annot_txt, fontdict={'fontsize': 10}, loc='left')
+
+    # Compute chi^2
+    use_bins = np.where((Ng != 0) & (No != 0))[0]
+    if len(use_bins) > 2:
+        fit_chi2 = np.sum(delta[use_bins]**2)/(len(use_bins)-2)
+        c_txt = r'$\chi^2_{\nu}$ = %.2f' % fit_chi2
+
+        ax3.scatter([EW_mean+0.005*ss], [fit_chi2],
+                    marker='o', s=40, color=avg_sig_ctype[ss],
+                    edgecolor='none')
+    else:
+        print("Too few bins")
+        c_txt = r'$\chi^2_{\nu}$ = Unavailable'
+
+    ax.annotate(c_txt, [0.025,0.975], xycoords='axes fraction',
+                ha='left', va='top')
+    c_txt += '\n' + r'N = %i' % len(use_bins)
+    ax2[s_row][pn].annotate(c_txt, [0.975,0.975], ha='right',
+                            xycoords='axes fraction', va='top')
+#enddef
 
 def ew_MC(debug=False):
     '''
@@ -790,38 +825,11 @@ def ew_MC(debug=False):
 
                 # Model comparison plots
                 if len(good) > 0:
-                    delta    = (Ng-No)/np.sqrt(Ng + No)
-                    ax2[s_row][0].scatter(binso[:-1], delta)
+                    stats_plot('EW', ax2, ax3ur, ax20, s_row, Ng, No, binso,
+                               logEW_mean[mm], logEW_sig[ss], ss)
 
-                    ax2[s_row][0].axhline(0.0, linestyle='dashed')
-                    ax2[s_row][0].set_ylabel(r'1 - $N_{\rm mock}/N_{\rm data}$')
-                    ax2[s_row][0].set_ylabel(r'$(N_{\rm mock} - N_{\rm data})/\sigma$')
-
-                    annot_txt  = r'$\langle\log({\rm EW}_0)\rangle = %.2f$  ' % logEW_mean[mm]
-                    annot_txt += r'$\sigma[\log({\rm EW}_0)] = %.2f$' % logEW_sig[ss]
-                    ax2[s_row][0].set_title(annot_txt, fontdict={'fontsize': 10}, loc='left')
-
-                    # Compute chi^2
-                    use_bins = np.where((Ng != 0) & (No != 0))[0]
-                    if len(use_bins) > 2:
-                        fit_chi2 = np.sum(delta[use_bins]**2)/(len(use_bins)-2)
-                        c_txt = r'$\chi^2_{\nu}$ = %.2f' % fit_chi2
-
-                        ax3ur.scatter([logEW_mean[mm]+0.005*ss], [fit_chi2],
-                                      marker='o', s=40, color=avg_sig_ctype[ss],
-                                      edgecolor='none')
-                    else:
-                        print("Too few bins")
-                        c_txt = r'$\chi^2_{\nu}$ = Unavailable'
-
-                    ax20.annotate(c_txt, [0.025,0.975], xycoords='axes fraction',
-                                  ha='left', va='top')
-                    c_txt += '\n' + r'N = %i' % len(use_bins)
-                    ax2[s_row][0].annotate(c_txt, [0.975,0.975], ha='right',
-                                           xycoords='axes fraction', va='top')
 
                 # Panel (2,1) - histogram of H-alpha fluxes
-
                 No, Ng, binso, \
                     wht0 = ew_flux_hist('Flux', mm, ss, ax21, Ha_Flux,
                                         avg_NB_flux, sig_NB_flux, Flux_bins,
@@ -834,28 +842,8 @@ def ew_MC(debug=False):
 
                 # Model comparison plots
                 if len(good) > 0:
-                    delta = (Ng-No)/np.sqrt(Ng+No)
-                    ax2[s_row][1].scatter(binso[:-1], delta)
-                    ax2[s_row][1].axhline(0.0, linestyle='dashed')
-
-                    # Compute chi^2
-                    use_bins = np.where((Ng != 0) & (No != 0))[0]
-                    if len(use_bins) > 2:
-                        fit_chi2 = np.sum(delta[use_bins]**2)/(len(use_bins)-2)
-                        c_txt = r'$\chi^2_{\nu}$ = %.2f' % fit_chi2
-
-                        ax3lr.scatter([logEW_mean[mm]+0.005*ss], [fit_chi2],
-                                      marker='o', s=40, color=avg_sig_ctype[ss],
-                                      edgecolor='none')
-                    else:
-                        print("Too few bins")
-                        c_txt = r'$\chi^2_{\nu}$ = Unavailable'
-
-                    ax21.annotate(c_txt, [0.025,0.975], xycoords='axes fraction',
-                                  ha='left', va='top')
-                    c_txt += '\n' + r'N = %i' % len(use_bins)
-                    ax2[s_row][1].annotate(c_txt, [0.975,0.975],
-                                           xycoords='axes fraction', ha='right', va='top')
+                    stats_plot('Flux', ax2, ax3lr, ax21, s_row, Ng, No, binso,
+                               logEW_mean[mm], logEW_sig[ss], ss)
 
                 if s_row != nrow_stats-1:
                     ax2[s_row][0].set_xticklabels([])
