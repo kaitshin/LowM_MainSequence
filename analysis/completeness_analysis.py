@@ -740,21 +740,19 @@ def ew_MC(debug=False):
                 logM_MC = mass_int(cont_MC)
                 NIIHa, logOH = get_NIIHa_logOH(logM_MC)
 
-                t_Haflux = correct_NII(t_flux, NIIHa)
-
-                Flux_arr0 = np.append(Flux_arr0, t_Haflux)
 
                 # Panel (1,0) - NB mag vs H-alpha flux
+                t_Haflux = correct_NII(t_flux, NIIHa)
+                Flux_arr0 = np.append(Flux_arr0, t_Haflux)
 
                 # Plot MACT
                 plot_MACT(ax10, NBmag, Ha_Flux, w_spec, wo_spec)
 
                 plot_mock(ax10, NB_MC, t_Haflux, NB_sel, NB_nosel, 'NB', Flux_lab)
 
-                t_HaLum = t_Haflux +np.log10(4*np.pi) +2*np.log10(lum_dist)
-
 
                 # Panel (0,1) - stellar mass vs H-alpha luminosity
+                t_HaLum = t_Haflux +np.log10(4*np.pi) +2*np.log10(lum_dist)
 
                 # Plot MACT
                 plot_MACT(ax01, logMstar, Ha_Lum, w_spec, wo_spec)
@@ -827,7 +825,7 @@ def ew_MC(debug=False):
                     wht0 = ew_flux_hist('Flux', mm, ss, ax21, Ha_Flux,
                                         avg_NB_flux, sig_NB_flux, Flux_bins,
                                         logEW_mean, logEW_sig,
-                                        EW_flag0, Flux_arr0)
+                                        EW_flag0, Flux_arr0, ax3=ax3ll)
                 ax21.set_position([0.591,0.05,0.389,0.265])
 
                 ax21.legend(loc='upper right', fancybox=True, fontsize=6,
