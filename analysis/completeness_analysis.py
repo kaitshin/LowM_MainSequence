@@ -823,49 +823,11 @@ def ew_MC(debug=False):
 
                 # Panel (2,1) - histogram of H-alpha fluxes
 
-                '''
                 No, Ng, binso, \
                     wht0 = ew_flux_hist('Flux', mm, ss, ax21, Ha_Flux,
                                         avg_NB_flux, sig_NB_flux, Flux_bins,
                                         logEW_mean, logEW_sig,
                                         EW_flag0, Flux_arr0)
-                '''
-
-                label_flux = N_avg_sig_label(NB_EW, avg_NB_flux, sig_NB_flux)
-                No, binso, _ = ax21.hist(Ha_Flux, bins=Flux_bins, align='mid',
-                                         color='black', alpha=0.5, linestyle='solid',
-                                         edgecolor='none', histtype='stepfilled',
-                                         label=label_flux)
-                ax21.axvline(x=avg_NB_flux, color='black', linestyle='solid',
-                             linewidth=1.5)
-
-                if len(good) > 0:
-                    finite = np.where(np.isfinite(Flux_arr0))
-                    avg_MC = np.average(Flux_arr0[finite])
-                    sig_MC = np.std(Flux_arr0[finite])
-                    label0 = N_avg_sig_label(EW_arr0, avg_MC, sig_MC)
-                    N, bins, _ = ax21.hist(Flux_arr0[finite], bins=Flux_bins,
-                                           weights=wht0[finite], align='mid',
-                                           color='black', linestyle='dashed',
-                                           edgecolor='black', histtype='step',
-                                           label=label0)
-                    ax21.axvline(x=avg_MC, color='black', linestyle='dashed',
-                                 linewidth=1.5)
-
-                    avg_gd = np.average(Flux_arr0[good])
-                    sig_gd = np.std(Flux_arr0[good])
-                    label1 = N_avg_sig_label(good, avg_gd, sig_gd)
-                    Ng, binsg, _ = ax21.hist(Flux_arr0[good], bins=Flux_bins, alpha=0.5,
-                                             weights=wht0[good], align='mid', color='blue',
-                                             edgecolor='blue', linestyle='solid',
-                                             histtype='stepfilled', label=label1)
-                    ax21.axvline(x=avg_gd, color='blue', linestyle='solid',
-                                 linewidth=1.5)
-
-                    ax3ll.scatter([logEW_mean[mm]+0.005*ss], [avg_gd], marker='o', s=40,
-                                  color=avg_sig_ctype[ss], edgecolor='none')
-                    ax3ll.errorbar([logEW_mean[mm]+0.005*ss], [avg_gd], yerr=[sig_gd], capsize=0,
-                                   elinewidth=1.5, ecolor=avg_sig_ctype[ss], fmt=None)
 
                 ax21.set_xlabel(Flux_lab)
                 ax21.set_ylabel(r'$N$')
