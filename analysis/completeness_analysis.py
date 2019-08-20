@@ -648,8 +648,15 @@ def stats_plot(type0, ax2, ax3, ax, s_row, Ng, No, binso, EW_mean, EW_sig, ss):
     if type0 == 'EW':   pn = 0
     if type0 == 'Flux': pn = 1
 
+    ax2[s_row][pn].axhline(0.0, linestyle='dashed') # horizontal line at zero
+
     ax2[s_row][pn].scatter(binso[:-1], delta)
-    ax2[s_row][pn].axhline(0.0, linestyle='dashed')
+    no_use = np.where((Ng == 0) | (No == 0))[0]
+    print(no_use)
+    if len(no_use) > 0:
+        ax2[s_row][pn].scatter(binso[:-1][no_use], delta[no_use], marker='x',
+                               color='r', s=20)
+
     #ax2[s_row][pn].set_ylabel(r'1 - $N_{\rm mock}/N_{\rm data}$')
     if type0 == 'EW':
         ax2[s_row][pn].set_ylabel(r'$(N_{\rm mock} - N_{\rm data})/\sigma$')
