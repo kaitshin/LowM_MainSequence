@@ -593,9 +593,13 @@ def ew_flux_hist(type0, mm, ss, t2_ax, x0, avg_x0, sig_x0, x0_bins, logEW_mean,
         t2_ax.set_ylim([0.1,1e3])
         if type0 == 'EW':
             t2_ax.set_ylabel(r'$N$')
+            t2_ax.set_xlim([0.0,2.95])
         if type0 == 'Flux':
             t2_ax.set_ylabel('')
             t2_ax.set_yticklabels(['']*5)
+            t2_ax.set_xlim([-18.0,-14.0])
+            t2_ax.set_xticks(np.arange(-17.5,-13.5,1.0))
+            t2_ax.set_xticks(np.arange(-17.5,-13.5,1.0))
 
         as_label = ''
         if mm == 0: as_label = '%.2f' % logEW_sig[ss]
