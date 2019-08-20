@@ -589,9 +589,13 @@ def ew_flux_hist(type0, mm, ss, t2_ax, x0, avg_x0, sig_x0, x0_bins, logEW_mean,
 
         t2_ax.legend(loc='upper right', fancybox=True, fontsize=6, framealpha=0.75)
         t2_ax.set_xlabel(x0_lab)
-        t2_ax.set_ylabel(r'$N$')
         t2_ax.set_yscale('log')
         t2_ax.set_ylim([0.1,1e3])
+        if type0 == 'EW':
+            t2_ax.set_ylabel(r'$N$')
+        if type0 == 'Flux':
+            t2_ax.set_ylabel('')
+            t2_ax.set_yticklabels(['']*5)
 
         as_label = ''
         if mm == 0: as_label = '%.2f' % logEW_sig[ss]
@@ -885,7 +889,7 @@ def ew_MC(debug=False):
                     wht0 = ew_flux_hist('EW', mm, ss, ax20, NB_EW, avg_NB,
                                         sig_NB, EW_bins, logEW_mean, logEW_sig,
                                         EW_flag0, logEW_MC, ax3=ax3ul)
-                ax20.set_position([0.105,0.05,0.389,0.265])
+                ax20.set_position([0.085,0.05,0.44,0.265])
 
                 good = np.where(EW_flag0)[0]
 
@@ -901,7 +905,7 @@ def ew_MC(debug=False):
                                         avg_NB_flux, sig_NB_flux, Flux_bins,
                                         logEW_mean, logEW_sig,
                                         EW_flag0, HaFlux_MC, ax3=ax3ll)
-                ax21.set_position([0.591,0.05,0.389,0.265])
+                ax21.set_position([0.53,0.05,0.44,0.265])
 
                 ax21.legend(loc='upper right', fancybox=True, fontsize=6,
                                 framealpha=0.75)
