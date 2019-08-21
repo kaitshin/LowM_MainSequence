@@ -52,6 +52,10 @@ from astropy import log
 
 path0 = '/Users/cly/Google Drive/NASA_Summer2015/'
 
+npz_path0 = '/Users/cly/data/SDF/MACT/LowM_MainSequence_npz/'
+if not exists(npz_path0):
+    os.mkdir(npz_path0)
+
 m_AB = 48.6
 
 filters = ['NB704','NB711','NB816','NB921','NB973']
@@ -805,6 +809,10 @@ def ew_MC(debug=False):
         count = 0
         for mm in range(len(logEW_mean)): # loop over median of EW dist
             for ss in ss_range: # loop over sigma of EW dist
+
+                npz_MCfile = npz_path0 + filters[ff] + ('_%.2f_%.2f.npz') \
+                             % (logEW_mean[mm], logEW_sig[ss])
+
                 fig, [[ax00,ax01],[ax10,ax11],[ax20,ax21]] = plt.subplots(ncols=2, nrows=3)
                 plt.subplots_adjust(left=0.105, right=0.98, bottom=0.05,
                                     top=0.98, wspace=0.25, hspace=0.05)
@@ -816,7 +824,7 @@ def ew_MC(debug=False):
 
                 np.random.seed = mm*len(ss_range) + ss
                 rand0 = np.random.normal(0.0, 1.0, size=len(NB_MC))
-                logEW_MC = logEW_mean[mm] + logEW_sig[ss]*rand0 # This is NB EW (not H-alpha)
+                logEW_MC = logEW_mean[mm] + logEW_sig[ss]*rand0 # This is not H-alpha
 
                 EW_flag0 = np.zeros(len(logEW_MC))
 
