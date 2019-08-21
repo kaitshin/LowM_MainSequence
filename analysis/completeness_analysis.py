@@ -822,18 +822,68 @@ def ew_MC(debug=False):
                     fig2, ax2 = plt.subplots(ncols=2, nrows=nrow_stats)
                 s_row = count % nrow_stats # For statistics plot
 
-                np.random.seed = mm*len(ss_range) + ss
-                rand0 = np.random.normal(0.0, 1.0, size=len(NB_MC))
-                logEW_MC = logEW_mean[mm] + logEW_sig[ss]*rand0 # This is not H-alpha
+                if not exists(npz_MCfile):
+                    t_seed = mm*len(ss_range) + ss
+                    np.random.seed = t_seed
+                    rand0 = np.random.normal(0.0, 1.0, size=len(NB_MC))
+                    # This is not H-alpha
+                    logEW_MC = logEW_mean[mm] + logEW_sig[ss]*rand0
 
-                EW_flag0 = np.zeros(len(logEW_MC))
+                    EW_flag0 = np.zeros(len(logEW_MC))
 
-                x_MC = EW_int(logEW_MC) # NB color excess
-                negs = np.where(x_MC < 0)[0]
-                if len(negs) > 0:
-                    x_MC[negs] = 0.0
+                    x_MC = EW_int(logEW_MC) # NB color excess
+                    negs = np.where(x_MC < 0)[0]
+                    if len(negs) > 0:
+                        x_MC[negs] = 0.0
 
-                # t_NB = np.repeat(NB_MC, len(x_MC))
+                    # t_NB = np.repeat(NB_MC, len(x_MC))
+
+                    sig_limit = color_cut(NB_MC, m_NB[ff], cont_lim[ff]) #, sigma=4.0)
+                    NB_sel   = np.where((x_MC >= minthres[ff]) &
+                                        (x_MC >= sig_limit))[0]
+                    NB_nosel = np.where((x_MC < minthres[ff]) |
+                                        (x_MC < sig_limit))[0]
+
+                    EW_flag0[NB_sel] = 1
+
+                    t_EW, t_flux = ew_flux_dual(NB_MC, NB_MC + x_MC, x_MC,
+                                                filt_dict)
+
+                    # Apply NB filter correction from beginning
+                    t_flux = np.log10(t_flux * filt_corr[ff])
+
+                    cont_MC = NB_MC + x_MC
+                    logM_MC = mass_int(cont_MC)
+                    NIIHa, logOH = get_NIIHa_logOH(logM_MC)
+
+                    HaFlux_MC = correct_NII(t_flux, NIIHa)
+                    HaLum_MC = HaFlux_MC +np.log10(4*np.pi) +2*np.log10(lum_dist)
+
+                    np.savez(npz_MCfile, t_seed=t_seed, logEW_MC=logEW_MC,
+                             EW_flag0=EW_flag0, x_MC=x_MC, sig_limit=sig_limit,
+                             NB_sel=NB_sel, NB_nosel=NB_nosel, t_EW=t_EW,
+                             t_flux=t_flux, cont_MC=cont_MC, logM_MC=logM_MC,
+                             NIIHa=NIIHa, logOH=logOH, HaFlux_MC=HaFlux_MC,
+                             HaLum_MC=HaLum_MC)
+                else:
+                    print("File found : " + npz_MCfile)
+                    npz_MC = np.load(npz_MCfile)
+
+                    t_seed   = npz_MC['t_seed']
+                    logEW_MC = npz_MC['logEW_MC']
+                    EW_flag0 = npz_MC['EW_flag0']
+                    x_MC     = npz_MC['x_MC']
+                    sig_limit= npz_MC['sig_limit']
+                    NB_sel   = npz_MC['NB_sel']
+                    NB_nosel = npz_MC['NB_nosel']
+                    t_EW     = npz_MC['t_EW']
+                    t_flux   = npz_MC['t_flux']
+                    cont_MC  = npz_MC['cont_MC']
+                    logM_MC  = npz_MC['logM_MC']
+                    NIIHa    = npz_MC['NIIHa']
+                    logOH    = npz_MC['logOH']
+                    HaFlux_MC= npz_MC['HaFlux_MC']
+                    HaLum_MC = npz_MC['HaLum_MC']
 
                 # Panel (0,0) - NB excess selection plot
 
@@ -860,35 +910,14 @@ def ew_MC(debug=False):
                               ha='left', xycoords='axes fraction')
 
 
-                sig_limit = color_cut(NB_MC, m_NB[ff], cont_lim[ff]) #, sigma=4.0)
-                NB_sel   = np.where((x_MC >= minthres[ff]) &
-                                    (x_MC >= sig_limit))[0]
-                NB_nosel = np.where((x_MC < minthres[ff]) |
-                                    (x_MC < sig_limit))[0]
-
-                EW_flag0[NB_sel] = 1
-
-                t_EW, t_flux = ew_flux_dual(NB_MC, NB_MC + x_MC, x_MC,
-                                            filt_dict)
-
-                # Apply NB filter correction from beginning
-                t_flux = np.log10(t_flux * filt_corr[ff])
-
-                cont_MC = NB_MC + x_MC
-                logM_MC = mass_int(cont_MC)
-                NIIHa, logOH = get_NIIHa_logOH(logM_MC)
-
-
                 # Panel (1,0) - NB mag vs H-alpha flux
                 # Plot MACT
                 plot_MACT(ax10, NBmag, Ha_Flux, w_spec, wo_spec)
 
-                HaFlux_MC = correct_NII(t_flux, NIIHa)
                 plot_mock(ax10, NB_MC, HaFlux_MC, NB_sel, NB_nosel, 'NB', Flux_lab)
 
 
                 # Panel (0,1) - stellar mass vs H-alpha luminosity
-                HaLum_MC = HaFlux_MC +np.log10(4*np.pi) +2*np.log10(lum_dist)
 
                 # Plot MACT
                 plot_MACT(ax01, logMstar, Ha_Lum, w_spec, wo_spec)
