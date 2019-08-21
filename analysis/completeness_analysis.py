@@ -446,11 +446,13 @@ def avg_sig_plot_init(t_filt, logEW_mean, avg_NB, sig_NB, avg_NB_flux,
     ylim1 = [avg_NB-sig_NB-0.05, avg_NB+sig_NB+0.15]
     ylim2 = [avg_NB_flux-sig_NB_flux-0.05, avg_NB_flux+sig_NB_flux+0.15]
 
+    xticks = np.arange(xlim[0],xlim[1],0.1)
     fig3, ax3 = plt.subplots(ncols=2, nrows=2)
 
     ax3[0][0].axhline(y=avg_NB, color='black', linestyle='dashed')
     ax3[0][0].axhspan(avg_NB-sig_NB, avg_NB+sig_NB, alpha=0.5, color='black')
     ax3[0][0].set_xlim(xlim)
+    ax3[0][0].set_xticks(xticks)
     #ax3[0][0].set_ylim(ylim1)
     ax3[0][0].set_ylabel(EW_lab)
     ax3[0][0].set_xticklabels([])
@@ -462,6 +464,7 @@ def avg_sig_plot_init(t_filt, logEW_mean, avg_NB, sig_NB, avg_NB_flux,
     ax3[1][0].axhspan(avg_NB_flux-sig_NB_flux, avg_NB_flux+sig_NB_flux,
                       alpha=0.5, color='black')
     ax3[1][0].set_xlim(xlim)
+    ax3[1][0].set_xticks(xticks)
     #ax3[1][0].set_ylim(ylim2)
     ax3[1][0].set_xlabel(EW_lab)
     ax3[1][0].set_ylabel(Flux_lab)
@@ -470,12 +473,14 @@ def avg_sig_plot_init(t_filt, logEW_mean, avg_NB, sig_NB, avg_NB_flux,
                        ha='left', va='top', fontsize=11)
 
     ax3[0][1].set_xlim(xlim)
+    ax3[0][1].set_xticks(xticks)
     ax3[0][1].set_ylabel(r'$\chi^2_{\nu}$')
     ax3[0][1].set_xticklabels([])
     ax3[0][1].set_ylim([0.11,100])
     ax3[0][1].set_yscale('log')
 
     ax3[1][1].set_xlim(xlim)
+    ax3[1][1].set_xticks(xticks)
     ax3[1][1].set_ylabel(r'$\chi^2_{\nu}$')
     ax3[1][1].set_xlabel(EW_lab)
     ax3[1][1].set_ylim([0.11,100])
@@ -652,7 +657,7 @@ def stats_plot(type0, ax2, ax3, ax, s_row, Ng, No, binso, EW_mean, EW_sig, ss):
 
     ax2[s_row][pn].scatter(binso[:-1], delta)
     no_use = np.where((Ng == 0) | (No == 0))[0]
-    print(no_use)
+
     if len(no_use) > 0:
         ax2[s_row][pn].scatter(binso[:-1][no_use], delta[no_use], marker='x',
                                color='r', s=20)
