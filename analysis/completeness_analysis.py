@@ -712,8 +712,9 @@ def ew_MC(debug=False):
     npz_slope = np.load(path0 + 'Completeness/NB_numbers.npz')
     NB_slope0 = npz_slope['NB_slope0']
 
-    logEW_mean_start = [1.25, 1.45, 1.25, 1.25, 1.75]
-    logEW_sig  = np.arange(0.15,0.45,0.1)
+    logEW_mean_start = np.array([1.25, 1.45, 1.25, 1.25, 1.75])
+    logEW_sig_start  = np.array([0.15, 0.55, 0.25, 0.35, 0.55])
+    n_sigma = 4
 
     Nsim = 5000.
     print('Nsim : ', Nsim)
@@ -728,12 +729,13 @@ def ew_MC(debug=False):
         pp3 = PdfPages(out_pdf3)
 
     ff_range = [0] if debug else range(len(filt_ref))
-    ss_range = [0] if debug else range(len(logEW_sig))
+    ss_range = [0] if debug else range(n_sigma)
 
     for ff in ff_range: # loop over filter
         print("Working on : "+filters[ff])
 
-        logEW_mean = logEW_mean_start[ff] + 0.1*np.arange(4)
+        logEW_mean = logEW_mean_start[ff] + 0.1*np.arange(n_sigma)
+        logEW_sig  = logEW_sig_start[ff]  + 0.1*np.arange(n_sigma)
 
         out_pdf = path0 + 'Completeness/ew_MC_'+filters[ff]+'.pdf'
         pp = PdfPages(out_pdf)
