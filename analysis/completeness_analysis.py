@@ -775,9 +775,11 @@ def ew_MC(debug=False, redo=False):
         logEW_sig  = logEW_sig_start[ff]  + 0.1*np.arange(n_sigma)
 
         out_pdf = path0 + 'Completeness/ew_MC_'+filters[ff]+'.pdf'
+        if debug: out_pdf = out_pdf.replace('.pdf','.debug.pdf')
         pp = PdfPages(out_pdf)
 
         out_pdf2 = path0 + 'Completeness/ew_MC_'+filters[ff]+'.stats.pdf'
+        if debug: out_pdf2 = out_pdf2.replace('.pdf','.debug.pdf')
         pp2 = PdfPages(out_pdf2)
 
         filt_dict = {'dNB': dNB[ff], 'dBB': dBB[ff], 'lambdac': lambdac[ff]}
@@ -1045,6 +1047,7 @@ def ew_MC(debug=False, redo=False):
                              wspace=0.25, hspace=0.01)
 
         out_pdf3_each = path0 + 'Completeness/ew_MC_'+filters[ff]+'.avg_sigma.pdf'
+        if debug: out_pdf3 = out_pdf3_each.replace('.pdf','.debug.pdf')
         fig3.savefig(out_pdf3_each, format='pdf')
 
         if not debug:
