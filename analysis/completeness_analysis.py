@@ -603,13 +603,13 @@ def ew_flux_hist(type0, mm, ss, t2_ax, x0, avg_x0, sig_x0, x0_bins, logEW_mean,
         finite = np.where(np.isfinite(x0_arr0))[0]
 
         norm0 = float(len(x0))/len(good)
-        wht0   = np.repeat(norm0, len(finite))
+        wht0   = np.repeat(norm0, len(x0_arr0))
 
         avg_MC = np.average(x0_arr0)
         sig_MC = np.std(x0_arr0)
         label0 = N_avg_sig_label(x0_arr0, avg_MC, sig_MC)
 
-        N, bins, _ = t2_ax.hist(x0_arr0[finite], bins=x0_bins, weights=wht0,
+        N, bins, _ = t2_ax.hist(x0_arr0[finite], bins=x0_bins, weights=wht0[finite],
                                 align='mid', color='black', linestyle='dashed',
                                 edgecolor='black', histtype='step', label=label0)
         t2_ax.axvline(x=avg_MC, color='black', linestyle='dashed', linewidth=1.5)
@@ -996,7 +996,6 @@ def ew_MC(debug=False, redo=False):
                 ax20.set_position([0.085,0.05,0.44,0.265])
 
                 good = np.where(EW_flag0)[0]
-                print(max(good))
 
                 # Model comparison plots
                 if len(good) > 0:
