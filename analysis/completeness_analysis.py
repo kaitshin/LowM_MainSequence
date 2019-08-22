@@ -800,15 +800,15 @@ def ew_MC(debug=False, redo=False):
         N_mag_mock = npz_slope['N_norm0'][ff] * Nsim * NBbin
         N_interp   = interp1d(npz_slope['mag_arr'][ff], N_mag_mock)
         Ndist_mock = np.int_(np.round(N_interp(NB)))
-        NB_MC = np.repeat(NB, Ndist_mock)
+        NB_MC0     = np.repeat(NB, Ndist_mock)
 
         # Randomize NB magnitudes. First get relative sigma, then scale by si
         np.random.seed = ff
-        NB_rand0 = np.random.normal(0.0, 1.0, size=len(NB_MC))
+        NB_rand0 = np.random.normal(0.0, 1.0, size=len(NB_MC0))
 
         NB_sig    = get_sigma(NB, m_NB[ff], sigma=3.0)
         NB_sig_MC = np.repeat(NB_sig, Ndist_mock)
-        NB_MC    += NB_rand0 * NB_sig_MC
+        NB_MC     = NB_MC0 + NB_rand0 * NB_sig_MC
 
         filt_dict = {'dNB': dNB[ff], 'dBB': dBB[ff], 'lambdac': lambdac[ff]}
 
