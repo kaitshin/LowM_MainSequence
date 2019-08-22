@@ -880,10 +880,19 @@ def ew_MC(debug=False, redo=False):
 
                     EW_flag0 = np.zeros(len(logEW_MC))
 
-                    x_MC = EW_int(logEW_MC) # NB color excess
-                    negs = np.where(x_MC < 0)[0]
+                    x_MC0 = EW_int(logEW_MC) # NB color excess
+                    negs = np.where(x_MC0 < 0)[0]
                     if len(negs) > 0:
-                        x_MC[negs] = 0.0
+                        x_MC0[negs] = 0.0
+
+                    BB_MC0 = NB_MC0 + x_MC0
+                    np.random.seed = ff + 5
+                    BB_rand0 = np.random.normal(0.0, 1.0, size=len(BB_MC0))
+
+                    BB_sig_MC = get_sigma(BB_MC0, cont_lim[ff], sigma=3.0)
+
+                    BB_MC     = BB_MC0 + BB_rand0 * BB_sig_MC
+                    x_MC      = BB_MC - NB_MC
 
                     # t_NB = np.repeat(NB_MC, len(x_MC))
 
@@ -895,8 +904,7 @@ def ew_MC(debug=False, redo=False):
 
                     EW_flag0[NB_sel] = 1
 
-                    t_EW, t_flux = ew_flux_dual(NB_MC, NB_MC + x_MC, x_MC,
-                                                filt_dict)
+                    t_EW, t_flux = ew_flux_dual(NB_MC, BB_MC, x_MC, filt_dict)
 
                     # Apply NB filter correction from beginning
                     t_flux = np.log10(t_flux * filt_corr[ff])
@@ -988,6 +996,7 @@ def ew_MC(debug=False, redo=False):
                 ax20.set_position([0.085,0.05,0.44,0.265])
 
                 good = np.where(EW_flag0)[0]
+                print(max(good))
 
                 # Model comparison plots
                 if len(good) > 0:
