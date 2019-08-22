@@ -872,6 +872,11 @@ def ew_MC(debug=False, redo=False):
                     HaFlux_MC = correct_NII(t_flux, NIIHa)
                     HaLum_MC = HaFlux_MC +np.log10(4*np.pi) +2*np.log10(lum_dist)
 
+                    if exists(npz_MCfile):
+                        print("Overwriting : "+npz_MCfile)
+                    else:
+                        print("Writing : "+npz_MCfile)
+
                     np.savez(npz_MCfile, t_seed=t_seed, logEW_MC=logEW_MC,
                              EW_flag0=EW_flag0, x_MC=x_MC, sig_limit=sig_limit,
                              NB_sel=NB_sel, NB_nosel=NB_nosel, t_EW=t_EW,
@@ -879,24 +884,25 @@ def ew_MC(debug=False, redo=False):
                              NIIHa=NIIHa, logOH=logOH, HaFlux_MC=HaFlux_MC,
                              HaLum_MC=HaLum_MC)
                 else:
-                    print("File found : " + npz_MCfile)
-                    npz_MC = np.load(npz_MCfile)
+                    if redo == False:
+                        print("File found : " + npz_MCfile)
+                        npz_MC = np.load(npz_MCfile)
 
-                    t_seed   = npz_MC['t_seed']
-                    logEW_MC = npz_MC['logEW_MC']
-                    EW_flag0 = npz_MC['EW_flag0']
-                    x_MC     = npz_MC['x_MC']
-                    sig_limit= npz_MC['sig_limit']
-                    NB_sel   = npz_MC['NB_sel']
-                    NB_nosel = npz_MC['NB_nosel']
-                    t_EW     = npz_MC['t_EW']
-                    t_flux   = npz_MC['t_flux']
-                    cont_MC  = npz_MC['cont_MC']
-                    logM_MC  = npz_MC['logM_MC']
-                    NIIHa    = npz_MC['NIIHa']
-                    logOH    = npz_MC['logOH']
-                    HaFlux_MC= npz_MC['HaFlux_MC']
-                    HaLum_MC = npz_MC['HaLum_MC']
+                        t_seed   = npz_MC['t_seed']
+                        logEW_MC = npz_MC['logEW_MC']
+                        EW_flag0 = npz_MC['EW_flag0']
+                        x_MC     = npz_MC['x_MC']
+                        sig_limit= npz_MC['sig_limit']
+                        NB_sel   = npz_MC['NB_sel']
+                        NB_nosel = npz_MC['NB_nosel']
+                        t_EW     = npz_MC['t_EW']
+                        t_flux   = npz_MC['t_flux']
+                        cont_MC  = npz_MC['cont_MC']
+                        logM_MC  = npz_MC['logM_MC']
+                        NIIHa    = npz_MC['NIIHa']
+                        logOH    = npz_MC['logOH']
+                        HaFlux_MC= npz_MC['HaFlux_MC']
+                        HaLum_MC = npz_MC['HaLum_MC']
 
                 # Panel (0,0) - NB excess selection plot
 
