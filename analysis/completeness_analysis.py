@@ -694,11 +694,22 @@ def stats_plot(type0, ax2, ax3, ax, s_row, Ng, No, binso, EW_mean, EW_sig, ss):
                             xycoords='axes fraction', va='top')
 #enddef
 
-def ew_MC(debug=False):
+def ew_MC(debug=False, redo=False):
     '''
     Main function for Monte Carlo realization.  Adopts log-normal
     EW distribution to determine survey sensitivity and impact on
     M*-SFR relation
+
+    Parameters
+    ----------
+
+    debug : boolean
+      If enabled, a quicker version is executed for test-driven developement.
+      Default: False
+
+    redo : boolean
+      Re-run mock galaxy generation even if file exists. Default: False
+
     '''
 
     prefixes = ['Ha-NB7','Ha-NB7','Ha-NB816','Ha-NB921','Ha-NB973']
@@ -824,7 +835,7 @@ def ew_MC(debug=False):
                     fig2, ax2 = plt.subplots(ncols=2, nrows=nrow_stats)
                 s_row = count % nrow_stats # For statistics plot
 
-                if not exists(npz_MCfile):
+                if not exists(npz_MCfile) or redo == True:
                     t_seed = mm*len(ss_range) + ss
                     np.random.seed = t_seed
                     rand0 = np.random.normal(0.0, 1.0, size=len(NB_MC))
