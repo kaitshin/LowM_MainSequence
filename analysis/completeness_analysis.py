@@ -922,21 +922,9 @@ def ew_MC(debug=False, redo=False):
                         print("File found : " + npz_MCfile)
                         npz_MC = np.load(npz_MCfile)
 
-                        t_seed   = npz_MC['t_seed']
-                        logEW_MC = npz_MC['logEW_MC']
-                        EW_flag0 = npz_MC['EW_flag0']
-                        x_MC     = npz_MC['x_MC']
-                        sig_limit= npz_MC['sig_limit']
-                        NB_sel   = npz_MC['NB_sel']
-                        NB_nosel = npz_MC['NB_nosel']
-                        t_EW     = npz_MC['t_EW']
-                        t_flux   = npz_MC['t_flux']
-                        cont_MC  = npz_MC['cont_MC']
-                        logM_MC  = npz_MC['logM_MC']
-                        NIIHa    = npz_MC['NIIHa']
-                        logOH    = npz_MC['logOH']
-                        HaFlux_MC= npz_MC['HaFlux_MC']
-                        HaLum_MC = npz_MC['HaLum_MC']
+                        for key0 in npz_MC.keys():
+                            cmd1 = key0+" = npz_MC['"+key0+"']"
+                            exec(cmd1)
 
                 # Panel (0,0) - NB excess selection plot
 
