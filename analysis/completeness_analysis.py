@@ -70,6 +70,33 @@ Flux_bins = np.arange(-17.75,-14.00,0.25)
 # Colors for each separate points on avg_sigma plots
 avg_sig_ctype = ['m','r','g','b','k']
 
+def get_sigma(x, lim1, sigma=3.0):
+    '''
+    Magnitude errors based on limiting magnitude
+
+    Parameters
+    ----------
+
+    x : Array of magnitudes
+
+    lim1 : float
+      3-sigma limiting magnitude for corresponding x
+
+    sigma : float
+      Sigma threshold.  Default: 3.0
+
+    Returns
+    -------
+
+    dmag : array of magnitude errors
+    '''
+
+    SNR = sigma * 10**(-0.4*(x - lim1))
+
+    dmag = 2.5*np.log10(1 + 1/SNR)
+    return dmag
+#enddef
+
 def avg_sig_label(str0, avg, sigma, type=''):
     '''
     Generate raw strings that contain proper formatting for average and sigma
