@@ -804,8 +804,8 @@ def ew_MC(debug=False, redo=False):
         np.random.seed = ff
         NB_rand0 = np.random.normal(0.0, 1.0, size=len(NB_MC))
 
-        NB_sig    = get_sigma(NB, lim1, sigma=3.0)
-        NB_sig_MC = np.repeat(NB, Ndist_mock)
+        NB_sig    = get_sigma(NB, m_NB[ff], sigma=3.0)
+        NB_sig_MC = np.repeat(NB_sig, Ndist_mock)
         NB_MC    += NB_rand0 * NB_sig_MC
 
         filt_dict = {'dNB': dNB[ff], 'dBB': dBB[ff], 'lambdac': lambdac[ff]}
