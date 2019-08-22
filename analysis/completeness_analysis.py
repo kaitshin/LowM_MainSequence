@@ -721,7 +721,6 @@ def ew_MC(debug=False, redo=False):
     z_NB     = lambdac/6562.8 - 1.0
 
     npz_slope = np.load(path0 + 'Completeness/NB_numbers.npz')
-    NB_slope0 = npz_slope['NB_slope0']
 
     logEW_mean_start = np.array([1.25, 1.45, 1.25, 1.25, 1.75])
     logEW_sig_start  = np.array([0.15, 0.55, 0.25, 0.35, 0.55])
@@ -773,6 +772,14 @@ def ew_MC(debug=False, redo=False):
         N_interp   = interp1d(npz_slope['mag_arr'][ff], N_mag_mock)
         Ndist_mock = np.int_(np.round(N_interp(NB)))
         NB_MC = np.repeat(NB, Ndist_mock)
+
+        # Randomize NB magnitudes. First get relative sigma, then scale by si
+        np.random.seed = ff
+        NB_rand0 = np.random.normal(0.0, 1.0, size=len(NB_MC))
+
+        NB_sig    = get_sigma(NB, lim1, sigma=3.0)
+        NB_sig_MC = np.repeat(NB, Ndist_mock)
+        NB_MC    += NB_rand0 * NB_sig_MC
 
         filt_dict = {'dNB': dNB[ff], 'dBB': dBB[ff], 'lambdac': lambdac[ff]}
 
