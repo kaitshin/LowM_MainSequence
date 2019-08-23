@@ -800,18 +800,35 @@ def ew_MC(debug=False, redo=False):
         NB = np.arange(NBmin,NBmax+NBbin,NBbin)
         print('NB (min/max)', min(NB), max(NB))
 
-        N_mag_mock = npz_slope['N_norm0'][ff] * Nsim * NBbin
-        N_interp   = interp1d(npz_slope['mag_arr'][ff], N_mag_mock)
-        Ndist_mock = np.int_(np.round(N_interp(NB)))
-        NB_MC0     = np.repeat(NB, Ndist_mock)
+        npz_NBfile = npz_path0 + filters[ff]+'_init.npz'
 
-        # Randomize NB magnitudes. First get relative sigma, then scale by si
-        np.random.seed = ff
-        NB_rand0 = np.random.normal(0.0, 1.0, size=len(NB_MC0))
+        if not exists(npz_NBfile) or redo == True:
+            N_mag_mock = npz_slope['N_norm0'][ff] * Nsim * NBbin
+            N_interp   = interp1d(npz_slope['mag_arr'][ff], N_mag_mock)
+            Ndist_mock = np.int_(np.round(N_interp(NB)))
+            NB_MC0     = np.repeat(NB, Ndist_mock)
 
-        NB_sig    = get_sigma(NB, m_NB[ff], sigma=3.0)
-        NB_sig_MC = np.repeat(NB_sig, Ndist_mock)
-        NB_MC     = NB_MC0 + NB_rand0 * NB_sig_MC
+            # Randomize NB magnitudes. First get relative sigma, then scale by si
+            np.random.seed = ff
+            NB_rand0 = np.random.normal(0.0, 1.0, size=len(NB_MC0))
+
+            NB_sig    = get_sigma(NB, m_NB[ff], sigma=3.0)
+            NB_sig_MC = np.repeat(NB_sig, Ndist_mock)
+            NB_MC     = NB_MC0 + NB_rand0 * NB_sig_MC
+
+            npz_names = ['N_mag_mock', 'N_interp', 'Ndist_mock', 'NB_MC0', 'NB_MC']
+            npz_dict = {}
+            for name in npz_names:
+                npz_dict[name] = eval(name)
+                np.savez(npz_NBfile, **npz_dict)
+        else:
+            if redo == False:
+                print("File found : " + npz_NBfile)
+                npz_NB = np.load(npz_NBfile)
+
+                for key0 in npz_NB.keys():
+                    cmd1 = key0+" = npz_NB['"+key0+"']"
+                    exec(cmd1)
 
         filt_dict = {'dNB': dNB[ff], 'dBB': dBB[ff], 'lambdac': lambdac[ff]}
 
@@ -912,8 +929,8 @@ def ew_MC(debug=False, redo=False):
                     # Apply NB filter correction from beginning
                     t_flux = np.log10(t_flux * filt_corr[ff])
 
-                    cont_MC = NB_MC + x_MC
-                    logM_MC = mass_int(cont_MC)
+                    #cont_MC = NB_MC + x_MC
+                    logM_MC = mass_int(BB_MC)
                     NIIHa, logOH = get_NIIHa_logOH(logM_MC)
 
                     HaFlux_MC = correct_NII(t_flux, NIIHa)
