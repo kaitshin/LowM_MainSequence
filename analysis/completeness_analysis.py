@@ -924,12 +924,13 @@ def ew_MC(debug=False, redo=False):
                     else:
                         print("Writing : "+npz_MCfile)
 
-                    np.savez(npz_MCfile, t_seed=t_seed, logEW_MC=logEW_MC,
-                             EW_flag0=EW_flag0, x_MC=x_MC, sig_limit=sig_limit,
-                             NB_sel=NB_sel, NB_nosel=NB_nosel, t_EW=t_EW,
-                             t_flux=t_flux, cont_MC=cont_MC, logM_MC=logM_MC,
-                             NIIHa=NIIHa, logOH=logOH, HaFlux_MC=HaFlux_MC,
-                             HaLum_MC=HaLum_MC)
+                    npz_names = ['t_seed', 'logEW_MC', 'EW_flag0', 'x_MC', 'sig_limit',
+                                 'NB_sel', 'NB_nosel', 't_EW', 't_flux', 'cont_MC',
+                                 'logM_MC', 'NIIHa','logOH', 'HaFlux_MC', 'HaLum_MC']
+                    npz_dict = {}
+                    for name in npz_names:
+                        npz_dict[name] = eval(name)
+                    np.savez(npz_MCfile, **npz_dict)
                 else:
                     if redo == False:
                         print("File found : " + npz_MCfile)
