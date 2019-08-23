@@ -32,6 +32,11 @@ import astropy.units as u
 from astropy.cosmology import FlatLambdaCDM
 cosmo = FlatLambdaCDM(H0 = 70 * u.km / u.s / u.Mpc, Om0=0.3)
 
+Nsim  = 5000. # Number of modelled galaxies
+Nmock = 100   # Number of mocked galaxies
+
+filters = ['NB704','NB711','NB816','NB921','NB973']
+
 NB_filt = np.array([xx for xx in range(len(filt_ref)) if 'NB' in filt_ref[xx]])
 for arr in ['filt_ref','dNB','lambdac','dBB','epsilon']:
     cmd1 = arr + ' = np.array('+arr+')'
@@ -39,13 +44,13 @@ for arr in ['filt_ref','dNB','lambdac','dBB','epsilon']:
     cmd2 = arr + ' = '+arr+'[NB_filt]'
     exec(cmd2)
 
-#Limiting magnitudes for NB data (only)
+#Limiting magnitudes for NB and BB data
 m_NB  = np.array([26.7134-0.047, 26.0684, 26.9016+0.057, 26.7088-0.109, 25.6917-0.051])
 m_BB1 = np.array([28.0829, 28.0829, 27.7568, 26.8250, 26.8250])
 m_BB2 = np.array([27.7568, 27.7568, 26.8250, 00.0000, 00.0000])
 cont_lim = mag_combine(m_BB1, m_BB2, epsilon)
 
-#Minimum NB excess color
+#Minimum NB excess color for selection
 minthres = [0.15, 0.15, 0.15, 0.2, 0.25]
 
 from astropy import log
@@ -57,8 +62,6 @@ if not exists(npz_path0):
     os.mkdir(npz_path0)
 
 m_AB = 48.6
-
-filters = ['NB704','NB711','NB816','NB921','NB973']
 
 # Common text for labels
 EW_lab   = r'$\log({\rm EW}/\AA)$'
@@ -753,7 +756,6 @@ def ew_MC(debug=False, redo=False):
     logEW_sig_start  = np.array([0.15, 0.55, 0.25, 0.35, 0.55])
     n_sigma = 4
 
-    Nsim = 5000.
     print('Nsim : ', Nsim)
 
     NBbin = 0.25
