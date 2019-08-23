@@ -924,7 +924,8 @@ def ew_MC(debug=False, redo=False):
                     else:
                         print("Writing : "+npz_MCfile)
 
-                    npz_names = ['t_seed', 'logEW_MC', 'EW_flag0', 'x_MC', 'sig_limit',
+                    npz_names = ['t_seed', 'logEW_MC', 'EW_flag0', 'x_MC0', 'x_MC',
+                                 'BB_MC0', 'BB_MC', 'sig_limit',
                                  'NB_sel', 'NB_nosel', 't_EW', 't_flux', 'cont_MC',
                                  'logM_MC', 'NIIHa','logOH', 'HaFlux_MC', 'HaLum_MC']
                     npz_dict = {}
