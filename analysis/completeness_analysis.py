@@ -754,6 +754,7 @@ def ew_MC(debug=False, redo=False):
 
     logEW_mean_start = np.array([1.25, 1.45, 1.25, 1.25, 1.75])
     logEW_sig_start  = np.array([0.15, 0.55, 0.25, 0.35, 0.55])
+    n_mean  = 4
     n_sigma = 4
 
     print('Nsim : ', Nsim)
@@ -773,7 +774,7 @@ def ew_MC(debug=False, redo=False):
     for ff in ff_range: # loop over filter
         print("Working on : "+filters[ff])
 
-        logEW_mean = logEW_mean_start[ff] + 0.1*np.arange(n_sigma)
+        logEW_mean = logEW_mean_start[ff] + 0.1*np.arange(n_mean)
         logEW_sig  = logEW_sig_start[ff]  + 0.1*np.arange(n_sigma)
 
         out_pdf = path0 + 'Completeness/ew_MC_'+filters[ff]+'.pdf'
