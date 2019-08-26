@@ -818,11 +818,12 @@ def ew_MC(debug=False, redo=False):
             NB_sig_MC = np.repeat(NB_sig, Ndist_mock)
             NB_MC     = NB_MC0 + NB_rand0 * NB_sig_MC
 
-            npz_names = ['N_mag_mock','N_interp','Ndist_mock','NB_MC0','NB_MC']
+            npz_names = ['N_mag_mock','Ndist_mock','NB_MC0','NB_MC']
             npz_dict = {}
             for name in npz_names:
                 npz_dict[name] = eval(name)
-                np.savez(npz_NBfile, **npz_dict)
+
+            np.savez(npz_NBfile, **npz_dict)
         else:
             if redo == False:
                 print("File found : " + npz_NBfile)
