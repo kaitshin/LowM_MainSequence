@@ -122,7 +122,8 @@ def N_avg_sig_label(x0, avg, sigma):
     String containing average and sigma for ax.legend() labels
     '''
 
-    return r'N: %i  $\langle x\rangle$: %.2f  $\sigma$: %.2f' % (len(x0), avg, sigma)
+    return r'N: %i  $\langle x\rangle$: %.2f  $\sigma$: %.2f' % \
+        (len(x0), avg, sigma)
 #enddef
 
 def color_cut(x, lim1, lim2, mean=0.0, sigma=3.0):
@@ -397,7 +398,8 @@ def NB_numbers():
     '''
 
     NB_path = '/Users/cly/data/SDF/NBcat/'
-    NB_phot_files = [NB_path+filt+'/sdf_pub2_'+filt+'.cat.mask' for filt in filters]
+    NB_phot_files = [NB_path+filt+'/sdf_pub2_'+filt+'.cat.mask' for \
+                     filt in filters]
 
     out_pdf = path0 + 'Completeness/NB_numbers.pdf'
 
@@ -438,7 +440,7 @@ def NB_numbers():
         fit_lab = 'P[0] = %.3f  P[1] = %.3f' % (p_fit[1], p_fit[0])
         ax.plot(m_bins, 10**(fit(m_bins)), 'r--', label=fit_lab)
 
-        ax.axvline(m_NB[ff], linestyle='dashed', linewidth=1.5) #, label=r'3$\sigma$')
+        ax.axvline(m_NB[ff], linestyle='dashed', linewidth=1.5)
         ax.legend(loc='lower right', fancybox=True, fontsize=8, framealpha=0.75)
         ax.annotate(filters[ff], [0.025,0.975], xycoords='axes fraction',
                     ha='left', va='top', fontsize=10)
@@ -816,7 +818,7 @@ def ew_MC(debug=False, redo=False):
             NB_sig_MC = np.repeat(NB_sig, Ndist_mock)
             NB_MC     = NB_MC0 + NB_rand0 * NB_sig_MC
 
-            npz_names = ['N_mag_mock', 'N_interp', 'Ndist_mock', 'NB_MC0', 'NB_MC']
+            npz_names = ['N_mag_mock','N_interp','Ndist_mock','NB_MC0','NB_MC']
             npz_dict = {}
             for name in npz_names:
                 npz_dict[name] = eval(name)
@@ -882,7 +884,8 @@ def ew_MC(debug=False, redo=False):
                 npz_MCfile = npz_path0 + filters[ff] + ('_%.2f_%.2f.npz') \
                              % (logEW_mean[mm], logEW_sig[ss])
 
-                fig, [[ax00,ax01],[ax10,ax11],[ax20,ax21]] = plt.subplots(ncols=2, nrows=3)
+                fig, ax = plt.subplots(ncols=2, nrows=3)
+                [[ax00,ax01],[ax10,ax11],[ax20,ax21]] = ax
                 plt.subplots_adjust(left=0.105, right=0.98, bottom=0.05,
                                     top=0.98, wspace=0.25, hspace=0.05)
 
@@ -916,7 +919,7 @@ def ew_MC(debug=False, redo=False):
 
                     # t_NB = np.repeat(NB_MC, len(x_MC))
 
-                    sig_limit = color_cut(NB_MC, m_NB[ff], cont_lim[ff]) #, sigma=4.0)
+                    sig_limit = color_cut(NB_MC, m_NB[ff], cont_lim[ff])
                     NB_sel   = np.where((x_MC >= minthres[ff]) &
                                         (x_MC >= sig_limit))[0]
                     NB_nosel = np.where((x_MC < minthres[ff]) |
@@ -977,7 +980,8 @@ def ew_MC(debug=False, redo=False):
                 ax00.set_xticklabels([])
                 ax00.set_ylabel('cont - NB')
 
-                annot_txt = avg_sig_label('', logEW_mean[mm], logEW_sig[ss], type='EW')
+                annot_txt = avg_sig_label('', logEW_mean[mm], logEW_sig[ss],
+                                          type='EW')
                 annot_txt += '\n' + r'$N$ = %i' % len(NB_MC)
                 ax00.annotate(annot_txt, [0.05,0.95], va='top',
                               ha='left', xycoords='axes fraction')
@@ -987,7 +991,8 @@ def ew_MC(debug=False, redo=False):
                 # Plot MACT
                 plot_MACT(ax10, NBmag, Ha_Flux, w_spec, wo_spec)
 
-                plot_mock(ax10, NB_MC, HaFlux_MC, NB_sel, NB_nosel, 'NB', Flux_lab)
+                plot_mock(ax10, NB_MC, HaFlux_MC, NB_sel, NB_nosel, 'NB',
+                          Flux_lab)
 
 
                 # Panel (0,1) - stellar mass vs H-alpha luminosity
@@ -1055,8 +1060,8 @@ def ew_MC(debug=False, redo=False):
 
                 # Save figure for each full page completed
                 if s_row == nrow_stats-1 or count == len(logEW_mean)*len(logEW_sig)-1:
-                    fig2.subplots_adjust(left=0.1, right=0.97, bottom=0.08, top=0.97,
-                                         wspace=0.13)
+                    fig2.subplots_adjust(left=0.1, right=0.97, bottom=0.08,
+                                         top=0.97, wspace=0.13)
 
                     fig2.set_size_inches(8,10)
                     fig2.savefig(pp2, format='pdf')
