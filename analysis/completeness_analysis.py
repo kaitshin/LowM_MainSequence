@@ -174,14 +174,14 @@ def get_NIIHa_logOH(logM):
     stellar mass.  Metallicity is from PP04
     '''
 
-    NIIHa = np.zeros(len(logM))
+    NIIHa = np.zeros(logM.shape)
 
-    low_mass = np.where(logM <= 8.0)[0]
-    if len(low_mass) > 0:
+    low_mass = np.where(logM <= 8.0)
+    if len(low_mass[0]) > 0:
         NIIHa[low_mass] = 0.0624396766589
 
-    high_mass = np.where(logM > 8.0)[0]
-    if len(high_mass) > 0:
+    high_mass = np.where(logM > 8.0)
+    if len(high_mass[0]) > 0:
         NIIHa[high_mass] = 0.169429547993*logM[high_mass] - 1.29299670728
 
 
@@ -905,22 +905,25 @@ def ew_MC(debug=False, redo=False):
                 if not exists(npz_MCfile) or redo == True:
                     t_seed = mm*len(ss_range) + ss
                     np.random.seed = t_seed
-                    rand0 = np.random.normal(0.0, 1.0, size=len(NB_MC))
+                    rand0 = np.random.normal(0.0, 1.0, size=NB_MC0_ref.size)
                     # This is not H-alpha
-                    logEW_MC = logEW_mean[mm] + logEW_sig[ss]*rand0
+                    logEW_MC_ref = logEW_mean[mm] + logEW_sig[ss]*rand0
+                    logEW_MC     = np.ones((Nmock,1)) * logEW_MC_ref
 
-                    EW_flag0 = np.zeros(len(logEW_MC))
+                    EW_flag0 = np.zeros(logEW_MC.shape)
 
                     x_MC0 = EW_int(logEW_MC) # NB color excess
-                    negs = np.where(x_MC0 < 0)[0]
+                    negs = np.where(x_MC0 < 0)
                     if len(negs) > 0:
                         x_MC0[negs] = 0.0
 
                     BB_MC0 = NB_MC0 + x_MC0
                     np.random.seed = ff + 5
-                    BB_rand0 = np.random.normal(0.0, 1.0, size=len(BB_MC0))
+                    BB_rand0 = np.random.normal(0.0, 1.0, size=BB_MC0.size)
+                    BB_rand0 = np.reshape(BB_rand0, (Nmock,NB_MC0_ref.size))
 
                     BB_sig_MC = get_sigma(BB_MC0, cont_lim[ff], sigma=3.0)
+                    BB_sig_MC = np.reshape(BB_sig_MC, (Nmock,NB_MC0_ref.size))
 
                     BB_MC     = BB_MC0 + BB_rand0 * BB_sig_MC
                     x_MC      = BB_MC - NB_MC
