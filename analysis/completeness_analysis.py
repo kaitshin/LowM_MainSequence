@@ -586,8 +586,10 @@ def plot_mock(ax, x0, y0, NB_sel, NB_nosel, xlabel, ylabel):
     is1, is2 = NB_sel[0], NB_sel[1]
     in1, in2 = NB_nosel[0], NB_nosel[1]
 
-    ax.hexbin(x0[is1,is2], y0[is1,is2], gridsize=100, mincnt=1, cmap=cmap_sel)
-    ax.hexbin(x0[in1,in2], y0[in1,in2], gridsize=100, mincnt=1, cmap=cmap_nosel)
+    ax.hexbin(x0[is1,is2], y0[is1,is2], gridsize=100, mincnt=1, cmap=cmap_sel,
+              linewidth=0.2)
+    ax.hexbin(x0[in1,in2], y0[in1,in2], gridsize=100, mincnt=1, cmap=cmap_nosel,
+              linewidth=0.2)
     #ax.scatter(x0[is1,is2], y0[is1,is2], alpha=0.25, s=2, edgecolor='none')
     #ax.scatter(x0[in1,in2], y0[in1,in2], alpha=0.25, s=2, edgecolor='red',
     #           linewidth=0.25, facecolor='none')
@@ -987,7 +989,7 @@ def ew_MC(debug=False, redo=False):
                 # Panel (0,0) - NB excess selection plot
 
                 ax00.hexbin(NB_MC.flatten(), x_MC.flatten(), gridsize=100,
-                            cmap=plt.cm.Greys, mincnt=1)
+                            cmap=plt.cm.Greys, mincnt=1, linewidth=0.2)
                 #ax00.scatter(NB_MC, x_MC, marker=',', s=1)
 
                 # Plot MACT data
