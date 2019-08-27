@@ -187,7 +187,10 @@ def get_NIIHa_logOH(logM):
 
     # Compute metallicity
     NII6583_Ha = NIIHa * 1/(1+1/2.96)
-    logOH = niiha_oh_determine(np.log10(NII6583_Ha), 'PP04_N2') - 12.0
+
+    NII6583_Ha_resize = np.reshape(NII6583_Ha, NII6583_Ha.size)
+    logOH = niiha_oh_determine(np.log10(NII6583_Ha_resize), 'PP04_N2') - 12.0
+    logOH = np.reshape(logOH, logM.shape)
 
     return NIIHa, logOH
 #enddef
