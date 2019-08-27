@@ -33,7 +33,7 @@ from astropy.cosmology import FlatLambdaCDM
 cosmo = FlatLambdaCDM(H0 = 70 * u.km / u.s / u.Mpc, Om0=0.3)
 
 Nsim  = 5000. # Number of modelled galaxies
-Nmock = 100   # Number of mocked galaxies
+Nmock = 10    # Number of mocked galaxies
 
 filters = ['NB704','NB711','NB816','NB921','NB973']
 
@@ -123,7 +123,7 @@ def N_avg_sig_label(x0, avg, sigma):
     '''
 
     return r'N: %i  $\langle x\rangle$: %.2f  $\sigma$: %.2f' % \
-        (len(x0), avg, sigma)
+        (x0.size, avg, sigma)
 #enddef
 
 def color_cut(x, lim1, lim2, mean=0.0, sigma=3.0):
@@ -604,14 +604,15 @@ def ew_flux_hist(type0, mm, ss, t2_ax, x0, avg_x0, sig_x0, x0_bins, logEW_mean,
                               histtype='stepfilled', label=label_x0)
     t2_ax.axvline(x=avg_x0, color='black', linestyle='solid', linewidth=1.5)
 
-    good = np.where(EW_flag0)[0]
+    good = np.where(EW_flag0)
 
     # Normalize relative to selected sample
-    if len(good) > 0:
-        finite = np.where(np.isfinite(x0_arr0))[0]
+    if len(good[0]) > 0:
+        finite = np.where(np.isfinite(x0_arr0))
 
-        norm0 = float(len(x0))/len(good)
-        wht0   = np.repeat(norm0, len(x0_arr0))
+        norm0 = float(len(x0))/len(good[0])
+        wht0  = np.repeat(norm0, x0_arr0.size)
+        wht0  = np.reshape(wht0, x0_arr0.shape)
 
         avg_MC = np.average(x0_arr0)
         sig_MC = np.std(x0_arr0)
