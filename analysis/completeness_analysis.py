@@ -580,9 +580,11 @@ def plot_mock(ax, x0, y0, NB_sel, NB_nosel, xlabel, ylabel):
        String for y-axis.  Set to '' to not show a label
     '''
 
-    ax.scatter(x0[NB_sel], y0[NB_sel], alpha=0.25, s=2, edgecolor='none')
-    ax.scatter(x0[NB_nosel], y0[NB_nosel], alpha=0.25, s=2, edgecolor='red',
-                 linewidth=0.25, facecolor='none')
+    is1, is2 = NB_sel[0], NB_sel[1]
+    in1, in2 = NB_nosel[0], NB_nosel[1]
+    ax.scatter(x0[is1,is2], y0[is1,is2], alpha=0.25, s=2, edgecolor='none')
+    ax.scatter(x0[in1,in2], y0[in1,in2], alpha=0.25, s=2, edgecolor='red',
+               linewidth=0.25, facecolor='none')
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
 #enddef
@@ -623,9 +625,9 @@ def ew_flux_hist(type0, mm, ss, t2_ax, x0, avg_x0, sig_x0, x0_bins, logEW_mean,
                                 edgecolor='black', histtype='step', label=label0)
         t2_ax.axvline(x=avg_MC, color='black', linestyle='dashed', linewidth=1.5)
 
-        avg_gd = np.average(x0_arr0[good])
-        sig_gd = np.std(x0_arr0[good])
-        label1 = N_avg_sig_label(good, avg_gd, sig_gd)
+        avg_gd = np.average(x0_arr0[good[0],good[1]])
+        sig_gd = np.std(x0_arr0[good[0],good[1]])
+        label1 = N_avg_sig_label(good[0], avg_gd, sig_gd)
         Ng, binsg, _ = t2_ax.hist(x0_arr0[good], bins=x0_bins, weights=wht0[good],
                                   align='mid', alpha=0.5, color='blue',
                                   edgecolor='blue', linestyle='solid',
@@ -940,7 +942,7 @@ def ew_MC(debug=False, redo=False):
                     NB_nosel = np.where((x_MC < minthres[ff]) |
                                         (x_MC < sig_limit))
 
-                    EW_flag0[NB_sel] = 1
+                    EW_flag0[NB_sel[0],NB_sel[1]] = 1
 
                     t_EW, t_flux = ew_flux_dual(NB_MC, BB_MC, x_MC, filt_dict)
 
