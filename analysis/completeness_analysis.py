@@ -814,15 +814,17 @@ def ew_MC(debug=False, redo=False):
             NB_MC0_ref = np.repeat(NB, Ndist_mock)
             NB_MC0     = np.ones((Nmock,1)) * NB_MC0_ref
 
+            Ngal = NB_MC0_ref.size # Number of galaxies
+
             # Randomize NB magnitudes. First get relative sigma, then scale by size
             np.random.seed = ff
-            NB_rand0 = np.random.normal(0.0, 1.0, size=NB_MC0.size)
-            NB_rand0 = np.reshape(NB_rand0, (Nmock,NB_MC0_ref.size))
+            NB_rand0 = np.random.normal(0.0, 1.0, size=(Nmock,Ngal))
 
             NB_sig     = get_sigma(NB, m_NB[ff], sigma=3.0)
             NB_sig_ref = np.repeat(NB_sig, Ndist_mock)
-            NB_sig_MC  = np.ones((Nmock,1)) * NB_sig_ref
-            NB_MC      = NB_MC0 + NB_rand0 * NB_sig_MC
+            NB_sig_MC = np.ones((Nmock,1)) * NB_sig_ref
+
+            NB_MC     = NB_MC0 + NB_rand0 * NB_sig_MC
 
             npz_names = ['N_mag_mock','Ndist_mock','NB_MC0','NB_MC']
             npz_dict = {}
@@ -908,7 +910,7 @@ def ew_MC(debug=False, redo=False):
                 if not exists(npz_MCfile) or redo == True:
                     t_seed = mm*len(ss_range) + ss
                     np.random.seed = t_seed
-                    rand0 = np.random.normal(0.0, 1.0, size=NB_MC0_ref.size)
+                    rand0 = np.random.normal(0.0, 1.0, size=Ngal)
                     # This is not H-alpha
                     logEW_MC_ref = logEW_mean[mm] + logEW_sig[ss]*rand0
                     logEW_MC     = np.ones((Nmock,1)) * logEW_MC_ref
@@ -922,11 +924,9 @@ def ew_MC(debug=False, redo=False):
 
                     BB_MC0 = NB_MC0 + x_MC0
                     np.random.seed = ff + 5
-                    BB_rand0 = np.random.normal(0.0, 1.0, size=BB_MC0.size)
-                    BB_rand0 = np.reshape(BB_rand0, (Nmock,NB_MC0_ref.size))
+                    BB_rand0 = np.random.normal(0.0, 1.0, size=(Nmock,Ngal))
 
                     BB_sig_MC = get_sigma(BB_MC0, cont_lim[ff], sigma=3.0)
-                    BB_sig_MC = np.reshape(BB_sig_MC, (Nmock,NB_MC0_ref.size))
 
                     BB_MC     = BB_MC0 + BB_rand0 * BB_sig_MC
                     x_MC      = BB_MC - NB_MC
@@ -935,9 +935,9 @@ def ew_MC(debug=False, redo=False):
 
                     sig_limit = color_cut(NB_MC, m_NB[ff], cont_lim[ff])
                     NB_sel   = np.where((x_MC >= minthres[ff]) &
-                                        (x_MC >= sig_limit))[0]
+                                        (x_MC >= sig_limit))
                     NB_nosel = np.where((x_MC < minthres[ff]) |
-                                        (x_MC < sig_limit))[0]
+                                        (x_MC < sig_limit))
 
                     EW_flag0[NB_sel] = 1
 
