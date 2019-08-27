@@ -582,6 +582,7 @@ def plot_mock(ax, x0, y0, NB_sel, NB_nosel, xlabel, ylabel):
 
     is1, is2 = NB_sel[0], NB_sel[1]
     in1, in2 = NB_nosel[0], NB_nosel[1]
+
     ax.scatter(x0[is1,is2], y0[is1,is2], alpha=0.25, s=2, edgecolor='none')
     ax.scatter(x0[in1,in2], y0[in1,in2], alpha=0.25, s=2, edgecolor='red',
                linewidth=0.25, facecolor='none')
@@ -984,7 +985,8 @@ def ew_MC(debug=False, redo=False):
                 temp_x = contmag-NBmag
                 plot_MACT(ax00, NBmag, temp_x, w_spec, wo_spec)
 
-                ax00.scatter(NB_MC, x_MC, marker=',', s=1)
+                ax00.hexbin(NB_MC.flatten(), x_MC.flatten(), gridsize=100)
+                #ax00.scatter(NB_MC, x_MC, marker=',', s=1)
 
                 ax00.axhline(y=minthres[ff], linestyle='dashed',
                              color='blue')
