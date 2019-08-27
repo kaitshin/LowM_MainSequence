@@ -595,6 +595,9 @@ def plot_mock(ax, x0, y0, NB_sel, NB_nosel, xlabel, ylabel):
     #           linewidth=0.25, facecolor='none')
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
+
+    if xlabel == '':
+        ax.set_xticklabels([])
 #enddef
 
 def ew_flux_hist(type0, mm, ss, t2_ax, x0, avg_x0, sig_x0, x0_bins, logEW_mean,
@@ -1002,8 +1005,6 @@ def ew_MC(debug=False, redo=False):
                 y4 = color_cut(NB, m_NB[ff], cont_lim[ff], sigma=4.0)
                 ax00.plot(NB, y4, 'b:')
 
-                ax00.set_xticklabels([])
-
                 annot_txt = avg_sig_label('', logEW_mean[mm], logEW_sig[ss],
                                           type='EW')
                 annot_txt += '\n' + r'$N$ = %i' % len(NB_MC)
@@ -1026,7 +1027,6 @@ def ew_MC(debug=False, redo=False):
                 # Plot MACT
                 plot_MACT(ax01, logMstar, Ha_Lum, w_spec, wo_spec)
 
-                ax01.set_xticklabels([])
                 #ax[1][1].set_ylim([37.5,43.0])
 
                 # Panel (1,1) - stellar mass vs H-alpha SFR
