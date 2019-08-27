@@ -988,9 +988,7 @@ def ew_MC(debug=False, redo=False):
 
                 # Panel (0,0) - NB excess selection plot
 
-                ax00.hexbin(NB_MC.flatten(), x_MC.flatten(), gridsize=100,
-                            cmap=plt.cm.Greys, mincnt=1, linewidth=0.2)
-                #ax00.scatter(NB_MC, x_MC, marker=',', s=1)
+                plot_mock(ax00, NB_MC, x_MC, NB_sel, NB_nosel, '', 'cont - NB')
 
                 # Plot MACT data
                 temp_x = contmag-NBmag
@@ -1005,7 +1003,6 @@ def ew_MC(debug=False, redo=False):
                 ax00.plot(NB, y4, 'b:')
 
                 ax00.set_xticklabels([])
-                ax00.set_ylabel('cont - NB')
 
                 annot_txt = avg_sig_label('', logEW_mean[mm], logEW_sig[ss],
                                           type='EW')
