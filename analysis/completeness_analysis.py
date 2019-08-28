@@ -627,8 +627,8 @@ def ew_flux_hist(type0, mm, ss, t2_ax, x0, avg_x0, sig_x0, x0_bins, logEW_mean,
         wht0  = np.repeat(norm0, x0_arr0.size)
         wht0  = np.reshape(wht0, x0_arr0.shape)
 
-        avg_MC = np.average(x0_arr0)
-        sig_MC = np.std(x0_arr0)
+        avg_MC = np.average(x0_arr0[finite])
+        sig_MC = np.std(x0_arr0[finite])
         label0 = N_avg_sig_label(x0_arr0, avg_MC, sig_MC)
 
         N, bins, _ = t2_ax.hist(x0_arr0[finite], bins=x0_bins, weights=wht0[finite],
