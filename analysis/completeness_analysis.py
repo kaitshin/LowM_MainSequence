@@ -346,6 +346,18 @@ def mag_vs_mass(silent=False, verbose=True):
     if silent == False: log.info('### End mag_vs_mass : '+systime())
 #enddef
 
+def get_mag_vs_mass_interp(prefix_ff):
+    npz_mass_file = path0 + 'Completeness/mag_vs_mass_'+prefix_ff+'.npz'
+    npz_mass = np.load(npz_mass_file)
+    cont_arr = npz_mass['cont_arr']
+    dmag     = cont_arr[1]-cont_arr[0]
+    mgood    = np.where(npz_mass['N_logM'] != 0)[0]
+    mass_int = interp1d(cont_arr[mgood]+dmag/2.0, npz_mass['avg_logM'][mgood],
+                        bounds_error=False, fill_value='extrapolate',
+                        kind='linear')
+    return mass_int
+#enddef
+
 def get_EW_Flux_distribution():
     '''
     Retrieve NB excess emission-line EW and fluxes from existing tables
@@ -881,14 +893,7 @@ def ew_MC(debug=False, redo=False):
         filt_dict = {'dNB': dNB[ff], 'dBB': dBB[ff], 'lambdac': lambdac[ff]}
 
         # Read in mag vs mass extrapolation
-        npz_mass_file = path0 + 'Completeness/mag_vs_mass_'+prefixes[ff]+'.npz'
-        npz_mass = np.load(npz_mass_file)
-        cont_arr = npz_mass['cont_arr']
-        dmag     = cont_arr[1]-cont_arr[0]
-        mgood    = np.where(npz_mass['N_logM'] != 0)[0]
-        mass_int = interp1d(cont_arr[mgood]+dmag/2.0, npz_mass['avg_logM'][mgood],
-                            bounds_error=False, fill_value='extrapolate',
-                            kind='linear')
+        mass_int = get_mag_vs_mass_interp(prefixes[ff])
 
         lum_dist = cosmo.luminosity_distance(z_NB[ff]).to(u.cm).value
 
