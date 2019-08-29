@@ -948,9 +948,7 @@ def ew_MC(debug=False, redo=False):
                     BB_MC0 = NB_MC0 + x_MC0
 
                     # Selection based on 'true' magnitudes
-                    sig_limit = color_cut(NB_MC0, m_NB[ff], cont_lim[ff])
-                    NB_sel0   = np.where((x_MC0 >= minthres[ff]) &
-                                         (x_MC0 >= sig_limit))
+                    NB_sel0, NB_nosel0 = NB_select(ff, NB_MC0, x_MC0)
 
                     np.random.seed = ff + 5
                     BB_rand0 = np.random.normal(0.0, 1.0, size=(Nmock,Ngal))
@@ -962,11 +960,7 @@ def ew_MC(debug=False, redo=False):
 
                     # t_NB = np.repeat(NB_MC, len(x_MC))
 
-                    sig_limit = color_cut(NB_MC, m_NB[ff], cont_lim[ff])
-                    NB_sel   = np.where((x_MC >= minthres[ff]) &
-                                        (x_MC >= sig_limit))
-                    NB_nosel = np.where((x_MC < minthres[ff]) |
-                                        (x_MC < sig_limit))
+                    NB_sel0, NB_nosel0 = NB_select(ff, NB_MC, x_MC)
 
                     EW_flag0[NB_sel[0],NB_sel[1]] = 1
 
