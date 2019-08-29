@@ -164,6 +164,16 @@ def color_cut(x, lim1, lim2, mean=0.0, sigma=3.0):
 #enddef
 
 def NB_select(ff, NB_mag, x_mag):
+    '''
+    NB excess color selection
+
+    ff : integer for filter
+
+    NB_mag : array of NB magnitudes
+
+    x_mag : array of NB excess colors, continuum - NB
+    '''
+
     sig_limit = color_cut(NB_mag, m_NB[ff], cont_lim[ff])
 
     NB_sel   = np.where((x_mag >= minthres[ff]) & (x_mag >= sig_limit))
