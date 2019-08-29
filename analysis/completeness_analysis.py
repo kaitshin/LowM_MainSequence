@@ -993,8 +993,9 @@ def ew_MC(debug=False, redo=False):
 
                     npz_names = ['t_seed', 'logEW_MC', 'EW_flag0', 'x_MC0', 'x_MC',
                                  'BB_MC0', 'BB_MC', 'sig_limit', 'NB_sel',
-                                 'NB_nosel', 't_EW', 't_flux', 'logM_MC',
-                                 'NIIHa','logOH', 'HaFlux_MC', 'HaLum_MC']
+                                 'NB_nosel', 'NB_sel0', 'NB_nosel0','t_EW',
+                                 't_flux', 'logM_MC', 'NIIHa','logOH',
+                                 'HaFlux_MC', 'HaLum_MC']
                     npz_dict = {}
                     for name in npz_names:
                         npz_dict[name] = eval(name)
