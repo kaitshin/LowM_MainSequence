@@ -163,6 +163,15 @@ def color_cut(x, lim1, lim2, mean=0.0, sigma=3.0):
     return val
 #enddef
 
+def NB_select(ff, NB_mag, x_mag):
+    sig_limit = color_cut(NB_mag, m_NB[ff], cont_lim[ff])
+
+    NB_sel   = np.where((x_mag >= minthres[ff]) & (x_mag >= sig_limit))
+    NB_nosel = np.where((x_mag <  minthres[ff]) | (x_mag <  sig_limit))
+
+    return NB_sel, NB_nosel
+#enddef
+
 def correct_NII(log_flux, NIIHa):
     '''
     This returns Halpha fluxes from F_NB using NII/Ha flux ratios for
