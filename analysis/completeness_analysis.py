@@ -855,7 +855,7 @@ def ew_MC(debug=False, redo=False):
 
             NB_sig     = get_sigma(NB, m_NB[ff], sigma=3.0)
             NB_sig_ref = np.repeat(NB_sig, Ndist_mock)
-            NB_sig_MC = np.ones((Nmock,1)) * NB_sig_ref
+            NB_sig_MC  = np.ones((Nmock,1)) * NB_sig_ref
 
             NB_MC     = NB_MC0 + NB_rand0 * NB_sig_MC
 
@@ -970,7 +970,7 @@ def ew_MC(debug=False, redo=False):
 
                     # t_NB = np.repeat(NB_MC, len(x_MC))
 
-                    NB_sel0, NB_nosel0 = NB_select(ff, NB_MC, x_MC)
+                    NB_sel, NB_nosel = NB_select(ff, NB_MC, x_MC)
 
                     EW_flag0[NB_sel[0],NB_sel[1]] = 1
 
