@@ -956,9 +956,8 @@ def ew_MC(debug=False, redo=False):
                     rand0 = np.random.normal(0.0, 1.0, size=Ngal)
                     # This is not H-alpha
                     logEW_MC_ref = logEW_mean[mm] + logEW_sig[ss]*rand0
-                    logEW_MC     = np.ones((Nmock,1)) * logEW_MC_ref
 
-                    EW_flag0 = np.zeros(logEW_MC.shape)
+                    EW_flag0 = np.zeros(mock_sz)
 
                     x_MC0_ref = EW_int(logEW_MC_ref) # NB color excess
                     negs = np.where(x_MC0_ref < 0)
@@ -971,12 +970,11 @@ def ew_MC(debug=False, redo=False):
                     NB_sel0, NB_nosel0 = NB_select(ff, NB_MC0_ref, x_MC0_ref)
 
                     np.random.seed = ff + 5
-                    BB_rand0 = np.random.normal(0.0, 1.0, size=(Nmock,Ngal))
+                    BB_sig_ref = get_sigma(BB_MC0_ref, cont_lim[ff], sigma=3.0)
 
-                    BB_sig_MC = get_sigma(BB_MC0, cont_lim[ff], sigma=3.0)
-
-                    BB_MC     = BB_MC0 + BB_rand0 * BB_sig_MC
-                    x_MC      = BB_MC - NB_MC
+                    BB_MC = mock_ones(BB_MC0_ref, Nmock) + np.random.normal(size=(Nmock,Ngal)) * \
+                            mock_ones(BB_sig_ref, Nmock)
+                    x_MC  = BB_MC - NB_MC
 
                     # t_NB = np.repeat(NB_MC, len(x_MC))
 
@@ -1001,8 +999,8 @@ def ew_MC(debug=False, redo=False):
                     else:
                         print("Writing : "+npz_MCfile)
 
-                    npz_names = ['t_seed', 'logEW_MC', 'EW_flag0', 'x_MC0', 'x_MC',
-                                 'BB_MC0', 'BB_MC', 'sig_limit', 'NB_sel',
+                    npz_names = ['t_seed', 'logEW_MC_ref', 'EW_flag0', 'x_MC0_ref', 'x_MC',
+                                 'BB_MC0_ref', 'BB_MC', 'sig_limit', 'NB_sel',
                                  'NB_nosel', 'NB_sel0', 'NB_nosel0','t_EW',
                                  't_flux', 'logM_MC', 'NIIHa','logOH',
                                  'HaFlux_MC', 'HaLum_MC']
