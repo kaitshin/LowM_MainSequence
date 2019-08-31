@@ -857,21 +857,13 @@ def ew_MC(debug=False, redo=False):
             N_interp   = interp1d(npz_slope['mag_arr'][ff], N_mag_mock)
             Ndist_mock = np.int_(np.round(N_interp(NB)))
             NB_MC0_ref = np.repeat(NB, Ndist_mock)
-            NB_MC0     = np.ones((Nmock,1)) * NB_MC0_ref
 
             Ngal = NB_MC0_ref.size # Number of galaxies
 
-            # Randomize NB magnitudes. First get relative sigma, then scale by size
-            np.random.seed = ff
-            NB_rand0 = np.random.normal(0.0, 1.0, size=(Nmock,Ngal))
-
             NB_sig     = get_sigma(NB, m_NB[ff], sigma=3.0)
             NB_sig_ref = np.repeat(NB_sig, Ndist_mock)
-            NB_sig_MC  = np.ones((Nmock,1)) * NB_sig_ref
 
-            NB_MC     = NB_MC0 + NB_rand0 * NB_sig_MC
-
-            npz_names = ['N_mag_mock','Ndist_mock','NB_MC0','NB_MC']
+            npz_names = ['N_mag_mock','Ndist_mock','Ngal','Nmock','NB_MC0_ref','NB_sig_ref']
             npz_dict = {}
             for name in npz_names:
                 npz_dict[name] = eval(name)
@@ -889,6 +881,15 @@ def ew_MC(debug=False, redo=False):
                 for key0 in npz_NB.keys():
                     cmd1 = key0+" = npz_NB['"+key0+"']"
                     exec(cmd1)
+
+        # Randomize NB magnitudes. First get relative sigma, then scale by size
+        np.random.seed = ff
+        NB_rand0  = np.random.normal(0.0, 1.0, size=(Nmock,Ngal))
+
+        NB_sig_MC = np.ones((Nmock,1)) * NB_sig_ref
+        NB_MC0    = np.ones((Nmock,1)) * NB_MC0_ref
+
+        NB_MC = NB_MC0 + NB_rand0 * NB_sig_MC
 
         filt_dict = {'dNB': dNB[ff], 'dBB': dBB[ff], 'lambdac': lambdac[ff]}
 
