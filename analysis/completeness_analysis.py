@@ -358,6 +358,14 @@ def get_mag_vs_mass_interp(prefix_ff):
     return mass_int
 #enddef
 
+def mock_ones(arr0, Nmock):
+    '''
+    Generate (Nmock,Ngal) array using np.ones() to repeat
+    '''
+
+    return np.ones((Nmock,1)) * arr0
+#enddef
+
 def get_EW_Flux_distribution():
     '''
     Retrieve NB excess emission-line EW and fluxes from existing tables
