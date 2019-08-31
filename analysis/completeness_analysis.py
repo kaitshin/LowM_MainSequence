@@ -179,7 +179,7 @@ def NB_select(ff, NB_mag, x_mag):
     NB_sel   = np.where((x_mag >= minthres[ff]) & (x_mag >= sig_limit))
     NB_nosel = np.where((x_mag <  minthres[ff]) | (x_mag <  sig_limit))
 
-    return NB_sel, NB_nosel
+    return NB_sel, NB_nosel, sig_limit
 #enddef
 
 def correct_NII(log_flux, NIIHa):
@@ -967,7 +967,7 @@ def ew_MC(debug=False, redo=False):
                     BB_MC0_ref = NB_MC0_ref + x_MC0_ref
 
                     # Selection based on 'true' magnitudes
-                    NB_sel0, NB_nosel0 = NB_select(ff, NB_MC0_ref, x_MC0_ref)
+                    NB_sel0, NB_nosel0, sig_limit0 = NB_select(ff, NB_MC0_ref, x_MC0_ref)
 
                     np.random.seed = ff + 5
                     BB_sig_ref = get_sigma(BB_MC0_ref, cont_lim[ff], sigma=3.0)
@@ -978,7 +978,7 @@ def ew_MC(debug=False, redo=False):
 
                     # t_NB = np.repeat(NB_MC, len(x_MC))
 
-                    NB_sel, NB_nosel = NB_select(ff, NB_MC, x_MC)
+                    NB_sel, NB_nosel, sig_limit = NB_select(ff, NB_MC, x_MC)
 
                     EW_flag0[NB_sel[0],NB_sel[1]] = 1
 
