@@ -890,16 +890,12 @@ def ew_MC(debug=False, redo=False):
                     cmd1 = key0+" = npz_NB['"+key0+"']"
                     exec(cmd1)
 
+        mock_sz = (Nmock,Ngal)
+
         # Randomize NB magnitudes. First get relative sigma, then scale by size
         np.random.seed = ff
-        NB_rand0  = np.random.normal(0.0, 1.0, size=(Nmock,Ngal))
-
-        NB_sig_MC = np.ones((Nmock,1)) * NB_sig_ref
-        NB_MC0    = np.ones((Nmock,1)) * NB_MC0_ref
-
-        NB_MC = NB_MC0 + NB_rand0 * NB_sig_MC
-
-        filt_dict = {'dNB': dNB[ff], 'dBB': dBB[ff], 'lambdac': lambdac[ff]}
+        NB_MC = mock_ones(NB_MC0_ref, Nmock) + np.random.normal(size=mock_sz) * \
+                mock_ones(NB_sig_ref, Nmock)
 
         # Read in mag vs mass extrapolation
         mass_int = get_mag_vs_mass_interp(prefixes[ff])
