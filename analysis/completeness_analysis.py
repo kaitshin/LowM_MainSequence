@@ -960,15 +960,15 @@ def ew_MC(debug=False, redo=False):
 
                     EW_flag0 = np.zeros(logEW_MC.shape)
 
-                    x_MC0 = EW_int(logEW_MC) # NB color excess
-                    negs = np.where(x_MC0 < 0)
+                    x_MC0_ref = EW_int(logEW_MC_ref) # NB color excess
+                    negs = np.where(x_MC0_ref < 0)
                     if len(negs) > 0:
-                        x_MC0[negs] = 0.0
+                        x_MC0_ref[negs] = 0.0
 
-                    BB_MC0 = NB_MC0 + x_MC0
+                    BB_MC0_ref = NB_MC0_ref + x_MC0_ref
 
                     # Selection based on 'true' magnitudes
-                    NB_sel0, NB_nosel0 = NB_select(ff, NB_MC0, x_MC0)
+                    NB_sel0, NB_nosel0 = NB_select(ff, NB_MC0_ref, x_MC0_ref)
 
                     np.random.seed = ff + 5
                     BB_rand0 = np.random.normal(0.0, 1.0, size=(Nmock,Ngal))
