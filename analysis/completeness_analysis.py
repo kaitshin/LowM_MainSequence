@@ -951,8 +951,8 @@ def ew_MC(debug=False, redo=False):
                 s_row = count % nrow_stats # For statistics plot
 
                 if not exists(npz_MCfile) or redo == True:
-                    t_seed = mm*len(ss_range) + ss
-                    np.random.seed = t_seed
+                    EW_seed = mm*len(ss_range) + ss
+                    np.random.seed = EW_seed
                     rand0 = np.random.normal(0.0, 1.0, size=Ngal)
                     # This is not H-alpha
                     logEW_MC_ref = logEW_mean[mm] + logEW_sig[ss]*rand0
@@ -999,8 +999,8 @@ def ew_MC(debug=False, redo=False):
                     else:
                         print("Writing : "+npz_MCfile)
 
-                    npz_names = ['t_seed', 'logEW_MC_ref', 'EW_flag0', 'x_MC0_ref', 'x_MC',
-                                 'BB_MC0_ref', 'BB_MC', 'sig_limit', 'NB_sel',
+                    npz_names = ['EW_seed', 'logEW_MC_ref', 'x_MC0_ref', 'BB_MC0_ref',
+                                 'x_MC', 'EW_flag0', 'BB_MC', 'sig_limit', 'NB_sel',
                                  'NB_nosel', 'NB_sel0', 'NB_nosel0','t_EW',
                                  't_flux', 'logM_MC', 'NIIHa','logOH',
                                  'HaFlux_MC', 'HaLum_MC']
