@@ -875,14 +875,14 @@ def ew_MC(debug=False, redo=False):
             N_mag_mock = npz_slope['N_norm0'][ff] * Nsim * NBbin
             N_interp   = interp1d(npz_slope['mag_arr'][ff], N_mag_mock)
             Ndist_mock = np.int_(np.round(N_interp(NB)))
-            NB_MC0_ref = np.repeat(NB, Ndist_mock)
+            NB_ref     = np.repeat(NB, Ndist_mock)
 
-            Ngal = NB_MC0_ref.size # Number of galaxies
+            Ngal = NB_ref.size # Number of galaxies
 
             NB_sig     = get_sigma(NB, m_NB[ff], sigma=3.0)
             NB_sig_ref = np.repeat(NB_sig, Ndist_mock)
 
-            npz_names = ['N_mag_mock','Ndist_mock','Ngal','Nmock','NB_MC0_ref','NB_sig_ref']
+            npz_names = ['N_mag_mock','Ndist_mock','Ngal','Nmock','NB_ref','NB_sig_ref']
             npz_dict = {}
             for name in npz_names:
                 npz_dict[name] = eval(name)
@@ -904,7 +904,7 @@ def ew_MC(debug=False, redo=False):
         mock_sz = (Nmock,Ngal)
 
         # Randomize NB magnitudes. First get relative sigma, then scale by size
-        NB_MC = random_mags(ff, mock_sz, Nmock, NB_MC0_ref, NB_sig_ref)
+        NB_MC = random_mags(ff, mock_sz, Nmock, NB_ref, NB_sig_ref)
 
         # Read in mag vs mass extrapolation
         mass_int = get_mag_vs_mass_interp(prefixes[ff])
@@ -973,10 +973,10 @@ def ew_MC(debug=False, redo=False):
                     if len(negs) > 0:
                         x_MC0_ref[negs] = 0.0
 
-                    BB_MC0_ref = NB_MC0_ref + x_MC0_ref
+                    BB_MC0_ref = NB_ref + x_MC0_ref
 
                     # Selection based on 'true' magnitudes
-                    NB_sel0, NB_nosel0, sig_limit0 = NB_select(ff, NB_MC0_ref, x_MC0_ref)
+                    NB_sel0, NB_nosel0, sig_limit0 = NB_select(ff, NB_ref, x_MC0_ref)
 
                     BB_sig_ref = get_sigma(BB_MC0_ref, cont_lim[ff], sigma=3.0)
 
