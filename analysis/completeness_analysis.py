@@ -366,6 +366,17 @@ def mock_ones(arr0, Nmock):
     return np.ones((Nmock,1)) * arr0
 #enddef
 
+def random_mags(t_seed, rand_shape, Nmock, mag_ref, sig_ref):
+    '''
+    Generate randomized array of magnitudes based on ref values and sigma
+    '''
+
+    np.random.seed = t_seed
+    return mock_ones(mag_ref, Nmock) + np.random.normal(size=rand_shape) * \
+        mock_ones(sig_ref, Nmock)
+
+#enddef
+
 def get_EW_Flux_distribution():
     '''
     Retrieve NB excess emission-line EW and fluxes from existing tables
@@ -893,9 +904,7 @@ def ew_MC(debug=False, redo=False):
         mock_sz = (Nmock,Ngal)
 
         # Randomize NB magnitudes. First get relative sigma, then scale by size
-        np.random.seed = ff
-        NB_MC = mock_ones(NB_MC0_ref, Nmock) + np.random.normal(size=mock_sz) * \
-                mock_ones(NB_sig_ref, Nmock)
+        NB_MC = random_mags(ff, mock_sz, Nmock, NB_MC0_ref, NB_sig_ref)
 
         # Read in mag vs mass extrapolation
         mass_int = get_mag_vs_mass_interp(prefixes[ff])
@@ -969,11 +978,10 @@ def ew_MC(debug=False, redo=False):
                     # Selection based on 'true' magnitudes
                     NB_sel0, NB_nosel0, sig_limit0 = NB_select(ff, NB_MC0_ref, x_MC0_ref)
 
-                    np.random.seed = ff + 5
                     BB_sig_ref = get_sigma(BB_MC0_ref, cont_lim[ff], sigma=3.0)
 
-                    BB_MC = mock_ones(BB_MC0_ref, Nmock) + np.random.normal(size=(Nmock,Ngal)) * \
-                            mock_ones(BB_sig_ref, Nmock)
+                    BB_MC = random_mags(ff + 5, mock_sz, Nmock, BB_MC0_ref, BB_sig_ref)
+
                     x_MC  = BB_MC - NB_MC
 
                     # t_NB = np.repeat(NB_MC, len(x_MC))
