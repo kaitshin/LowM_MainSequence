@@ -969,8 +969,6 @@ def ew_MC(debug=False, redo=False):
                     # This is not H-alpha
                     logEW_MC_ref = logEW_mean[mm] + logEW_sig[ss]*rand0
 
-                    EW_flag0 = np.zeros(mock_sz)
-
                     x_MC0_ref = EW_int(logEW_MC_ref) # NB color excess
                     negs = np.where(x_MC0_ref < 0)
                     if len(negs) > 0:
@@ -979,32 +977,12 @@ def ew_MC(debug=False, redo=False):
                     BB_MC0_ref = NB_ref + x_MC0_ref
 
                     # Selection based on 'true' magnitudes
-                    NB_sel0, NB_nosel0, sig_limit0 = NB_select(ff, NB_ref, x_MC0_ref)
+                    NB_sel_ref, NB_nosel_ref, sig_limit_ref = NB_select(ff, NB_ref, x_MC0_ref)
+
+                    EW_flag_ref = np.zeros(Ngal)
+                    EW_flag_ref[NB_sel_ref] = 1
 
                     BB_sig_ref = get_sigma(BB_MC0_ref, cont_lim[ff], sigma=3.0)
-
-                    BB_seed = ff + 5
-                    BB_MC = random_mags(BB_seed, mock_sz, BB_MC0_ref, BB_sig_ref)
-
-                    x_MC  = BB_MC - NB_MC
-
-                    # t_NB = np.repeat(NB_MC, len(x_MC))
-
-                    NB_sel, NB_nosel, sig_limit = NB_select(ff, NB_MC, x_MC)
-
-                    EW_flag0[NB_sel[0],NB_sel[1]] = 1
-
-                    t_EW, t_flux = ew_flux_dual(NB_MC, BB_MC, x_MC, filt_dict)
-
-                    # Apply NB filter correction from beginning
-                    t_flux = np.log10(t_flux * filt_corr[ff])
-
-                    #cont_MC = NB_MC + x_MC
-                    logM_MC = mass_int(BB_MC)
-                    NIIHa, logOH = get_NIIHa_logOH(logM_MC)
-
-                    HaFlux_MC = correct_NII(t_flux, NIIHa)
-                    HaLum_MC = HaFlux_MC +np.log10(4*np.pi) +2*np.log10(lum_dist)
 
                     if exists(npz_MCfile):
                         print("Overwriting : "+npz_MCfile)
@@ -1012,10 +990,9 @@ def ew_MC(debug=False, redo=False):
                         print("Writing : "+npz_MCfile)
 
                     npz_names = ['EW_seed', 'logEW_MC_ref', 'x_MC0_ref', 'BB_MC0_ref',
-                                 'x_MC', 'EW_flag0', 'BB_MC', 'sig_limit', 'NB_sel',
-                                 'NB_nosel', 'NB_sel0', 'NB_nosel0','t_EW',
-                                 't_flux', 'logM_MC', 'NIIHa','logOH',
-                                 'HaFlux_MC', 'HaLum_MC']
+                                 'BB_sig_ref', 'sig_limit_ref', 'NB_sel_ref',
+                                 'NB_nosel_ref', 'EW_flag_ref']
+                    # 't_EW', 't_flux', 'logM_MC', 'NIIHa','logOH', 'HaFlux_MC', 'HaLum_MC']
                     npz_dict = {}
                     for name in npz_names:
                         npz_dict[name] = eval(name)
@@ -1029,7 +1006,29 @@ def ew_MC(debug=False, redo=False):
                             cmd1 = key0+" = npz_MC['"+key0+"']"
                             exec(cmd1)
 
+                BB_seed = ff + 5
+                BB_MC = random_mags(BB_seed, mock_sz, BB_MC0_ref, BB_sig_ref)
+
+                x_MC  = BB_MC - NB_MC
+
+                NB_sel, NB_nosel, sig_limit = NB_select(ff, NB_MC, x_MC)
+
+                EW_flag0 = np.zeros(mock_sz)
+                EW_flag0[NB_sel[0],NB_sel[1]] = 1
+
                 logEW_MC = mock_ones(logEW_MC_ref, Nmock)
+
+                t_EW, t_flux = ew_flux_dual(NB_MC, BB_MC, x_MC, filt_dict)
+
+                # Apply NB filter correction from beginning
+                t_flux = np.log10(t_flux * filt_corr[ff])
+
+                #cont_MC = NB_MC + x_MC
+                logM_MC = mass_int(BB_MC)
+                NIIHa, logOH = get_NIIHa_logOH(logM_MC)
+
+                HaFlux_MC = correct_NII(t_flux, NIIHa)
+                HaLum_MC = HaFlux_MC +np.log10(4*np.pi) +2*np.log10(lum_dist)
 
                 # Panel (0,0) - NB excess selection plot
 
