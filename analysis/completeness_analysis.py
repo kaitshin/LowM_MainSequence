@@ -906,7 +906,8 @@ def ew_MC(debug=False, redo=False):
         mock_sz = (Nmock,Ngal)
 
         # Randomize NB magnitudes. First get relative sigma, then scale by size
-        NB_MC = random_mags(ff, mock_sz, NB_ref, NB_sig_ref)
+        NB_seed = ff
+        NB_MC = random_mags(NB_seed, mock_sz, NB_ref, NB_sig_ref)
 
         # Read in mag vs mass extrapolation
         mass_int = get_mag_vs_mass_interp(prefixes[ff])
@@ -982,7 +983,8 @@ def ew_MC(debug=False, redo=False):
 
                     BB_sig_ref = get_sigma(BB_MC0_ref, cont_lim[ff], sigma=3.0)
 
-                    BB_MC = random_mags(ff + 5, mock_sz, BB_MC0_ref, BB_sig_ref)
+                    BB_seed = ff + 5
+                    BB_MC = random_mags(BB_seed, mock_sz, BB_MC0_ref, BB_sig_ref)
 
                     x_MC  = BB_MC - NB_MC
 
