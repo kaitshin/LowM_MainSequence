@@ -1026,19 +1026,21 @@ def ew_MC(debug=False, redo=False):
                 EW_flag0 = np.zeros(mock_sz)
                 EW_flag0[NB_sel[0],NB_sel[1]] = 1
 
-                logEW_MC = mock_ones(logEW_MC_ref, Nmock)
+                # Not sure if we should use true logEW or the mocked values
+                # logEW_MC = mock_ones(logEW_MC_ref, Nmock)
 
-                t_EW, t_flux = ew_flux_dual(NB_MC, BB_MC, x_MC, filt_dict)
+                logEW_MC, flux_MC = ew_flux_dual(NB_MC, BB_MC, x_MC, filt_dict)
 
                 # Apply NB filter correction from beginning
-                t_flux = np.log10(t_flux * filt_corr[ff])
+                flux_MC = np.log10(flux_MC * filt_corr[ff])
 
                 #cont_MC = NB_MC + x_MC
                 logM_MC = mass_int(BB_MC)
                 NIIHa, logOH = get_NIIHa_logOH(logM_MC)
 
-                HaFlux_MC = correct_NII(t_flux, NIIHa)
+                HaFlux_MC = correct_NII(flux_MC, NIIHa)
                 HaLum_MC = HaFlux_MC +np.log10(4*np.pi) +2*np.log10(lum_dist)
+
 
                 # Panel (0,0) - NB excess selection plot
 
