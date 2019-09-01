@@ -366,14 +366,16 @@ def mock_ones(arr0, Nmock):
     return np.ones((Nmock,1)) * arr0
 #enddef
 
-def random_mags(t_seed, rand_shape, Nmock, mag_ref, sig_ref):
+def random_mags(t_seed, rand_shape, mag_ref, sig_ref):
     '''
     Generate randomized array of magnitudes based on ref values and sigma
     '''
 
+    N_rep = rand_shape[0]
+
     np.random.seed = t_seed
-    return mock_ones(mag_ref, Nmock) + np.random.normal(size=rand_shape) * \
-        mock_ones(sig_ref, Nmock)
+    return mock_ones(mag_ref, N_rep) + np.random.normal(size=rand_shape) * \
+        mock_ones(sig_ref, N_rep)
 
 #enddef
 
@@ -904,7 +906,7 @@ def ew_MC(debug=False, redo=False):
         mock_sz = (Nmock,Ngal)
 
         # Randomize NB magnitudes. First get relative sigma, then scale by size
-        NB_MC = random_mags(ff, mock_sz, Nmock, NB_ref, NB_sig_ref)
+        NB_MC = random_mags(ff, mock_sz, NB_ref, NB_sig_ref)
 
         # Read in mag vs mass extrapolation
         mass_int = get_mag_vs_mass_interp(prefixes[ff])
@@ -980,7 +982,7 @@ def ew_MC(debug=False, redo=False):
 
                     BB_sig_ref = get_sigma(BB_MC0_ref, cont_lim[ff], sigma=3.0)
 
-                    BB_MC = random_mags(ff + 5, mock_sz, Nmock, BB_MC0_ref, BB_sig_ref)
+                    BB_MC = random_mags(ff + 5, mock_sz, BB_MC0_ref, BB_sig_ref)
 
                     x_MC  = BB_MC - NB_MC
 
