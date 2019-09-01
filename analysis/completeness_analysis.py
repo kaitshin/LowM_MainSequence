@@ -1017,6 +1017,8 @@ def ew_MC(debug=False, redo=False):
                             cmd1 = key0+" = npz_MC['"+key0+"']"
                             exec(cmd1)
 
+                logEW_MC = mock_ones(logEW_MC_ref, Nmock)
+
                 # Panel (0,0) - NB excess selection plot
 
                 plot_mock(ax00, NB_MC, x_MC, NB_sel, NB_nosel, '', 'cont - NB')
