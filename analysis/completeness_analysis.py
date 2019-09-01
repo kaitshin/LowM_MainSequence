@@ -1158,7 +1158,7 @@ def ew_MC(debug=False, redo=False):
                              wspace=0.25, hspace=0.01)
 
         out_pdf3_each = path0 + 'Completeness/ew_MC_'+filters[ff]+'.avg_sigma.pdf'
-        if debug: out_pdf3 = out_pdf3_each.replace('.pdf','.debug.pdf')
+        if debug: out_pdf3_each = out_pdf3_each.replace('.pdf','.debug.pdf')
         fig3.savefig(out_pdf3_each, format='pdf')
 
         if not debug:
