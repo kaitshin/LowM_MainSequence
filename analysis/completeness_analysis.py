@@ -974,15 +974,25 @@ def ew_MC(debug=False, redo=False):
                     if len(negs) > 0:
                         x_MC0_ref[negs] = 0.0
 
-                    BB_MC0_ref = NB_ref + x_MC0_ref
-
                     # Selection based on 'true' magnitudes
                     NB_sel_ref, NB_nosel_ref, sig_limit_ref = NB_select(ff, NB_ref, x_MC0_ref)
 
                     EW_flag_ref = np.zeros(Ngal)
                     EW_flag_ref[NB_sel_ref] = 1
 
+                    BB_MC0_ref = NB_ref + x_MC0_ref
                     BB_sig_ref = get_sigma(BB_MC0_ref, cont_lim[ff], sigma=3.0)
+
+                    _, flux_ref = ew_flux_dual(NB_ref, BB_MC0_ref, x_MC0_ref, filt_dict)
+
+                    # Apply NB filter correction from beginning
+                    flux_ref = np.log10(flux_ref * filt_corr[ff])
+
+                    logM_ref = mass_int(BB_MC0_ref)
+                    NIIHa_ref, logOH_ref = get_NIIHa_logOH(logM_ref)
+
+                    HaFlux_ref = correct_NII(flux_ref, NIIHa_ref)
+                    HaLum_ref  = HaFlux_ref +np.log10(4*np.pi) +2*np.log10(lum_dist)
 
                     if exists(npz_MCfile):
                         print("Overwriting : "+npz_MCfile)
@@ -991,8 +1001,8 @@ def ew_MC(debug=False, redo=False):
 
                     npz_names = ['EW_seed', 'logEW_MC_ref', 'x_MC0_ref', 'BB_MC0_ref',
                                  'BB_sig_ref', 'sig_limit_ref', 'NB_sel_ref',
-                                 'NB_nosel_ref', 'EW_flag_ref']
-                    # 't_EW', 't_flux', 'logM_MC', 'NIIHa','logOH', 'HaFlux_MC', 'HaLum_MC']
+                                 'NB_nosel_ref', 'EW_flag_ref', 'flux_ref', 'logM_ref',
+                                 'NIIHa_ref','logOH_ref', 'HaFlux_ref', 'HaLum_ref']
                     npz_dict = {}
                     for name in npz_names:
                         npz_dict[name] = eval(name)
