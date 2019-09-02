@@ -1065,7 +1065,6 @@ def ew_MC(debug=False, redo=False):
 
                 plot_mock(ax00, NB_MC, x_MC, NB_sel, NB_nosel, '', 'cont - NB')
 
-                # Plot MACT data
                 temp_x = contmag-NBmag
                 plot_MACT(ax00, NBmag, temp_x, w_spec, wo_spec)
 
@@ -1088,18 +1087,16 @@ def ew_MC(debug=False, redo=False):
                 plot_mock(ax10, NB_MC, HaFlux_MC, NB_sel, NB_nosel, 'NB',
                           Flux_lab)
 
-                # Plot MACT
                 plot_MACT(ax10, NBmag, Ha_Flux, w_spec, wo_spec)
+
 
                 # Panel (0,1) - stellar mass vs H-alpha luminosity
 
                 plot_mock(ax01, logM_MC, HaLum_MC, NB_sel, NB_nosel, '',
                           r'$\log(L_{{\rm H}\alpha})$')
 
-                # Plot MACT
                 plot_MACT(ax01, logMstar, Ha_Lum, w_spec, wo_spec)
 
-                #ax[1][1].set_ylim([37.5,43.0])
 
                 # Panel (1,1) - stellar mass vs H-alpha SFR
 
@@ -1107,7 +1104,6 @@ def ew_MC(debug=False, redo=False):
                 plot_mock(ax11, logM_MC, logSFR_MC, NB_sel, NB_nosel,
                           r'$\log(M_{\star}/M_{\odot})$', r'$\log({\rm SFR}({\rm H}\alpha))$')
 
-                # Plot MACT data
                 plot_MACT(ax11, logMstar, Ha_SFR, w_spec, wo_spec)
 
                 # Panel (2,0) - histogram of EW
