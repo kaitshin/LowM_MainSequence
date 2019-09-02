@@ -1176,35 +1176,34 @@ def ew_MC(debug=False, redo=False):
             # Plot Type 1 and 2 errors
             cticks = np.arange(0,1.2,0.2)
 
-            fig4, [ax40, ax41] = plt.subplots(nrows=1, ncols=2)
-            ax40ins = inset_axes(ax40, width="50%", height="5%", loc=3) #LL
-            ax41ins = inset_axes(ax41, width="50%", height="5%", loc=4) #LR
+            fig4, ax4 = plt.subplots()
+            ax40ins = inset_axes(ax4, width="33%", height="3%", loc=3) #LL
+            ax41ins = inset_axes(ax4, width="33%", height="3%", loc=4) #LR
 
             ax40ins.xaxis.set_ticks_position("top")
             ax41ins.xaxis.set_ticks_position("top")
 
-            cs = ax40.scatter(NB_ref[NB_sel_ref], x_MC0_ref[NB_sel_ref],
-                              edgecolor='none', vmin=0, vmax=1.0, s=15,
-                              c=comp_arr[NB_sel_ref], cmap=cmap_sel)
+            cs = ax4.scatter(NB_ref[NB_sel_ref], x_MC0_ref[NB_sel_ref],
+                             edgecolor='none', vmin=0, vmax=1.0, s=15,
+                             c=comp_arr[NB_sel_ref], cmap=cmap_sel)
             cb = fig4.colorbar(cs, cax=ax40ins, orientation="horizontal",
                                ticks=cticks)
             cb.ax.tick_params(labelsize=8)
 
-            cs = ax41.scatter(NB_ref[NB_nosel_ref], x_MC0_ref[NB_nosel_ref],
-                              edgecolor='none', vmin=0, vmax=1.0, s=15,
-                              c=comp_arr[NB_nosel_ref], cmap=cmap_nosel)
+            cs = ax4.scatter(NB_ref[NB_nosel_ref], x_MC0_ref[NB_nosel_ref],
+                             edgecolor='none', vmin=0, vmax=1.0, s=15,
+                             c=comp_arr[NB_nosel_ref], cmap=cmap_nosel)
             cb = fig4.colorbar(cs, cax=ax41ins, orientation="horizontal",
                                ticks=cticks)
             cb.ax.tick_params(labelsize=8)
 
-            for t_ax in [ax40, ax41]:
-                t_ax.axhline(y=minthres[ff], linestyle='dashed', color='black')
-                t_ax.plot(NB, y3, 'k--')
-                t_ax.plot(NB, y4, 'k:')
-                t_ax.set_xlabel('NB')
-                t_ax.set_ylim([-0.25,2.0])
-            ax40.set_ylabel('cont - NB')
-            ax41.set_yticklabels([])
+            #for t_ax in [ax40, ax41]:
+            ax4.axhline(y=minthres[ff], linestyle='dashed', color='black')
+            ax4.plot(NB, y3, 'k--')
+            ax4.plot(NB, y4, 'k:')
+            ax4.set_xlabel('NB')
+            ax4.set_ylim([-0.25,2.0])
+            ax4.set_ylabel('cont - NB')
 
             plt.subplots_adjust(left=0.09, right=0.97, bottom=0.08, top=0.98,
                                 wspace=0.05)
