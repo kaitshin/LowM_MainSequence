@@ -382,7 +382,7 @@ def derived_properties(NB, BB, x, filt_dict, filt_corr, mass_int, lum_dist):
     Ha_Flux = correct_NII(NB_flux, NIIHa)
     Ha_Lum  = Ha_Flux + np.log10(4*np.pi) + 2*np.log10(lum_dist)
 
-    return EW, NB_flux, logM, NIIHa, logOH, Ha_flux, Ha_Lum
+    return EW, NB_flux, logM, NIIHa, logOH, Ha_Flux, Ha_Lum
 #enddef
 
 def mock_ones(arr0, Nmock):
