@@ -370,6 +370,7 @@ def get_mag_vs_mass_interp(prefix_ff):
 #enddef
 
 def derived_properties(NB, BB, x, filt_dict, filt_corr, mass_int, lum_dist):
+
     EW, NB_flux = ew_flux_dual(NB, BB, x, filt_dict)
 
     # Apply NB filter correction from beginning
@@ -1009,16 +1010,12 @@ def ew_MC(debug=False, redo=False):
                     BB_MC0_ref = NB_ref + x_MC0_ref
                     BB_sig_ref = get_sigma(BB_MC0_ref, cont_lim[ff], sigma=3.0)
 
-                    _, flux_ref = ew_flux_dual(NB_ref, BB_MC0_ref, x_MC0_ref, filt_dict)
-
-                    # Apply NB filter correction from beginning
-                    flux_ref = np.log10(flux_ref * filt_corr[ff])
-
-                    logM_ref = mass_int(BB_MC0_ref)
-                    NIIHa_ref, logOH_ref = get_NIIHa_logOH(logM_ref)
-
-                    HaFlux_ref = correct_NII(flux_ref, NIIHa_ref)
-                    HaLum_ref  = HaFlux_ref +np.log10(4*np.pi) +2*np.log10(lum_dist)
+                    dict_prop = {'NB':NB_ref, 'BB':BB_MC0_ref, 'x':x_MC0_ref,
+                                 'filt_dict':filt_dict,
+                                 'filt_corr':filt_corr[ff],
+                                 'mass_int':mass_int, 'lum_dist':lum_dist}
+                    _, flux_ref, logM_ref, NIIHa_ref, logOH_ref, HaFlux_ref, \
+                        HaLum_ref = derived_properties(**dict_prop)
 
                     if exists(npz_MCfile):
                         print("Overwriting : "+npz_MCfile)
