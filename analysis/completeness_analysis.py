@@ -1177,21 +1177,23 @@ def ew_MC(debug=False, redo=False):
             cticks = np.arange(0,1.2,0.2)
 
             fig4, ax4 = plt.subplots()
-            ax40ins = inset_axes(ax4, width="33%", height="3%", loc=3) #LL
-            ax41ins = inset_axes(ax4, width="33%", height="3%", loc=4) #LR
+            ax40ins = inset_axes(ax4, width="33%", height="3%", loc=6) #LL
+            ax41ins = inset_axes(ax4, width="33%", height="3%", loc=7) #LR
 
             ax40ins.xaxis.set_ticks_position("top")
             ax41ins.xaxis.set_ticks_position("top")
 
             idx0  = [NB_sel_ref, NB_nosel_ref]
             cmap0 = [cmap_sel, cmap_nosel]
-            for idx,cmap,ins in zip(idx0, cmap0, [ax40ins, ax41ins]):
+            lab0  = ['Type 1', 'Type 2']
+            for idx,cmap,ins,lab in zip(idx0, cmap0, [ax40ins, ax41ins], lab0):
                 cs = ax4.scatter(NB_ref[idx], x_MC0_ref[idx], edgecolor='none',
                                  vmin=0, vmax=1.0, s=15, c=comp_arr[idx],
                                  cmap=cmap)
                 cb = fig4.colorbar(cs, cax=ins, orientation="horizontal",
                                    ticks=cticks)
                 cb.ax.tick_params(labelsize=8)
+                cb.set_label(lab)
 
             ax4.axhline(y=minthres[ff], linestyle='dashed', color='black')
             ax4.plot(NB, y3, 'k--')
@@ -1217,7 +1219,7 @@ def ew_MC(debug=False, redo=False):
         pp4.close()
 
         ax3ul.legend(loc='upper right', title=r'$\sigma[\log({\rm EW}_0)]$',
-                         fancybox=True, fontsize=8, framealpha=0.75, scatterpoints=1)
+                     fancybox=True, fontsize=8, framealpha=0.75, scatterpoints=1)
 
         fig3.set_size_inches(8,8)
         fig3.subplots_adjust(left=0.105, right=0.97, bottom=0.065, top=0.98,
