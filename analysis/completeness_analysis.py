@@ -19,6 +19,7 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 from scipy.interpolate import interp1d
 
@@ -1173,19 +1174,35 @@ def ew_MC(debug=False, redo=False):
             comp_arr = np.sum(EW_flag0, axis=0)/float(Nmock) # Combine over modelled galaxies
 
             # Plot Type 1 and 2 errors
-            fig4, ax4 = plt.subplots(nrows=1, ncols=2)
-            ax4[0].scatter(NB_ref[NB_sel_ref], x_MC0_ref[NB_sel_ref], vmin=0,
-                           vmax=1.0, s=35, c=comp_arr[NB_sel_ref], cmap=cmap_sel)
-            ax4[1].scatter(NB_ref[NB_nosel_ref], x_MC0_ref[NB_nosel_ref], vmin=0,
-                           vmax=1.0, s=35, c=comp_arr[NB_nosel_ref], cmap=cmap_nosel)
-            for t_ax in ax4:
+            cticks = np.arange(0,1.2,0.2)
+
+            fig4, [ax40, ax41] = plt.subplots(nrows=1, ncols=2)
+            ax40ins = inset_axes(ax40, width="50%", height="5%", loc=3) #LL
+            ax41ins = inset_axes(ax41, width="50%", height="5%", loc=4) #LR
+
+            ax40ins.xaxis.set_ticks_position("bottom")
+            ax41ins.xaxis.set_ticks_position("bottom")
+
+            cs = ax40.scatter(NB_ref[NB_sel_ref], x_MC0_ref[NB_sel_ref], vmin=0,
+                              vmax=1.0, s=35, c=comp_arr[NB_sel_ref], cmap=cmap_sel)
+            cb = fig4.colorbar(cs, cax=ax40ins, orientation="horizontal",
+                               ticks=cticks)
+            cb.ax.tick_params(labelsize=8)
+
+            cs = ax41.scatter(NB_ref[NB_nosel_ref], x_MC0_ref[NB_nosel_ref], vmin=0,
+                              vmax=1.0, s=35, c=comp_arr[NB_nosel_ref], cmap=cmap_nosel)
+            cb = fig4.colorbar(cs, cax=ax41ins, orientation="horizontal",
+                               ticks=cticks)
+            cb.ax.tick_params(labelsize=8)
+
+            for t_ax in [ax40, ax41]:
                 t_ax.axhline(y=minthres[ff], linestyle='dashed', color='black')
                 t_ax.plot(NB, y3, 'k--')
                 t_ax.plot(NB, y4, 'k:')
                 t_ax.set_xlabel('NB')
                 t_ax.set_ylim([-0.25,2.0])
-            ax4[0].set_ylabel('cont - NB')
-            ax4[1].set_yticklabels([])
+            ax40.set_ylabel('cont - NB')
+            ax41.set_yticklabels([])
 
             plt.subplots_adjust(left=0.09, right=0.97, bottom=0.08, top=0.98,
                                 wspace=0.05)
