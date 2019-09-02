@@ -1183,21 +1183,16 @@ def ew_MC(debug=False, redo=False):
             ax40ins.xaxis.set_ticks_position("top")
             ax41ins.xaxis.set_ticks_position("top")
 
-            cs = ax4.scatter(NB_ref[NB_sel_ref], x_MC0_ref[NB_sel_ref],
-                             edgecolor='none', vmin=0, vmax=1.0, s=15,
-                             c=comp_arr[NB_sel_ref], cmap=cmap_sel)
-            cb = fig4.colorbar(cs, cax=ax40ins, orientation="horizontal",
-                               ticks=cticks)
-            cb.ax.tick_params(labelsize=8)
+            idx0  = [NB_sel_ref, NB_nosel_ref]
+            cmap0 = [cmap_sel, cmap_nosel]
+            for idx,cmap,ins in zip(idx0, cmap0, [ax40ins, ax41ins]):
+                cs = ax4.scatter(NB_ref[idx], x_MC0_ref[idx], edgecolor='none',
+                                 vmin=0, vmax=1.0, s=15, c=comp_arr[idx],
+                                 cmap=cmap)
+                cb = fig4.colorbar(cs, cax=ins, orientation="horizontal",
+                                   ticks=cticks)
+                cb.ax.tick_params(labelsize=8)
 
-            cs = ax4.scatter(NB_ref[NB_nosel_ref], x_MC0_ref[NB_nosel_ref],
-                             edgecolor='none', vmin=0, vmax=1.0, s=15,
-                             c=comp_arr[NB_nosel_ref], cmap=cmap_nosel)
-            cb = fig4.colorbar(cs, cax=ax41ins, orientation="horizontal",
-                               ticks=cticks)
-            cb.ax.tick_params(labelsize=8)
-
-            #for t_ax in [ax40, ax41]:
             ax4.axhline(y=minthres[ff], linestyle='dashed', color='black')
             ax4.plot(NB, y3, 'k--')
             ax4.plot(NB, y4, 'k:')
