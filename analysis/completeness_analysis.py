@@ -369,6 +369,21 @@ def get_mag_vs_mass_interp(prefix_ff):
     return mass_int
 #enddef
 
+def derived_properties(NB, BB, x, filt_dict, filt_corr, mass_int, lum_dist):
+    EW, NB_flux = ew_flux_dual(NB, BB, x, filt_dict)
+
+    # Apply NB filter correction from beginning
+    NB_flux = np.log10(NB_flux * filt_corr)
+
+    logM = mass_int(BB)
+    NIIHa, logOH = get_NIIHa_logOH(logM)
+
+    Ha_Flux = correct_NII(NB_flux, NIIHa)
+    Ha_Lum  = Ha_Flux + np.log10(4*np.pi) + 2*np.log10(lum_dist)
+
+    return EW, NB_flux, logM, NIIHa, logOH, Ha_flux, Ha_Lum
+#enddef
+
 def mock_ones(arr0, Nmock):
     '''
     Generate (Nmock,Ngal) array using np.ones() to repeat
