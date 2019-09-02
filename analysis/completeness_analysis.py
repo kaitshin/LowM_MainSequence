@@ -1052,18 +1052,11 @@ def ew_MC(debug=False, redo=False):
                 # Not sure if we should use true logEW or the mocked values
                 # logEW_MC = mock_ones(logEW_MC_ref, Nmock)
 
-                logEW_MC, flux_MC = ew_flux_dual(NB_MC, BB_MC, x_MC, filt_dict)
-
-                # Apply NB filter correction from beginning
-                flux_MC = np.log10(flux_MC * filt_corr[ff])
-
-                #cont_MC = NB_MC + x_MC
-                logM_MC = mass_int(BB_MC)
-                NIIHa, logOH = get_NIIHa_logOH(logM_MC)
-
-                HaFlux_MC = correct_NII(flux_MC, NIIHa)
-                HaLum_MC = HaFlux_MC +np.log10(4*np.pi) +2*np.log10(lum_dist)
-
+                dict_prop['NB'] = NB_MC
+                dict_prop['BB'] = BB_MC
+                dict_prop['x']  = x_MC
+                logEW_MC, flux_MC, logM_MC, NIIHa, logOH, HaFlux_MC, \
+                    HaLum_MC = derived_properties(**dict_prop)
 
                 # Panel (0,0) - NB excess selection plot
 
@@ -1127,7 +1120,6 @@ def ew_MC(debug=False, redo=False):
                 if len(good) > 0:
                     stats_plot('EW', ax2, ax3ur, ax20, s_row, Ng, No, binso,
                                logEW_mean[mm], logEW_sig[ss], ss)
-
 
                 # Panel (2,1) - histogram of H-alpha fluxes
                 No, Ng, binso, \
