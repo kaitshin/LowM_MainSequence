@@ -1184,14 +1184,14 @@ def ew_MC(debug=False, redo=False):
             ax41ins.xaxis.set_ticks_position("top")
 
             cs = ax40.scatter(NB_ref[NB_sel_ref], x_MC0_ref[NB_sel_ref],
-                              edgecolor='none', vmin=0, vmax=1.0, s=35,
+                              edgecolor='none', vmin=0, vmax=1.0, s=15,
                               c=comp_arr[NB_sel_ref], cmap=cmap_sel)
             cb = fig4.colorbar(cs, cax=ax40ins, orientation="horizontal",
                                ticks=cticks)
             cb.ax.tick_params(labelsize=8)
 
             cs = ax41.scatter(NB_ref[NB_nosel_ref], x_MC0_ref[NB_nosel_ref],
-                              edgecolor='none', vmin=0, vmax=1.0, s=35,
+                              edgecolor='none', vmin=0, vmax=1.0, s=15,
                               c=comp_arr[NB_nosel_ref], cmap=cmap_nosel)
             cb = fig4.colorbar(cs, cax=ax41ins, orientation="horizontal",
                                ticks=cticks)
