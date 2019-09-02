@@ -687,6 +687,12 @@ def plot_mock(ax, x0, y0, NB_sel, NB_nosel, xlabel, ylabel):
         ax.set_xticklabels([])
 #enddef
 
+#def get_completeness(EW_flag0, Nmock):
+#    comp_arr = np.sum(EW_flag0, axis=0)/float(Nmock) # Combine over
+#
+#   
+##enddef
+
 def ew_flux_hist(type0, mm, ss, t2_ax, x0, avg_x0, sig_x0, x0_bins, logEW_mean,
                  logEW_sig, EW_flag0, x0_arr0, ax3=None):
     '''
@@ -890,6 +896,10 @@ def ew_MC(debug=False, redo=False):
         out_pdf2 = path0 + 'Completeness/ew_MC_'+filters[ff]+'.stats.pdf'
         if debug: out_pdf2 = out_pdf2.replace('.pdf','.debug.pdf')
         pp2 = PdfPages(out_pdf2)
+
+        out_pdf4 = path0 + 'Completeness/ew_MC_'+filters[ff]+'.comp.pdf'
+        if debug: out_pdf4 = out_pdf4.replace('.pdf','.debug.pdf')
+        pp4 = PdfPages(out_pdf4)
 
         filt_dict = {'dNB': dNB[ff], 'dBB': dBB[ff], 'lambdac': lambdac[ff]}
 
@@ -1157,12 +1167,24 @@ def ew_MC(debug=False, redo=False):
                     fig2.savefig(pp2, format='pdf')
                     plt.close(fig2)
                 count += 1
-            #endfor
 
+
+            # Compute and plot completeness
+            comp_arr = np.sum(EW_flag0, axis=0)/float(Nmock) # Combine over modelled galaxies
+
+            # Plot Type 1 and 2 errors
+            fig4, ax4 = plt.subplots(nrows=1, ncols=2)
+            ax4[0].scatter(NB_ref[NB_sel_ref], x_MC0_ref[NB_sel_ref], vmin=0,
+                           vmax=1.0, s=35, c=comp_arr[NB_sel_ref], cmap=cmap_sel)
+            ax4[1].scatter(NB_ref[NB_nosel_ref], x_MC0_ref[NB_nosel_ref], vmin=0,
+                           vmax=1.0, s=35, c=comp_arr[NB_nosel_ref], cmap=cmap_nosel)
+            fig4.savefig(pp4, format='pdf')
+            #endfor
         #endfor
 
         pp.close()
         pp2.close()
+        pp4.close()
 
         ax3ul.legend(loc='upper right', title=r'$\sigma[\log({\rm EW}_0)]$',
                          fancybox=True, fontsize=8, framealpha=0.75, scatterpoints=1)
@@ -1178,6 +1200,8 @@ def ew_MC(debug=False, redo=False):
         if not debug:
             fig3.savefig(pp3, format='pdf')
         plt.close(fig3)
+
+
     #endfor
 
     if not debug:
