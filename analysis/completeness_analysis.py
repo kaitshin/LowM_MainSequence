@@ -1178,6 +1178,17 @@ def ew_MC(debug=False, redo=False):
                            vmax=1.0, s=35, c=comp_arr[NB_sel_ref], cmap=cmap_sel)
             ax4[1].scatter(NB_ref[NB_nosel_ref], x_MC0_ref[NB_nosel_ref], vmin=0,
                            vmax=1.0, s=35, c=comp_arr[NB_nosel_ref], cmap=cmap_nosel)
+            for t_ax in ax4:
+                t_ax.axhline(y=minthres[ff], linestyle='dashed', color='black')
+                t_ax.plot(NB, y3, 'k--')
+                t_ax.plot(NB, y4, 'k:')
+                t_ax.set_xlabel('NB')
+                t_ax.set_ylim([-0.25,2.0])
+            ax4[0].set_ylabel('cont - NB')
+            ax4[1].set_yticklabels([])
+
+            plt.subplots_adjust(left=0.09, right=0.97, bottom=0.08, top=0.98,
+                                wspace=0.05)
             fig4.savefig(pp4, format='pdf')
             #endfor
         #endfor
