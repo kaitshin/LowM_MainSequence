@@ -347,6 +347,17 @@ def mag_vs_mass(silent=False, verbose=True):
 #enddef
 
 def get_mag_vs_mass_interp(prefix_ff):
+    '''
+    Define interpolation function between continuum magnitude and stellr mass
+
+    Parameters
+    ----------
+
+    prefix_ff : str
+      Either 'Ha-NB7', 'Ha-NB816', 'Ha-NB921', or 'Ha-NB973'
+
+    '''
+
     npz_mass_file = path0 + 'Completeness/mag_vs_mass_'+prefix_ff+'.npz'
     npz_mass = np.load(npz_mass_file)
     cont_arr = npz_mass['cont_arr']
