@@ -76,6 +76,14 @@ avg_sig_ctype = ['m','r','g','b','k']
 cmap_sel   = plt.cm.Blues
 cmap_nosel = plt.cm.Reds
 
+# Dictionary names
+npz_NBnames = ['N_mag_mock','Ndist_mock','Ngal','Nmock','NB_ref','NB_sig_ref']
+
+npz_MCnames = ['EW_seed', 'logEW_MC_ref', 'x_MC0_ref', 'BB_MC0_ref',
+               'BB_sig_ref', 'sig_limit_ref', 'NB_sel_ref', 'NB_nosel_ref',
+               'EW_flag_ref', 'flux_ref', 'logM_ref', 'NIIHa_ref',
+               'logOH_ref', 'HaFlux_ref', 'HaLum_ref']
+
 def get_sigma(x, lim1, sigma=3.0):
     '''
     Magnitude errors based on limiting magnitude
@@ -911,16 +919,15 @@ def ew_MC(debug=False, redo=False):
             NB_sig     = get_sigma(NB, m_NB[ff], sigma=3.0)
             NB_sig_ref = np.repeat(NB_sig, Ndist_mock)
 
-            npz_names = ['N_mag_mock','Ndist_mock','Ngal','Nmock','NB_ref','NB_sig_ref']
-            npz_dict = {}
-            for name in npz_names:
-                npz_dict[name] = eval(name)
+            npz_NBdict = {}
+            for name in npz_NBnames:
+                npz_NBdict[name] = eval(name)
 
             if exists(npz_NBfile):
                 print("Overwriting : "+npz_NBfile)
             else:
                 print("Writing : "+npz_NBfile)
-            np.savez(npz_NBfile, **npz_dict)
+            np.savez(npz_NBfile, **npz_NBdict)
         else:
             if redo == False:
                 print("File found : " + npz_NBfile)
@@ -1022,14 +1029,10 @@ def ew_MC(debug=False, redo=False):
                     else:
                         print("Writing : "+npz_MCfile)
 
-                    npz_names = ['EW_seed', 'logEW_MC_ref', 'x_MC0_ref', 'BB_MC0_ref',
-                                 'BB_sig_ref', 'sig_limit_ref', 'NB_sel_ref',
-                                 'NB_nosel_ref', 'EW_flag_ref', 'flux_ref', 'logM_ref',
-                                 'NIIHa_ref','logOH_ref', 'HaFlux_ref', 'HaLum_ref']
-                    npz_dict = {}
-                    for name in npz_names:
-                        npz_dict[name] = eval(name)
-                    np.savez(npz_MCfile, **npz_dict)
+                    npz_MCdict = {}
+                    for name in npz_MCnames:
+                        npz_MCdict[name] = eval(name)
+                    np.savez(npz_MCfile, **npz_MCdict)
                 else:
                     if redo == False:
                         print("File found : " + npz_MCfile)
