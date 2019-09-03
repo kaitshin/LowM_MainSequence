@@ -891,6 +891,7 @@ def ew_MC(debug=False, redo=False):
         pp3 = PdfPages(out_pdf3)
 
     ff_range = [0] if debug else range(len(filt_ref))
+    mm_range = [0] if debug else range(n_mean)
     ss_range = [0] if debug else range(n_sigma)
 
     for ff in ff_range: # loop over filter
@@ -1000,7 +1001,7 @@ def ew_MC(debug=False, redo=False):
         ax3lr = ax3[1][1]
 
         count = 0
-        for mm in range(len(logEW_mean)): # loop over median of EW dist
+        for mm in mm_range: # loop over median of EW dist
             for ss in ss_range: # loop over sigma of EW dist
 
                 npz_MCfile = npz_path0 + filters[ff] + ('_%.2f_%.2f.npz') \
