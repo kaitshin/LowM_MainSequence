@@ -70,6 +70,7 @@ Flux_lab = r'$\log(F_{{\rm H}\alpha})$'
 
 EW_bins   = np.arange(0.2,3.0,0.2)
 Flux_bins = np.arange(-17.75,-14.00,0.25)
+sSFR_bins = np.arange(-11.0,-6.0,0.2)
 
 # Colors for each separate points on avg_sigma plots
 avg_sig_ctype = ['m','r','g','b','k']
@@ -1226,6 +1227,10 @@ def ew_MC(debug=False, redo=False):
             annot_txt += '\n' + r'$N$ = %i' % NB_MC.size
             ax400.annotate(annot_txt, [0.025,0.975], va='top',
                            ha='left', xycoords='axes fraction')
+
+            plot_completeness(ax401, logSFR_MC - logM_MC,  NB_sel, sSFR_bins)
+            plot_completeness(ax410, logEW_MC,  NB_sel, EW_bins)
+            plot_completeness(ax411, HaFlux_MC, NB_sel, Flux_bins)
 
             xlabels = [r'$\log({\rm sSFR})$', EW_lab, Flux_lab]
             for t_ax,xlabel in zip([ax401, ax410, ax411],xlabels):
