@@ -83,7 +83,7 @@ npz_NBnames = ['N_mag_mock','Ndist_mock','Ngal','Nmock','NB_ref','NB_sig_ref']
 npz_MCnames = ['EW_seed', 'logEW_MC_ref', 'x_MC0_ref', 'BB_MC0_ref',
                'BB_sig_ref', 'sig_limit_ref', 'NB_sel_ref', 'NB_nosel_ref',
                'EW_flag_ref', 'flux_ref', 'logM_ref', 'NIIHa_ref',
-               'logOH_ref', 'HaFlux_ref', 'HaLum_ref']
+               'logOH_ref', 'HaFlux_ref', 'HaLum_ref', 'logSFR_ref']
 
 def get_sigma(x, lim1, sigma=3.0):
     '''
@@ -398,7 +398,9 @@ def derived_properties(NB, BB, x, filt_dict, filt_corr, mass_int, lum_dist):
     Ha_Flux = correct_NII(NB_flux, NIIHa)
     Ha_Lum  = Ha_Flux + np.log10(4*np.pi) + 2*np.log10(lum_dist)
 
-    return np.log10(EW), NB_flux, logM, NIIHa, logOH, Ha_Flux, Ha_Lum
+    logSFR  = HaSFR_metal_dep(logOH, Ha_Lum)
+
+    return np.log10(EW), NB_flux, logM, NIIHa, logOH, Ha_Flux, Ha_Lum, logSFR
 #enddef
 
 def mock_ones(arr0, Nmock):
@@ -1040,7 +1042,7 @@ def ew_MC(debug=False, redo=False):
                                  'filt_corr':filt_corr[ff],
                                  'mass_int':mass_int, 'lum_dist':lum_dist}
                     _, flux_ref, logM_ref, NIIHa_ref, logOH_ref, HaFlux_ref, \
-                        HaLum_ref = derived_properties(**dict_prop)
+                        HaLum_ref, logSFR_ref = derived_properties(**dict_prop)
 
                     if exists(npz_MCfile):
                         print("Overwriting : "+npz_MCfile)
@@ -1076,8 +1078,8 @@ def ew_MC(debug=False, redo=False):
                 dict_prop['NB'] = NB_MC
                 dict_prop['BB'] = BB_MC
                 dict_prop['x']  = x_MC
-                logEW_MC, flux_MC, logM_MC, NIIHa, logOH, HaFlux_MC, \
-                    HaLum_MC = derived_properties(**dict_prop)
+                logEW_MC, flux_MC, logM_MC, NIIHa, logOH, HaFlux_MC, HaLum_MC, \
+                    logSFR_MC = derived_properties(**dict_prop)
 
                 # Panel (0,0) - NB excess selection plot
 
@@ -1115,7 +1117,6 @@ def ew_MC(debug=False, redo=False):
 
                 # Panel (1,1) - stellar mass vs H-alpha SFR
 
-                logSFR_MC = HaSFR_metal_dep(logOH, HaLum_MC)
                 plot_mock(ax11, logM_MC, logSFR_MC, NB_sel, NB_nosel,
                           r'$\log(M_{\star}/M_{\odot})$', r'$\log({\rm SFR}({\rm H}\alpha))$')
 
