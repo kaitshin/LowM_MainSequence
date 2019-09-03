@@ -1107,10 +1107,10 @@ def ew_MC(debug=False, redo=False):
 
                 plot_NB_select(ff, ax00, NB, 'b')
 
-                annot_txt = avg_sig_label('', logEW_mean[mm], logEW_sig[ss],
-                                          type='EW')
-                annot_txt += '\n' + r'$N$ = %i' % NB_MC.size
-                ax00.annotate(annot_txt, [0.05,0.95], va='top',
+                N_annot_txt = avg_sig_label('', logEW_mean[mm], logEW_sig[ss],
+                                            type='EW')
+                N_annot_txt += '\n' + r'$N$ = %i' % NB_MC.size
+                ax00.annotate(N_annot_txt, [0.05,0.95], va='top',
                               ha='left', xycoords='axes fraction')
 
 
@@ -1222,10 +1222,7 @@ def ew_MC(debug=False, redo=False):
             ax400.set_ylim([-0.25,2.0])
             ax400.set_ylabel('cont - NB')
 
-            annot_txt = avg_sig_label('', logEW_mean[mm], logEW_sig[ss],
-                                      type='EW')
-            annot_txt += '\n' + r'$N$ = %i' % NB_MC.size
-            ax400.annotate(annot_txt, [0.025,0.975], va='top',
+            ax400.annotate(N_annot_txt, [0.025,0.975], va='top',
                            ha='left', xycoords='axes fraction')
 
             plot_completeness(ax401, logSFR_MC - logM_MC,  NB_sel, sSFR_bins)
