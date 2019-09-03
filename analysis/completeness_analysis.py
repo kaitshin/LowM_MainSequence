@@ -172,6 +172,13 @@ def color_cut(x, lim1, lim2, mean=0.0, sigma=3.0):
     return val
 #enddef
 
+def plot_NB_select(ff, t_ax, NB, ctype, linewidth=1):
+    y3 = color_cut(NB, m_NB[ff], cont_lim[ff])
+    t_ax.plot(NB, y3, ctype+'--', linewidth=linewidth)
+    y4 = color_cut(NB, m_NB[ff], cont_lim[ff], sigma=4.0)
+    t_ax.plot(NB, y4, ctype+':', linewidth=linewidth)
+#enddef
+
 def NB_select(ff, NB_mag, x_mag):
     '''
     NB excess color selection
@@ -1082,10 +1089,7 @@ def ew_MC(debug=False, redo=False):
                 ax00.axhline(y=minthres[ff], linestyle='dashed',
                              color='blue')
 
-                y3 = color_cut(NB, m_NB[ff], cont_lim[ff])
-                ax00.plot(NB, y3, 'b--')
-                y4 = color_cut(NB, m_NB[ff], cont_lim[ff], sigma=4.0)
-                ax00.plot(NB, y4, 'b:')
+                plot_NB_select(ff, ax00, NB, 'b')
 
                 annot_txt = avg_sig_label('', logEW_mean[mm], logEW_sig[ss],
                                           type='EW')
@@ -1196,8 +1200,8 @@ def ew_MC(debug=False, redo=False):
                 cb.set_label(lab)
 
             ax4.axhline(y=minthres[ff], linestyle='dashed', color='black')
-            ax4.plot(NB, y3, 'k--')
-            ax4.plot(NB, y4, 'k:')
+            plot_NB_select(ff, ax4, NB, 'k', linewidth=2)
+
             ax4.set_xlabel('NB')
             ax4.set_ylim([-0.25,2.0])
             ax4.set_ylabel('cont - NB')
