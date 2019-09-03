@@ -706,10 +706,12 @@ def plot_mock(ax, x0, y0, NB_sel, NB_nosel, xlabel, ylabel):
 #enddef
 
 def plot_completeness(t_ax, arr0, NB_sel, bins):
-    orig = np.histogram(arr0, bins)
-    sel  = np.histogram(arr0[NB_sel], bins)
+    finite = np.where(np.isfinite(arr0))
+    orig, bins_edges0 = np.histogram(arr0[finite], bins)
 
-    t_ax.plot(bins, sel/orig)
+    sel, bins_edges1  = np.histogram(arr0[NB_sel], bins)
+
+    t_ax.plot(bins_edges0[:-1], sel/np.float_(orig))
 
 #enddef
 
