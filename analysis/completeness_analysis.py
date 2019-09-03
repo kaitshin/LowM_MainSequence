@@ -699,11 +699,13 @@ def plot_mock(ax, x0, y0, NB_sel, NB_nosel, xlabel, ylabel):
         ax.set_xticklabels([])
 #enddef
 
-#def get_completeness(EW_flag0, Nmock):
-#    comp_arr = np.sum(EW_flag0, axis=0)/float(Nmock) # Combine over
-#
-#   
-##enddef
+def plot_completeness(t_ax, arr0, NB_sel, bins):
+    orig = np.histogram(arr0, bins)
+    sel  = np.histogram(arr0[NB_sel], bins)
+
+    t_ax.plot(bins, sel/orig)
+
+#enddef
 
 def ew_flux_hist(type0, mm, ss, t2_ax, x0, avg_x0, sig_x0, x0_bins, logEW_mean,
                  logEW_sig, EW_flag0, x0_arr0, ax3=None):
