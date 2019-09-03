@@ -387,6 +387,12 @@ def get_mag_vs_mass_interp(prefix_ff):
     return mass_int
 #enddef
 
+def dict_prop_maker(NB, BB, x, filt_dict, filt_corr, mass_int, lum_dist):
+    dict_prop = {'NB':NB, 'BB':BB, 'x':x, 'filt_dict':filt_dict,
+                 'filt_corr':filt_corr, 'mass_int':mass_int, 'lum_dist':lum_dist}
+    return dict_prop
+#enddef
+
 def derived_properties(NB, BB, x, filt_dict, filt_corr, mass_int, lum_dist):
 
     EW, NB_flux = ew_flux_dual(NB, BB, x, filt_dict)
@@ -1042,10 +1048,9 @@ def ew_MC(debug=False, redo=False):
                     BB_MC0_ref = NB_ref + x_MC0_ref
                     BB_sig_ref = get_sigma(BB_MC0_ref, cont_lim[ff], sigma=3.0)
 
-                    dict_prop = {'NB':NB_ref, 'BB':BB_MC0_ref, 'x':x_MC0_ref,
-                                 'filt_dict':filt_dict,
-                                 'filt_corr':filt_corr[ff],
-                                 'mass_int':mass_int, 'lum_dist':lum_dist}
+                    dict_prop = dict_prop_maker(NB_ref, BB_MC0_ref, x_MC0_ref,
+                                                filt_dict, filt_corr[ff], mass_int,
+                                                lum_dist)
                     _, flux_ref, logM_ref, NIIHa_ref, logOH_ref, HaFlux_ref, \
                         HaLum_ref, logSFR_ref = derived_properties(**dict_prop)
 
@@ -1066,6 +1071,10 @@ def ew_MC(debug=False, redo=False):
                         for key0 in npz_MC.keys():
                             cmd1 = key0+" = npz_MC['"+key0+"']"
                             exec(cmd1)
+
+                        dict_prop = dict_prop_maker(NB_ref, BB_MC0_ref, x_MC0_ref,
+                                                    filt_dict, filt_corr[ff], mass_int,
+                                                    lum_dist)
 
                 BB_seed = ff + 5
                 BB_MC = random_mags(BB_seed, mock_sz, BB_MC0_ref, BB_sig_ref)
