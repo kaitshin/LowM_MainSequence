@@ -1236,6 +1236,7 @@ def ew_MC(debug=False, redo=False):
             for t_ax,xlabel in zip([ax401, ax410, ax411],xlabels):
                 t_ax.set_ylabel('Completeness')
                 t_ax.set_xlabel(xlabel)
+                t_ax.set_ylim([0.0,1.05])
 
             plt.subplots_adjust(left=0.075, right=0.98, bottom=0.065,
                                 top=0.98, wspace=0.20, hspace=0.15)
