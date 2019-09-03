@@ -173,6 +173,8 @@ def color_cut(x, lim1, lim2, mean=0.0, sigma=3.0):
 #enddef
 
 def plot_NB_select(ff, t_ax, NB, ctype, linewidth=1):
+    t_ax.axhline(y=minthres[ff], linestyle='dashed', color=ctype)
+
     y3 = color_cut(NB, m_NB[ff], cont_lim[ff])
     t_ax.plot(NB, y3, ctype+'--', linewidth=linewidth)
     y4 = color_cut(NB, m_NB[ff], cont_lim[ff], sigma=4.0)
@@ -1089,9 +1091,6 @@ def ew_MC(debug=False, redo=False):
                 temp_x = contmag-NBmag
                 plot_MACT(ax00, NBmag, temp_x, w_spec, wo_spec)
 
-                ax00.axhline(y=minthres[ff], linestyle='dashed',
-                             color='blue')
-
                 plot_NB_select(ff, ax00, NB, 'b')
 
                 annot_txt = avg_sig_label('', logEW_mean[mm], logEW_sig[ss],
@@ -1203,7 +1202,6 @@ def ew_MC(debug=False, redo=False):
                 cb.ax.tick_params(labelsize=8)
                 cb.set_label(lab)
 
-            ax400.axhline(y=minthres[ff], linestyle='dashed', color='black')
             plot_NB_select(ff, ax400, NB, 'k', linewidth=2)
 
             ax400.set_xlabel('NB')
