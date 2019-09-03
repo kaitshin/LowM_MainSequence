@@ -1182,37 +1182,39 @@ def ew_MC(debug=False, redo=False):
             # Plot Type 1 and 2 errors
             cticks = np.arange(0,1.2,0.2)
 
-            fig4, ax4 = plt.subplots()
-            ax40ins = inset_axes(ax4, width="33%", height="3%", loc=6) #LL
-            ax41ins = inset_axes(ax4, width="33%", height="3%", loc=7) #LR
+            fig4, ax4 = plt.subplots(nrows=2, ncols=2)
+            [[ax400, ax401], [ax410, ax411]] = ax4
 
-            ax40ins.xaxis.set_ticks_position("top")
-            ax41ins.xaxis.set_ticks_position("top")
+            ax4ins0 = inset_axes(ax400, width="33%", height="3%", loc=6) #LL
+            ax4ins1 = inset_axes(ax400, width="33%", height="3%", loc=7) #LR
+
+            ax4ins0.xaxis.set_ticks_position("top")
+            ax4ins1.xaxis.set_ticks_position("top")
 
             idx0  = [NB_sel_ref, NB_nosel_ref]
             cmap0 = [cmap_sel, cmap_nosel]
             lab0  = ['Type 1', 'Type 2']
-            for idx,cmap,ins,lab in zip(idx0, cmap0, [ax40ins, ax41ins], lab0):
-                cs = ax4.scatter(NB_ref[idx], x_MC0_ref[idx], edgecolor='none',
-                                 vmin=0, vmax=1.0, s=15, c=comp_arr[idx],
-                                 cmap=cmap)
+            for idx,cmap,ins,lab in zip(idx0, cmap0, [ax4ins0, ax4ins1], lab0):
+                cs = ax400.scatter(NB_ref[idx], x_MC0_ref[idx], edgecolor='none',
+                                   vmin=0, vmax=1.0, s=15, c=comp_arr[idx],
+                                   cmap=cmap)
                 cb = fig4.colorbar(cs, cax=ins, orientation="horizontal",
                                    ticks=cticks)
                 cb.ax.tick_params(labelsize=8)
                 cb.set_label(lab)
 
-            ax4.axhline(y=minthres[ff], linestyle='dashed', color='black')
-            plot_NB_select(ff, ax4, NB, 'k', linewidth=2)
+            ax400.axhline(y=minthres[ff], linestyle='dashed', color='black')
+            plot_NB_select(ff, ax400, NB, 'k', linewidth=2)
 
-            ax4.set_xlabel('NB')
-            ax4.set_ylim([-0.25,2.0])
-            ax4.set_ylabel('cont - NB')
+            ax400.set_xlabel('NB')
+            ax400.set_ylim([-0.25,2.0])
+            ax400.set_ylabel('cont - NB')
 
             annot_txt = avg_sig_label('', logEW_mean[mm], logEW_sig[ss],
                                       type='EW')
             annot_txt += '\n' + r'$N$ = %i' % NB_MC.size
-            ax4.annotate(annot_txt, [0.025,0.975], va='top',
-                         ha='left', xycoords='axes fraction')
+            ax400.annotate(annot_txt, [0.025,0.975], va='top',
+                           ha='left', xycoords='axes fraction')
 
             plt.subplots_adjust(left=0.09, right=0.97, bottom=0.08, top=0.98,
                                 wspace=0.05)
