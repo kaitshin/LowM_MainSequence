@@ -1214,8 +1214,14 @@ def ew_MC(debug=False, redo=False):
             ax400.annotate(annot_txt, [0.025,0.975], va='top',
                            ha='left', xycoords='axes fraction')
 
-            plt.subplots_adjust(left=0.09, right=0.97, bottom=0.08, top=0.98,
-                                wspace=0.05)
+            xlabels = [r'$\log({\rm sSFR})$', EW_lab, Flux_lab]
+            for t_ax,xlabel in zip([ax401, ax410, ax411],xlabels):
+                t_ax.set_ylabel('Completeness')
+                t_ax.set_xlabel(xlabel)
+
+            plt.subplots_adjust(left=0.075, right=0.98, bottom=0.065,
+                                top=0.98, wspace=0.20, hspace=0.15)
+            fig4.set_size_inches(8,8)
             fig4.savefig(pp4, format='pdf')
             #endfor
         #endfor
