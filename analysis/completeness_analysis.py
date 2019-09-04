@@ -1234,8 +1234,8 @@ def ew_MC(debug=False, redo=False):
                            ha='left', xycoords='axes fraction')
 
             plot_completeness(ax401, logSFR_MC - logM_MC,  NB_sel, sSFR_bins)
-            plot_completeness(ax410, logEW_MC,  NB_sel, EW_bins)
-            plot_completeness(ax411, HaFlux_MC, NB_sel, Flux_bins)
+            plot_completeness(ax410, logEW_MC,  NB_sel, EW_bins, ref_arr0=logEW_MC_ref)
+            plot_completeness(ax411, HaFlux_MC, NB_sel, Flux_bins, ref_arr0=HaFlux_ref)
 
             xlabels = [r'$\log({\rm sSFR})$', EW_lab, Flux_lab]
             for t_ax,xlabel in zip([ax401, ax410, ax411],xlabels):
