@@ -15,6 +15,8 @@ import os
 import astropy.units as u
 from astropy.cosmology import FlatLambdaCDM, z_at_value
 
+FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
+
 baseUrl = 'http://www.tng-project.org/api/'
 api = os.environ["ILLUSTRIS_API"]
 headers = {"api-key":api} # API key saved as environment variable for security purposes
@@ -32,7 +34,8 @@ def get(path, params=None):
 		return r.json() # parse json responses automatically
 
 	if 'content-disposition' in r.headers:
-		filename = r.headers['content-disposition'].split("filename=")[1]
+		filename = FULL_PATH+'illustrisdata/'
+		filename += r.headers['content-disposition'].split("filename=")[1]
 		with open(filename, 'wb') as f:
 			f.write(r.content)
 		return filename # return the filename string
@@ -104,7 +107,7 @@ def get_masses_sfrs(ids, snapshotnum, a_current, a_10Myr, startid=0, outputfile=
 			# Update check of new cutout
 			grnr_old = sub['grnr']
 
-		print(sub['id'], sub['grnr'], saved_filename)
+		print(sub['id'], sub['grnr'], saved_filename[61:])
 
 		try:
 			# Get data
@@ -160,13 +163,29 @@ def compute_scales(z_current):
 	return a_current, a_10Myr
 
 def main():
-	snapshot = 72
-	z = 0.4
-	outputfile = 'output_z04.csv'
+	# snapshot = 72
+	# z = 0.4
+	# outputfile = 'output_z04.csv'
 
-	ids = get_ids(9.5,10.5, snapshot)
-	a_current, a_10Myr = compute_scales(z)
-	get_masses_sfrs(ids, snapshot, a_current, a_10Myr, outputfile=outputfile, startid=350397)
+	# snapshots can be from 67--93
+	r = get(baseUrl)
+	names = [sim['name'] for sim in r['simulations']]
+	i = names.index('TNG100-1')
+	sim = get( r['simulations'][i]['url'] )
+	snaps = get( sim['snapshots'] )
+	redshifts = np.array([snap['redshift'] for snap in snaps])
+	min_snapshot_num = min(range(len(redshifts)), key=lambda i: abs(redshifts[i]-0.4984))
+	max_snapshot_num = min(range(len(redshifts)), key=lambda i: abs(redshifts[i]-0.0677))
+
+	for snapshot in np.arange(min_snapshot_num, max_snapshot_num-1)[::-1]:
+		print('### Snapshot number', snapshot)
+		ids = get_ids(6.0,10.5, snapshot)
+
+		z = snaps[snapshot]['redshift']
+		a_current, a_10Myr = compute_scales(z)
+
+		outputfile = FULL_PATH+'illustrisdata/output_snap'+str(snapshot)+'_z%.4f'%z+'.csv'
+		get_masses_sfrs(ids, snapshot, a_current, a_10Myr, outputfile=outputfile, startid=0)
 
 if __name__ == "__main__":
 	main()
