@@ -173,9 +173,10 @@ def color_cut(x, lim1, lim2, mean=0.0, sigma=3.0):
     return val
 #enddef
 
-def compute_EW(x0):
+def compute_EW(x0, ff):
     y_temp = 10**(-0.4 * x0)
     EW_ref = np.log10(dNB[ff]*(1 - y_temp)/(y_temp - dNB[ff]/dBB[ff]))
+    return EW_ref
 #enddef
 
 def plot_NB_select(ff, t_ax, NB, ctype, linewidth=1):
@@ -944,7 +945,7 @@ def ew_MC(debug=False, redo=False):
         filt_dict = {'dNB': dNB[ff], 'dBB': dBB[ff], 'lambdac': lambdac[ff]}
 
         x      = np.arange(0.01,10.00,0.01)
-        EW_ref = compute_EW(x)
+        EW_ref = compute_EW(x, ff)
 
         good = np.where(np.isfinite(EW_ref))[0]
         EW_int = interp1d(EW_ref[good], x[good], bounds_error=False,
