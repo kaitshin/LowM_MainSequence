@@ -706,7 +706,7 @@ def plot_mock(ax, x0, y0, NB_sel, NB_nosel, xlabel, ylabel):
         ax.set_xticklabels([])
 #enddef
 
-def plot_completeness(t_ax, arr0, NB_sel, bins):
+def plot_completeness(t_ax, arr0, NB_sel, bins, ref_arr0=None):
     finite = np.where(np.isfinite(arr0))
     orig, bins_edges0 = np.histogram(arr0[finite], bins)
 
@@ -714,6 +714,14 @@ def plot_completeness(t_ax, arr0, NB_sel, bins):
 
     t_ax.step(bins_edges0[:-1], sel/np.float_(orig), 'b--', where='mid')
 
+    if type(ref_arr0) != type(None):
+        arr1 = np.ones((arr0.shape[0],1)) * ref_arr0
+        finite = np.where(np.isfinite(arr1))
+
+        orig1, bins_edges01 = np.histogram(arr1[finite], bins)
+        sel1, bins_edges11  = np.histogram(arr1[NB_sel], bins)
+
+        t_ax.step(bins_edges0[:-1], sel1/np.float_(orig1), 'k--', where='mid')
 #enddef
 
 def ew_flux_hist(type0, mm, ss, t2_ax, x0, avg_x0, sig_x0, x0_bins, logEW_mean,
