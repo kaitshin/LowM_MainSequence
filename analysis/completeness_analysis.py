@@ -712,7 +712,7 @@ def plot_completeness(t_ax, arr0, NB_sel, bins):
 
     sel, bins_edges1  = np.histogram(arr0[NB_sel], bins)
 
-    t_ax.plot(bins_edges0[:-1], sel/np.float_(orig))
+    t_ax.step(bins_edges0[:-1], sel/np.float_(orig), 'b--', where='mid')
 
 #enddef
 
