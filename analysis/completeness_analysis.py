@@ -1153,6 +1153,8 @@ def ew_MC(debug=False, redo=False):
                 plot_MACT(ax11, logMstar, Ha_SFR, w_spec, wo_spec)
 
                 # Panel (2,0) - histogram of EW
+                ax20.axvline(x=compute_EW(minthres[ff], ff), color='red')
+
                 No, Ng, binso, \
                     wht0 = ew_flux_hist('EW', mm, ss, ax20, NB_EW, avg_NB,
                                         sig_NB, EW_bins, logEW_mean, logEW_sig,
@@ -1250,6 +1252,8 @@ def ew_MC(debug=False, redo=False):
                 t_ax.set_ylabel('Completeness')
                 t_ax.set_xlabel(xlabel)
                 t_ax.set_ylim([0.0,1.05])
+
+            ax410.axvline(x=compute_EW(minthres[ff], ff), color='red')
 
             plt.subplots_adjust(left=0.075, right=0.98, bottom=0.065,
                                 top=0.98, wspace=0.20, hspace=0.15)
