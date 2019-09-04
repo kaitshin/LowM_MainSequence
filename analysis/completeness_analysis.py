@@ -712,7 +712,8 @@ def plot_completeness(t_ax, arr0, NB_sel, bins, ref_arr0=None):
 
     sel, bins_edges1  = np.histogram(arr0[NB_sel], bins)
 
-    t_ax.step(bins_edges0[:-1], sel/np.float_(orig), 'b--', where='mid')
+    t_ax.step(bins_edges0[:-1], sel/np.float_(orig), 'b--', where='mid',
+              label='mocked')
 
     if type(ref_arr0) != type(None):
         arr1 = np.ones((arr0.shape[0],1)) * ref_arr0
@@ -721,7 +722,9 @@ def plot_completeness(t_ax, arr0, NB_sel, bins, ref_arr0=None):
         orig1, bins_edges01 = np.histogram(arr1[finite], bins)
         sel1, bins_edges11  = np.histogram(arr1[NB_sel], bins)
 
-        t_ax.step(bins_edges0[:-1], sel1/np.float_(orig1), 'k--', where='mid')
+        t_ax.step(bins_edges0[:-1], sel1/np.float_(orig1), 'k--', where='mid',
+                  label='true')
+    t_ax.legend(loc='upper left', fancybox=True, fontsize=8, framealpha=0.75)
 #enddef
 
 def ew_flux_hist(type0, mm, ss, t2_ax, x0, avg_x0, sig_x0, x0_bins, logEW_mean,
