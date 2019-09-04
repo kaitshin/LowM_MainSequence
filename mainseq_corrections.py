@@ -32,6 +32,7 @@ import numpy as np, matplotlib.pyplot as plt
 import plotting.general_plotting as general_plotting
 import plot_NII_Ha_ratios
 
+from MACT_utils import niiha_oh_determine
 from analysis.cardelli import *
 from analysis.composite_errors import composite_errors
 from astropy.cosmology import FlatLambdaCDM
@@ -407,54 +408,6 @@ def get_NBIA_errs(nbiaerrsdata, filtarr, FILT):
         NBIA_errs_pos[filt_iis] = nbiaerrsdata[ff+'_FLUX_UPERROR'][filt_iis]
 
     return NBIA_errs_neg, NBIA_errs_pos
-
-
-def niiha_oh_determine(x0, type, index=None, silent=None, linear=None):
-    '''
-    Adapted from Chun Ly 
-    
-    PURPOSE:
-       This code estimates 12+log(O/H) based on strong-line diagnostics. It uses
-       emission-line that use [NII]6583, such as [NII]6583/Halpha.
-
-    CALLING SEQUENCE:
-       niiha_oh_determine(x0, type, index=index, silent=1)
-
-    INPUTS:
-       x0   -- Array of log([NII]6583/Halpha)
-       type -- The type of diagnostics to use. The options are:
-         'PP04_N2'    -- N2 index calibration of Pettini & Pagel (2004), MNRAS, 348, 59
-           - Specify linear keyword to use linear instead of 3rd-order function
-
-    OPTIONAL KEYWORD INPUT:
-       index   -- Index of array to determine metallicity
-       silent  -- If set, this means that nothing will be printed out
-    '''
-
-    if index is None: index = range(len(x0))
-
-    ## Default sets those without metallicity at -1.0
-    OH_gas = np.repeat(-1.000, len(x0))
-
-
-    ######################################
-    ## Empirical, PP04                  ##
-    ## ---------------------------------##
-    ## See Pettini & Pagel (2004)       ##
-    ## Eq. A10 of Kewley & Ellison 2008 ##
-    ## + on 04/03/2016                  ##
-    ## Mod on 14/06/2016                ##
-    ######################################
-    if type == 'PP04_N2':
-        if linear == None:
-            OH_gas[index] = 9.37 + 2.03*x0[index] + 1.26*(x0[index])**2 + 0.32*(x0[index])**3
-        else:
-            print '## Using linear relation!'
-            # Bug found. Mod on 30/06/2016 OH_gas -> OH_gas[index]
-            OH_gas[index] = 8.90 + 0.57 * x0[index] #xt0
-    #endif
-
-    return OH_gas
 
 
 def exclude_bad_sources(ha_ii, NAME0):

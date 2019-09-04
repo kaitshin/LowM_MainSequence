@@ -10,7 +10,10 @@ import numpy as np
 
 FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
 
-def get_flux_from_FAST(ID, lambda_arr, byarr=True, fileend='GALEX'):
+# emission line wavelengths (air)
+HA = 6562.80
+
+def get_flux_from_FAST(ID, lambda_arr, byarr=True, fileend='.GALEX'):
     '''
     Reads in the relevant SED spectrum file and then interpolates the
     function to obtain a flux, the array of which is then returned.
@@ -39,6 +42,29 @@ def get_flux_from_FAST(ID, lambda_arr, byarr=True, fileend='GALEX'):
         newflux = f(lambda_arr)
 
     return newflux
+
+
+def get_tempz(zspec0, filt_arr):
+    '''
+    gets tempz which returns a redshift array
+    sources with spectroscopically confirmed redshifts use that spec_z
+    otherwise, estimated redshifts based on the center of the filter are used
+    '''
+    HA = 6562.80
+    centr_filts = {'NB7':((7045.0/HA - 1) + (7126.0/HA - 1))/2.0,  
+        'NB704':7045.0/HA - 1, 'NB711':7126.0/HA - 1, 
+        'NB816':8152.0/HA - 1, 'NB921':9193.0/HA - 1, 'NB973':9749.0/HA - 1}
+
+    tempz = np.zeros(len(zspec0))
+    for ii, zspec in enumerate(zspec0):
+        if (zspec > 0 and zspec < 9):
+            tempz[ii] = zspec
+        elif (zspec <= 0 or zspec > 9):
+            tempz[ii] = centr_filts[filt_arr[ii]]
+        else:
+            raise ValueError('something went wrong with zspecs?')
+
+    return tempz
 
 
 def get_z_arr():

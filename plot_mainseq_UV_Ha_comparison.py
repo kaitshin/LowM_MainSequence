@@ -38,7 +38,7 @@ from astropy import constants
 from astropy.io import fits as pyfits, ascii as asc
 from astropy.cosmology import FlatLambdaCDM
 from mainseq_corrections import niiha_oh_determine
-from MACT_utils import get_flux_from_FAST
+from MACT_utils import get_flux_from_FAST, get_tempz
 cosmo = FlatLambdaCDM(H0 = 70 * u.km / u.s / u.Mpc, Om0=0.3)
 
 # emission line wavelengths (air)
@@ -48,34 +48,6 @@ FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
 CUTOFF_SIGMA = 4.0
 CUTOFF_MASS = 6.0
 fileend='.GALEX'
-
-
-# def get_flux_from_FAST(ID, lambda_arr, byarr=True):
-#     '''
-#     Reads in the relevant SED spectrum file and then interpolates the
-#     function to obtain a flux, the array of which is then returned.
-#     '''
-#     if byarr:
-#         newflux = np.zeros(len(ID))
-#         for ii in range(len(ID)):
-#             tempfile = asc.read(FULL_PATH+
-#                 'FAST/outputs/BEST_FITS/NB_IA_emitters_allphot.emagcorr.ACpsf_fast'+
-#                 fileend+'_'+str(ID[ii])+'.fit', guess=False,Reader=asc.NoHeader)
-#             wavelength = np.array(tempfile['col1'])
-#             flux = np.array(tempfile['col2'])
-#             f = interpolate.interp1d(wavelength, flux)
-#             newflux[ii] = f(lambda_arr[ii])
-
-#     else:
-#         tempfile = asc.read(FULL_PATH+
-#             'FAST/outputs/BEST_FITS/NB_IA_emitters_allphot.emagcorr.ACpsf_fast'+
-#             fileend+'_'+str(ID)+'.fit', guess=False,Reader=asc.NoHeader)
-#         wavelength = np.array(tempfile['col1'])
-#         flux = np.array(tempfile['col2'])
-#         f = interpolate.interp1d(wavelength, flux)
-#         newflux = f(lambda_arr)
-
-#     return newflux
 
 
 def get_LUV(corrID, corrzspec0, centr_filts, filt_index_haii, ff):
@@ -140,6 +112,7 @@ def plot_ff_zz_color_filled(ax, xvals, yvals, corr_tbl,
 
 
 def plot_zz_shapes_filled(ax, xvals, yvals, corr_tbl, color, legend_on=False,
+    legend_loc = 'upper right',
     ff_arr=['NB7', 'NB816', 'NB921', 'NB973'],
     ll_arr=['NB704,NB711', 'NB816', 'NB921', 'NB973'],
     mark_arr=['o', '^', 'D', '*'], size_arr=np.array([6.0, 6.0, 6.0, 9.0])**2):
@@ -177,7 +150,7 @@ def plot_zz_shapes_filled(ax, xvals, yvals, corr_tbl, color, legend_on=False,
         labelarr = np.append(labelarr, temp)
 
     if legend_on:
-        leg1 = ax.legend(handles=list(labelarr), loc='upper right', frameon=False)
+        leg1 = ax.legend(handles=list(labelarr), loc=legend_loc, frameon=False)
         ax.add_artist(leg1)
 
     return ax
@@ -275,7 +248,7 @@ def plot_SFR_comparison(log_SFR_HA, log_SFR_UV, corr_tbl):
 
     # plotting data
     ax = plot_zz_shapes_filled(ax, log_SFR_HA, log_SFR_UV, corr_tbl,
-        color='blue', legend_on=True)
+        color='blue', legend_on=True, legend_loc='best')
 
     # plotting 1-1 correspondence
     xlims = [min(log_SFR_HA)-0.2, max(log_SFR_HA)+0.2]
@@ -294,7 +267,7 @@ def plot_SFR_comparison(log_SFR_HA, log_SFR_UV, corr_tbl):
         direction='in')
     ax.minorticks_on()
     f.set_size_inches(6,6)
-    ax.legend(frameon=False, loc='best')
+    # ax.legend(frameon=False, loc='best')
     plt.savefig(FULL_PATH+'Plots/main_sequence_UV_Ha/SFR_UV_vs_HA.pdf')
 
 
@@ -326,8 +299,10 @@ def lee_09(ax, xlims0, lee_fig_num):
     overlays data points and theoretical relations from Lee+09
     figures 1 and 2, depending on which one is being compared
     '''
+    salpeter_to_chabrier = np.log10(7.9/4.55)
     if lee_fig_num=='1':
         xtmparr = np.linspace(xlims0[0], xlims0[1], 10)
+        xtmparr -= salpeter_to_chabrier
         ax.plot(xtmparr, 0.79*xtmparr-0.2, 'k--')
         return ax
 
@@ -341,6 +316,8 @@ def lee_09(ax, xlims0, lee_fig_num):
                 0.26,0.58,0.57])
 
             xtmparr0 = np.linspace(min(jlee_xarr)-0.1, xlims0[1], 10)
+            xtmparr0 -= salpeter_to_chabrier
+            jlee_xarr -= salpeter_to_chabrier
             jlee09, = ax.plot(xtmparr0, 0.26*xtmparr0+0.3, 'c--', alpha=0.7, 
                 label='Lee+09: '+r'$0.26 \log(\rm SFR(H\alpha))+0.30$')
 
@@ -369,30 +346,6 @@ def lee_09(ax, xlims0, lee_fig_num):
     else:
         raise ValueError('Invalid fig_num. So far only Lee+09 figs 1 and 2A are\
             valid comparisons')
-
-
-def get_tempz(zspec0, filt_arr):
-    '''
-    gets tempz which returns a redshift array
-    sources with spectroscopically confirmed redshifts use that spec_z
-    otherwise, estimated redshifts based on the center of the filter are used
-    '''
-    HA = 6562.80
-    centr_filts = {'NB7':((7045.0/HA - 1) + (7126.0/HA - 1))/2.0, 
-        'NB704':((7045.0/HA - 1) + (7126.0/HA - 1))/2.0, 
-        'NB711':((7045.0/HA - 1) + (7126.0/HA - 1))/2.0, 
-        'NB816':8152.0/HA - 1, 'NB921':9193.0/HA - 1, 'NB973':9749.0/HA - 1}
-
-    tempz = np.zeros(len(zspec0))
-    for ii, zspec in enumerate(zspec0):
-        if (zspec > 0 and zspec < 9):
-            tempz[ii] = zspec
-        elif (zspec <= 0 or zspec > 9):
-            tempz[ii] = centr_filts[filt_arr[ii]]
-        else:
-            raise ValueError('something went wrong with zspecs?')
-
-    return tempz
 
 
 def get_mag_b(corr_tbl):
@@ -462,11 +415,11 @@ def plot_SFR_ratios(log_SFR_HA, log_SFR_UV, corr_tbl):
 
     # plotting data
     ax0 = plot_zz_shapes_filled(ax0, log_SFR_HA, log_SFR_ratio, corr_tbl,
-        color='gray', legend_on=True)
+        color='gray')
     ax1 = plot_zz_shapes_filled(ax1, mag_B, log_SFR_ratio, corr_tbl,
         color='gray')
     ax2 = plot_zz_shapes_filled(ax2, stlr_mass, log_SFR_ratio, corr_tbl,
-        color='gray')
+        color='gray', legend_on=True)
 
     xlims0 = [min(log_SFR_HA)-0.2, max(log_SFR_HA)+0.2]
     xlims1 = [min(mag_B)-0.2, max(mag_B)+0.2]
