@@ -1187,7 +1187,7 @@ def ew_MC(debug=False, redo=False):
                 plt.close(fig)
 
                 # Save figure for each full page completed
-                if s_row == nrow_stats-1 or count == len(logEW_mean)*len(logEW_sig)-1:
+                if s_row == nrow_stats-1 or count == len(mm_range)*len(ss_range)-1:
                     fig2.subplots_adjust(left=0.1, right=0.97, bottom=0.08,
                                          top=0.97, wspace=0.13)
 
@@ -1247,7 +1247,6 @@ def ew_MC(debug=False, redo=False):
                                 top=0.98, wspace=0.20, hspace=0.15)
             fig4.set_size_inches(8,8)
             fig4.savefig(pp4, format='pdf')
-            #endfor
         #endfor
 
         pp.close()
