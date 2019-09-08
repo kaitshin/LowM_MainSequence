@@ -282,6 +282,9 @@ def mag_vs_mass(silent=False, verbose=True):
 
     # NB Ha emitter sample for ID
     NB_file = path0 + 'Main_Sequence/mainseq_corrections_tbl (1).txt'
+    if not exists(NB_file):
+        NB_file = NB_file.replace(' (1)','')
+
     log.info("Reading : "+NB_file)
     NB_tab     = asc.read(NB_file)
     NB_HA_Name = NB_tab['NAME0'].data
