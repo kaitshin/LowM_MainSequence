@@ -733,8 +733,13 @@ def plot_completeness(t_ax, arr0, NB_sel, bins, ref_arr0=None):
 
     sel, bins_edges1  = np.histogram(arr0[NB_sel], bins)
 
-    t_ax.step(bins_edges0[:-1], sel/np.float_(orig), 'b--', where='mid',
-              label='mocked')
+    x0 = bins_edges0[:-1]
+    y0 = sel/np.float_(orig)
+    t_ax.step(x0, y0, 'b--', where='mid', label='mocked')
+
+    comp_50 = get_completeness(x0, y0)
+    t_ax.annotate('%.2f' % comp_50, [0.975,0.025], xycoords='axes fraction',
+                  ha='right', va='bottom', fontsize=8, color='blue')
 
     if type(ref_arr0) != type(None):
         arr1 = np.ones((arr0.shape[0],1)) * ref_arr0
@@ -743,8 +748,15 @@ def plot_completeness(t_ax, arr0, NB_sel, bins, ref_arr0=None):
         orig1, bins_edges01 = np.histogram(arr1[finite], bins)
         sel1, bins_edges11  = np.histogram(arr1[NB_sel], bins)
 
-        t_ax.step(bins_edges0[:-1], sel1/np.float_(orig1), 'k--', where='mid',
-                  label='true')
+        x1 = bins_edges0[:-1]
+        y1 = sel1/np.float_(orig1)
+        t_ax.step(x1, y1, 'k--', where='mid', label='true')
+
+        comp_50_ref = get_completeness(x1, y1)
+        t_ax.annotate('%.2f' % comp_50_ref, [0.975,0.06], fontsize=8,
+                      xycoords='axes fraction', ha='right', va='bottom',
+                      color='black')
+
     t_ax.legend(loc='upper left', fancybox=True, fontsize=8, framealpha=0.75)
 #enddef
 
