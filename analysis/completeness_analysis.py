@@ -715,7 +715,7 @@ def plot_mock(ax, x0, y0, NB_sel, NB_nosel, xlabel, ylabel):
         ax.set_xticklabels([])
 #enddef
 
-def get_completeness(t_ax, hist_bins, hist_data):
+def get_completeness(hist_bins, hist_data):
     '''
     Determine 50% completeness for various quantities (sSFR, EW, Flux)
     '''
