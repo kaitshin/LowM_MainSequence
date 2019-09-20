@@ -715,6 +715,18 @@ def plot_mock(ax, x0, y0, NB_sel, NB_nosel, xlabel, ylabel):
         ax.set_xticklabels([])
 #enddef
 
+def get_completeness(t_ax, hist_bins, hist_data):
+    '''
+    Determine 50% completeness for various quantities (sSFR, EW, Flux)
+    '''
+
+    i_hist = interp1d(hist_data, hist_bins)
+
+    comp_50 = i_hist(0.50)
+    return comp_50
+#enddef
+
+
 def plot_completeness(t_ax, arr0, NB_sel, bins, ref_arr0=None):
     finite = np.where(np.isfinite(arr0))
     orig, bins_edges0 = np.histogram(arr0[finite], bins)
