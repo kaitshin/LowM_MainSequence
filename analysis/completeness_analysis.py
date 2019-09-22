@@ -14,6 +14,7 @@ from os.path import exists
 
 from astropy.io import fits
 from astropy.io import ascii as asc
+from astropy.table import Table
 
 import numpy as np
 
@@ -951,6 +952,13 @@ def ew_MC(debug=False, redo=False):
     mm_range = [0] if debug else range(n_mean)
     ss_range = [0] if debug else range(n_sigma)
 
+    comp_shape  = (len(mm_range), len(ss_range))
+    comp_sSFR   = np.zeros(comp_shape)
+    comp_EW     = np.zeros(comp_shape)
+    comp_flux   = np.zeros(comp_shape)
+    comp_EWmean = np.zeros(comp_shape)
+    comp_EWsig  = np.zeros(comp_shape)
+
     for ff in ff_range: # loop over filter
         print("Working on : "+filters[ff])
 
@@ -1058,7 +1066,9 @@ def ew_MC(debug=False, redo=False):
 
         count = 0
         for mm in mm_range: # loop over median of EW dist
+            comp_EWmean[mm] = logEW_mean[mm]
             for ss in ss_range: # loop over sigma of EW dist
+                comp_EWsig[mm,ss] = logEW_sig[ss]
 
                 npz_MCfile = npz_path0 + filters[ff] + ('_%.2f_%.2f.npz') \
                              % (logEW_mean[mm], logEW_sig[ss])
@@ -1307,8 +1317,18 @@ def ew_MC(debug=False, redo=False):
             fig3.savefig(pp3, format='pdf')
         plt.close(fig3)
 
-
     #endfor
+
+    table_outfile = path0 + 'Completeness/completeness_50.tbl'
+    c_size = comp_shape[0] * comp_shape[1]
+    comp_arr = [comp_EWmean.reshape(c_size), comp_EWsig.reshape(c_size),
+                comp_sSFR.reshape(c_size), comp_EW.reshape(c_size),
+                comp_flux.reshape(c_size)]
+    c_names = ('log_EWmean', 'log_EWsig', 'comp_50_sSFR', 'comp_50_EW',
+               'comp_50_flux')
+
+    comp_tab = Table(comp_arr, names=c_names)
+    comp_tab.write(table_outfile, format='ascii.fixed_width_two_line')
 
     if not debug:
         pp3.close()
