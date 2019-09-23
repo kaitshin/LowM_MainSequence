@@ -759,6 +759,11 @@ def plot_completeness(t_ax, arr0, NB_sel, bins, ref_arr0=None):
                       color='black')
 
     t_ax.legend(loc='upper left', fancybox=True, fontsize=8, framealpha=0.75)
+
+    if type(ref_arr0) == type(None):
+        return comp_50
+    else:
+        return comp_50, comp_50_ref
 #enddef
 
 def ew_flux_hist(type0, mm, ss, t2_ax, x0, avg_x0, sig_x0, x0_bins, logEW_mean,
@@ -1245,7 +1250,8 @@ def ew_MC(debug=False, redo=False):
 
 
             # Compute and plot completeness
-            comp_arr = np.sum(EW_flag0, axis=0)/float(Nmock) # Combine over modelled galaxies
+            # Combine over modelled galaxies
+            comp_arr = np.sum(EW_flag0, axis=0)/float(Nmock)
 
             # Plot Type 1 and 2 errors
             cticks = np.arange(0,1.2,0.2)
@@ -1280,9 +1286,18 @@ def ew_MC(debug=False, redo=False):
             ax400.annotate(N_annot_txt, [0.025,0.975], va='top',
                            ha='left', xycoords='axes fraction')
 
-            plot_completeness(ax401, logSFR_MC - logM_MC,  NB_sel, sSFR_bins)
-            plot_completeness(ax410, logEW_MC,  NB_sel, EW_bins, ref_arr0=logEW_MC_ref)
-            plot_completeness(ax411, HaFlux_MC, NB_sel, Flux_bins, ref_arr0=HaFlux_ref)
+            t_comp_sSFR = plot_completeness(ax401, logSFR_MC - logM_MC,  NB_sel,
+                                            sSFR_bins)
+            t_comp_EW, \
+                t_comp_EW_ref = plot_completeness(ax410, logEW_MC, NB_sel,
+                                                  EW_bins, ref_arr0=logEW_MC_ref)
+            t_comp_Fl, \
+                t_comp_Fl_ref = plot_completeness(ax411, HaFlux_MC, NB_sel,
+                                                  Flux_bins, ref_arr0=HaFlux_ref)
+
+            comp_sSFR[mm,ss] = t_comp_sSFR
+            comp_EW[mm,ss]   = t_comp_EW
+            comp_flux[mm,ss]   = t_comp_Fl
 
             xlabels = [r'$\log({\rm sSFR})$', EW_lab, Flux_lab]
             for t_ax,xlabel in zip([ax401, ax410, ax411],xlabels):
@@ -1327,8 +1342,10 @@ def ew_MC(debug=False, redo=False):
     c_names = ('log_EWmean', 'log_EWsig', 'comp_50_sSFR', 'comp_50_EW',
                'comp_50_flux')
 
+    print("Writing : "+table_outfile)
     comp_tab = Table(comp_arr, names=c_names)
-    comp_tab.write(table_outfile, format='ascii.fixed_width_two_line')
+    comp_tab.write(table_outfile, format='ascii.fixed_width_two_line',
+                   overwrite=True)
 
     if not debug:
         pp3.close()
