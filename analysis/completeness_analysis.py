@@ -785,7 +785,7 @@ def ew_flux_hist(type0, mm, ss, t2_ax, x0, avg_x0, sig_x0, x0_bins, logEW_mean,
                               histtype='stepfilled', label=label_x0)
     t2_ax.axvline(x=avg_x0, color='black', linestyle='solid', linewidth=1.5)
 
-    good = np.where((EW_flag0) & (np.isfinite(x0_arr0)))
+    good = np.where((EW_flag0 == 1) & (np.isfinite(x0_arr0)))
 
     # Normalize relative to selected sample
     if len(good[0]) > 0:
