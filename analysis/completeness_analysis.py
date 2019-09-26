@@ -8,7 +8,7 @@ in the M*-SFR plot
 
 import sys, os
 
-from chun_codes import systime
+from chun_codes import systime, intersect
 
 from os.path import exists
 
@@ -728,10 +728,11 @@ def get_completeness(hist_bins, hist_data):
 #enddef
 
 
-def plot_completeness(t_ax, arr0, NB_sel, bins, ref_arr0=None):
+def plot_completeness(t_ax, arr0, NB_sel0, bins, ref_arr0=None):
     finite = np.where(np.isfinite(arr0))
     orig, bins_edges0 = np.histogram(arr0[finite], bins)
 
+    NB_sel = intersect(NB_sel0, finite) # Simple hack to avoid NaN
     sel, bins_edges1  = np.histogram(arr0[NB_sel], bins)
 
     x0 = bins_edges0[:-1]
@@ -745,8 +746,9 @@ def plot_completeness(t_ax, arr0, NB_sel, bins, ref_arr0=None):
     if type(ref_arr0) != type(None):
         arr1 = np.ones((arr0.shape[0],1)) * ref_arr0
         finite = np.where(np.isfinite(arr1))
-
         orig1, bins_edges01 = np.histogram(arr1[finite], bins)
+
+        NB_sel = intersect(NB_sel0, finite) # Simple hack to avoid NaN
         sel1, bins_edges11  = np.histogram(arr1[NB_sel], bins)
 
         x1 = bins_edges0[:-1]
