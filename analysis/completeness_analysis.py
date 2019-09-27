@@ -732,7 +732,13 @@ def plot_completeness(t_ax, arr0, NB_sel0, bins, ref_arr0=None):
     finite = np.where(np.isfinite(arr0))
     orig, bins_edges0 = np.histogram(arr0[finite], bins)
 
-    NB_sel = intersect(NB_sel0, finite) # Simple hack to avoid NaN
+    tmp_NB_sel0   = [NB_sel0[0], NB_sel0[1]]
+    tmp_finite    = [finite[0],  finite[1]]
+    ravel_NB_sel0 = np.ravel_multi_index(tmp_NB_sel0, arr0.shape)
+    ravel_finite  = np.ravel_multi_index(tmp_finite, arr0.shape)
+    ravel_NB_sel  = intersect(ravel_NB_sel0, ravel_finite)
+    NB_sel        = np.unravel_index(ravel_NB_sel, arr0.shape)
+
     sel, bins_edges1  = np.histogram(arr0[NB_sel], bins)
 
     x0 = bins_edges0[:-1]
@@ -748,7 +754,11 @@ def plot_completeness(t_ax, arr0, NB_sel0, bins, ref_arr0=None):
         finite = np.where(np.isfinite(arr1))
         orig1, bins_edges01 = np.histogram(arr1[finite], bins)
 
-        NB_sel = intersect(NB_sel0, finite) # Simple hack to avoid NaN
+        tmp_finite    = [finite[0],  finite[1]]
+        ravel_finite  = np.ravel_multi_index(tmp_finite, arr0.shape)
+        ravel_NB_sel  = intersect(ravel_NB_sel0, ravel_finite)
+        NB_sel        = np.unravel_index(ravel_NB_sel, arr0.shape)
+
         sel1, bins_edges11  = np.histogram(arr1[NB_sel], bins)
 
         x1 = bins_edges0[:-1]
