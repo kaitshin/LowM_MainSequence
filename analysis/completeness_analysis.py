@@ -1261,68 +1261,69 @@ def ew_MC(debug=False, redo=False):
                 count += 1
 
 
-            # Compute and plot completeness
-            # Combine over modelled galaxies
-            comp_arr = np.sum(EW_flag0, axis=0)/float(Nmock)
+                # Compute and plot completeness
+                # Combine over modelled galaxies
+                comp_arr = np.sum(EW_flag0, axis=0)/float(Nmock)
 
-            # Plot Type 1 and 2 errors
-            cticks = np.arange(0,1.2,0.2)
+                # Plot Type 1 and 2 errors
+                cticks = np.arange(0,1.2,0.2)
 
-            fig4, ax4 = plt.subplots(nrows=2, ncols=2)
-            [[ax400, ax401], [ax410, ax411]] = ax4
+                fig4, ax4 = plt.subplots(nrows=2, ncols=2)
+                [[ax400, ax401], [ax410, ax411]] = ax4
 
-            ax4ins0 = inset_axes(ax400, width="33%", height="3%", loc=6) #LL
-            ax4ins1 = inset_axes(ax400, width="33%", height="3%", loc=7) #LR
+                ax4ins0 = inset_axes(ax400, width="33%", height="3%", loc=6) #LL
+                ax4ins1 = inset_axes(ax400, width="33%", height="3%", loc=7) #LR
 
-            ax4ins0.xaxis.set_ticks_position("top")
-            ax4ins1.xaxis.set_ticks_position("top")
+                ax4ins0.xaxis.set_ticks_position("top")
+                ax4ins1.xaxis.set_ticks_position("top")
 
-            idx0  = [NB_sel_ref, NB_nosel_ref]
-            cmap0 = [cmap_sel, cmap_nosel]
-            lab0  = ['Type 1', 'Type 2']
-            for idx,cmap,ins,lab in zip(idx0, cmap0, [ax4ins0, ax4ins1], lab0):
-                cs = ax400.scatter(NB_ref[idx], x_MC0_ref[idx], edgecolor='none',
-                                   vmin=0, vmax=1.0, s=15, c=comp_arr[idx],
-                                   cmap=cmap)
-                cb = fig4.colorbar(cs, cax=ins, orientation="horizontal",
-                                   ticks=cticks)
-                cb.ax.tick_params(labelsize=8)
-                cb.set_label(lab)
+                idx0  = [NB_sel_ref, NB_nosel_ref]
+                cmap0 = [cmap_sel, cmap_nosel]
+                lab0  = ['Type 1', 'Type 2']
+                for idx,cmap,ins,lab in zip(idx0, cmap0, [ax4ins0, ax4ins1], lab0):
+                    cs = ax400.scatter(NB_ref[idx], x_MC0_ref[idx], edgecolor='none',
+                                       vmin=0, vmax=1.0, s=15, c=comp_arr[idx],
+                                       cmap=cmap)
+                    cb = fig4.colorbar(cs, cax=ins, orientation="horizontal",
+                                       ticks=cticks)
+                    cb.ax.tick_params(labelsize=8)
+                    cb.set_label(lab)
 
-            plot_NB_select(ff, ax400, NB, 'k', linewidth=2)
+                plot_NB_select(ff, ax400, NB, 'k', linewidth=2)
 
-            ax400.set_xlabel('NB')
-            ax400.set_ylim([-0.25,2.0])
-            ax400.set_ylabel('cont - NB')
+                ax400.set_xlabel('NB')
+                ax400.set_ylim([-0.25,2.0])
+                ax400.set_ylabel('cont - NB')
 
-            ax400.annotate(N_annot_txt, [0.025,0.975], va='top',
-                           ha='left', xycoords='axes fraction')
+                ax400.annotate(N_annot_txt, [0.025,0.975], va='top',
+                               ha='left', xycoords='axes fraction')
 
-            t_comp_sSFR = plot_completeness(ax401, logSFR_MC - logM_MC,  NB_sel,
-                                            sSFR_bins)
-            t_comp_EW, \
-                t_comp_EW_ref = plot_completeness(ax410, logEW_MC, NB_sel,
-                                                  EW_bins, ref_arr0=logEW_MC_ref)
-            t_comp_Fl, \
-                t_comp_Fl_ref = plot_completeness(ax411, HaFlux_MC, NB_sel,
-                                                  Flux_bins, ref_arr0=HaFlux_ref)
+                t_comp_sSFR = plot_completeness(ax401, logSFR_MC - logM_MC,  NB_sel,
+                                                sSFR_bins)
+                t_comp_EW, \
+                    t_comp_EW_ref = plot_completeness(ax410, logEW_MC, NB_sel,
+                                                      EW_bins, ref_arr0=logEW_MC_ref)
+                t_comp_Fl, \
+                    t_comp_Fl_ref = plot_completeness(ax411, HaFlux_MC, NB_sel,
+                                                      Flux_bins, ref_arr0=HaFlux_ref)
 
-            comp_sSFR[mm,ss] = t_comp_sSFR
-            comp_EW[mm,ss]   = t_comp_EW
-            comp_flux[mm,ss]   = t_comp_Fl
+                comp_sSFR[mm,ss] = t_comp_sSFR
+                comp_EW[mm,ss]   = t_comp_EW
+                comp_flux[mm,ss]   = t_comp_Fl
 
-            xlabels = [r'$\log({\rm sSFR})$', EW_lab, Flux_lab]
-            for t_ax,xlabel in zip([ax401, ax410, ax411],xlabels):
-                t_ax.set_ylabel('Completeness')
-                t_ax.set_xlabel(xlabel)
-                t_ax.set_ylim([0.0,1.05])
+                xlabels = [r'$\log({\rm sSFR})$', EW_lab, Flux_lab]
+                for t_ax,xlabel in zip([ax401, ax410, ax411],xlabels):
+                    t_ax.set_ylabel('Completeness')
+                    t_ax.set_xlabel(xlabel)
+                    t_ax.set_ylim([0.0,1.05])
 
-            ax410.axvline(x=compute_EW(minthres[ff], ff), color='red')
+                ax410.axvline(x=compute_EW(minthres[ff], ff), color='red')
 
-            plt.subplots_adjust(left=0.075, right=0.98, bottom=0.065,
-                                top=0.98, wspace=0.20, hspace=0.15)
-            fig4.set_size_inches(8,8)
-            fig4.savefig(pp4, format='pdf')
+                plt.subplots_adjust(left=0.075, right=0.98, bottom=0.065,
+                                    top=0.98, wspace=0.20, hspace=0.15)
+                fig4.set_size_inches(8,8)
+                fig4.savefig(pp4, format='pdf')
+            #endfor
         #endfor
 
         pp.close()
