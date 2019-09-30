@@ -8,7 +8,7 @@ in the M*-SFR plot
 
 import sys, os
 
-from chun_codes import systime, intersect
+from chun_codes import systime, intersect_ndim
 
 from os.path import exists
 
@@ -732,12 +732,7 @@ def plot_completeness(t_ax, arr0, NB_sel0, bins, ref_arr0=None):
     finite = np.where(np.isfinite(arr0))
     orig, bins_edges0 = np.histogram(arr0[finite], bins)
 
-    tmp_NB_sel0   = [NB_sel0[0], NB_sel0[1]]
-    tmp_finite    = [finite[0],  finite[1]]
-    ravel_NB_sel0 = np.ravel_multi_index(tmp_NB_sel0, arr0.shape)
-    ravel_finite  = np.ravel_multi_index(tmp_finite, arr0.shape)
-    ravel_NB_sel  = intersect(ravel_NB_sel0, ravel_finite)
-    NB_sel        = np.unravel_index(ravel_NB_sel, arr0.shape)
+    NB_sel = intersect_ndim(NB_sel0, finite, arr0.shape)
 
     sel, bins_edges1  = np.histogram(arr0[NB_sel], bins)
 
@@ -754,10 +749,7 @@ def plot_completeness(t_ax, arr0, NB_sel0, bins, ref_arr0=None):
         finite = np.where(np.isfinite(arr1))
         orig1, bins_edges01 = np.histogram(arr1[finite], bins)
 
-        tmp_finite    = [finite[0],  finite[1]]
-        ravel_finite  = np.ravel_multi_index(tmp_finite, arr0.shape)
-        ravel_NB_sel  = intersect(ravel_NB_sel0, ravel_finite)
-        NB_sel        = np.unravel_index(ravel_NB_sel, arr0.shape)
+        NB_sel = intersect_ndim(NB_sel0, finite, ref_arr0.shape)
 
         sel1, bins_edges11  = np.histogram(arr1[NB_sel], bins)
 
