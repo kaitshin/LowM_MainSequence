@@ -723,7 +723,12 @@ def get_completeness(hist_bins, hist_data):
 
     i_hist = interp1d(hist_data, hist_bins)
 
-    comp_50 = i_hist(0.50)
+    try:
+        comp_50 = i_hist(0.50)
+    except ValueError:
+        print("ValueError. Setting to zero")
+        comp_50 = 0.0
+
     return comp_50
 #enddef
 
