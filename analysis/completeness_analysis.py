@@ -1342,20 +1342,20 @@ def ew_MC(debug=False, redo=False):
             fig3.savefig(pp3, format='pdf')
         plt.close(fig3)
 
+        table_outfile = path0 + 'Completeness/'+filters[ff]+'completeness_50.tbl'
+        c_size = comp_shape[0] * comp_shape[1]
+        comp_arr0 = [comp_EWmean.reshape(c_size), comp_EWsig.reshape(c_size),
+                     comp_sSFR.reshape(c_size), comp_EW.reshape(c_size),
+                     comp_flux.reshape(c_size)]
+        c_names = ('log_EWmean', 'log_EWsig', 'comp_50_sSFR', 'comp_50_EW',
+                   'comp_50_flux')
+
+        print("Writing : "+table_outfile)
+        comp_tab = Table(comp_arr0, names=c_names)
+        comp_tab.write(table_outfile, format='ascii.fixed_width_two_line',
+                       overwrite=True)
+
     #endfor
-
-    table_outfile = path0 + 'Completeness/completeness_50.tbl'
-    c_size = comp_shape[0] * comp_shape[1]
-    comp_arr0 = [comp_EWmean.reshape(c_size), comp_EWsig.reshape(c_size),
-                 comp_sSFR.reshape(c_size), comp_EW.reshape(c_size),
-                 comp_flux.reshape(c_size)]
-    c_names = ('log_EWmean', 'log_EWsig', 'comp_50_sSFR', 'comp_50_EW',
-               'comp_50_flux')
-
-    print("Writing : "+table_outfile)
-    comp_tab = Table(comp_arr0, names=c_names)
-    comp_tab.write(table_outfile, format='ascii.fixed_width_two_line',
-                   overwrite=True)
 
     if not debug:
         pp3.close()
