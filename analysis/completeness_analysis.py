@@ -754,7 +754,7 @@ def plot_completeness(t_ax, arr0, NB_sel0, bins, ref_arr0=None):
         finite = np.where(np.isfinite(arr1))
         orig1, bins_edges01 = np.histogram(arr1[finite], bins)
 
-        NB_sel = intersect_ndim(NB_sel0, finite, ref_arr0.shape)
+        NB_sel = intersect_ndim(NB_sel0, finite, arr1.shape)
 
         sel1, bins_edges11  = np.histogram(arr1[NB_sel], bins)
 
