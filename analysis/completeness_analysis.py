@@ -8,7 +8,7 @@ in the M*-SFR plot
 
 import sys, os
 
-from chun_codes import systime, intersect_ndim
+from chun_codes import systime, intersect_ndim, TimerClass
 
 from os.path import exists
 
@@ -936,6 +936,9 @@ def ew_MC(debug=False, redo=False):
 
     '''
 
+    t0 = TimerClass()
+    t0._start()
+
     prefixes = ['Ha-NB7','Ha-NB7','Ha-NB816','Ha-NB921','Ha-NB973']
 
     # NB statistical filter correction
@@ -1359,3 +1362,6 @@ def ew_MC(debug=False, redo=False):
 
     if not debug:
         pp3.close()
+
+    t0._stop()
+    print("ew_MC completed in : "+t0.format)
