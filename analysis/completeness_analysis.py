@@ -34,6 +34,10 @@ import astropy.units as u
 from astropy.cosmology import FlatLambdaCDM
 cosmo = FlatLambdaCDM(H0 = 70 * u.km / u.s / u.Mpc, Om0=0.3)
 
+import logging
+formatter = logging.Formatter('%(asctime)s - %(module)12s.%(funcName)20s - %(levelname)s: %(message)s')
+
+
 Nsim  = 5000. # Number of modelled galaxies
 Nmock = 10    # Number of mocked galaxies
 
@@ -86,6 +90,49 @@ npz_MCnames = ['EW_seed', 'logEW_MC_ref', 'x_MC0_ref', 'BB_MC0_ref',
                'BB_sig_ref', 'sig_limit_ref', 'NB_sel_ref', 'NB_nosel_ref',
                'EW_flag_ref', 'flux_ref', 'logM_ref', 'NIIHa_ref',
                'logOH_ref', 'HaFlux_ref', 'HaLum_ref', 'logSFR_ref']
+
+class mlog:
+    '''
+    Main class to log information to stdout and ASCII file
+
+    To execute:
+    mylog = mlog(rawdir)._get_logger()
+
+    Parameters
+    ----------
+    dir0 : str
+      Full path for where log files should be placed
+
+    Returns
+    -------
+
+    Notes
+    -----
+    Created by Chun Ly, 2 October 2019
+    '''
+
+    def __init__(self,dir0):
+        self.LOG_FILENAME = dir0 + 'completeness_analysis.log'
+        self._log = self._get_logger()
+
+    def _get_logger(self):
+        loglevel = logging.INFO
+        log = logging.getLogger(self.LOG_FILENAME)
+        if not getattr(log, 'handler_set', None):
+            log.setLevel(logging.INFO)
+            sh = logging.StreamHandler()
+            sh.setFormatter(formatter)
+            log.addHandler(sh)
+
+            fh = logging.FileHandler(self.LOG_FILENAME)
+            fh.setLevel(logging.INFO)
+            fh.setFormatter(formatter)
+            log.addHandler(fh)
+
+            log.setLevel(loglevel)
+            log.handler_set = True
+        return log
+#enddef
 
 def get_sigma(x, lim1, sigma=3.0):
     '''
