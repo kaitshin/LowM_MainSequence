@@ -1026,6 +1026,8 @@ def ew_MC(debug=False, redo=False):
     comp_EWsig  = np.zeros(comp_shape)
 
     for ff in ff_range: # loop over filter
+        t_ff = TimerClass()
+        t_ff._start()
         mylog.info("Working on : "+filters[ff])
 
         logEW_mean = logEW_mean_start[ff] + 0.1*np.arange(n_mean)
@@ -1407,6 +1409,8 @@ def ew_MC(debug=False, redo=False):
         comp_tab.write(table_outfile, format='ascii.fixed_width_two_line',
                        overwrite=True)
 
+        t_ff._stop()
+        mylog.info("ew_MC completed for "+filters[ff]+" in : "+t_ff.format)
     #endfor
 
     if not debug:
