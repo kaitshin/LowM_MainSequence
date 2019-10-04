@@ -1094,6 +1094,7 @@ def ew_MC(debug=False, redo=False):
 
         # Randomize NB magnitudes. First get relative sigma, then scale by size
         NB_seed = ff
+        mylog.info("seed for %s : %i" % (filters[ff], NB_seed))
         NB_MC = random_mags(NB_seed, mock_sz, NB_ref, NB_sig_ref)
 
         # Read in mag vs mass extrapolation
@@ -1153,6 +1154,7 @@ def ew_MC(debug=False, redo=False):
 
                 if not exists(npz_MCfile) or redo == True:
                     EW_seed = mm*len(ss_range) + ss
+                    mylog.info("seed for mm=%i ss=%i : %i" % (mm, ss, EW_seed))
                     np.random.seed = EW_seed
                     rand0 = np.random.normal(0.0, 1.0, size=Ngal)
                     # This is not H-alpha
@@ -1201,6 +1203,7 @@ def ew_MC(debug=False, redo=False):
                                                     lum_dist)
 
                 BB_seed = ff + 5
+                mylog.info("seed for broadband, mm=%i ss=%i : %i" % (mm, ss, BB_seed))
                 BB_MC = random_mags(BB_seed, mock_sz, BB_MC0_ref, BB_sig_ref)
 
                 x_MC  = BB_MC - NB_MC
