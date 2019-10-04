@@ -96,7 +96,7 @@ class mlog:
     Main class to log information to stdout and ASCII file
 
     To execute:
-    mylog = mlog(rawdir)._get_logger()
+    mylog = mlog(dir0)._get_logger()
 
     Parameters
     ----------
@@ -983,6 +983,8 @@ def ew_MC(debug=False, redo=False):
 
     '''
 
+    mylog = mlog(path0+'Completeness/')._get_logger()
+
     t0 = TimerClass()
     t0._start()
 
@@ -1001,7 +1003,7 @@ def ew_MC(debug=False, redo=False):
     n_mean  = 4
     n_sigma = 4
 
-    print('Nsim : ', Nsim)
+    mylog.info('Nsim : ', Nsim)
 
     NBbin = 0.25
 
@@ -1024,7 +1026,7 @@ def ew_MC(debug=False, redo=False):
     comp_EWsig  = np.zeros(comp_shape)
 
     for ff in ff_range: # loop over filter
-        print("Working on : "+filters[ff])
+        mylog.info("Working on : "+filters[ff])
 
         logEW_mean = logEW_mean_start[ff] + 0.1*np.arange(n_mean)
         logEW_sig  = logEW_sig_start[ff]  + 0.1*np.arange(n_sigma)
@@ -1053,7 +1055,7 @@ def ew_MC(debug=False, redo=False):
         NBmin = 20.0
         NBmax = m_NB[ff]-0.25
         NB = np.arange(NBmin,NBmax+NBbin,NBbin)
-        print('NB (min/max)', min(NB), max(NB))
+        mylog.info('NB (min/max)', min(NB), max(NB))
 
         npz_NBfile = npz_path0 + filters[ff]+'_init.npz'
 
@@ -1073,13 +1075,13 @@ def ew_MC(debug=False, redo=False):
                 npz_NBdict[name] = eval(name)
 
             if exists(npz_NBfile):
-                print("Overwriting : "+npz_NBfile)
+                mylog.info("Overwriting : "+npz_NBfile)
             else:
-                print("Writing : "+npz_NBfile)
+                mylog.info("Writing : "+npz_NBfile)
             np.savez(npz_NBfile, **npz_NBdict)
         else:
             if redo == False:
-                print("File found : " + npz_NBfile)
+                mylog.info("File found : " + npz_NBfile)
                 npz_NB = np.load(npz_NBfile)
 
                 for key0 in npz_NB.keys():
@@ -1175,9 +1177,9 @@ def ew_MC(debug=False, redo=False):
                         HaLum_ref, logSFR_ref = derived_properties(**dict_prop)
 
                     if exists(npz_MCfile):
-                        print("Overwriting : "+npz_MCfile)
+                        mylog.info("Overwriting : "+npz_MCfile)
                     else:
-                        print("Writing : "+npz_MCfile)
+                        mylog.info("Writing : "+npz_MCfile)
 
                     npz_MCdict = {}
                     for name in npz_MCnames:
@@ -1185,7 +1187,7 @@ def ew_MC(debug=False, redo=False):
                     np.savez(npz_MCfile, **npz_MCdict)
                 else:
                     if redo == False:
-                        print("File found : " + npz_MCfile)
+                        mylog.info("File found : " + npz_MCfile)
                         npz_MC = np.load(npz_MCfile)
 
                         for key0 in npz_MC.keys():
@@ -1400,7 +1402,7 @@ def ew_MC(debug=False, redo=False):
         c_names = ('log_EWmean', 'log_EWsig', 'comp_50_sSFR', 'comp_50_EW',
                    'comp_50_flux')
 
-        print("Writing : "+table_outfile)
+        mylog.info("Writing : "+table_outfile)
         comp_tab = Table(comp_arr0, names=c_names)
         comp_tab.write(table_outfile, format='ascii.fixed_width_two_line',
                        overwrite=True)
@@ -1411,4 +1413,4 @@ def ew_MC(debug=False, redo=False):
         pp3.close()
 
     t0._stop()
-    print("ew_MC completed in : "+t0.format)
+    mylog.info("ew_MC completed in : "+t0.format)
