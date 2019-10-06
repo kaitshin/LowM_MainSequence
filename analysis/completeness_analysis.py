@@ -751,13 +751,6 @@ def ew_MC(debug=False, redo=False):
     mm_range = [0] if debug else range(n_mean)
     ss_range = [0] if debug else range(n_sigma)
 
-    comp_shape  = (len(mm_range), len(ss_range))
-    comp_sSFR   = np.zeros(comp_shape)
-    comp_EW     = np.zeros(comp_shape)
-    comp_flux   = np.zeros(comp_shape)
-    comp_EWmean = np.zeros(comp_shape)
-    comp_EWsig  = np.zeros(comp_shape)
-
     for ff in ff_range: # loop over filter
         t_ff = TimerClass()
         t_ff._start()
@@ -765,6 +758,13 @@ def ew_MC(debug=False, redo=False):
 
         logEW_mean = logEW_mean_start[ff] + 0.1*np.arange(n_mean)
         logEW_sig  = logEW_sig_start[ff]  + 0.1*np.arange(n_sigma)
+
+        comp_shape = (len(mm_range), len(ss_range))
+        comp_sSFR = np.zeros(comp_shape)
+        comp_EW = np.zeros(comp_shape)
+        comp_flux = np.zeros(comp_shape)
+        comp_EWmean = np.zeros(comp_shape)
+        comp_EWsig = np.zeros(comp_shape)
 
         out_pdf = path0 + 'Completeness/ew_MC_'+filters[ff]+'.pdf'
         if debug: out_pdf = out_pdf.replace('.pdf','.debug.pdf')
