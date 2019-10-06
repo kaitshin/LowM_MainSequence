@@ -134,6 +134,32 @@ class mlog:
         return log
 #enddef
 
+def stats_log(arr, arr_type, mylog):
+    """
+    Computes, min, max, median, and average value of input array and
+    output to log
+
+    Parameters
+    ----------
+    arr: numpy.ndarray
+      Input array
+
+    Returns
+    -------
+    None.  mylog is called.
+    """
+
+    min0  = np.nanmin(arr)
+    max0  = np.nanmax(arr)
+    mean0 = np.nanmean(arr)
+    med0  = np.nanmedian(arr)
+
+    str0 = "%s: min=%f max=%f mean=%f median=%f" % (arr_type, min0, max0,
+                                                    mean0, med0)
+    mylog.info(str0)
+#enddef
+
+
 def get_sigma(x, lim1, sigma=3.0):
     '''
     Magnitude errors based on limiting magnitude
