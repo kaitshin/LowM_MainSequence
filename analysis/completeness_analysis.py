@@ -855,6 +855,7 @@ def ew_MC(debug=False, redo=False):
         NB_seed = ff
         mylog.info("seed for %s : %i" % (filters[ff], NB_seed))
         NB_MC = random_mags(NB_seed, mock_sz, NB_ref, NB_sig_ref)
+        stats_log(NB_MC, "NB_MC", mylog)
 
         # Read in mag vs mass extrapolation
         mass_int = get_mag_vs_mass_interp(prefixes[ff])
@@ -918,11 +919,13 @@ def ew_MC(debug=False, redo=False):
                     rand0 = np.random.normal(0.0, 1.0, size=Ngal)
                     # This is not H-alpha
                     logEW_MC_ref = logEW_mean[mm] + logEW_sig[ss]*rand0
+                    stats_log(logEW_MC_ref, "logEW_MC_ref", mylog)
 
                     x_MC0_ref = EW_int(logEW_MC_ref) # NB color excess
                     negs = np.where(x_MC0_ref < 0)
                     if len(negs) > 0:
                         x_MC0_ref[negs] = 0.0
+                    stats_log(x_MC0_ref, "x_MC0_ref", mylog)
 
                     # Selection based on 'true' magnitudes
                     NB_sel_ref, NB_nosel_ref, sig_limit_ref = NB_select(ff, NB_ref, x_MC0_ref)
@@ -964,8 +967,10 @@ def ew_MC(debug=False, redo=False):
                 BB_seed = ff + 5
                 mylog.info("seed for broadband, mm=%i ss=%i : %i" % (mm, ss, BB_seed))
                 BB_MC = random_mags(BB_seed, mock_sz, BB_MC0_ref, BB_sig_ref)
+                stats_log(BB_MC, "BB_MC", mylog)
 
                 x_MC  = BB_MC - NB_MC
+                stats_log(x_MC, "x_MC", mylog)
 
                 NB_sel, NB_nosel, sig_limit = NB_select(ff, NB_MC, x_MC)
 
@@ -980,6 +985,9 @@ def ew_MC(debug=False, redo=False):
                 dict_prop['x']  = x_MC
                 logEW_MC, flux_MC, logM_MC, NIIHa, logOH, HaFlux_MC, HaLum_MC, \
                     logSFR_MC = derived_properties(**dict_prop)
+                stats_log(logEW_MC, "logEW_MC", mylog)
+                stats_log(flux_MC, "flux_MC", mylog)
+                stats_log(HaFlux_MC, "HaFlux_MC", mylog)
 
                 # Panel (0,0) - NB excess selection plot
 
