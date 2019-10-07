@@ -37,9 +37,11 @@ cosmo = FlatLambdaCDM(H0 = 70 * u.km / u.s / u.Mpc, Om0=0.3)
 import logging
 formatter = logging.Formatter('%(asctime)s - %(module)12s.%(funcName)20s - %(levelname)s: %(message)s')
 
-
+"""
+Pass through ew_MC() call
 Nsim  = 5000. # Number of modelled galaxies
 Nmock = 10    # Number of mocked galaxies
+"""
 
 filters = ['NB704','NB711','NB816','NB921','NB973']
 
@@ -724,7 +726,7 @@ def stats_plot(type0, ax2, ax3, ax, s_row, Ng, No, binso, EW_mean, EW_sig, ss):
                             xycoords='axes fraction', va='top')
 #enddef
 
-def ew_MC(debug=False, redo=False):
+def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
     '''
     Main function for Monte Carlo realization.  Adopts log-normal
     EW distribution to determine survey sensitivity and impact on
