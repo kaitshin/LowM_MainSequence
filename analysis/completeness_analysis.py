@@ -1094,8 +1094,10 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 fig4, ax4 = plt.subplots(nrows=2, ncols=2)
                 [[ax400, ax401], [ax410, ax411]] = ax4
 
-                ax4ins0 = inset_axes(ax400, width="33%", height="3%", loc=6) #LL
-                ax4ins1 = inset_axes(ax400, width="33%", height="3%", loc=7) #LR
+                ax4ins0 = inset_axes(ax400, width="40%", height="15%", loc=3,
+                                     bbox_to_anchor=(0.025,0.1,0.95,0.25), bbox_transform=ax400.transAxes) #LL
+                ax4ins1 = inset_axes(ax400, width="40%", height="15%", loc=4,
+                                     bbox_to_anchor=(0.025,0.1,0.95,0.25), bbox_transform=ax400.transAxes) #LR
 
                 ax4ins0.xaxis.set_ticks_position("top")
                 ax4ins1.xaxis.set_ticks_position("top")
@@ -1115,7 +1117,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 plot_NB_select(ff, ax400, NB, 'k', linewidth=2)
 
                 ax400.set_xlabel('NB')
-                ax400.set_ylim([-0.25,2.0])
+                ax400.set_ylim([-0.5,2.0])
                 ax400.set_ylabel('cont - NB')
 
                 ax400.annotate(N_annot_txt, [0.025,0.975], va='top',
@@ -1142,7 +1144,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
                 ax410.axvline(x=compute_EW(minthres[ff], ff), color='red')
 
-                plt.subplots_adjust(left=0.075, right=0.98, bottom=0.065,
+                plt.subplots_adjust(left=0.09, right=0.98, bottom=0.065,
                                     top=0.98, wspace=0.20, hspace=0.15)
                 fig4.set_size_inches(8,8)
                 fig4.savefig(pp4, format='pdf')
