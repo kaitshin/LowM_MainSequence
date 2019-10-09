@@ -10,6 +10,8 @@ import sys, os
 
 from chun_codes import systime, intersect_ndim, TimerClass
 
+from datetime import date
+
 from os.path import exists
 
 from astropy.io import fits
@@ -113,8 +115,8 @@ class mlog:
     Created by Chun Ly, 2 October 2019
     '''
 
-    def __init__(self,dir0):
-        self.LOG_FILENAME = dir0 + 'completeness_analysis.log'
+    def __init__(self,dir0,str_date):
+        self.LOG_FILENAME = dir0 + 'completeness_analysis.'+str_date+'.log'
         self._log = self._get_logger()
 
     def _get_logger(self):
@@ -744,7 +746,9 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
     '''
 
-    mylog = mlog(path0+'Completeness/')._get_logger()
+    today0   = date.today()
+    str_date = "%02i%02i" % (today0.month, today0.day)
+    mylog    = mlog(path0+'Completeness/', str_date)._get_logger()
 
     t0 = TimerClass()
     t0._start()
