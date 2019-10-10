@@ -932,12 +932,10 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                     # This is not H-alpha
                     logEW_MC_ref = logEW_mean[mm] + logEW_sig[ss]*rand0
                     stats_log(logEW_MC_ref, "logEW_MC_ref", mylog)
-                    mylog.info("logEW_MC_ref min/max: %f %f" %
-                               (np.min(logEW_MC_ref), np.max(logEW_MC_ref)))
 
                     x_MC0_ref = EW_int(logEW_MC_ref) # NB color excess
                     negs = np.where(x_MC0_ref < 0)
-                    if len(negs) > 0:
+                    if len(negs[0]) > 0:
                         x_MC0_ref[negs] = 0.0
                     stats_log(x_MC0_ref, "x_MC0_ref", mylog)
 
