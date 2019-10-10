@@ -396,7 +396,7 @@ def random_mags(t_seed, rand_shape, mag_ref, sig_ref):
 
     N_rep = rand_shape[0]
 
-    np.random.seed = t_seed
+    np.random.seed(t_seed)
     return mock_ones(mag_ref, N_rep) + np.random.normal(size=rand_shape) * \
         mock_ones(sig_ref, N_rep)
 
@@ -927,7 +927,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 if not exists(npz_MCfile) or redo == True:
                     EW_seed = mm*len(ss_range) + ss
                     mylog.info("seed for mm=%i ss=%i : %i" % (mm, ss, EW_seed))
-                    np.random.seed = EW_seed
+                    np.random.seed(EW_seed)
                     rand0 = np.random.normal(0.0, 1.0, size=Ngal)
                     # This is not H-alpha
                     logEW_MC_ref = logEW_mean[mm] + logEW_sig[ss]*rand0
