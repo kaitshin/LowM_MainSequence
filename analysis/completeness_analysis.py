@@ -551,6 +551,9 @@ def plot_completeness(t_ax, arr0, NB_sel0, bins, ref_arr0=None):
 
     sel, bins_edges1  = np.histogram(arr0[NB_sel], bins)
 
+    if len(bins_edges0) != len(bins_edges1):
+        print("bin_edges0 != bin_edges1")
+
     x0 = bins_edges0[:-1]
     y0 = sel/np.float_(orig)
     t_ax.step(x0, y0, 'b--', where='mid', label='mocked')
@@ -568,7 +571,10 @@ def plot_completeness(t_ax, arr0, NB_sel0, bins, ref_arr0=None):
 
         sel1, bins_edges11  = np.histogram(arr1[NB_sel], bins)
 
-        x1 = bins_edges0[:-1]
+        if len(bins_edges01) != len(bins_edges11):
+            print("bin_edges01 != bin_edges11")
+
+        x1 = bins_edges01[:-1]
         y1 = sel1/np.float_(orig1)
         t_ax.step(x1, y1, 'k--', where='mid', label='true')
 
