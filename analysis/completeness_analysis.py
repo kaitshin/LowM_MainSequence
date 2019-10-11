@@ -1005,6 +1005,8 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
                 plot_mock(ax00, NB_MC, x_MC, NB_sel, NB_nosel, '', 'cont - NB')
 
+                ax00.axvline(m_NB[ff], linestyle='dashed', color='b')
+
                 temp_x = contmag-NBmag
                 plot_MACT(ax00, NBmag, temp_x, w_spec, wo_spec)
 
