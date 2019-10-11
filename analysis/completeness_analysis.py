@@ -754,6 +754,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
     today0   = date.today()
     str_date = "%02i%02i" % (today0.month, today0.day)
+    if debug: str_date += ".debug"
     mylog    = mlog(path0+'Completeness/', str_date)._get_logger()
 
     t0 = TimerClass()
