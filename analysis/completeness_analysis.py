@@ -823,6 +823,8 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
         EW_ref = compute_EW(x, ff)
 
         good = np.where(np.isfinite(EW_ref))[0]
+        mylog.info('EW_ref (min/max): %f %f ' % (min(EW_ref[good]),
+                                                 max(EW_ref[good])))
         EW_int = interp1d(EW_ref[good], x[good], bounds_error=False,
                           fill_value=(-3.0, np.max(EW_ref[good])))
 
