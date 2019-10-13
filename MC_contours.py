@@ -171,7 +171,7 @@ def contours_three_params(sfrs, delta_sfrs, mass, mz_data):
     def func(data, a, b, c):
         return a*data[:,0] + b*data[:,1] + c
 
-    params00, pcov = curve_fit(func, mz_data, sfrs)
+    # params00, pcov = curve_fit(func, mz_data, sfrs)
 
     num_iters = 10000
     seed = 132089
@@ -194,9 +194,10 @@ def contours_three_params(sfrs, delta_sfrs, mass, mz_data):
     # plotting
     f, axes = plt.subplots(1,3)
     params_arr = [alpha_arr, beta_arr, gamma_arr]
+    errs_arr = []
     lbl_arr = [r'$\alpha$', r'$\beta$', r'$\gamma$']
 
-    for i, ax, const_arr, lbl in zip(range(3), axes, params_arr, lbl_arr):
+    for i, ax, lbl in zip(range(3), axes, lbl_arr):
         j = (i+1)%3
 
         if i>0: # 0.0025 ?
@@ -207,11 +208,11 @@ def contours_three_params(sfrs, delta_sfrs, mass, mz_data):
             ysize=0.001 if np.std(params_arr[j]) < 0.01 else 0.011
 
         x_final, y_final, hist2d, sig_levels = contours(params_arr[i],
-            params_arr[j], xsize, ysize, three_sig=True)
-        # ax.contour(x_final, y_final, hist2d, levels=sig_levels, colors=('0.75','0.75','0.75'))
+            params_arr[j], xsize, ysize, three_sig=False)
+
         ax.contour(x_final, y_final, hist2d, levels=sig_levels, colors=('0.90','0.75','0.75'))
         ax.scatter(np.mean(params_arr[i]), np.mean(params_arr[j]), zorder=2)
-        ax.scatter(params00[i], params00[j], zorder=1) # 'true' value
+        # ax.scatter(params00[i], params00[j], zorder=1) # 'true' value
         
         ax.text(0.05, 0.06,
             lbl_arr[i]+r'$=%.2f \pm(%.2f,%.2f)$'%(np.median(params[i]),99,99)+'\n'+
