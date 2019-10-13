@@ -1045,7 +1045,9 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 plot_MACT(ax11, logMstar, Ha_SFR, w_spec, wo_spec)
 
                 # Panel (2,0) - histogram of EW
-                ax20.axvline(x=compute_EW(minthres[ff], ff), color='red')
+                min_EW = compute_EW(minthres[ff], ff)
+                mylog.info("minimum EW : %f " % min_EW)
+                ax20.axvline(x=min_EW, color='red')
 
                 No, Ng, binso, \
                     wht0 = ew_flux_hist('EW', mm, ss, ax20, NB_EW, avg_NB,
