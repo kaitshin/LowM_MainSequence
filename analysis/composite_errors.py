@@ -31,6 +31,14 @@ k_ha = cardelli(HA * u.Angstrom)
 def compute_onesig_pdf(arr0, x_val):
     '''
     adapted from https://github.com/astrochun/chun_codes/blob/master/__init__.py
+
+    whereas np.std assumes that the distribution is normal, this assumes nothing
+    about the distribution.
+
+    requires arr0 to be of shape (len0, N_random), where len0 is the number of
+    parameters you want to find the onesig of
+
+    x_val must be of shape (len0,)
     '''
     len0 = arr0.shape[0] # arr0.shape[1] # Mod on 29/06/2016
 
