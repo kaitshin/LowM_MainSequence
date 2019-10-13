@@ -6,7 +6,7 @@ from astropy.convolution import convolve, Box2DKernel
 from astropy.io import ascii as asc
 from MACT_utils import get_tempz
 from scipy.optimize import curve_fit
-from analysis.composite_errors import random_pdf
+from analysis.composite_errors import random_pdf, compute_onesig_pdf
 
 
 FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
@@ -193,8 +193,11 @@ def contours_three_params(sfrs, delta_sfrs, mass, mz_data):
 
     # plotting
     f, axes = plt.subplots(1,3)
-    params_arr = [alpha_arr, beta_arr, gamma_arr]
-    errs_arr = []
+    params_arr = [alpha_arr, beta_arr, gamma_arr]    
+    errs_arr = [compute_onesig_pdf(alpha_arr.reshape(len(alpha_arr),1).T, [np.mean(alpha_arr)])[0][0],
+              compute_onesig_pdf(beta_arr.reshape(len(beta_arr),1).T, [np.mean(beta_arr)])[0][0],
+              compute_onesig_pdf(gamma_arr.reshape(len(gamma_arr),1).T, [np.mean(gamma_arr)])[0][0]]
+
     lbl_arr = [r'$\alpha$', r'$\beta$', r'$\gamma$']
 
     for i, ax, lbl in zip(range(3), axes, lbl_arr):
@@ -210,16 +213,18 @@ def contours_three_params(sfrs, delta_sfrs, mass, mz_data):
         x_final, y_final, hist2d, sig_levels = contours(params_arr[i],
             params_arr[j], xsize, ysize, three_sig=False)
 
-        ax.contour(x_final, y_final, hist2d, levels=sig_levels, colors=('0.90','0.75','0.75'))
+        ax.contour(x_final, y_final, hist2d, levels=sig_levels, colors='black', linewidths=1)
         ax.scatter(np.mean(params_arr[i]), np.mean(params_arr[j]), zorder=2)
         # ax.scatter(params00[i], params00[j], zorder=1) # 'true' value
         
         ax.text(0.05, 0.06,
-            lbl_arr[i]+r'$=%.2f \pm(%.2f,%.2f)$'%(np.median(params[i]),99,99)+'\n'+
-            lbl_arr[j]+r'$=%.2f \pm(%.2f,%.2f)$'%(np.median(params[j]),99,99),
-            transform=ax.transAxes)
-        ax.set_xlabel(lbl_arr[i])
-        ax.set_ylabel(lbl_arr[j])
+            # lbl_arr[i]+r'$=%.2f \pm(%.2f,%.2f)$'%(np.median(params[i]), errs_arr[i][0], errs_arr[i][1])+'\n'+
+            # lbl_arr[j]+r'$=%.2f \pm(%.2f,%.2f)$'%(np.median(params[j]), errs_arr[j][0], errs_arr[j][1]),
+            lbl_arr[i]+r'$=%.2f \pm %.2f$'%(np.median(params[i]), np.mean([errs_arr[i][0], errs_arr[i][1]]))+'\n'+
+            lbl_arr[j]+r'$=%.2f \pm %.2f$'%(np.median(params[j]), np.mean([errs_arr[j][0], errs_arr[j][1]])),
+            transform=ax.transAxes, fontsize=13)
+        ax.set_xlabel(lbl_arr[i], fontsize=12)
+        ax.set_ylabel(lbl_arr[j], fontsize=12)
         # ax.set_title(lbl_arr[j]+' (%.3f)'%params00[j]+' vs. '+lbl_arr[i]+' (%.3f)'%params00[i])
         
     [ax.tick_params(axis='both', labelsize='10', which='both',
