@@ -177,17 +177,17 @@ def contours_three_params(sfrs, delta_sfrs, mass, mz_data):
 
     np.random.seed(12376)
 
-    alpha_arr = np.array([])
-    beta_arr = np.array([])
-    gamma_arr = np.array([])
+    alpha_arr = np.zeros(num_iters)
+    beta_arr = np.zeros(num_iters)
+    gamma_arr = np.zeros(num_iters)
 
     for i in range(num_iters):
         s_arr = sfrs_pdf[:,i]
 
         params, pcov = curve_fit(func, mz_data, s_arr)
-        alpha_arr = np.append(alpha_arr, params[0])
-        beta_arr = np.append(beta_arr, params[1])
-        gamma_arr = np.append(gamma_arr, params[2])
+        alpha_arr[i] = params[0]
+        beta_arr[i] = params[1]
+        gamma_arr[i] = params[2]
 
     # plotting
     f, axes = plt.subplots(1,3)
@@ -215,8 +215,8 @@ def contours_three_params(sfrs, delta_sfrs, mass, mz_data):
         ax.scatter(np.mean(params_arr[i]), np.mean(params_arr[j]), zorder=2)
         
         ax.text(0.05, 0.06,
-            lbl_arr[i]+r'$=%.2f \pm %.2f$'%(np.median(params[i]), np.mean([errs_arr[i][0], errs_arr[i][1]]))+'\n'+
-            lbl_arr[j]+r'$=%.2f \pm %.2f$'%(np.median(params[j]), np.mean([errs_arr[j][0], errs_arr[j][1]])),
+            lbl_arr[i]+r'$=%.2f \pm %.2f$'%(np.mean(params_arr[i]), np.mean([errs_arr[i][0], errs_arr[i][1]]))+'\n'+
+            lbl_arr[j]+r'$=%.2f \pm %.2f$'%(np.mean(params_arr[j]), np.mean([errs_arr[j][0], errs_arr[j][1]])),
             transform=ax.transAxes, fontsize=13)
         ax.set_xlabel(lbl_arr[i], fontsize=12)
         ax.set_ylabel(lbl_arr[j], fontsize=12)
