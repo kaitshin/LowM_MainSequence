@@ -171,8 +171,6 @@ def contours_three_params(sfrs, delta_sfrs, mass, mz_data):
     def func(data, a, b, c):
         return a*data[:,0] + b*data[:,1] + c
 
-    # params00, pcov = curve_fit(func, mz_data, sfrs)
-
     num_iters = 10000
     seed = 132089
     sfrs_pdf = random_pdf(sfrs, delta_sfrs, seed_i=seed, n_iter=num_iters)
@@ -215,22 +213,17 @@ def contours_three_params(sfrs, delta_sfrs, mass, mz_data):
 
         ax.contour(x_final, y_final, hist2d, levels=sig_levels, colors='black', linewidths=1)
         ax.scatter(np.mean(params_arr[i]), np.mean(params_arr[j]), zorder=2)
-        # ax.scatter(params00[i], params00[j], zorder=1) # 'true' value
         
         ax.text(0.05, 0.06,
-            # lbl_arr[i]+r'$=%.2f \pm(%.2f,%.2f)$'%(np.median(params[i]), errs_arr[i][0], errs_arr[i][1])+'\n'+
-            # lbl_arr[j]+r'$=%.2f \pm(%.2f,%.2f)$'%(np.median(params[j]), errs_arr[j][0], errs_arr[j][1]),
             lbl_arr[i]+r'$=%.2f \pm %.2f$'%(np.median(params[i]), np.mean([errs_arr[i][0], errs_arr[i][1]]))+'\n'+
             lbl_arr[j]+r'$=%.2f \pm %.2f$'%(np.median(params[j]), np.mean([errs_arr[j][0], errs_arr[j][1]])),
             transform=ax.transAxes, fontsize=13)
         ax.set_xlabel(lbl_arr[i], fontsize=12)
         ax.set_ylabel(lbl_arr[j], fontsize=12)
-        # ax.set_title(lbl_arr[j]+' (%.3f)'%params00[j]+' vs. '+lbl_arr[i]+' (%.3f)'%params00[i])
         
     [ax.tick_params(axis='both', labelsize='10', which='both',
         direction='in') for ax in axes]
     f.set_size_inches(15,5)
-    # plt.subplots_adjust(wspace=0.2, left=0.04, bottom=0.09)
     plt.tight_layout()
     plt.savefig(FULL_PATH+'Plots/main_sequence/MC_regr_contours.pdf')
 
