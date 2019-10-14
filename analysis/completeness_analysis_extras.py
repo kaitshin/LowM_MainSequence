@@ -209,8 +209,10 @@ def NB_numbers():
                      filt in filters]
 
     out_pdf = path0 + 'Completeness/NB_numbers.pdf'
-
     fig, ax_arr = plt.subplots(nrows=3, ncols=2)
+
+    fig0, ax0 = plt.subplots()
+    out_pdf0 = path0 + 'Completeness/NB_numbers_all.pdf'
 
     bin_size = 0.25
     bins = np.arange(17.0,28,bin_size)
@@ -220,6 +222,7 @@ def NB_numbers():
     N_norm0 = []
     mag_arr = []
 
+    ctype = ['blue','green','black','red','magenta']
     for ff in range(len(filters)):
         print('Reading : '+NB_phot_files[ff])
         phot_tab = asc.read(NB_phot_files[ff])
@@ -229,6 +232,9 @@ def NB_numbers():
         col = ff % 2
 
         ax = ax_arr[row][col]
+
+        ax0.hist(MAG_APER, bins=bins, align='mid', color=ctype[ff],
+                 linestyle='solid', histtype='step', label=filters[ff])
 
         N, m_bins, _ = ax.hist(MAG_APER, bins=bins, align='mid', color='black',
                                linestyle='solid', histtype='step',
@@ -273,7 +279,19 @@ def NB_numbers():
                         wspace=0.025, hspace=0.025)
     fig.savefig(out_pdf, bbox_inches='tight')
 
+    ax0.legend(loc='upper left', fancybox=True, fontsize=8, framealpha=0.75)
+    ax0.set_yscale('log')
+    ax0.set_ylim([1,5e4])
+    ax0.set_xlim([16.5,28.0])
+    ax0.set_xlabel('NB [mag]')
+    ax0.set_ylabel(r'$N$')
+
+    plt.subplots_adjust(left=0.105, right=0.98, bottom=0.05, top=0.98,
+                        wspace=0.025, hspace=0.025)
+    fig0.savefig(out_pdf0, bbox_inches='tight')
+
     out_npz = out_pdf.replace('.pdf', '.npz')
     np.savez(out_npz, filters=filters, bin_size=bin_size, NB_slope0=NB_slope0,
              mag_arr=mag_arr, N_norm0=N_norm0)
+
 #enddef
