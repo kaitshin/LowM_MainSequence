@@ -44,9 +44,19 @@ def get_flux_from_FAST(ID, lambda_arr, byarr=True, fileend='.GALEX'):
     return newflux
 
 
-def get_mainseq_fit_params(sfrs, delta_sfrs, ydata, num_params=0,
-    ret_func=False, num_iters=10000, seed=132089):
+def get_mainseq_fit_params(sfrs, delta_sfrs, otherdata, num_params=0,
+    num_iters=10000, seed=132089):
     '''
+    num_params == 2 is for 
+        (1) mainseq w/o zspec, where 'otherdata' = mass
+        (2) sSFR analysis in plot_nbia_mainseq, where 'otherdata' = log(1+z)
+            and sfrs is actually ssfrs
+    num_params == 3 is for mainseq with zspec
+        'otherdata' = mass and redshift
+
+    - returns a list of len(num_params) where each element is a parameter
+      array of length num_iters
+    - the parameters themselves will be [np.mean(params_arr[i]) for i in range(num_params)]
     '''
     from analysis.composite_errors import random_pdf
     from scipy.optimize import curve_fit
@@ -62,7 +72,7 @@ def get_mainseq_fit_params(sfrs, delta_sfrs, ydata, num_params=0,
             ''' r'$\log(SFR) = \alpha \log(M) + \beta z + \gamma$' '''
             return a*data + b
 
-        mass = ydata
+        mass = otherdata
         for i in range(num_iters):
             s_arr = sfrs_pdf[:,i]
 
@@ -76,7 +86,7 @@ def get_mainseq_fit_params(sfrs, delta_sfrs, ydata, num_params=0,
             ''' r'$\log(SFR) = \alpha \log(M) + \beta z + \gamma$' '''
             return a*data[:,0] + b*data[:,1] + c
 
-        mz_data = ydata
+        mz_data = otherdata
         beta_arr = np.zeros(num_iters)
         for i in range(num_iters):
             s_arr = sfrs_pdf[:,i]
@@ -90,10 +100,7 @@ def get_mainseq_fit_params(sfrs, delta_sfrs, ydata, num_params=0,
     else:
         raise ValueError('num_params should be 2 or 3')
 
-    if ret_func:
-        return func, params_arr
-    else:
-        return params_arr
+    return params_arr
 
 
 def get_tempz(zspec0, filt_arr):
