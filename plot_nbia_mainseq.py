@@ -29,7 +29,7 @@ import scipy.optimize as optimize
 import matplotlib as mpl
 from astropy.io import ascii as asc
 from analysis.composite_errors import compute_onesig_pdf
-from MACT_utils import get_z_arr
+from MACT_utils import get_z_arr, get_mainseq_fit_params
 
 # emission line wavelengths (air)
 HA = 6562.80
@@ -410,7 +410,7 @@ def modify_redshift_graph(f, ax, fittype, eqn0, params, ytype, withnewha):
         f.set_size_inches(7,6)
 
 
-def make_redshift_graph(f, ax, z_arr, corr_sfrs, stlr_mass, zspec0, filts,
+def make_redshift_graph(f, ax, z_arr, corr_sfrs, delta_sfrs, stlr_mass, zspec0, filts,
     no_spectra, yes_spectra, cwheel, ffarr=['NB7', 'NB816', 'NB921', 'NB973'],
     llarr=['NB704,NB711', 'NB816', 'NB921', 'NB973'], ytype='SFR',
     fittype='first_order', withnewha=False):
@@ -431,8 +431,8 @@ def make_redshift_graph(f, ax, z_arr, corr_sfrs, stlr_mass, zspec0, filts,
 
     data00 = np.vstack([stlr_mass, zspec0]).T
 
-    params, pcov = optimize.curve_fit(func0, data00, corr_sfrs, method='lm')
-    perr = np.sqrt(np.diag(pcov))
+    params_arr = get_mainseq_fit_params(corr_sfrs, delta_sfrs, data00, num_params=3)
+    params = [np.mean(params_arr[i]) for i in range(len(params_arr))]
 
 
     for ff, cc, ll, zz in zip(ffarr[::-1], cwheel[::-1],
@@ -563,18 +563,20 @@ def main():
     # defining a flux sigma and mass cutoff
     good_sig_iis = np.where((corr_tbl['flux_sigma'] >= CUTOFF_SIGMA) & 
         (corr_tbl['stlr_mass'] >= CUTOFF_MASS))[0]
+    corr_tbl = corr_tbl[good_sig_iis]
 
     # getting/storing useful data
-    zspec0 = np.array(corr_tbl['zspec0'])[good_sig_iis]
+    zspec0 = np.array(corr_tbl['zspec0'])
     no_spectra  = np.where((zspec0 <= 0) | (zspec0 > 9))[0]
     yes_spectra = np.where((zspec0 >= 0) & (zspec0 < 9))[0]
 
-    stlr_mass = np.array(corr_tbl['stlr_mass'])[good_sig_iis]
-    filts = np.array(corr_tbl['filt'])[good_sig_iis]
-    sfr = np.array(corr_tbl['met_dep_sfr'])[good_sig_iis]
-    dust_corr_factor = np.array(corr_tbl['dust_corr_factor'])[good_sig_iis]
-    filt_corr_factor = np.array(corr_tbl['filt_corr_factor'])[good_sig_iis]
-    nii_ha_corr_factor = np.array(corr_tbl['nii_ha_corr_factor'])[good_sig_iis]
+    stlr_mass = corr_tbl['stlr_mass'].data
+    filts = corr_tbl['filt'].data
+    obs_sfr = corr_tbl['met_dep_sfr'].data
+    delta_sfrs = corr_tbl['meas_errs'].data
+    dust_corr_factor = corr_tbl['dust_corr_factor'].data
+    filt_corr_factor = corr_tbl['filt_corr_factor'].data
+    nii_ha_corr_factor = corr_tbl['nii_ha_corr_factor'].data
 
     # defining useful data structs for plotting
     filtarr = np.array(['NB704,NB711', 'NB816', 'NB921', 'NB973'])
@@ -596,8 +598,8 @@ def main():
             filt_corr_factor+nii_ha_corr_factor+dust_corr_factor],
         axarr, range(4)):
 
-        #  should pass in e.g., "sfr + corrs" to plot applied corrs
-        make_all_graph(stlr_mass, sfr+corrs, filtarr, markarr, z_arr, sizearr,
+        #  should pass in e.g., "obs_sfr + corrs" to plot applied corrs
+        make_all_graph(stlr_mass, obs_sfr+corrs, filtarr, markarr, z_arr, sizearr,
             title, no_spectra, yes_spectra, filts, ax, i)
         print 'done plotting', title
 
@@ -613,7 +615,7 @@ def main():
         print 'making 1-panel mainseq plot now (with only \'all\' corrs)'
         i=5
         f, ax = plt.subplots()
-        make_all_graph(stlr_mass, sfr+corrs, filtarr, markarr, z_arr, sizearr,
+        make_all_graph(stlr_mass, obs_sfr+corrs, filtarr, markarr, z_arr, sizearr,
             title, no_spectra, yes_spectra, filts, ax, i)
         ax.tick_params(axis='both', labelsize='10', which='both',
             direction='in')
@@ -628,9 +630,9 @@ def main():
 
     print 'making redshift dependent plot now'
     f, ax = plt.subplots()
-    corr_sfrs = sfr+filt_corr_factor+nii_ha_corr_factor+dust_corr_factor
+    corr_sfrs = obs_sfr+filt_corr_factor+nii_ha_corr_factor+dust_corr_factor
 
-    make_redshift_graph(f, ax, z_arr, corr_sfrs, stlr_mass, zspec00, filts,
+    make_redshift_graph(f, ax, z_arr, corr_sfrs, delta_sfrs, stlr_mass, zspec00, filts,
         no_spectra, yes_spectra, cwheel)
     plt.subplots_adjust(hspace=0.01, wspace=0.01, right=0.99, top=0.98,
         left=0.1, bottom=0.09)

@@ -24,6 +24,7 @@ import scipy.optimize as optimize
 import plot_nbia_mainseq
 from astropy.io import ascii as asc
 from astropy.table import Table
+from MACT_utils import get_mainseq_fit_params
 
 # emission line wavelengths (air)
 HA = 6562.80
@@ -207,7 +208,7 @@ def salim_2007(ax):
         np.array([0.2]*len(xarr)), color='gray', alpha=0.4)
 
 
-def plot_all_dispersion(f, ax, data00, corr_sfrs, stlr_mass, filts,
+def plot_all_dispersion(f, ax, data00, corr_sfrs, delta_sfrs, stlr_mass, filts,
     no_spectra, yes_spectra, z_arr, 
     markarr = np.array(['o','^','D','*']), 
     sizearr = np.array([6.0,6.0,6.0,9.0])**2,
@@ -226,7 +227,9 @@ def plot_all_dispersion(f, ax, data00, corr_sfrs, stlr_mass, filts,
     '''
     func0, eqn0 = plot_nbia_mainseq.get_func0_eqn0(fittype)
 
-    params, pcov = optimize.curve_fit(func0, data00, corr_sfrs, method='lm')
+    params_arr = get_mainseq_fit_params(corr_sfrs, delta_sfrs, data00, num_params=3)
+    params = [np.mean(params_arr[i]) for i in range(len(params_arr))]
+
     sfrs_resid = corr_sfrs - func0(data00, *params)
     ax.axhline(0, color='k', ls='--', zorder=1)
 
@@ -275,19 +278,21 @@ def main():
     # defining a flux sigma and mass cutoff
     good_sig_iis = np.where((corr_tbl['flux_sigma'] >= CUTOFF_SIGMA) & 
         (corr_tbl['stlr_mass'] >= CUTOFF_MASS))[0]
+    corr_tbl = corr_tbl[good_sig_iis]
 
     # getting/storing useful data
-    zspec0 = np.array(corr_tbl['zspec0'])[good_sig_iis]
+    zspec0 = np.array(corr_tbl['zspec0'])
     no_spectra  = np.where((zspec0 <= 0) | (zspec0 > 9))[0]
     yes_spectra = np.where((zspec0 >= 0) & (zspec0 < 9))[0]
 
-    stlr_mass = np.array(corr_tbl['stlr_mass'])[good_sig_iis]
-    filts = np.array(corr_tbl['filt'])[good_sig_iis]
-    sfr = np.array(corr_tbl['met_dep_sfr'])[good_sig_iis]
-    dust_corr_factor = np.array(corr_tbl['dust_corr_factor'])[good_sig_iis]
-    filt_corr_factor = np.array(corr_tbl['filt_corr_factor'])[good_sig_iis]
-    nii_ha_corr_factor = np.array(corr_tbl['nii_ha_corr_factor'])[good_sig_iis]
-    corr_sfrs = sfr+filt_corr_factor+nii_ha_corr_factor+dust_corr_factor
+    stlr_mass = corr_tbl['stlr_mass'].data
+    filts = corr_tbl['filt'].data
+    obs_sfr = corr_tbl['met_dep_sfr'].data
+    delta_sfrs = corr_tbl['meas_errs'].data
+    dust_corr_factor = corr_tbl['dust_corr_factor'].data
+    filt_corr_factor = corr_tbl['filt_corr_factor'].data
+    nii_ha_corr_factor = corr_tbl['nii_ha_corr_factor'].data
+    corr_sfrs = obs_sfr+filt_corr_factor+nii_ha_corr_factor+dust_corr_factor
 
     zspec00 = plot_nbia_mainseq.approximated_zspec0(zspec0, filts)
     data00 = np.vstack([stlr_mass, zspec00]).T
@@ -296,13 +301,13 @@ def main():
 
     # plotting
     f, ax = plt.subplots()
-    sfrs_resid = plot_all_dispersion(f, ax, data00, corr_sfrs, stlr_mass,
+    sfrs_resid = plot_all_dispersion(f, ax, data00, corr_sfrs, delta_sfrs, stlr_mass,
         filts, no_spectra, yes_spectra, z_arr)
     plt.savefig(FULL_PATH+'Plots/main_sequence/mainseq_dispersion.pdf')
     plt.close()
 
     # creating a dispersion table
-    meas_errs = corr_tbl['meas_errs'].data[good_sig_iis]
+    meas_errs = corr_tbl['meas_errs'].data # = delta_sfrs
     tt = create_disp_tbl(stlr_mass, corr_sfrs, sfrs_resid, meas_errs)
     # asc.write(tt, FULL_PATH+'Main_Sequence/dispersion_tbl.txt', 
     #     format='latex', overwrite=True)
