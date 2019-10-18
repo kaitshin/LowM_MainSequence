@@ -13,7 +13,7 @@ FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
 CUTOFF_SIGMA = 4.0
 CUTOFF_MASS = 6.0
 
-n_repeats = 50000
+num_iters = 10000
 
 
 def contours(x, y, xsize=0.01, ysize=0.01, three_sig=False):
@@ -164,14 +164,68 @@ def confidence(x):
     return low_limit, high_limit
 
 
+def contours_two_params(sfrs, delta_sfrs, mass):
+    def func(data, a, b):
+        '''
+        r'$\log(SFR) = \alpha \log(M) + \beta z + \gamma$'
+        '''
+        return a*data + b
+
+    seed = 132089
+    sfrs_pdf = random_pdf(sfrs, delta_sfrs, seed_i=seed, n_iter=num_iters)
+
+    np.random.seed(12376)
+
+    alpha_arr = np.zeros(num_iters)
+    gamma_arr = np.zeros(num_iters)
+
+    for i in range(num_iters):
+        s_arr = sfrs_pdf[:,i]
+
+        params, pcov = curve_fit(func, mass, s_arr)
+        alpha_arr[i] = params[0]
+        gamma_arr[i] = params[1]
+
+    # plotting
+    f, ax = plt.subplots(1,1)
+    params_arr = [alpha_arr,  gamma_arr]
+    errs_arr = [compute_onesig_pdf(alpha_arr.reshape(len(alpha_arr),1).T, [np.mean(alpha_arr)])[0][0],
+              compute_onesig_pdf(gamma_arr.reshape(len(gamma_arr),1).T, [np.mean(gamma_arr)])[0][0]]
+
+    lbl_arr = [r'$\alpha$', r'$\gamma$']
+
+    i, j = 0, 1
+    xsize=0.001 if np.std(params_arr[i]) < 0.01 else 0.01
+    ysize=0.001 if np.std(params_arr[j]) < 0.01 else 0.01
+
+    x_final, y_final, hist2d, sig_levels = contours(params_arr[i],
+        params_arr[j], xsize, ysize, three_sig=False)
+
+    ax.contour(x_final, y_final, hist2d, levels=sig_levels, colors='black', linewidths=1)
+    ax.scatter(np.mean(params_arr[i]), np.mean(params_arr[j]), zorder=2)
+
+    ax.text(0.05, 0.06,
+        lbl_arr[i]+r'$=%.3f \pm %.3f$'%(np.mean(params_arr[i]), np.mean([errs_arr[i][0], errs_arr[i][1]]))+'\n'+
+        lbl_arr[j]+r'$=%.2f \pm %.2f$'%(np.mean(params_arr[j]), np.mean([errs_arr[j][0], errs_arr[j][1]])),
+        transform=ax.transAxes, fontsize=13)
+    ax.set_xlabel(lbl_arr[i], fontsize=12)
+    ax.set_ylabel(lbl_arr[j], fontsize=12)
+    ax.set_xlim([0.868,0.902])
+    ax.set_ylim([-8.72, -8.44])
+
+    ax.tick_params(axis='both', labelsize='10', which='both', direction='in')
+    f.set_size_inches(5,4)
+    plt.tight_layout()
+    plt.savefig(FULL_PATH+'Plots/main_sequence/MC_regr_contours_noz.pdf')
+
+
 def contours_three_params(sfrs, delta_sfrs, mass, mz_data):
-    '''
-    '''
-    eqn_str = r'$\log(SFR) = \alpha \log(M) + \beta z + \gamma$'
     def func(data, a, b, c):
+        '''
+        r'$\log(SFR) = \alpha \log(M) + \beta z + \gamma$'
+        '''
         return a*data[:,0] + b*data[:,1] + c
 
-    num_iters = 10000
     seed = 132089
     sfrs_pdf = random_pdf(sfrs, delta_sfrs, seed_i=seed, n_iter=num_iters)
 
@@ -191,7 +245,7 @@ def contours_three_params(sfrs, delta_sfrs, mass, mz_data):
 
     # plotting
     f, axes = plt.subplots(1,3)
-    params_arr = [alpha_arr, beta_arr, gamma_arr]    
+    params_arr = [alpha_arr, beta_arr, gamma_arr]
     errs_arr = [compute_onesig_pdf(alpha_arr.reshape(len(alpha_arr),1).T, [np.mean(alpha_arr)])[0][0],
               compute_onesig_pdf(beta_arr.reshape(len(beta_arr),1).T, [np.mean(beta_arr)])[0][0],
               compute_onesig_pdf(gamma_arr.reshape(len(gamma_arr),1).T, [np.mean(gamma_arr)])[0][0]]
@@ -252,6 +306,7 @@ def main():
     tempz = get_tempz(zspec0, filts)
     mz_data = np.vstack([mass, tempz]).T
 
+    contours_two_params(sfrs, delta_sfrs, mass)
     contours_three_params(sfrs, delta_sfrs, mass, mz_data)
 
 
