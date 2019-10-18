@@ -4,9 +4,8 @@ from astropy.stats import sigma_clip
 from scipy import interpolate
 from astropy.convolution import convolve, Box2DKernel
 from astropy.io import ascii as asc
-from MACT_utils import get_tempz
-from scipy.optimize import curve_fit
-from analysis.composite_errors import random_pdf, compute_onesig_pdf
+from MACT_utils import get_tempz, get_mainseq_fit_params
+from analysis.composite_errors import compute_onesig_pdf
 
 
 FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
@@ -149,59 +148,10 @@ def confidence(x):
     return low_limit, high_limit
 
 
-def get_params(sfrs, delta_sfrs, ydata, num_params=0,
-    ret_func=False, n_iter=10000, seed=132089):
+def plot_contours_two_params(sfrs, delta_sfrs, mass):
     '''
     '''
-    sfrs_pdf = random_pdf(sfrs, delta_sfrs, seed_i=seed, n_iter=num_iters)
-    np.random.seed(12376)
-
-    alpha_arr = np.zeros(num_iters)
-    gamma_arr = np.zeros(num_iters)
-
-    if num_params == 2:
-        def func(data, a, b):
-            ''' r'$\log(SFR) = \alpha \log(M) + \beta z + \gamma$' '''
-            return a*data + b
-
-        mass = ydata
-        for i in range(num_iters):
-            s_arr = sfrs_pdf[:,i]
-
-            params, pcov = curve_fit(func, mass, s_arr)
-            alpha_arr[i] = params[0]
-            gamma_arr[i] = params[1]
-        params_arr = [alpha_arr, gamma_arr]
-
-    elif num_params == 3:
-        def func(data, a, b, c):
-            ''' r'$\log(SFR) = \alpha \log(M) + \beta z + \gamma$' '''
-            return a*data[:,0] + b*data[:,1] + c
-
-        mz_data = ydata
-        beta_arr = np.zeros(num_iters)
-        for i in range(num_iters):
-            s_arr = sfrs_pdf[:,i]
-
-            params, pcov = curve_fit(func, mz_data, s_arr)
-            alpha_arr[i] = params[0]
-            beta_arr[i] = params[1]
-            gamma_arr[i] = params[2]
-        params_arr = [alpha_arr, beta_arr, gamma_arr]
-
-    else:
-        raise ValueError('num_params should be 2 or 3')
-
-    if ret_func:
-        return func, params_arr
-    else:
-        return params_arr
-
-
-def contours_two_params(sfrs, delta_sfrs, mass):
-    '''
-    '''
-    params_arr = get_params(sfrs, delta_sfrs, mass, num_params=2)
+    params_arr = get_mainseq_fit_params(sfrs, delta_sfrs, mass, num_params=2)
     errs_arr = []
     for i, param_arr in enumerate(params_arr):
         errs_arr.append(compute_onesig_pdf(param_arr.reshape(num_iters,1).T,
@@ -236,10 +186,10 @@ def contours_two_params(sfrs, delta_sfrs, mass):
     plt.savefig(FULL_PATH+'Plots/main_sequence/MC_regr_contours_noz.pdf')
 
 
-def contours_three_params(sfrs, delta_sfrs, mz_data):
+def plot_contours_three_params(sfrs, delta_sfrs, mz_data):
     '''
     '''
-    params_arr = get_params(sfrs, delta_sfrs, mz_data, num_params=3)
+    params_arr = get_mainseq_fit_params(sfrs, delta_sfrs, mz_data, num_params=3)
     errs_arr = []
     for i, param_arr in enumerate(params_arr):
         errs_arr.append(compute_onesig_pdf(param_arr.reshape(num_iters,1).T,
@@ -303,8 +253,8 @@ def main():
     tempz = get_tempz(zspec0, filts)
     mz_data = np.vstack([mass, tempz]).T
 
-    contours_two_params(sfrs, delta_sfrs, mass)
-    # contours_three_params(sfrs, delta_sfrs, mz_data)
+    plot_contours_two_params(sfrs, delta_sfrs, mass)
+    plot_contours_three_params(sfrs, delta_sfrs, mz_data)
 
 
 if __name__ == '__main__':
