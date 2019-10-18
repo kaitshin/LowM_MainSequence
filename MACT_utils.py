@@ -7,11 +7,35 @@ PURPOSE:
 """
 
 import numpy as np
+from analysis.cardelli import *   # k = cardelli(lambda0, R=3.1)
 
 FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
 
 # emission line wavelengths (air)
 HA = 6562.80
+
+def random_pdf(x, dx, seed_i, n_iter=1000):
+    '''
+    adapted from https://github.com/astrochun/chun_codes/blob/master/__init__.py
+    '''
+    if type(x)==np.float64:
+        len0 = 1
+    else:
+        len0 = len(x)
+    x_pdf  = np.zeros((len0, n_iter), dtype=np.float64)
+
+    seed0 = seed_i + np.arange(len0)
+
+    for ii in range(len0):
+        np.random.seed(seed0[ii])
+        temp = np.random.normal(0.0, 1.0, size=n_iter)
+        if len0==1:
+            x_pdf[ii]  = x + dx*temp
+        else:
+            x_pdf[ii]  = x[ii] + dx[ii]*temp
+
+    return x_pdf
+
 
 def get_flux_from_FAST(ID, lambda_arr, byarr=True, fileend='.GALEX'):
     '''
@@ -47,8 +71,6 @@ def get_flux_from_FAST(ID, lambda_arr, byarr=True, fileend='.GALEX'):
 def get_mainseq_fit_params(sfrs, delta_sfrs, otherdata, num_params=0,
     num_iters=10000, seed=132089):
     '''
-    num_params == 'sSFRs' is for sSFR analysis in plot_nbia_mainseq,
-        where 'otherdata' = log(1+z) and sfrs is actually ssfrs
     num_params == 2 is for mainseq w/o zspec,
         where 'otherdata' = mass
     num_params == 3 is for mainseq with zspec,
@@ -225,34 +247,9 @@ def compute_onesig_pdf(arr0, x_val):
     return err, xpeak
 
 
-def random_pdf(x, dx, seed_i, n_iter=1000):
-    '''
-    adapted from https://github.com/astrochun/chun_codes/blob/master/__init__.py
-    '''
-    if type(x)==np.float64:
-        len0 = 1
-    else:
-        len0 = len(x)
-    x_pdf  = np.zeros((len0, n_iter), dtype=np.float64)
-
-    seed0 = seed_i + np.arange(len0)
-
-    for ii in range(len0):
-        np.random.seed(seed0[ii])
-        temp = np.random.normal(0.0, 1.0, size=n_iter)
-        if len0==1:
-            x_pdf[ii]  = x + dx*temp
-        else:
-            x_pdf[ii]  = x[ii] + dx[ii]*temp
-
-    return x_pdf
-
-
 def composite_errors(x, dx, seed_i, label=''):
     '''
     '''
-    from analysis.cardelli import *   # k = cardelli(lambda0, R=3.1)
-
     # emission line wavelengths (air)
     HG = 4340.46
     HB = 4861.32
