@@ -42,7 +42,7 @@ import writing_tables.hg_hb_ha_tables as MMT_twriting
 import writing_tables.hb_ha_tables as Keck_twriting
 import writing_tables.general_tables as general_twriting
 from analysis.balmer_fit import get_best_fit3, get_baseline_median
-from analysis.composite_errors import composite_errors
+from MACT_utils import composite_errors
 from analysis.sdf_stack_data import stack_data
 from astropy.io import fits as pyfits, ascii as asc
 from astropy.table import Table, vstack

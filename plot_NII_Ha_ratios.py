@@ -16,7 +16,7 @@ OUTPUTS:
     FULL_PATH+'Plots/main_sequence/NII_Ha_scatter_log.pdf'
 """
 
-from analysis.composite_errors import composite_errors
+from MACT_utils import composite_errors
 from astropy.io import fits as pyfits, ascii as asc
 from create_ordered_AP_arrays import create_ordered_AP_arrays
 from scipy.optimize import curve_fit

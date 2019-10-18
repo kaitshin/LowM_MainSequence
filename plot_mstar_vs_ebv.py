@@ -31,7 +31,7 @@ import matplotlib.patches as mpatches
 import matplotlib.lines as mlines
 
 from analysis.cardelli import *
-from analysis.composite_errors import composite_errors
+from MACT_utils import composite_errors
 from astropy.io import ascii as asc
 from create_ordered_AP_arrays import create_ordered_AP_arrays
 

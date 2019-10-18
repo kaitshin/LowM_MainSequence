@@ -32,9 +32,8 @@ import numpy as np, matplotlib.pyplot as plt
 import plotting.general_plotting as general_plotting
 import plot_NII_Ha_ratios
 
-from MACT_utils import niiha_oh_determine
+from MACT_utils import niiha_oh_determine, composite_errors
 from analysis.cardelli import *
-from analysis.composite_errors import composite_errors
 from astropy.cosmology import FlatLambdaCDM
 from scipy import stats
 from scipy.interpolate import interp1d

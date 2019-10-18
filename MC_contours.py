@@ -4,8 +4,7 @@ from astropy.stats import sigma_clip
 from scipy import interpolate
 from astropy.convolution import convolve, Box2DKernel
 from astropy.io import ascii as asc
-from MACT_utils import get_tempz, get_mainseq_fit_params
-from analysis.composite_errors import compute_onesig_pdf
+from MACT_utils import get_tempz, get_mainseq_fit_params, compute_onesig_pdf
 
 
 FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'

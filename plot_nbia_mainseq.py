@@ -28,8 +28,7 @@ import numpy as np, matplotlib.pyplot as plt
 import scipy.optimize as optimize
 import matplotlib as mpl
 from astropy.io import ascii as asc
-from analysis.composite_errors import compute_onesig_pdf
-from MACT_utils import get_z_arr, get_mainseq_fit_params
+from MACT_utils import get_z_arr, get_mainseq_fit_params, compute_onesig_pdf
 
 # emission line wavelengths (air)
 HA = 6562.80
@@ -474,12 +473,21 @@ def bestfit_zssfr(ax, tmpzarr0, tmpsarr0, delta_sfrs):
     def line(x, m, b):
         return m*x + b
     params_arr = get_mainseq_fit_params(tmpsarr0, delta_sfrs, tmpzarr0, num_params=2)
-    tempparams = [np.mean(params_arr[i]) for i in range(len(params_arr))]
-    print 'sSFR a*log(1+z)+b params:', tempparams
+    params = [np.mean(params_arr[i]) for i in range(len(params_arr))]
+    errs_arr = []
+    for i, param_arr in enumerate(params_arr):
+        errs_arr.append(compute_onesig_pdf(param_arr.reshape(len(param_arr),1).T,
+            [np.mean(param_arr)])[0][0])
+
+    print 'sSFR a*log(1+z)+b params:', params
+    print [errs_arr[0][0], errs_arr[0][1]]
+    print [errs_arr[1][0], errs_arr[1][1]]
+    # print np.mean([errs_arr[0][0], errs_arr[0][1]])
+    # print np.mean([errs_arr[1][0], errs_arr[1][1]])
 
     stp = 0.02
     xrange_tmp = np.arange(min(tmpzarr0)-stp, max(tmpzarr0)+2*stp, stp)
-    ax.plot(xrange_tmp,  line(xrange_tmp, *tempparams), 'k--')
+    ax.plot(xrange_tmp,  line(xrange_tmp, *params), 'k--')
 
 
 def make_ssfr_graph(f, axes, sfrs00, delta_sfrs, smass0, filts00, zspec00, cwheel, z_arr,
