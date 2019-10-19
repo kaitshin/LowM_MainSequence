@@ -291,3 +291,27 @@ def composite_errors(x, dx, seed_i, label=''):
         onesig_errs, xpeak = compute_onesig_pdf(x_pdf, x)
 
     return onesig_errs
+
+
+def get_FUV_corrs(corr_tbl):
+    '''
+    '''
+    from plot_mainseq_UV_Ha_comparison import get_UV_SFR
+    from scipy.optimize import curve_fit
+    def line(x, m, b):
+        return m*x+b
+
+    zspec0 = corr_tbl['zspec0'].data
+    yes_spectra = np.where((zspec0 >= 0) & (zspec0 < 9))[0]
+
+    # getting FUV_corr_factor
+    log_SFR_UV = get_UV_SFR(corr_tbl)
+    log_SFR_HA = corr_tbl['met_dep_sfr'].data
+    log_SFR_ratio = log_SFR_HA - log_SFR_UV
+    coeffs, covar = curve_fit(line, log_SFR_HA[yes_spectra],
+        log_SFR_ratio[yes_spectra])
+    m, b = coeffs[0], coeffs[1]
+    FUV_corr_factor = -(m*log_SFR_HA + b)
+
+    return FUV_corr_factor
+
