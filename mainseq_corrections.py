@@ -640,8 +640,8 @@ def main():
     dust_corr_factor = dustcorr_fluxes - orig_fluxes
     dust_errs = 0.4*(k_ha * EBV_errs)
 
-    # getting the errors associated w/ measurements
-    meas_errs = np.sqrt(NBIA_errs**2/2 + dust_errs**2/2)
+    # getting the errors associated w/ measurements by adding in quadrature
+    meas_errs = np.sqrt(NBIA_errs**2 + dust_errs**2)
 
 
     # getting luminosities
