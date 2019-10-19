@@ -275,6 +275,13 @@ def get_UV_SFR(corr_tbl):
     '''
     deriving log UV SFR from the 1500AA measurements
     '''
+    # defining useful things
+    corrID = corr_tbl['ID'].data
+    corrfilts = corr_tbl['filt'].data
+    corrzspec0 = corr_tbl['zspec0'].data
+    centr_filts = {'NB7':((7045.0/HA - 1) + (7126.0/HA - 1))/2.0, 
+        'NB816':8152.0/HA - 1, 'NB921':9193.0/HA - 1, 'NB973':9749.0/HA - 1}
+
     npz_files = np.load(FULL_PATH+'Plots/sfr_metallicity_plot_fit.npz')
 
     Lnu_fit_ch = npz_files['Lnu_fit_ch']
@@ -289,9 +296,21 @@ def get_UV_SFR(corr_tbl):
     logOH = niiha_oh_determine(np.log10(NII6583_Ha), 'PP04_N2') - 12
     y = logOH + 3.31
 
+    # this is luminosity
     log_SFR_LUV = log_SFR_from_L(y)
 
-    return log_SFR_LUV
+    # this is luminosity correction
+    LUV = np.zeros(len(corr_tbl))
+    for ff in ['NB7','NB816','NB921','NB973']:
+        filt_index_haii = np.array([x for x in range(len(corr_tbl)) if ff in
+            corrfilts[x]])
+
+        lnu = get_LUV(corrID, corrzspec0, centr_filts, filt_index_haii, ff)
+        LUV[filt_index_haii] = lnu
+
+    log_SFR_UV = log_SFR_LUV + LUV
+
+    return log_SFR_UV
 
 
 def lee_09(ax, xlims0, lee_fig_num):
@@ -513,33 +532,9 @@ def main():
     corr_tbl = corr_tbl[good_sig_iis]
     print '### done reading input files'
 
-
-    # defining useful things
-    corrID = corr_tbl['ID'].data
-    corrzspec0 = corr_tbl['zspec0'].data
-    corrfilts = corr_tbl['filt'].data
-
-    color_arr = ['r', 'orange', 'g', 'b']
-    centr_filts = {'NB7':((7045.0/HA - 1) + (7126.0/HA - 1))/2.0, 
-        'NB816':8152.0/HA - 1, 'NB921':9193.0/HA - 1, 'NB973':9749.0/HA - 1}
-
-
     # getting SFR values
-    log_SFR_LUV = get_UV_SFR(corr_tbl)
-
-    LUV = np.zeros(len(corr_tbl))
-    for ff in ['NB7','NB816','NB921','NB973']:
-        print ff
-
-        filt_index_haii = np.array([x for x in range(len(corr_tbl)) if ff in
-            corrfilts[x]])
-
-        lnu = get_LUV(corrID, corrzspec0, centr_filts, filt_index_haii, ff)
-        LUV[filt_index_haii] = lnu
-
-    log_SFR_UV = log_SFR_LUV + LUV
+    log_SFR_UV = get_UV_SFR(corr_tbl)
     log_SFR_HA = corr_tbl['met_dep_sfr'].data
-
 
     # plotting
     plot_SFR_comparison(log_SFR_HA, log_SFR_UV, corr_tbl)
