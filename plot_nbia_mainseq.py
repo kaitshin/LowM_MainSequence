@@ -495,7 +495,7 @@ def bestfit_zssfr(ax, filtbins_1z, filtbins_ssfr, delta_sfrs):
     ax.plot(xrange_tmp, line(xrange_tmp, *params), 'k--')
 
 
-def make_ssfr_graph(f, axes, sfrs00, delta_sfrs, smass0, filts00, zspec00, cwheel, z_arr,
+def make_ssfr_graph_old(f, axes, sfrs00, delta_sfrs, smass0, filts00, zspec00, cwheel, z_arr,
     ffarr=['NB7', 'NB816', 'NB921', 'NB973'],
     llarr=['NB704,NB711', 'NB816', 'NB921', 'NB973']):
     '''
@@ -540,6 +540,77 @@ def make_ssfr_graph(f, axes, sfrs00, delta_sfrs, smass0, filts00, zspec00, cwhee
     [a.tick_params(axis='both', labelsize='10', which='both', direction='in')
         for a in f.axes[:]]
     f.set_size_inches(16,6)
+
+
+def make_ssfr_graph(f, ax, corr_sfrs, stlr_mass, filts, zspec0, zspec00,
+    cwheel, z_arr, corr_tbl,
+    ffarr=['NB7', 'NB816', 'NB921', 'NB973', 'NEWHA'],
+    llarr=['NB704,NB711', 'NB816', 'NB921', 'NB973', 'NEWHA']):
+    '''
+    plots a two-panel plot of sSFR as a function of mass (LHS) and redshift
+    (RHS). colors differ depending on the associated filter of the source.
+        note: currently plots log(1+z) rather than z for the RHS panel
+
+    calls bestfit_zssfr() to plot the best-fit line of sSFR as a function of
+    redshift and return those parameters as well.
+    '''
+    # reading in NewHa data
+    from plot_mact_with_newha import get_good_newha_ii, get_newha_logsfrha
+    from astropy.io import fits as pyfits
+    newha = pyfits.open(FULL_PATH+'NewHa/NewHa.fits')
+    newhadata_tmp = newha[1].data
+
+    good_newha_ii = get_good_newha_ii(newhadata_tmp)
+    newhadata = newhadata_tmp[good_newha_ii]
+
+    newha_logm = newhadata['LOGM']
+    newha_zspec = newhadata['Z_SPEC']
+    newha_mzdata = np.vstack([newha_logm, newha_zspec]).T
+    newha_logsfrha = get_newha_logsfrha(newhadata, newha_sfr_type='met_dep_sfr')
+    # applying FUV corrs
+    from MACT_utils import get_FUV_corrs
+    m, b = get_FUV_corrs(corr_tbl, ret_coeffs=True)
+    newha_logsfrha += -(m*newha_logsfrha + b)
+
+    z_arr = np.append(z_arr, '%.2f'%np.mean(newha_zspec))
+    cwheel = [np.array(mpl.rcParams['axes.prop_cycle'])[x]['color']
+        for x in range(5)]
+
+    # combining datasets
+    sfrs_with_newha  = np.concatenate((corr_sfrs, newha_logsfrha))
+    mass_with_newha  = np.concatenate((stlr_mass, newha_logm))
+    zspec_with_newha = np.concatenate((zspec0, newha_zspec))
+    zspec_with_newha00 = np.concatenate((zspec00, newha_zspec))
+    filts_with_newha = np.concatenate((filts,
+        np.array(['NEWHA']*len(newha_logsfrha))))
+    data_with_newha = np.vstack([mass_with_newha, zspec_with_newha00]).T
+
+    no_spectra  = np.where((zspec_with_newha <= 0) | (zspec_with_newha > 9))[0]
+    yes_spectra = np.where((zspec_with_newha >= 0) & (zspec_with_newha < 9))[0]
+    # end NewHa shenanigans
+
+    ssfrs_with_newha = sfrs_with_newha - mass_with_newha
+    
+    for ff,cc,ll,zz in zip(ffarr, cwheel, llarr, z_arr):
+        filt_match = np.array([x for x in range(len(filts_with_newha)) if
+            ff in filts_with_newha[x]])
+        
+        ax.scatter(mass_with_newha[filt_match], ssfrs_with_newha[filt_match],
+            facecolors='none', edgecolors=cc, linewidth=0.5,
+            label='z~'+zz+' ('+ll+')')
+        ax.set_xlabel('log(M'+r'$_\bigstar$'+'/M'+r'$_{\odot}$'+')',
+            size=14)
+        ax.set_ylabel('log(sSFR[H'+r'$\alpha$'+']'+' yr'+
+            r'$^{-1}$'+')', size=14)
+
+
+    ax.legend(loc='upper right', fontsize=12, frameon=False)
+    # axes[0].set_ylim(ymax=-6.9)
+    
+    ax.tick_params(axis='both', labelsize='10', which='both', direction='in')
+    # f.set_size_inches(16,6)
+
+    newha.close()
 
 
 def approximated_zspec0(zspec0, filts):
@@ -601,64 +672,75 @@ def main():
         for x in range(4)] # getting colorwheel
 
 
-    print 'making 4-panel mainseq plot now' # (with 'all' types of corrs)
-    f_all, ax_all = plt.subplots(2,2)
-    axarr = np.ndarray.flatten(ax_all)
-    f_all.set_size_inches(14,14)
-    for title, corrs, ax, i in zip(['(a) Observed', '(b) Filter-corrected',
-        '(c) Filter+[N II]', '(d) Filter+[N II]+Dust Attenuation'], 
-        [np.zeros(len(good_sig_iis)), filt_corr_factor,
-            filt_corr_factor+nii_ha_corr_factor,
-            filt_corr_factor+nii_ha_corr_factor+dust_corr_factor],
-        axarr, range(4)):
+    # print 'making 4-panel mainseq plot now' # (with 'all' types of corrs)
+    # f_all, ax_all = plt.subplots(2,2)
+    # axarr = np.ndarray.flatten(ax_all)
+    # f_all.set_size_inches(14,14)
+    # for title, corrs, ax, i in zip(['(a) Observed', '(b) Filter-corrected',
+    #     '(c) Filter+[N II]', '(d) Filter+[N II]+Dust Attenuation'], 
+    #     [np.zeros(len(good_sig_iis)), filt_corr_factor,
+    #         filt_corr_factor+nii_ha_corr_factor,
+    #         filt_corr_factor+nii_ha_corr_factor+dust_corr_factor],
+    #     axarr, range(4)):
 
-        #  should pass in e.g., "obs_sfr + corrs" to plot applied corrs
-        make_all_graph(stlr_mass, obs_sfr+corrs, filtarr, markarr, z_arr, sizearr,
-            title, no_spectra, yes_spectra, filts, ax, i)
-        print 'done plotting', title
+    #     #  should pass in e.g., "obs_sfr + corrs" to plot applied corrs
+    #     make_all_graph(stlr_mass, obs_sfr+corrs, filtarr, markarr, z_arr, sizearr,
+    #         title, no_spectra, yes_spectra, filts, ax, i)
+    #     print 'done plotting', title
 
-    [a.tick_params(axis='both', labelsize='10', which='both', direction='in')
-        for a in f_all.axes[:]]
-    plt.subplots_adjust(hspace=0.01, wspace=0.01, left=0.04, right=0.99,
-        top=0.99, bottom=0.04)
-    plt.savefig(FULL_PATH+'Plots/main_sequence/mainseq.pdf')
-    plt.close()
-
-
-    if mainseq_fig4_only:
-        print 'making 1-panel mainseq plot now (with only \'all\' corrs)'
-        i=5
-        f, ax = plt.subplots()
-        make_all_graph(stlr_mass, obs_sfr+corrs, filtarr, markarr, z_arr, sizearr,
-            title, no_spectra, yes_spectra, filts, ax, i)
-        ax.tick_params(axis='both', labelsize='10', which='both',
-            direction='in')
-        f.set_size_inches(8,8)
-        plt.tight_layout()
-        plt.savefig(FULL_PATH+'Plots/main_sequence/mainseq_allcorrs.pdf')
-        plt.close()
+    # [a.tick_params(axis='both', labelsize='10', which='both', direction='in')
+    #     for a in f_all.axes[:]]
+    # plt.subplots_adjust(hspace=0.01, wspace=0.01, left=0.04, right=0.99,
+    #     top=0.99, bottom=0.04)
+    # plt.savefig(FULL_PATH+'Plots/main_sequence/mainseq.pdf')
+    # plt.close()
 
 
-    # for obtaining the best-fit line params
+    # if mainseq_fig4_only:
+    #     print 'making 1-panel mainseq plot now (with only \'all\' corrs)'
+    #     i=5
+    #     f, ax = plt.subplots()
+    #     make_all_graph(stlr_mass, obs_sfr+corrs, filtarr, markarr, z_arr, sizearr,
+    #         title, no_spectra, yes_spectra, filts, ax, i)
+    #     ax.tick_params(axis='both', labelsize='10', which='both',
+    #         direction='in')
+    #     f.set_size_inches(8,8)
+    #     plt.tight_layout()
+    #     plt.savefig(FULL_PATH+'Plots/main_sequence/mainseq_allcorrs.pdf')
+    #     plt.close()
+
+
+    # # for obtaining the best-fit line params
     zspec00 = approximated_zspec0(zspec0, filts)
 
-    print 'making redshift dependent plot now'
-    f, ax = plt.subplots()
+    # print 'making redshift dependent plot now'
+    # f, ax = plt.subplots()
     corr_sfrs = obs_sfr+filt_corr_factor+nii_ha_corr_factor+dust_corr_factor
 
-    make_redshift_graph(f, ax, z_arr, corr_sfrs, delta_sfrs, stlr_mass, zspec00, filts,
-        no_spectra, yes_spectra, cwheel)
-    plt.subplots_adjust(hspace=0.01, wspace=0.01, right=0.99, top=0.98,
-        left=0.1, bottom=0.09)
-    plt.savefig(FULL_PATH+'Plots/main_sequence/zdep_mainseq.pdf')
-    plt.close()
+    # make_redshift_graph(f, ax, z_arr, corr_sfrs, delta_sfrs, stlr_mass, zspec00, filts,
+    #     no_spectra, yes_spectra, cwheel)
+    # plt.subplots_adjust(hspace=0.01, wspace=0.01, right=0.99, top=0.98,
+    #     left=0.1, bottom=0.09)
+    # plt.savefig(FULL_PATH+'Plots/main_sequence/zdep_mainseq.pdf')
+    # plt.close()
 
 
     print 'making sSFR plot now'
-    f, axes = plt.subplots(1,2, sharey=True)
-    make_ssfr_graph(f, axes, corr_sfrs, delta_sfrs, stlr_mass, filts, zspec00, cwheel, z_arr)
-    plt.subplots_adjust(right=0.99, top=0.98, left=0.05, bottom=0.09)
-    plt.savefig(FULL_PATH+'Plots/main_sequence/mainseq_sSFRs.pdf')
+    FUV_corrs = True
+    if FUV_corrs:
+        from MACT_utils import get_FUV_corrs
+        FUV_corr_factor = get_FUV_corrs(corr_tbl)
+
+        f, ax = plt.subplots()
+        make_ssfr_graph(f, ax, corr_sfrs+FUV_corr_factor,
+            stlr_mass, filts, zspec0, zspec00, cwheel, z_arr, corr_tbl=corr_tbl)
+        # plt.subplots_adjust(right=0.99, top=0.98, left=0.05, bottom=0.09)
+        plt.savefig(FULL_PATH+'Plots/main_sequence/mainseq_sSFRs_FUV_corrs.pdf')
+    else:
+        f, axes = plt.subplots(1,2, sharey=True)
+        make_ssfr_graph_old(f, axes, corr_sfrs, delta_sfrs, stlr_mass, filts, zspec00, cwheel, z_arr)
+        plt.subplots_adjust(right=0.99, top=0.98, left=0.05, bottom=0.09)
+        plt.savefig(FULL_PATH+'Plots/main_sequence/mainseq_sSFRs.pdf')
 
 
 if __name__ == '__main__':

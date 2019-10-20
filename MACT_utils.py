@@ -293,7 +293,7 @@ def composite_errors(x, dx, seed_i, label=''):
     return onesig_errs
 
 
-def get_FUV_corrs(corr_tbl):
+def get_FUV_corrs(corr_tbl, ret_coeffs=False):
     '''
     '''
     from plot_mainseq_UV_Ha_comparison import get_UV_SFR
@@ -313,5 +313,8 @@ def get_FUV_corrs(corr_tbl):
     m, b = coeffs[0], coeffs[1]
     FUV_corr_factor = -(m*log_SFR_HA + b)
 
-    return FUV_corr_factor
+    if ret_coeffs:
+        return m, b
+    else:
+        return FUV_corr_factor
 
