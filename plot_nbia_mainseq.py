@@ -542,7 +542,7 @@ def make_ssfr_graph_old(f, axes, sfrs00, delta_sfrs, smass0, filts00, zspec00, c
     f.set_size_inches(16,6)
 
 
-def make_ssfr_graph(f, ax, corr_sfrs, stlr_mass, filts, zspec0, zspec00,
+def make_ssfr_graph_newha(f, ax, corr_sfrs, stlr_mass, filts, zspec0, zspec00,
     cwheel, z_arr, corr_tbl,
     ffarr=['NB7', 'NB816', 'NB921', 'NB973', 'NEWHA'],
     llarr=['NB704,NB711', 'NB816', 'NB921', 'NB973', 'NEWHA']):
@@ -554,40 +554,11 @@ def make_ssfr_graph(f, ax, corr_sfrs, stlr_mass, filts, zspec0, zspec00,
     calls bestfit_zssfr() to plot the best-fit line of sSFR as a function of
     redshift and return those parameters as well.
     '''
-    # reading in NewHa data
-    from plot_mact_with_newha import get_good_newha_ii, get_newha_logsfrha
-    from astropy.io import fits as pyfits
-    newha = pyfits.open(FULL_PATH+'NewHa/NewHa.fits')
-    newhadata_tmp = newha[1].data
-
-    good_newha_ii = get_good_newha_ii(newhadata_tmp)
-    newhadata = newhadata_tmp[good_newha_ii]
-
-    newha_logm = newhadata['LOGM']
-    newha_zspec = newhadata['Z_SPEC']
-    newha_mzdata = np.vstack([newha_logm, newha_zspec]).T
-    newha_logsfrha = get_newha_logsfrha(newhadata, newha_sfr_type='met_dep_sfr')
-    # applying FUV corrs
-    from MACT_utils import get_FUV_corrs
-    m, b = get_FUV_corrs(corr_tbl, ret_coeffs=True)
-    newha_logsfrha += -(m*newha_logsfrha + b)
-
-    z_arr = np.append(z_arr, '%.2f'%np.mean(newha_zspec))
-    cwheel = [np.array(mpl.rcParams['axes.prop_cycle'])[x]['color']
-        for x in range(5)]
-
-    # combining datasets
-    sfrs_with_newha  = np.concatenate((corr_sfrs, newha_logsfrha))
-    mass_with_newha  = np.concatenate((stlr_mass, newha_logm))
-    zspec_with_newha = np.concatenate((zspec0, newha_zspec))
-    zspec_with_newha00 = np.concatenate((zspec00, newha_zspec))
-    filts_with_newha = np.concatenate((filts,
-        np.array(['NEWHA']*len(newha_logsfrha))))
-    data_with_newha = np.vstack([mass_with_newha, zspec_with_newha00]).T
-
-    no_spectra  = np.where((zspec_with_newha <= 0) | (zspec_with_newha > 9))[0]
-    yes_spectra = np.where((zspec_with_newha >= 0) & (zspec_with_newha < 9))[0]
-    # end NewHa shenanigans
+    # getting MACT+NewHa data
+    from MACT_utils import combine_mact_newha
+    (sfrs_with_newha, mass_with_newha, zspec_with_newha,
+        zspec_with_newha00, filts_with_newha, mz_data_with_newha,
+        no_spectra, yes_spectra, z_arr, cwheel) = combine_mact_newha(corr_tbl)
 
     ssfrs_with_newha = sfrs_with_newha - mass_with_newha
     
@@ -609,8 +580,6 @@ def make_ssfr_graph(f, ax, corr_sfrs, stlr_mass, filts, zspec0, zspec00,
     
     ax.tick_params(axis='both', labelsize='10', which='both', direction='in')
     # f.set_size_inches(16,6)
-
-    newha.close()
 
 
 def approximated_zspec0(zspec0, filts):
@@ -732,7 +701,7 @@ def main():
         FUV_corr_factor = get_FUV_corrs(corr_tbl)
 
         f, ax = plt.subplots()
-        make_ssfr_graph(f, ax, corr_sfrs+FUV_corr_factor,
+        make_ssfr_graph_newha(f, ax, corr_sfrs+FUV_corr_factor,
             stlr_mass, filts, zspec0, zspec00, cwheel, z_arr, corr_tbl=corr_tbl)
         # plt.subplots_adjust(right=0.99, top=0.98, left=0.05, bottom=0.09)
         plt.savefig(FULL_PATH+'Plots/main_sequence/mainseq_sSFRs_FUV_corrs.pdf')

@@ -318,3 +318,68 @@ def get_FUV_corrs(corr_tbl, ret_coeffs=False):
     else:
         return FUV_corr_factor
 
+
+def combine_mact_newha(corr_tbl, FUV_corr=True):
+    '''
+    '''
+    from plot_nbia_mainseq import approximated_zspec0, get_z_arr
+    from MACT_utils import get_FUV_corrs
+    import matplotlib as mpl
+    # getting relevant corr_tbl data
+    sfrs = corr_tbl['met_dep_sfr'].data
+    dust_corr_factor = corr_tbl['dust_corr_factor'].data
+    filt_corr_factor = corr_tbl['filt_corr_factor'].data
+    nii_ha_corr_factor = corr_tbl['nii_ha_corr_factor'].data
+    corr_sfrs = sfrs+filt_corr_factor+nii_ha_corr_factor+dust_corr_factor
+    if FUV_corr:
+        FUV_corr_factor = get_FUV_corrs(corr_tbl)
+        corr_sfrs+=FUV_corr_factor
+    stlr_mass = corr_tbl['stlr_mass'].data
+    filts = corr_tbl['filt'].data
+    zspec0 = np.array(corr_tbl['zspec0'])
+    zspec00 = approximated_zspec0(zspec0, filts)
+    z_arr = get_z_arr()
+    
+
+    # reading in newha data
+    from plot_mact_with_newha import get_good_newha_ii, get_newha_logsfrha
+    from astropy.io import fits as pyfits
+    newha = pyfits.open(FULL_PATH+'NewHa/NewHa.fits')
+    newhadata_tmp = newha[1].data
+
+    good_newha_ii = get_good_newha_ii(newhadata_tmp)
+    newhadata = newhadata_tmp[good_newha_ii]
+
+    newha_logm = newhadata['LOGM']
+    newha_zspec = newhadata['Z_SPEC']
+    newha_mzdata = np.vstack([newha_logm, newha_zspec]).T
+    newha_logsfrha = get_newha_logsfrha(newhadata, newha_sfr_type='met_dep_sfr')
+    if FUV_corr:
+        m, b = get_FUV_corrs(corr_tbl, ret_coeffs=True)
+        newha_logsfrha += -(m*newha_logsfrha + b)
+
+
+    # combining datasets
+    sfrs_with_newha  = np.concatenate((corr_sfrs, newha_logsfrha))
+    mass_with_newha  = np.concatenate((stlr_mass, newha_logm))
+    zspec_with_newha = np.concatenate((zspec0, newha_zspec))
+    zspec_with_newha00 = np.concatenate((zspec00, newha_zspec))
+    filts_with_newha = np.concatenate((filts,
+        np.array(['NEWHA']*len(newha_logsfrha))))
+    mz_data_with_newha = np.vstack([mass_with_newha, zspec_with_newha00]).T
+
+    no_spectra  = np.where((zspec_with_newha <= 0) | (zspec_with_newha > 9))[0]
+    yes_spectra = np.where((zspec_with_newha >= 0) & (zspec_with_newha < 9))[0]
+
+
+    # misc things
+    nh_z_arr = np.append(z_arr, '%.2f'%np.mean(newha_zspec))
+    nh_cwheel = [np.array(mpl.rcParams['axes.prop_cycle'])[x]['color']
+        for x in range(5)]
+
+    newha.close()
+    return (sfrs_with_newha, mass_with_newha, zspec_with_newha,
+        zspec_with_newha00, filts_with_newha, mz_data_with_newha,
+        no_spectra, yes_spectra, nh_z_arr, nh_cwheel)
+
+
