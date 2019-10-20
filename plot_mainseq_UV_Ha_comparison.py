@@ -325,6 +325,32 @@ def lee_09(ax, xlims0, lee_fig_num):
         ax.plot(xtmparr, 0.79*xtmparr-0.2, 'k--')
         return ax
 
+    elif lee_fig_num=='5':
+        jlee_xarr = np.array([0.5,-0.25,-0.75,-1.25,-1.75,
+            -2.25,-2.75,-3.5,-4.5])
+        jlee_logSFR_ratio = np.array([-0.14,-0.09,-0.13,-0.13,
+            -0.18,-0.27,-0.51,-0.55,-1.43])
+        jlee_logSFR_ratio_errs = np.array([.29,.2,.22,.22,.17,
+            .22,.25,.57,.59])
+
+        xtmparr_lo = np.linspace(min(jlee_xarr)-0.1, -1.5, 10)
+        xtmparr_hi = np.linspace(-1.5, xlims0[1]+0.1, 10)
+        xtmparr_lo -= salpeter_to_chabrier
+        xtmparr_hi -= salpeter_to_chabrier
+        jlee_xarr -= salpeter_to_chabrier
+
+        ax.plot(jlee_xarr, jlee_logSFR_ratio, 'cs', alpha=0.7)
+        ax.errorbar(jlee_xarr, jlee_logSFR_ratio, fmt='none', ecolor='c', lw=2,
+            yerr=jlee_logSFR_ratio_errs, alpha=0.7)
+        jlee09_lo, = ax.plot(xtmparr_lo, 0.32*xtmparr_lo+0.37, 'c--', alpha=0.7,
+            label='Lee+09: '+r'$0.32 \log(\rm SFR(H\alpha))+0.37$')
+        jlee09_hi, = ax.plot(xtmparr_hi, np.array([-0.13]*len(xtmparr_hi)), 'c--', alpha=0.7,
+            label='Lee+09: '+r'$-0.13$')
+        jlee09_both, = ax.plot(xtmparr_lo, 0.32*xtmparr_lo+0.37, 'c--', alpha=0.7,
+            label='Lee+09: '+r'$0.32 \log(\rm SFR(H\alpha))+0.37 \, ; \, -0.13$')
+
+        return ax, jlee09_lo, jlee09_hi, jlee09_both, xtmparr_lo, xtmparr_hi
+
     elif '2' in lee_fig_num:
         if lee_fig_num=='2A':  # xarr is logSFRHa
             jlee_xarr = np.array([0.25,-0.25,-0.75,-1.25,-1.75,-2.25,-2.75,
@@ -362,6 +388,46 @@ def lee_09(ax, xlims0, lee_fig_num):
 
         return ax, jlee09
 
+    elif '5' in lee_fig_num and lee_fig_num != '5':
+        if lee_fig_num=='5A':  # xarr is logSFRHa
+            jlee_xarr = np.array([0.5,-0.25,-0.75,-1.25,-1.75,
+                -2.25,-2.75,-3.5,-4.5])
+            jlee_logSFR_ratio = np.array([-0.14,-0.09,-0.13,-0.13,
+                -0.18,-0.27,-0.51,-0.55,-1.43])
+            jlee_logSFR_ratio_errs = np.array([.29,.2,.22,.22,.17,
+                .22,.25,.57,.59])
+
+            xtmparr0 = np.linspace(min(jlee_xarr)-0.1, -1.5, 10)
+            xtmparr1 = np.linspace(-1.5, xlims0[1], 10)
+            xtmparr0 -= salpeter_to_chabrier
+            xtmparr1 -= salpeter_to_chabrier
+            jlee_xarr -= salpeter_to_chabrier
+            jlee09, = ax.plot(xtmparr0, 0.32*xtmparr0+0.37, 'c--', alpha=0.7,
+                label='Lee+09: '+r'$0.32 \log(\rm SFR(H\alpha))+0.37$')
+            jlee091, = ax.plot(xtmparr1, np.array([-0.13]*len(xtmparr1)), 'c--', alpha=0.7,
+                label='Lee+09: '+r'$-0.13$')
+
+        elif lee_fig_num=='5B':
+            jlee_xarr = np.array([-20.5,-19.5,-18.5,-17.5,-16.5,-15.5,-14.5,
+                -13.5,-12.5,-11.5])
+            jlee_logSFR_ratio = np.array([-0.21,-0.10,-0.10,-0.16,-0.12,-0.27,
+                -0.30,-0.34,-0.45,-0.51])
+            jlee_logSFR_ratio_errs = np.array([0.23,0.36,0.23,0.17,0.18,0.36,
+                0.28,0.30,0.67,0.61])
+
+            xtmparr0 = np.linspace(xlims0[0], xlims0[1], 10)
+            jlee09, = ax.plot(xtmparr0, -0.05*xtmparr0-0.99, 'c--', alpha=0.7, 
+                label='Lee+09: '+r'$-0.05 \log(\rm SFR(H\alpha))-0.99$')
+
+        else:
+            raise ValueError('Invalid fig_num. So far only Lee+09 figs \
+                1 and 2A are valid comparisons')
+
+        ax.plot(jlee_xarr, jlee_logSFR_ratio, 'cs', alpha=0.7)
+        ax.errorbar(jlee_xarr, jlee_logSFR_ratio, fmt='none', ecolor='c', lw=2,
+            yerr=jlee_logSFR_ratio_errs, alpha=0.7)
+
+        return ax, jlee09
     else:
         raise ValueError('Invalid fig_num. So far only Lee+09 figs 1 and 2A are\
             valid comparisons')
@@ -434,11 +500,11 @@ def plot_SFR_ratios(log_SFR_HA, log_SFR_UV, corr_tbl):
 
     # plotting data
     ax0 = plot_zz_shapes_filled(ax0, log_SFR_HA, log_SFR_ratio, corr_tbl,
-        color='gray')
+        color='gray', legend_on=True)
     ax1 = plot_zz_shapes_filled(ax1, mag_B, log_SFR_ratio, corr_tbl,
         color='gray')
     ax2 = plot_zz_shapes_filled(ax2, stlr_mass, log_SFR_ratio, corr_tbl,
-        color='gray', legend_on=True)
+        color='gray')
 
     xlims0 = [min(log_SFR_HA)-0.2, max(log_SFR_HA)+0.2]
     xlims1 = [min(mag_B)-0.2, max(mag_B)+0.2]
@@ -474,7 +540,92 @@ def plot_SFR_ratios(log_SFR_HA, log_SFR_UV, corr_tbl):
     ax2.add_artist(legend_MASS)
 
     # final touches
-    plot_SFR_ratios_final_touches(f, ax0, ax1, ax2)
+    plot_SFR_ratios_final_touches(f, ax0, ax1, ax2, dustcorr)
+
+
+def plot_SFR_ratios_final_touches_dustcorr(f, ax):
+    '''
+    does final touches for the SFR ratios, SFR_ratio.pdf
+    incl. x labels, ticks, sizing, and saving
+    '''
+    # labels
+    ax.set_xlabel(r'$\log \rm SFR(H\alpha)$', fontsize=12)
+    ax.set_ylabel(r'$\log(\rm SFR(H\alpha)/SFR(FUV))$', fontsize=12)
+
+    # ticks
+    ax.tick_params(axis='both', labelsize='10', which='both', direction='in')
+    ax.minorticks_on()
+
+    # sizing+saving
+    f.set_size_inches(6,5)
+    plt.tight_layout()
+    # plt.subplots_adjust(wspace=0.015, left=0.04, bottom=0.09)
+    plt.savefig(FULL_PATH+'Plots/main_sequence_UV_Ha/SFR_ratio_dustcorr.pdf')
+
+
+def plot_SFR_ratios_dustcorr(log_SFR_HA, log_SFR_UV, corr_tbl):
+    '''
+    comparing with Lee+09 fig 5A (with dust correction)
+    '''
+    from scipy.optimize import curve_fit
+    log_SFR_ratio = log_SFR_HA - log_SFR_UV
+    stlr_mass = corr_tbl['stlr_mass'].data
+    
+    f, ax = plt.subplots()
+
+    # plotting data
+    ax = plot_zz_shapes_filled(ax, log_SFR_HA, log_SFR_ratio, corr_tbl,
+        color='gray', legend_on=True)
+
+    xlims0 = [min(log_SFR_HA)-0.2, max(log_SFR_HA)+0.2]
+    ylims = [min(log_SFR_ratio)-0.4, max(log_SFR_ratio)+0.4]
+    ax.axhline(0, color='k')
+
+    # plotting relation from Lee+09
+    ax, jlee09_lo, jlee09_hi, jlee09_both, xtmparr_lo, xtmparr_hi = lee_09(ax, xlims0, lee_fig_num='5')
+    turnover = min(xtmparr_hi)
+
+    # plotting our own avgs
+    plot_bins = np.array([-4.0, -3.0, -2.5, -2.0, -1.5, -1.0, -0.5, 0.0, 0.5])
+    ax = plot_binned_percbins(ax, log_SFR_HA, log_SFR_ratio, corr_tbl)
+
+    # plotting line of best fit
+    yesz_ii = np.where((corr_tbl['zspec0'].data > 0.) & (corr_tbl['zspec0'].data < 9.))[0]
+    low_SFRHA_ii = np.where(log_SFR_HA[yesz_ii] <= turnover)[0]
+    high_SFRHA_ii = np.where(log_SFR_HA[yesz_ii] >= turnover)[0]
+    const = np.mean(log_SFR_ratio[yesz_ii][high_SFRHA_ii])
+    def line(x, m):
+        return m*(x-turnover)+const
+    coeffs, covar = curve_fit(line, log_SFR_HA[yesz_ii][low_SFRHA_ii],
+        log_SFR_ratio[yesz_ii][low_SFRHA_ii])
+    m = coeffs[0]
+    b = const-m*turnover
+    MACT_SFRHA_lo, = ax.plot(xtmparr_lo, line(xtmparr_lo, *coeffs), 'k--',
+        label=r'$\mathcal{MACT}:$ '+r'$%.2f \log(\rm SFR(H\alpha))+%.2f$'%(m,b))
+    MACT_SFRHA_hi, = ax.plot(xtmparr_hi, np.array([const]*len(xtmparr_hi)), 'k--',
+        label=r'$\mathcal{MACT}:$ '+r'$%.2f$'%(const))
+    MACT_SFRHA_both, = ax.plot(xtmparr_lo, line(xtmparr_lo, *coeffs), 'k--',
+        label=r'$\mathcal{MACT}:$ '+r'$%.2f \log(\rm SFR(H\alpha))+%.2f \, ; \, %.2f$'%(m,b,const))
+
+    # print 'log(SFR(Ha)/SFR(FUV)) = %.3f'%const, 'for log(SFR(Ha)) > -1.5'
+    # print 'log(SFR(Ha)/SFR(FUV)) = %.3f log(SFR(Ha)) + %.3f'%(coeffs[0], const-m*turnover), 'for log(SFR(Ha)) < -1.5'
+    
+    # ax, MACT_SFRHA = line_fit(ax, log_SFR_HA[yesz_ii], log_SFR_ratio[yesz_ii],
+    #     np.linspace(-4.6, xlims0[1], 10), 'SFRHA')
+
+    # legends
+    # # v1
+    # legend_lo = ax.legend(handles=[MACT_SFRHA_lo, jlee09_lo], loc=(0.08,0.01), frameon=False)
+    # ax.add_artist(legend_lo)
+    # legend_hi = ax.legend(handles=[MACT_SFRHA_hi, jlee09_hi], loc='lower right', frameon=False)
+    # ax.add_artist(legend_hi)
+
+    # v2
+    legend_both = ax.legend(handles=[MACT_SFRHA_both, jlee09_both], loc='lower right', frameon=False)
+    ax.add_artist(legend_both)
+
+    # final touches
+    plot_SFR_ratios_final_touches_dustcorr(f, ax)
 
 
 def line_fit(ax, xvals, yvals, xlin_arr, datatype):
@@ -536,9 +687,25 @@ def main():
     log_SFR_UV = get_UV_SFR(corr_tbl)
     log_SFR_HA = corr_tbl['met_dep_sfr'].data
 
+    # HA dustcorr
+    dust_corr_factor = corr_tbl['dust_corr_factor'].data
+    filt_corr_factor = corr_tbl['filt_corr_factor'].data
+    nii_ha_corr_factor = corr_tbl['nii_ha_corr_factor'].data
+    log_SFR_HA_dustcorr = log_SFR_HA+filt_corr_factor+nii_ha_corr_factor+dust_corr_factor
+
+    # FUV dustcorr
+    EBV_HA = corr_tbl['EBV'].data
+    UV_lambda  = 0.15 # units of micron
+    K_UV       = (2.659*(-2.156 + 1.509/UV_lambda - 0.198/UV_lambda**2
+                        + 0.011/UV_lambda**3)+ 4.05)
+    A_UV = K_UV*0.44*EBV_HA
+    log_SFR_UV_dustcorr = log_SFR_UV + 0.4*A_UV
+
     # plotting
-    plot_SFR_comparison(log_SFR_HA, log_SFR_UV, corr_tbl)
-    plot_SFR_ratios(log_SFR_HA, log_SFR_UV, corr_tbl)
+    # plot_SFR_comparison(log_SFR_HA, log_SFR_UV, corr_tbl)
+    # plot_SFR_ratios(log_SFR_HA, log_SFR_UV, corr_tbl)
+    plot_SFR_ratios_dustcorr(log_SFR_HA_dustcorr, log_SFR_UV_dustcorr, corr_tbl)
+
 
 
 if __name__ == '__main__':
