@@ -293,7 +293,7 @@ def composite_errors(x, dx, seed_i, label=''):
     return onesig_errs
 
 
-def get_FUV_corrs(corr_tbl, ret_coeffs=False):
+def get_FUV_corrs(corr_tbl, ret_coeffs_const=False, ret_coeffs=False, old=False):
     '''
     '''
     from plot_mainseq_UV_Ha_comparison import get_UV_SFR
@@ -302,24 +302,67 @@ def get_FUV_corrs(corr_tbl, ret_coeffs=False):
         return m*x+b
 
     zspec0 = corr_tbl['zspec0'].data
-    yes_spectra = np.where((zspec0 >= 0) & (zspec0 < 9))[0]
+    yesz_ii = np.where((zspec0 >= 0.) & (zspec0 < 9.))[0]
 
-    # getting FUV_corr_factor
+    # getting dustcorr UV SFR
     log_SFR_UV = get_UV_SFR(corr_tbl)
+    EBV_HA = corr_tbl['EBV'].data
+    UV_lambda  = 0.15 # units of micron
+    K_UV       = (2.659*(-2.156 + 1.509/UV_lambda - 0.198/UV_lambda**2
+                        + 0.011/UV_lambda**3)+ 4.05)
+    A_UV = K_UV*0.44*EBV_HA
+    log_SFR_UV_dustcorr = log_SFR_UV + 0.4*A_UV
+
+    # getting dustcorr HA SFR
     log_SFR_HA = corr_tbl['met_dep_sfr'].data
-    log_SFR_ratio = log_SFR_HA - log_SFR_UV
-    coeffs, covar = curve_fit(line, log_SFR_HA[yes_spectra],
-        log_SFR_ratio[yes_spectra])
-    m, b = coeffs[0], coeffs[1]
-    FUV_corr_factor = -(m*log_SFR_HA + b)
+    dust_corr_factor = corr_tbl['dust_corr_factor'].data
+    filt_corr_factor = corr_tbl['filt_corr_factor'].data
+    nii_ha_corr_factor = corr_tbl['nii_ha_corr_factor'].data
+    log_SFR_HA_dustcorr = log_SFR_HA+filt_corr_factor+nii_ha_corr_factor+dust_corr_factor
+
+    # getting ratio
+    log_SFR_ratio_dustcorr = log_SFR_HA_dustcorr - log_SFR_UV_dustcorr
+
+    # getting turnover mass
+    turnover = -1.5
+    salpeter_to_chabrier = np.log10(7.9/4.55)
+    turnover -= salpeter_to_chabrier
+
+    # fitting piecewise fn
+    low_SFRHA_ii = np.where(log_SFR_HA_dustcorr[yesz_ii] <= turnover)[0]
+    high_SFRHA_ii = np.where(log_SFR_HA_dustcorr[yesz_ii] >= turnover)[0]    
+    const = np.mean(log_SFR_ratio_dustcorr[yesz_ii][high_SFRHA_ii])
+    def line(x, m):
+        return m*(x-turnover)+const
+    coeffs, covar = curve_fit(line, log_SFR_HA_dustcorr[yesz_ii][low_SFRHA_ii],
+        log_SFR_ratio_dustcorr[yesz_ii][low_SFRHA_ii])
+    m = coeffs[0]
+    b = const-m*turnover
+
+    if old:
+        # getting FUV_corr_factor
+        def line(x, m, b):
+            return m*x+b
+        log_SFR_ratio = log_SFR_HA - log_SFR_UV
+        coeffs, covar = curve_fit(line, log_SFR_HA[yesz_ii],
+            log_SFR_ratio[yesz_ii])
+        m, b = coeffs[0], coeffs[1]
+        FUV_corr_factor = -(m*log_SFR_HA + b)
+        return FUV_corr_factor
+
+    FUV_corr_factor = np.zeros(len(log_SFR_HA_dustcorr))
+    FUV_corr_factor[low_SFRHA_ii] = line(log_SFR_HA_dustcorr[low_SFRHA_ii], *coeffs)
+    FUV_corr_factor[high_SFRHA_ii] = const
 
     if ret_coeffs:
         return m, b
+    elif ret_coeffs_const:
+        return m, b, const
     else:
         return FUV_corr_factor
 
 
-def combine_mact_newha(corr_tbl, FUV_corr=True):
+def combine_mact_newha(corr_tbl, FUV_corr=True, errs=False):
     '''
     '''
     from plot_nbia_mainseq import approximated_zspec0, get_z_arr
@@ -357,6 +400,12 @@ def combine_mact_newha(corr_tbl, FUV_corr=True):
     if FUV_corr:
         m, b = get_FUV_corrs(corr_tbl, ret_coeffs=True)
         newha_logsfrha += -(m*newha_logsfrha + b)
+    if errs:
+        delta_sfrs = corr_tbl['meas_errs'].data
+        newha_logsfrha_uperr = newhadata['LOGSFR_HA_UPERR']
+        newha_logsfrha_lowerr = newhadata['LOGSFR_HA_LOWERR']
+        newha_logsfr_err = np.sqrt(newha_logsfrha_uperr**2/2 + newha_logsfrha_lowerr**2/2)
+        errs_with_newha = np.concatenate((delta_sfrs, newha_logsfr_err))
 
 
     # combining datasets
@@ -378,8 +427,13 @@ def combine_mact_newha(corr_tbl, FUV_corr=True):
         for x in range(5)]
 
     newha.close()
-    return (sfrs_with_newha, mass_with_newha, zspec_with_newha,
-        zspec_with_newha00, filts_with_newha, mz_data_with_newha,
-        no_spectra, yes_spectra, nh_z_arr, nh_cwheel)
+    if errs:
+        return (sfrs_with_newha, mass_with_newha, zspec_with_newha,
+            zspec_with_newha00, filts_with_newha, mz_data_with_newha,
+            no_spectra, yes_spectra, nh_z_arr, nh_cwheel, errs_with_newha)
+    else:
+        return (sfrs_with_newha, mass_with_newha, zspec_with_newha,
+            zspec_with_newha00, filts_with_newha, mz_data_with_newha,
+            no_spectra, yes_spectra, nh_z_arr, nh_cwheel)
 
 

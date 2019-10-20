@@ -342,14 +342,12 @@ def lee_09(ax, xlims0, lee_fig_num):
         ax.plot(jlee_xarr, jlee_logSFR_ratio, 'cs', alpha=0.7)
         ax.errorbar(jlee_xarr, jlee_logSFR_ratio, fmt='none', ecolor='c', lw=2,
             yerr=jlee_logSFR_ratio_errs, alpha=0.7)
-        jlee09_lo, = ax.plot(xtmparr_lo, 0.32*xtmparr_lo+0.37, 'c--', alpha=0.7,
-            label='Lee+09: '+r'$0.32 \log(\rm SFR(H\alpha))+0.37$')
-        jlee09_hi, = ax.plot(xtmparr_hi, np.array([-0.13]*len(xtmparr_hi)), 'c--', alpha=0.7,
-            label='Lee+09: '+r'$-0.13$')
         jlee09_both, = ax.plot(xtmparr_lo, 0.32*xtmparr_lo+0.37, 'c--', alpha=0.7,
             label='Lee+09: '+r'$0.32 \log(\rm SFR(H\alpha))+0.37 \, ; \, -0.13$')
+        ax.plot(xtmparr_hi, np.array([-0.13]*len(xtmparr_hi)), 'c--', alpha=0.7,
+            label='Lee+09: '+r'$-0.13$')
 
-        return ax, jlee09_lo, jlee09_hi, jlee09_both, xtmparr_lo, xtmparr_hi
+        return ax, jlee09_both, xtmparr_lo, xtmparr_hi
 
     elif '2' in lee_fig_num:
         if lee_fig_num=='2A':  # xarr is logSFRHa
@@ -582,7 +580,7 @@ def plot_SFR_ratios_dustcorr(log_SFR_HA, log_SFR_UV, corr_tbl):
     ax.axhline(0, color='k')
 
     # plotting relation from Lee+09
-    ax, jlee09_lo, jlee09_hi, jlee09_both, xtmparr_lo, xtmparr_hi = lee_09(ax, xlims0, lee_fig_num='5')
+    ax, jlee09_both, xtmparr_lo, xtmparr_hi = lee_09(ax, xlims0, lee_fig_num='5')
     turnover = min(xtmparr_hi)
 
     # plotting our own avgs
@@ -590,38 +588,16 @@ def plot_SFR_ratios_dustcorr(log_SFR_HA, log_SFR_UV, corr_tbl):
     ax = plot_binned_percbins(ax, log_SFR_HA, log_SFR_ratio, corr_tbl)
 
     # plotting line of best fit
-    yesz_ii = np.where((corr_tbl['zspec0'].data > 0.) & (corr_tbl['zspec0'].data < 9.))[0]
-    low_SFRHA_ii = np.where(log_SFR_HA[yesz_ii] <= turnover)[0]
-    high_SFRHA_ii = np.where(log_SFR_HA[yesz_ii] >= turnover)[0]
-    const = np.mean(log_SFR_ratio[yesz_ii][high_SFRHA_ii])
-    def line(x, m):
-        return m*(x-turnover)+const
-    coeffs, covar = curve_fit(line, log_SFR_HA[yesz_ii][low_SFRHA_ii],
-        log_SFR_ratio[yesz_ii][low_SFRHA_ii])
-    m = coeffs[0]
-    b = const-m*turnover
-    MACT_SFRHA_lo, = ax.plot(xtmparr_lo, line(xtmparr_lo, *coeffs), 'k--',
-        label=r'$\mathcal{MACT}:$ '+r'$%.2f \log(\rm SFR(H\alpha))+%.2f$'%(m,b))
-    MACT_SFRHA_hi, = ax.plot(xtmparr_hi, np.array([const]*len(xtmparr_hi)), 'k--',
-        label=r'$\mathcal{MACT}:$ '+r'$%.2f$'%(const))
-    MACT_SFRHA_both, = ax.plot(xtmparr_lo, line(xtmparr_lo, *coeffs), 'k--',
+    from MACT_utils import get_FUV_corrs
+    m, b, const = get_FUV_corrs(corr_tbl, ret_coeffs_const=True)
+    MACT_SFRHA_both, = ax.plot(xtmparr_lo, m*xtmparr_lo + b), 'k--',
         label=r'$\mathcal{MACT}:$ '+r'$%.2f \log(\rm SFR(H\alpha))+%.2f \, ; \, %.2f$'%(m,b,const))
+    ax.plot(xtmparr_hi, np.array([const]*len(xtmparr_hi)), 'k--',
+        label=r'$\mathcal{MACT}:$ '+r'$%.2f$'%(const))
 
-    # print 'log(SFR(Ha)/SFR(FUV)) = %.3f'%const, 'for log(SFR(Ha)) > -1.5'
-    # print 'log(SFR(Ha)/SFR(FUV)) = %.3f log(SFR(Ha)) + %.3f'%(coeffs[0], const-m*turnover), 'for log(SFR(Ha)) < -1.5'
-    
-    # ax, MACT_SFRHA = line_fit(ax, log_SFR_HA[yesz_ii], log_SFR_ratio[yesz_ii],
-    #     np.linspace(-4.6, xlims0[1], 10), 'SFRHA')
-
-    # legends
-    # # v1
-    # legend_lo = ax.legend(handles=[MACT_SFRHA_lo, jlee09_lo], loc=(0.08,0.01), frameon=False)
-    # ax.add_artist(legend_lo)
-    # legend_hi = ax.legend(handles=[MACT_SFRHA_hi, jlee09_hi], loc='lower right', frameon=False)
-    # ax.add_artist(legend_hi)
-
-    # v2
-    legend_both = ax.legend(handles=[MACT_SFRHA_both, jlee09_both], loc='lower right', frameon=False)
+    # legend
+    legend_both = ax.legend(handles=[MACT_SFRHA_both, jlee09_both],
+        loc='lower right', frameon=False)
     ax.add_artist(legend_both)
 
     # final touches
