@@ -725,18 +725,49 @@ def main():
         plt.close()
 
 
+    NEWHA = False
+    FUV_corrs = True
+
     print 'making redshift dependent plot now'
+    if NEWHA:
+        f, ax = plt.subplots()
+        from MACT_utils import combine_mact_newha
+        (sfrs_with_newha, mass_with_newha, zspec_with_newha,
+            zspec_with_newha00, filts_with_newha, mz_data_with_newha,
+            no_spectra, yes_spectra, 
+            z_arr, cwheel, errs_with_newha) = combine_mact_newha(corr_tbl, errs=True)
+        make_redshift_graph(f, ax, z_arr, 
+            sfrs_with_newha, errs_with_newha, mass_with_newha,
+            zspec_with_newha00, filts_with_newha,
+            no_spectra, yes_spectra, cwheel, 
+            ffarr=['NB7', 'NB816', 'NB921', 'NB973', 'NEWHA'],
+            llarr=['NB704,NB711', 'NB816', 'NB921', 'NB973', 'NEWHA'],
+            withnewha=True)
+        plt.savefig(FULL_PATH+'Plots/NewHa/zdep_mainseq.pdf')
+        plt.close()
+    if FUV_corrs:
+        from MACT_utils import get_FUV_corrs
+        FUV_corr_factor = get_FUV_corrs(corr_tbl)
+        f, ax = plt.subplots()
+        make_redshift_graph(f, ax, z_arr, corr_sfrs+FUV_corr_factor, delta_sfrs, stlr_mass, zspec00, filts,
+            no_spectra, yes_spectra, cwheel)
+        plt.subplots_adjust(hspace=0.01, wspace=0.01, right=0.99, top=0.98,
+            left=0.1, bottom=0.09)
+        plt.ylim([-3.8,1.8])
+        plt.savefig(FULL_PATH+'Plots/main_sequence/zdep_mainseq_FUV.pdf')
+        plt.close()
+    # else:
     f, ax = plt.subplots()
     make_redshift_graph(f, ax, z_arr, corr_sfrs, delta_sfrs, stlr_mass, zspec00, filts,
         no_spectra, yes_spectra, cwheel)
     plt.subplots_adjust(hspace=0.01, wspace=0.01, right=0.99, top=0.98,
         left=0.1, bottom=0.09)
+    plt.ylim([-3.8,1.8])
     plt.savefig(FULL_PATH+'Plots/main_sequence/zdep_mainseq.pdf')
     plt.close()
 
 
     print 'making sSFR plot now'
-    FUV_corrs = True
     if FUV_corrs:
         from MACT_utils import get_FUV_corrs
         FUV_corr_factor = get_FUV_corrs(corr_tbl)
