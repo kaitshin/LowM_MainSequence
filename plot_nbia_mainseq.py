@@ -545,7 +545,7 @@ def make_ssfr_graph_old(f, axes, sfrs00, delta_sfrs, smass0, filts00, zspec00, c
 def make_ssfr_graph_newha(f, ax, corr_sfrs, stlr_mass, filts, zspec0, zspec00,
     cwheel, z_arr, corr_tbl,
     ffarr=['NB7', 'NB816', 'NB921', 'NB973', 'NEWHA'],
-    llarr=['NB704,NB711', 'NB816', 'NB921', 'NB973', 'NEWHA']):
+    llarr=['NB704,NB711', 'NB816', 'NB921', 'NB973', r'$NewH\alpha$']):
     '''
     plots a two-panel plot of sSFR as a function of mass (LHS) and redshift
     (RHS). colors differ depending on the associated filter of the source.
@@ -562,24 +562,34 @@ def make_ssfr_graph_newha(f, ax, corr_sfrs, stlr_mass, filts, zspec0, zspec00,
 
     ssfrs_with_newha = sfrs_with_newha - mass_with_newha
     
-    for ff,cc,ll,zz in zip(ffarr, cwheel, llarr, z_arr):
-        filt_match = np.array([x for x in range(len(filts_with_newha)) if
-            ff in filts_with_newha[x]])
-        
-        ax.scatter(mass_with_newha[filt_match], ssfrs_with_newha[filt_match],
-            facecolors='none', edgecolors=cc, linewidth=0.5,
-            label='z~'+zz+' ('+ll+')')
-        ax.set_xlabel('log(M'+r'$_\bigstar$'+'/M'+r'$_{\odot}$'+')',
-            size=14)
-        ax.set_ylabel('log(sSFR[H'+r'$\alpha$'+']'+' yr'+
-            r'$^{-1}$'+')', size=14)
+    labelarr = []
+    for ff,cc,ll,zz,zo,al in zip(ffarr, cwheel, llarr, z_arr,
+        [2,2,2,2,1], [0.5,0.5,0.5,0.5,0.3]):
+        filt_index_n = get_filt_index(no_spectra, ff, filts_with_newha)
+        filt_index_y = get_filt_index(yes_spectra, ff, filts_with_newha)
 
+        temp = ax.scatter(mass_with_newha[yes_spectra][filt_index_y],
+            ssfrs_with_newha[yes_spectra][filt_index_y], 
+            facecolors=cc, edgecolors='none', alpha=al, zorder=zo,
+            label='z~'+np.str(zz)+' ('+ll+')')
 
-    ax.legend(loc='upper right', fontsize=12, frameon=False)
-    # axes[0].set_ylim(ymax=-6.9)
+        if ff!='NEWHA':
+            ax.scatter(mass_with_newha[no_spectra][filt_index_n],
+                ssfrs_with_newha[no_spectra][filt_index_n], 
+                facecolors='none', edgecolors=cc, alpha=al, linewidth=0.5,
+                zorder=zo, label='z~'+np.str(zz)+' ('+ll+')')
+
+        labelarr.append(temp)
+
+    ax.legend(handles=labelarr, loc='lower left', fontsize=11, frameon=False)
+    ax.set_xlabel('log(M'+r'$_\bigstar$'+'/M'+r'$_{\odot}$'+')',
+        size=14)
+    ax.set_ylabel('log(sSFR[H'+r'$\alpha$'+']'+' yr'+
+        r'$^{-1}$'+')', size=14)
     
+    ax.set_ylim(ymax=-6.9)    
     ax.tick_params(axis='both', labelsize='10', which='both', direction='in')
-    # f.set_size_inches(16,6)
+    f.set_size_inches(8,6)
 
 
 def approximated_zspec0(zspec0, filts):
