@@ -176,8 +176,10 @@ def plot_contours_two_params(sfrs, delta_sfrs, mass):
         transform=ax.transAxes, fontsize=13)
     ax.set_xlabel(lbl_arr[i], fontsize=12)
     ax.set_ylabel(lbl_arr[j], fontsize=12)
-    ax.set_xlim([0.868,0.902])
-    ax.set_ylim([-8.72, -8.44])
+    # ax.set_xlim([0.863,0.907])
+    # ax.set_ylim([-8.77, -8.39])
+    ax.set_xlim([0.77, 0.815])
+    ax.set_ylim([-7.82, -7.4])
 
     ax.tick_params(axis='both', labelsize='10', which='both', direction='in')
     f.set_size_inches(5,4)
@@ -201,12 +203,14 @@ def plot_contours_three_params(sfrs, delta_sfrs, mz_data):
     for i, ax, lbl in zip(range(3), axes, lbl_arr):
         j = (i+1)%3
 
+        print np.std(params_arr[i])
+        mult=2
         if i>0: # 0.0025 ?
-            xsize=0.001 if np.std(params_arr[i]) < 0.01 else 0.01
-            ysize=0.001 if np.std(params_arr[j]) < 0.01 else 0.01
+            xsize=mult*0.001 if np.std(params_arr[i]) < mult*0.01 else mult*0.01
+            ysize=mult*0.001 if np.std(params_arr[j]) < mult*0.01 else mult*0.01
         else:
-            xsize=0.001 if np.std(params_arr[i]) < 0.01 else 0.01
-            ysize=0.001 if np.std(params_arr[j]) < 0.01 else 0.011
+            xsize=mult*0.001 if np.std(params_arr[i]) < mult*0.01 else mult*0.01
+            ysize=mult*0.001 if np.std(params_arr[j]) < mult*0.01 else mult*0.011
 
         x_final, y_final, hist2d, sig_levels = contours(params_arr[i],
             params_arr[j], xsize, ysize, three_sig=False)
@@ -243,7 +247,9 @@ def main():
     dust_corr_factor = corr_tbl['dust_corr_factor'].data
     filt_corr_factor = corr_tbl['filt_corr_factor'].data
     nii_ha_corr_factor = corr_tbl['nii_ha_corr_factor'].data
-    sfrs = obs_sfr+filt_corr_factor+nii_ha_corr_factor+dust_corr_factor
+    from MACT_utils import get_FUV_corrs
+    FUV_corr_factor = get_FUV_corrs(corr_tbl)
+    sfrs = obs_sfr+filt_corr_factor+nii_ha_corr_factor+dust_corr_factor+FUV_corr_factor
 
     zspec0 = corr_tbl['zspec0'].data
     no_spectra  = np.where((zspec0 <= 0) | (zspec0 > 9))[0]
@@ -253,7 +259,7 @@ def main():
     mz_data = np.vstack([mass, tempz]).T
 
     plot_contours_two_params(sfrs, delta_sfrs, mass)
-    plot_contours_three_params(sfrs, delta_sfrs, mz_data)
+    # plot_contours_three_params(sfrs, delta_sfrs, mz_data)
 
 
 if __name__ == '__main__':

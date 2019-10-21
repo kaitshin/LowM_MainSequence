@@ -329,17 +329,29 @@ def get_FUV_corrs(corr_tbl, ret_coeffs_const=False, ret_coeffs=False, old=False)
     turnover -= salpeter_to_chabrier
 
     # fitting piecewise fn
-    low_SFRHA_ii = np.where(log_SFR_HA_dustcorr[yesz_ii] <= turnover)[0]
-    high_SFRHA_ii = np.where(log_SFR_HA_dustcorr[yesz_ii] >= turnover)[0]    
-    const = np.mean(log_SFR_ratio_dustcorr[yesz_ii][high_SFRHA_ii])
+    low_SFRHA_yesz_ii = np.where(log_SFR_HA_dustcorr[yesz_ii] <= turnover)[0]
+    high_SFRHA_yesz_ii = np.where(log_SFR_HA_dustcorr[yesz_ii] >= turnover)[0]    
+    const = np.mean(log_SFR_ratio_dustcorr[yesz_ii][high_SFRHA_yesz_ii])
     def line(x, m):
         return m*(x-turnover)+const
-    coeffs, covar = curve_fit(line, log_SFR_HA_dustcorr[yesz_ii][low_SFRHA_ii],
-        log_SFR_ratio_dustcorr[yesz_ii][low_SFRHA_ii])
+    coeffs, covar = curve_fit(line, log_SFR_HA_dustcorr[yesz_ii][low_SFRHA_yesz_ii],
+        log_SFR_ratio_dustcorr[yesz_ii][low_SFRHA_yesz_ii])
     m = coeffs[0]
     b = const-m*turnover
 
-    if old:
+    low_SFRHA_ii = np.where(log_SFR_HA_dustcorr <= turnover)[0]
+    high_SFRHA_ii = np.where(log_SFR_HA_dustcorr >= turnover)[0]    
+    FUV_corr_factor = np.zeros(len(log_SFR_HA_dustcorr))
+    FUV_corr_factor[low_SFRHA_ii] = line(log_SFR_HA_dustcorr[low_SFRHA_ii], *coeffs)
+    FUV_corr_factor[high_SFRHA_ii] = const
+    assert 0 not in FUV_corr_factor
+    FUV_corr_factor = -FUV_corr_factor
+
+    if ret_coeffs:
+        return m, b
+    elif ret_coeffs_const:
+        return m, b, const
+    elif old:
         # getting FUV_corr_factor
         def line(x, m, b):
             return m*x+b
@@ -349,15 +361,6 @@ def get_FUV_corrs(corr_tbl, ret_coeffs_const=False, ret_coeffs=False, old=False)
         m, b = coeffs[0], coeffs[1]
         FUV_corr_factor = -(m*log_SFR_HA + b)
         return FUV_corr_factor
-
-    FUV_corr_factor = np.zeros(len(log_SFR_HA_dustcorr))
-    FUV_corr_factor[low_SFRHA_ii] = line(log_SFR_HA_dustcorr[low_SFRHA_ii], *coeffs)
-    FUV_corr_factor[high_SFRHA_ii] = const
-
-    if ret_coeffs:
-        return m, b
-    elif ret_coeffs_const:
-        return m, b, const
     else:
         return FUV_corr_factor
 
@@ -398,8 +401,11 @@ def combine_mact_newha(corr_tbl, FUV_corr=True, errs=False):
     newha_mzdata = np.vstack([newha_logm, newha_zspec]).T
     newha_logsfrha = get_newha_logsfrha(newhadata, newha_sfr_type='met_dep_sfr')
     if FUV_corr:
-        m, b = get_FUV_corrs(corr_tbl, ret_coeffs=True)
-        newha_logsfrha += -(m*newha_logsfrha + b)
+        m, b, const = get_FUV_corrs(corr_tbl, ret_coeffs_const=True)
+        print const
+        print np.mean(newha_logsfrha)
+        newha_logsfrha = newha_logsfrha-const
+        print np.mean(newha_logsfrha)
     if errs:
         delta_sfrs = corr_tbl['meas_errs'].data
         newha_logsfrha_uperr = newhadata['LOGSFR_HA_UPERR']

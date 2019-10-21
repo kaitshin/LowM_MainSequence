@@ -62,9 +62,10 @@ def add_legends(ax, withnewha):
     ax.add_artist(legend2)
 
 
-def create_disp_tbl(smass0, sfrs00, sfrs_resid, meas_errs):
+def create_disp_tbl(smass0, sfrs00, sfrs00_nofuv, sfrs_resid, meas_errs):
     '''
-    creates & returns a dispersion table with (1) stlrmass bins, (2) avg sfr,
+    creates & returns a dispersion table with (1) stlrmass bins,
+    (2) avg sfr (avg sfr w/o FUV corr),
     (3) observed dispersion (per bin), (4) systematic dispersion, and
     (5) the intrinsic dispersion (obtained by subtracting (4) from (3)
     in quadrature)
@@ -86,10 +87,19 @@ def create_disp_tbl(smass0, sfrs00, sfrs_resid, meas_errs):
         stlrmass_bins.append(mass_str)
         
         avgsfr = np.mean(sfrs00[bin_match])
+        sfr_entry = ''
         if avgsfr < 0:
-            avg_sfr.append('-%.3f'%avgsfr)
+            sfr_entry += '-%.3f'%avgsfr
         else:
-            avg_sfr.append('%.3f'%avgsfr)
+            sfr_entry += '%.3f'%avgsfr
+
+        avgsfr_nofuv = np.mean(sfrs00_nofuv[bin_match])
+        if avgsfr_nofuv < 0:
+            sfr_entry += ' (-%.3f)'%avgsfr_nofuv
+        else:
+            sfr_entry += ' (%.3f)'%avgsfr_nofuv
+
+        avg_sfr.append(sfr_entry)
         
         obs_disp = np.std(sfrs_resid[bin_match])
         observed_disp.append('%.3f'%obs_disp)
@@ -98,7 +108,10 @@ def create_disp_tbl(smass0, sfrs00, sfrs_resid, meas_errs):
         systematic_disp.append('%.3f'%syst_disp)
         
         intr_disp = np.sqrt(obs_disp**2 - syst_disp**2)
-        intrinsic_disp.append('%.3f'%intr_disp)
+        if np.isnan(intr_disp):
+            intrinsic_disp.append('\\ldots')
+        else:
+            intrinsic_disp.append('%.3f'%intr_disp)
 
     tt = Table([stlrmass_bins, avg_sfr, observed_disp, systematic_disp,
         intrinsic_disp], names=['(1)','(2)','(3)','(4)','(5)'])
@@ -293,6 +306,8 @@ def main():
     filt_corr_factor = corr_tbl['filt_corr_factor'].data
     nii_ha_corr_factor = corr_tbl['nii_ha_corr_factor'].data
     corr_sfrs = obs_sfr+filt_corr_factor+nii_ha_corr_factor+dust_corr_factor
+    from MACT_utils import get_FUV_corrs
+    FUV_corr_factor = get_FUV_corrs(corr_tbl)
 
     zspec00 = plot_nbia_mainseq.approximated_zspec0(zspec0, filts)
     data00 = np.vstack([stlr_mass, zspec00]).T
@@ -301,17 +316,19 @@ def main():
 
     # plotting
     f, ax = plt.subplots()
-    sfrs_resid = plot_all_dispersion(f, ax, data00, corr_sfrs, delta_sfrs, stlr_mass,
+    sfrs_resid = plot_all_dispersion(f, ax, data00, corr_sfrs+FUV_corr_factor,
+        delta_sfrs, stlr_mass,
         filts, no_spectra, yes_spectra, z_arr)
     plt.savefig(FULL_PATH+'Plots/main_sequence/mainseq_dispersion.pdf')
     plt.close()
 
     # creating a dispersion table
     meas_errs = corr_tbl['meas_errs'].data # = delta_sfrs
-    tt = create_disp_tbl(stlr_mass, corr_sfrs, sfrs_resid, meas_errs)
+    tt = create_disp_tbl(stlr_mass, corr_sfrs+FUV_corr_factor,
+        corr_sfrs, sfrs_resid, meas_errs)
     # asc.write(tt, FULL_PATH+'Main_Sequence/dispersion_tbl.txt', 
     #     format='latex', overwrite=True)
-    # print asc.write(tt, format='latex')
+    print asc.write(tt, format='latex')
 
 
 if __name__ == '__main__':
