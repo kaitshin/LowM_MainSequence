@@ -773,7 +773,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
     npz_slope = np.load(path0 + 'Completeness/NB_numbers.npz')
 
-    logEW_mean_start = np.array([1.25, 1.45, 1.25, 1.25, 1.75])
+    logEW_mean_start = np.array([1.25, 1.45, 1.25, 1.25, 1.55])
     logEW_sig_start  = np.array([0.15, 0.55, 0.25, 0.35, 0.55])
     n_mean  = 4
     n_sigma = 4
