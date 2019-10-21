@@ -1187,8 +1187,14 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
         chi2_wht = np.sqrt(chi2_EW0**2/2 + chi2_Fl0**2/2)
         b_chi2 = np.where(chi2_wht == np.min(chi2_wht))
         mylog.info("Best chi2 : "+str(b_chi2))
-        mylog.info("Best chi2 : "+str(logEW_mean[b_chi2[0]],
-                                      logEW_sig[b_chi2[1]]))
+        mylog.info("Best chi2 : (%s, %s) " % (logEW_mean[b_chi2[0]][0],
+                                              logEW_sig[b_chi2[1]][0]))
+        ax3ur.scatter(logEW_mean[b_chi2[0]]+0.005*(b_chi2[1]-3/2.),
+                      chi2_EW0[b_chi2], edgecolor='k', facecolor='none',
+                      s=100, linewidth=2)
+        ax3lr.scatter(logEW_mean[b_chi2[0]]+0.005*(b_chi2[1]-3/2.),
+                      chi2_Fl0[b_chi2], edgecolor='k', facecolor='none',
+                      s=100, linewidth=2)
 
         fig3.set_size_inches(8,8)
         fig3.subplots_adjust(left=0.105, right=0.97, bottom=0.065, top=0.98,
