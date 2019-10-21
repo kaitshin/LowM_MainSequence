@@ -911,6 +911,9 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
         ax3ur = ax3[0][1]
         ax3lr = ax3[1][1]
 
+        chi2_EW0 = np.zeros((n_mean,n_sigma))
+        chi2_Fl0 = np.zeros((n_mean,n_sigma))
+
         count = 0
         for mm in mm_range: # loop over median of EW dist
             comp_EWmean[mm] = logEW_mean[mm]
@@ -1062,8 +1065,9 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
                 # Model comparison plots
                 if len(good) > 0:
-                    stats_plot('EW', ax2, ax3ur, ax20, s_row, Ng, No, binso,
-                               logEW_mean[mm], logEW_sig[ss], ss)
+                    chi2 = stats_plot('EW', ax2, ax3ur, ax20, s_row, Ng, No,
+                                      binso, logEW_mean[mm], logEW_sig[ss], ss)
+                    chi2_EW0[mm,ss] = chi2
 
                 # Panel (2,1) - histogram of H-alpha fluxes
                 No, Ng, binso, \
@@ -1078,8 +1082,9 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
                 # Model comparison plots
                 if len(good) > 0:
-                    stats_plot('Flux', ax2, ax3lr, ax21, s_row, Ng, No, binso,
-                               logEW_mean[mm], logEW_sig[ss], ss)
+                    chi2 = stats_plot('Flux', ax2, ax3lr, ax21, s_row, Ng, No,
+                                      binso, logEW_mean[mm], logEW_sig[ss], ss)
+                    chi2_Fl0[mm,ss] = chi2
 
                 if s_row != nrow_stats-1:
                     ax2[s_row][0].set_xticklabels([])
@@ -1177,6 +1182,13 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
         ax3ul.legend(loc='upper right', title=r'$\sigma[\log({\rm EW}_0)]$',
                      fancybox=True, fontsize=8, framealpha=0.75, scatterpoints=1)
+
+        # Compute best fit using weighted chi^2
+        chi2_wht = np.sqrt(chi2_EW0**2/2 + chi2_Fl0**2/2)
+        b_chi2 = np.where(chi2_wht == np.min(chi2_wht))
+        mylog.info("Best chi2 : "+str(b_chi2))
+        mylog.info("Best chi2 : "+str(logEW_mean[b_chi2[0]],
+                                      logEW_sig[b_chi2[1]]))
 
         fig3.set_size_inches(8,8)
         fig3.subplots_adjust(left=0.105, right=0.97, bottom=0.065, top=0.98,
