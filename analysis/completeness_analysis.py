@@ -726,12 +726,15 @@ def stats_plot(type0, ax2, ax3, ax, s_row, Ng, No, binso, EW_mean, EW_sig, ss):
     else:
         print("Too few bins")
         c_txt = r'$\chi^2_{\nu}$ = Unavailable'
+        fit_chi2 = np.nan
 
     ax.annotate(c_txt, [0.025,0.975], xycoords='axes fraction',
                 ha='left', va='top')
     c_txt += '\n' + r'N = %i' % len(use_bins)
     ax2[s_row][pn].annotate(c_txt, [0.975,0.975], ha='right',
                             xycoords='axes fraction', va='top')
+
+    return fit_chi2
 #enddef
 
 def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
