@@ -1222,19 +1222,21 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                        overwrite=True)
 
         # Generate table containing best fit results
-        best_tab0 = comp_tab[b_chi2[0]*len(ss_range)+b_chi2[1]]
-        if ff == 0:
-            comp_tab0 = best_tab0
-        else:
-            comp_tab0 = vstack([comp_tab0, best_tab0])
+        if not debug:
+            best_tab0 = comp_tab[b_chi2[0]*len(ss_range)+b_chi2[1]]
+            if ff == 0:
+                comp_tab0 = best_tab0
+            else:
+                comp_tab0 = vstack([comp_tab0, best_tab0])
 
         t_ff._stop()
         mylog.info("ew_MC completed for "+filters[ff]+" in : "+t_ff.format)
     #endfor
 
-    table_outfile0 = path0 + 'Completeness/best_fit_completeness_50.tbl'
-    comp_tab0.write(table_outfile0, format='ascii.fixed_width_two_line',
-                    overwrite=True)
+    if not debug:
+        table_outfile0 = path0 + 'Completeness/best_fit_completeness_50.tbl'
+        comp_tab0.write(table_outfile0, format='ascii.fixed_width_two_line',
+                        overwrite=True)
 
     if not debug:
         pp3.close()
