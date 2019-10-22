@@ -32,6 +32,8 @@ from NB_errors import filt_ref, dNB, lambdac, dBB, epsilon
 
 from ..mainseq_corrections import niiha_oh_determine
 
+from PyPDF2 import PdfFileWriter, PdfFileReader
+
 import astropy.units as u
 from astropy.cosmology import FlatLambdaCDM
 cosmo = FlatLambdaCDM(H0 = 70 * u.km / u.s / u.Mpc, Om0=0.3)
@@ -136,6 +138,26 @@ class mlog:
             log.setLevel(loglevel)
             log.handler_set = True
         return log
+#enddef
+
+def crop_pdf(infile, outfile, pp_page):
+    with open(infile, "rb") as in_f:
+        input1 = PdfFileReader(in_f)
+        output = PdfFileWriter()
+
+        numPages = input1.getNumPages()
+        print("document has %s pages." % numPages)
+
+        page = input1.getPage(pp_page)
+        print(page.mediaBox.getUpperRight_x(), page.mediaBox.getUpperRight_y())
+        page.trimBox.lowerLeft = (20, 25)
+        page.trimBox.upperRight = (225, 225)
+        page.cropBox.lowerLeft = (50, 50)
+        page.cropBox.upperRight = (200, 200)
+        output.addPage(page)
+
+    with open(outfile, "wb") as out_f:
+        output.write(out_f)
 #enddef
 
 def stats_log(arr, arr_type, mylog):
