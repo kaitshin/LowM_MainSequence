@@ -834,6 +834,11 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
         if debug: out_pdf = out_pdf.replace('.pdf','.debug.pdf')
         pp = PdfPages(out_pdf)
 
+        # This is cropped to fit
+        out_pdf0 = path0 + 'Completeness/ew_MC_'+filters[ff]+'.crop.pdf'
+        if debug: out_pdf0 = out_pdf0.replace('.pdf','.debug.pdf')
+        pp0 = PdfPages(out_pdf0)
+
         out_pdf2 = path0 + 'Completeness/ew_MC_'+filters[ff]+'.stats.pdf'
         if debug: out_pdf2 = out_pdf2.replace('.pdf','.debug.pdf')
         pp2 = PdfPages(out_pdf2)
@@ -947,6 +952,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
                 fig, ax = plt.subplots(ncols=2, nrows=3)
                 [[ax00,ax01],[ax10,ax11],[ax20,ax21]] = ax
+
                 plt.subplots_adjust(left=0.105, right=0.98, bottom=0.05,
                                     top=0.98, wspace=0.25, hspace=0.05)
 
@@ -1049,6 +1055,22 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 ax00.annotate(N_annot_txt, [0.05,0.95], va='top',
                               ha='left', xycoords='axes fraction')
 
+                # Plot cropped version
+                fig0, ax0 = plt.subplots()
+                plot_mock(ax0, NB_MC, x_MC, NB_sel, NB_nosel, 'NB', 'cont - NB')
+                ax0.axvline(m_NB[ff], linestyle='dashed', color='b')
+
+                temp_x = contmag-NBmag
+                plot_MACT(ax0, NBmag, temp_x, w_spec, wo_spec)
+
+                plot_NB_select(ff, ax0, NB, 'b')
+
+                N_annot_txt = avg_sig_label('', logEW_mean[mm], logEW_sig[ss],
+                                            type='EW')
+                N_annot_txt += '\n' + r'$N$ = %i' % NB_MC.size
+                ax0.annotate(N_annot_txt, [0.05,0.95], va='top',
+                             ha='left', xycoords='axes fraction')
+                fig0.savefig(pp0, format='pdf')
 
                 # Panel (1,0) - NB mag vs H-alpha flux
                 plot_mock(ax10, NB_MC, HaFlux_MC, NB_sel, NB_nosel, 'NB',
@@ -1262,6 +1284,8 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
     if not debug:
         pp3.close()
+
+    pp0.close()
 
     t0._stop()
     mylog.info("ew_MC completed in : "+t0.format)
