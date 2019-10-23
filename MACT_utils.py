@@ -402,10 +402,7 @@ def combine_mact_newha(corr_tbl, FUV_corr=True, errs=False):
     newha_logsfrha = get_newha_logsfrha(newhadata, newha_sfr_type='met_dep_sfr')
     if FUV_corr:
         m, b, const = get_FUV_corrs(corr_tbl, ret_coeffs_const=True)
-        print const
-        print np.mean(newha_logsfrha)
         newha_logsfrha = newha_logsfrha-const
-        print np.mean(newha_logsfrha)
     if errs:
         delta_sfrs = corr_tbl['meas_errs'].data
         newha_logsfrha_uperr = newhadata['LOGSFR_HA_UPERR']

@@ -213,34 +213,50 @@ def modify_all_graph(ax, labelarr, xlim, ylim, title, i, corr_tbl):
     sSFR_lines(ax, xlim)
 
 
-def plot_avg_sfrs(ax, stlr_mass, sfrs):
+def plot_avg_sfrs(ax, stlr_mass, sfrs, newha=False, openz=False,
+    cc='k', aa=1.0, zz=1):
     '''
     assumes the lowest mass is at m=6
     plots the mean sfr in each mass bin of width 0.5
     '''
-    mbins0 = np.arange(6.25, 10.75, .5)
+    if newha:
+        mbins0 = np.arange(6.25, 11.75, .5)
+    else:
+        mbins0 = np.arange(6.25, 10.75, .5)
     bin_ii = np.digitize(stlr_mass, mbins0+0.25)
 
     for i in range(len(mbins0)):
         bin_match = np.where(bin_ii == i)[0]
         sfrs_matched = sfrs[bin_match]
-        ax.plot(mbins0[i], np.mean(sfrs_matched), 'ko', alpha=0.8, ms=8)
+        # if openz:
+        #     # ax.plot(mbins0[i], np.mean(sfrs_matched), 'o', 
+        #     #     markerfacecolor='none', markeredgecolor='k',
+        #     #     alpha=0.8, ms=8)
+        #     ax.plot(mbins0[i], np.mean(sfrs_matched), 'o', color=cc,
+        #         alpha=aa, ms=8, zorder=1)
+        # else:
+        #     ax.plot(mbins0[i], np.mean(sfrs_matched), 'ko',
+        #         alpha=0.8, ms=8, zorder=4)
+
+        ax.plot(mbins0[i], np.mean(sfrs_matched), 'o', color=cc,
+                alpha=aa, ms=8, zorder=zz)
         ax.errorbar(mbins0[i], np.mean(sfrs_matched), xerr=0.25, fmt='none',
-            ecolor='black', alpha=0.8, lw=2)
+            ecolor=cc, alpha=aa, lw=2)
 
-        # calculating yerr assuming a uniform distribution
-        np.random.seed(213078)
-        num_iterations = 1000
-        len0 = len(sfrs_matched)
+        if not newha:
+            # calculating yerr assuming a uniform distribution
+            np.random.seed(213078)
+            num_iterations = 1000
+            len0 = len(sfrs_matched)
 
-        MC_arr = np.random.choice(sfrs_matched, size=(len0, num_iterations))
-        avg_dist = np.average(MC_arr, axis=0)
-        avg_dist = np.reshape(avg_dist,(1,num_iterations))
+            MC_arr = np.random.choice(sfrs_matched, size=(len0, num_iterations))
+            avg_dist = np.average(MC_arr, axis=0)
+            avg_dist = np.reshape(avg_dist,(1,num_iterations))
 
-        #x_pdf, x_val
-        ysfrerr, xpeak = compute_onesig_pdf(avg_dist, [np.mean(sfrs_matched)])
-        ax.errorbar(mbins0[i], np.mean(sfrs_matched), yerr=ysfrerr, fmt='none',
-            ecolor='black', alpha=0.8, lw=2)
+            #x_pdf, x_val
+            ysfrerr, xpeak = compute_onesig_pdf(avg_dist, [np.mean(sfrs_matched)])
+            ax.errorbar(mbins0[i], np.mean(sfrs_matched), yerr=ysfrerr, fmt='none',
+                ecolor='black', alpha=0.8, lw=2)
 
 
 def get_filt_index(spectra, ff, filts):
@@ -593,8 +609,8 @@ def make_ssfr_graph_newha(f, ax, corr_sfrs, stlr_mass, filts, zspec0, zspec00,
         if ff!='NEWHA':
             mean_mass = np.mean(mass_with_newha[filt_match])
             mean_ssfr = np.mean(ssfrs_with_newha[filt_match])
-            if ff != 'NB973':
-                ax.plot(mean_mass, mean_ssfr, 'k*', ms=15.0)
+            # if ff != 'NB973':
+            #     ax.plot(mean_mass, mean_ssfr, 'k*', ms=15.0)
             mact_masses += list(mass_with_newha[filt_match])
             mact_ssfrs += list(ssfrs_with_newha[filt_match])
             mact_mean_ssfr.append(mean_ssfr)
@@ -606,25 +622,28 @@ def make_ssfr_graph_newha(f, ax, corr_sfrs, stlr_mass, filts, zspec0, zspec00,
 
         labelarr.append(temp)
 
+    plot_avg_sfrs(ax, mass_with_newha[yes_spectra], ssfrs_with_newha[yes_spectra],
+        newha=True, cc='k', aa=0.8, zz=4)
+    plot_avg_sfrs(ax, mass_with_newha, ssfrs_with_newha,
+        newha=True, openz=True, cc='gray', aa=0.7, zz=1)
     # fitting a constant line to the mact sources below 10^9 M*
-    const = np.mean(mact_mean_ssfr[:-1])
-    # const = np.mean(mact_ssfrs)
-    print 'C =', const
-    tmp_xarr = np.linspace(6.0,m_turnover,30)
-    ax.plot(tmp_xarr, np.array([const]*len(tmp_xarr)), 'k--', lw=2)
+    # const = np.mean(mact_mean_ssfr[:-1])
+    # print 'C =', const
+    # tmp_xarr = np.linspace(6.0,m_turnover,30)
+    # ax.plot(tmp_xarr, np.array([const]*len(tmp_xarr)), 'k--', lw=2)
     # a linear line to the composites above 10^8 M*
-    def line2(x, m):
-        return m*(x-m_turnover)+const
-    def salim07(mass):
-        return -0.35*(mass - 10) - 9.83
-    highm_ii = np.array([x for x in range(len(mass_with_newha)) 
-        if mass_with_newha[x] >= m_turnover])
-    coeffs1, covar = curve_fit(line2,
-        mass_with_newha[highm_ii], ssfrs_with_newha[highm_ii])
-    print 'm =',coeffs1[0], '& b =', coeffs1[0]*-8+const
-    tmp_xarr2 = np.linspace(m_turnover,12.0,30)
-    ax.plot(tmp_xarr2, line2(tmp_xarr2, *coeffs1), 'k--', lw=2)
-    ax.plot(tmp_xarr2, salim07(tmp_xarr2), 'c', ls='--', lw=2)
+    # def line2(x, m):
+    #     return m*(x-m_turnover)+const
+    # def salim07(mass):
+    #     return -0.35*(mass - 10) - 9.83
+    # highm_ii = np.array([x for x in range(len(mass_with_newha)) 
+    #     if mass_with_newha[x] >= m_turnover])
+    # coeffs1, covar = curve_fit(line2,
+    #     mass_with_newha[highm_ii], ssfrs_with_newha[highm_ii])
+    # print 'm =',coeffs1[0], '& b =', coeffs1[0]*-8+const
+    # tmp_xarr2 = np.linspace(m_turnover,12.0,30)
+    # ax.plot(tmp_xarr2, line2(tmp_xarr2, *coeffs1), 'k--', lw=2)
+    # ax.plot(tmp_xarr2, salim07(tmp_xarr2), 'c', ls='--', lw=2)
 
     # finishing touches
     ax.legend(handles=labelarr, loc='lower left', fontsize=14, frameon=False)
@@ -635,7 +654,7 @@ def make_ssfr_graph_newha(f, ax, corr_sfrs, stlr_mass, filts, zspec0, zspec00,
     
     ax.set_ylim(ymax=-6.9)    
     ax.tick_params(axis='both', labelsize='10', which='both', direction='in')
-    f.set_size_inches(8,6)
+    f.set_size_inches(8,6.5)
 
 
 def approximated_zspec0(zspec0, filts):
@@ -745,29 +764,30 @@ def main():
     NEWHA = True
     
     # print making zdep plot
-    f, ax = plt.subplots()
-    make_redshift_graph(f, ax, z_arr, corr_sfrs+FUV_corr_factor, delta_sfrs,
-        stlr_mass, zspec00, filts, no_spectra, yes_spectra, cwheel)
-    plt.subplots_adjust(hspace=0.01, wspace=0.01, right=0.99, top=0.98,
-        left=0.1, bottom=0.09)
-    plt.ylim([-3.8,1.8])
-    plt.savefig(FULL_PATH+'Plots/main_sequence/zdep_mainseq.pdf')
-    plt.close()
+    # f, ax = plt.subplots()
+    # make_redshift_graph(f, ax, z_arr, corr_sfrs+FUV_corr_factor, delta_sfrs,
+    #     stlr_mass, zspec00, filts, no_spectra, yes_spectra, cwheel)
+    # plt.subplots_adjust(hspace=0.01, wspace=0.01, right=0.99, top=0.98,
+    #     left=0.1, bottom=0.09)
+    # plt.ylim([-3.8,1.8])
+    # plt.savefig(FULL_PATH+'Plots/main_sequence/zdep_mainseq.pdf')
+    # plt.close()
 
-    # print 'making sSFR plot now'
-    # if NEWHA:
-    #     f, ax = plt.subplots()
-    #     make_ssfr_graph_newha(f, ax, corr_sfrs+FUV_corr_factor,
-    #         stlr_mass, filts, zspec0, zspec00, cwheel, z_arr, corr_tbl=corr_tbl)
-    #     plt.subplots_adjust(right=0.98, top=0.98, left=0.08, bottom=0.08)
-    #     plt.savefig(FULL_PATH+'Plots/main_sequence/mainseq_sSFRs_FUV_corrs.pdf')
+    print 'making sSFR plot now'
+    if NEWHA:
+        f, ax = plt.subplots()
+        make_ssfr_graph_newha(f, ax, corr_sfrs+FUV_corr_factor,
+            stlr_mass, filts, zspec0, zspec00, cwheel, z_arr, corr_tbl=corr_tbl)
+        plt.subplots_adjust(right=0.98, top=0.98, left=0.08, bottom=0.08)
+        plt.savefig(FULL_PATH+'Plots/main_sequence/mainseq_sSFRs_FUV_corrs.pdf')
 
+    # print 'making old sSFR plot now'
+    # lowm_ii = np.arange(len(corr_sfrs))
     # f, axes = plt.subplots(1,2, sharey=True)
-    # lowm_ii = yes_spectra
     # make_ssfr_graph_old(f, axes, corr_sfrs[lowm_ii]+FUV_corr_factor[lowm_ii],
     #     delta_sfrs[lowm_ii], stlr_mass[lowm_ii], filts[lowm_ii], zspec00[lowm_ii], cwheel, z_arr)
     # plt.subplots_adjust(right=0.99, top=0.98, left=0.05, bottom=0.09)
-    # plt.savefig(FULL_PATH+'Plots/main_sequence/mainseq_sSFRs_fuvz.pdf')
+    # plt.savefig(FULL_PATH+'Plots/main_sequence/mainseq_sSFRs_fuvz_tmp.pdf')
 
 
 if __name__ == '__main__':
