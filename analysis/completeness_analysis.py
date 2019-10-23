@@ -1108,7 +1108,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 plot_mock(ax0, logM_MC, logSFR_MC, NB_sel, NB_nosel, M_lab, SFR_lab)
 
                 plot_MACT(ax0, logMstar, Ha_SFR, w_spec, wo_spec)
-                ax0.set_ylim([-5,-1])
+                #ax0.set_ylim([-5,-1])
                 fig0.savefig(pp0, format='pdf')
 
 
