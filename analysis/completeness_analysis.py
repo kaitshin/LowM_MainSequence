@@ -616,7 +616,8 @@ def plot_completeness(t_ax, arr0, NB_sel0, bins, ref_arr0=None, above_break=None
 
         x1 = bins_edges01[:-1]
         y1 = sel1/np.float_(orig1)
-        t_ax.step(x1, y1, 'k--', where='mid', label='true')
+        label0 = 'true' if annotate else ''
+        t_ax.step(x1, y1, 'k--', where='mid', label=label0)
 
         comp_50_ref = get_completeness(x1, y1)
         if annotate:
