@@ -48,7 +48,7 @@ Nmock = 10    # Number of mocked galaxies
 """
 
 filters = ['NB704','NB711','NB816','NB921','NB973']
-cont0   = [r'$R_Ci^{\prime}$', r'$R_Ci^{\prime}$', r'$i^{\prime}z^{\prime}$', r'z^{\prime}$', r'z^{\prime}$']
+cont0   = [r'$R_Ci^{\prime}$', r'$R_Ci^{\prime}$', r'$i^{\prime}z^{\prime}$', r'$z^{\prime}$', r'$z^{\prime}$']
 NB_filt = np.array([xx for xx in range(len(filt_ref)) if 'NB' in filt_ref[xx]])
 for arr in ['filt_ref','dNB','lambdac','dBB','epsilon']:
     cmd1 = arr + ' = np.array('+arr+')'
