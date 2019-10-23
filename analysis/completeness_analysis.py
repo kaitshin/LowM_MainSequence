@@ -281,13 +281,15 @@ def compute_EW(x0, ff):
     return EW_ref
 #enddef
 
-def plot_NB_select(ff, t_ax, NB, ctype, linewidth=1):
+def plot_NB_select(ff, t_ax, NB, ctype, linewidth=1, plot4=True):
     t_ax.axhline(y=minthres[ff], linestyle='dashed', color=ctype)
 
     y3 = color_cut(NB, m_NB[ff], cont_lim[ff])
     t_ax.plot(NB, y3, ctype+'--', linewidth=linewidth)
-    y4 = color_cut(NB, m_NB[ff], cont_lim[ff], sigma=4.0)
-    t_ax.plot(NB, y4, ctype+':', linewidth=linewidth)
+
+    if plot4:
+        y4 = color_cut(NB, m_NB[ff], cont_lim[ff], sigma=4.0)
+        t_ax.plot(NB, y4, ctype+':', linewidth=linewidth)
 #enddef
 
 def NB_select(ff, NB_mag, x_mag):
@@ -1068,7 +1070,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 temp_x = contmag-NBmag
                 plot_MACT(ax0, NBmag, temp_x, w_spec, wo_spec)
 
-                plot_NB_select(ff, ax0, NB, 'b')
+                plot_NB_select(ff, ax0, NB, 'b', plot4=False)
 
                 N_annot_txt = avg_sig_label('', logEW_mean[mm], logEW_sig[ss],
                                             type='EW')
