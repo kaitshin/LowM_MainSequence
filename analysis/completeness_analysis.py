@@ -1042,7 +1042,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
                 # Panel (0,0) - NB excess selection plot
 
-                plot_mock(ax00, NB_MC, x_MC, NB_sel, NB_nosel, '', 'cont - NB')
+                plot_mock(ax00, NB_MC, x_MC, NB_sel, NB_nosel, '', 'cont - '+filters[ff])
 
                 ax00.axvline(m_NB[ff], linestyle='dashed', color='b')
 
@@ -1062,7 +1062,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 plt.subplots_adjust(left=0.08, right=0.98, bottom=0.08,
                                     top=0.98, wspace=0.25, hspace=0.05)
 
-                plot_mock(ax0, NB_MC, x_MC, NB_sel, NB_nosel, 'NB', 'cont - NB')
+                plot_mock(ax0, NB_MC, x_MC, NB_sel, NB_nosel, filters[ff], 'cont - '+filters[ff])
                 ax0.axvline(m_NB[ff], linestyle='dashed', color='b')
 
                 temp_x = contmag-NBmag
@@ -1078,7 +1078,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 fig0.savefig(pp0, format='pdf')
 
                 # Panel (1,0) - NB mag vs H-alpha flux
-                plot_mock(ax10, NB_MC, HaFlux_MC, NB_sel, NB_nosel, 'NB',
+                plot_mock(ax10, NB_MC, HaFlux_MC, NB_sel, NB_nosel, filters[ff],
                           Flux_lab)
 
                 plot_MACT(ax10, NBmag, Ha_Flux, w_spec, wo_spec)
@@ -1200,9 +1200,9 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
                 plot_NB_select(ff, ax400, NB, 'k', linewidth=2)
 
-                ax400.set_xlabel('NB')
+                ax400.set_xlabel(filters[ff])
                 ax400.set_ylim([-0.5,2.0])
-                ax400.set_ylabel('cont - NB')
+                ax400.set_ylabel('cont - '+filters[ff])
 
                 ax400.annotate(N_annot_txt, [0.025,0.975], va='top',
                                ha='left', xycoords='axes fraction')
