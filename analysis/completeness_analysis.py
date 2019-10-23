@@ -1211,7 +1211,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                                ha='left', xycoords='axes fraction')
 
                 t_comp_sSFR = plot_completeness(ax401, logSFR_MC - logM_MC,  NB_sel,
-                                                sSFR_bins)
+                                                sSFR_bins, ref_arr0=logSFR_ref - logM_ref)
                 t_comp_EW, \
                     t_comp_EW_ref = plot_completeness(ax410, logEW_MC, NB_sel,
                                                       EW_bins, ref_arr0=logEW_MC_ref)
