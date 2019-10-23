@@ -288,7 +288,7 @@ def plot_NB_select(ff, t_ax, NB, ctype, linewidth=1, plot4=True):
     t_ax.plot(NB, y3, ctype+'--', linewidth=linewidth)
 
     y3_int   = interp1d(y3, NB)
-    NB_break = interp1d(minthres[ff])
+    NB_break = y3_int(minthres[ff])
 
     if plot4:
         y4 = color_cut(NB, m_NB[ff], cont_lim[ff], sigma=4.0)
