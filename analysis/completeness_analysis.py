@@ -84,7 +84,7 @@ SFR_lab  = r'$\log({\rm SFR}[{\rm H}\alpha]/M_{\odot}\,{\rm yr}^{-1})$'
 EW_bins   = np.arange(0.2,3.0,0.2)
 Flux_bins = np.arange(-17.75,-14.00,0.25)
 sSFR_bins = np.arange(-11.0,-6.0,0.2)
-
+SFR_bins  = np.arange(-5.0,2.0,0.2)
 # Colors for each separate points on avg_sigma plots
 avg_sig_ctype = ['m','r','g','b','k']
 
@@ -827,12 +827,13 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
         logEW_mean = logEW_mean_start[ff] + 0.1*np.arange(n_mean)
         logEW_sig  = logEW_sig_start[ff]  + 0.1*np.arange(n_sigma)
 
-        comp_shape = (len(mm_range), len(ss_range))
-        comp_sSFR = np.zeros(comp_shape)
-        comp_EW = np.zeros(comp_shape)
-        comp_flux = np.zeros(comp_shape)
+        comp_shape  = (len(mm_range), len(ss_range))
+        comp_sSFR   = np.zeros(comp_shape)
+        #comp_EW    = np.zeros(comp_shape)
+        comp_SFR    = np.zeros(comp_shape)
+        comp_flux   = np.zeros(comp_shape)
         comp_EWmean = np.zeros(comp_shape)
-        comp_EWsig = np.zeros(comp_shape)
+        comp_EWsig  = np.zeros(comp_shape)
 
         out_pdf = path0 + 'Completeness/ew_MC_'+filters[ff]+'.pdf'
         if debug: out_pdf = out_pdf.replace('.pdf','.debug.pdf')
@@ -1210,26 +1211,31 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 ax400.annotate(N_annot_txt, [0.025,0.975], va='top',
                                ha='left', xycoords='axes fraction')
 
-                t_comp_sSFR = plot_completeness(ax401, logSFR_MC - logM_MC,  NB_sel,
-                                                sSFR_bins, ref_arr0=logSFR_ref - logM_ref)
-                t_comp_EW, \
+                t_comp_sSFR, \
+                    t_comp_sSFR_ref = plot_completeness(ax401, logSFR_MC - logM_MC,  NB_sel,
+                                                        sSFR_bins, ref_arr0=logSFR_ref - logM_ref)
+                '''t_comp_EW, \
                     t_comp_EW_ref = plot_completeness(ax410, logEW_MC, NB_sel,
                                                       EW_bins, ref_arr0=logEW_MC_ref)
+                '''
                 t_comp_Fl, \
-                    t_comp_Fl_ref = plot_completeness(ax411, HaFlux_MC, NB_sel,
+                    t_comp_Fl_ref = plot_completeness(ax410, HaFlux_MC, NB_sel,
                                                       Flux_bins, ref_arr0=HaFlux_ref)
 
+                t_comp_SFR, \
+                    t_comp_SFR_ref = plot_completeness(ax411, logSFR_MC, NB_sel,
+                                                       SFR_bins, ref_arr0=logSFR_ref)
                 comp_sSFR[mm,ss] = t_comp_sSFR
-                comp_EW[mm,ss]   = t_comp_EW
-                comp_flux[mm,ss]   = t_comp_Fl
+                comp_SFR[mm,ss]  = t_comp_SFR
+                comp_flux[mm,ss] = t_comp_Fl
 
-                xlabels = [r'$\log({\rm sSFR})$', EW_lab, Flux_lab]
+                xlabels = [r'$\log({\rm sSFR})$', Flux_lab, SFR_lab]
                 for t_ax,xlabel in zip([ax401, ax410, ax411],xlabels):
                     t_ax.set_ylabel('Completeness')
                     t_ax.set_xlabel(xlabel)
                     t_ax.set_ylim([0.0,1.05])
 
-                ax410.axvline(x=compute_EW(minthres[ff], ff), color='red')
+                #ax410.axvline(x=compute_EW(minthres[ff], ff), color='red')
 
                 plt.subplots_adjust(left=0.09, right=0.98, bottom=0.065,
                                     top=0.98, wspace=0.20, hspace=0.15)
@@ -1274,9 +1280,9 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
         table_outfile = path0 + 'Completeness/'+filters[ff]+'_completeness_50.tbl'
         c_size = comp_shape[0] * comp_shape[1]
         comp_arr0 = [comp_EWmean.reshape(c_size), comp_EWsig.reshape(c_size),
-                     comp_sSFR.reshape(c_size), comp_EW.reshape(c_size),
+                     comp_sSFR.reshape(c_size), comp_SFR.reshape(c_size),
                      comp_flux.reshape(c_size)]
-        c_names = ('log_EWmean', 'log_EWsig', 'comp_50_sSFR', 'comp_50_EW',
+        c_names = ('log_EWmean', 'log_EWsig', 'comp_50_sSFR', 'comp_50_SFR',
                    'comp_50_flux')
 
         mylog.info("Writing : "+table_outfile)
