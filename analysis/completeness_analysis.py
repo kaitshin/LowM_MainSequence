@@ -48,7 +48,7 @@ Nmock = 10    # Number of mocked galaxies
 """
 
 filters = ['NB704','NB711','NB816','NB921','NB973']
-
+cont0   = [r'$R_Ci^{\prime}$', r'$R_Ci^{\prime}$', r'$i^{\prime}z^{\prime}$', r'z^{\prime}$', r'z^{\prime}$']
 NB_filt = np.array([xx for xx in range(len(filt_ref)) if 'NB' in filt_ref[xx]])
 for arr in ['filt_ref','dNB','lambdac','dBB','epsilon']:
     cmd1 = arr + ' = np.array('+arr+')'
@@ -1042,7 +1042,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
                 # Panel (0,0) - NB excess selection plot
 
-                plot_mock(ax00, NB_MC, x_MC, NB_sel, NB_nosel, '', 'cont - '+filters[ff])
+                plot_mock(ax00, NB_MC, x_MC, NB_sel, NB_nosel, '', cont0[ff]+' - '+filters[ff])
 
                 ax00.axvline(m_NB[ff], linestyle='dashed', color='b')
 
@@ -1062,7 +1062,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 plt.subplots_adjust(left=0.08, right=0.98, bottom=0.08,
                                     top=0.98, wspace=0.25, hspace=0.05)
 
-                plot_mock(ax0, NB_MC, x_MC, NB_sel, NB_nosel, filters[ff], 'cont - '+filters[ff])
+                plot_mock(ax0, NB_MC, x_MC, NB_sel, NB_nosel, filters[ff], cont0[ff]+' - '+filters[ff])
                 ax0.axvline(m_NB[ff], linestyle='dashed', color='b')
 
                 temp_x = contmag-NBmag
@@ -1202,7 +1202,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
                 ax400.set_xlabel(filters[ff])
                 ax400.set_ylim([-0.5,2.0])
-                ax400.set_ylabel('cont - '+filters[ff])
+                ax400.set_ylabel(cont0[ff]+' - '+filters[ff])
 
                 ax400.annotate(N_annot_txt, [0.025,0.975], va='top',
                                ha='left', xycoords='axes fraction')
