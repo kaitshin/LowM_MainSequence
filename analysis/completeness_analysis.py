@@ -79,7 +79,7 @@ m_AB = 48.6
 EW_lab   = r'$\log({\rm EW}/\AA)$'
 Flux_lab = r'$\log(F_{{\rm H}\alpha})$'
 M_lab    = r'$\log(M_{\star}/M_{\odot})$'
-SFR_lab  = r'$\log({\rm SFR}[{\rm H}\alpha])$'
+SFR_lab  = r'$\log({\rm SFR}[{\rm H}\alpha]/M_{\odot}\,{\rm yr}^{-1})$'
 
 EW_bins   = np.arange(0.2,3.0,0.2)
 Flux_bins = np.arange(-17.75,-14.00,0.25)
@@ -1104,12 +1104,13 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
                 # Plot cropped version
                 fig0, ax0 = plt.subplots()
-                plt.subplots_adjust(left=0.08, right=0.98, bottom=0.08,
+                plt.subplots_adjust(left=0.095, right=0.98, bottom=0.08,
                                     top=0.98, wspace=0.25, hspace=0.05)
 
                 plot_mock(ax0, logM_MC, logSFR_MC, NB_sel, NB_nosel, M_lab, SFR_lab)
 
                 plot_MACT(ax0, logMstar, Ha_SFR, w_spec, wo_spec)
+                ax0.set_ylim([-5,-1])
                 fig0.savefig(pp0, format='pdf')
 
 
