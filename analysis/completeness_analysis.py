@@ -222,8 +222,8 @@ def avg_sig_label(str0, avg, sigma, type=''):
     '''
 
     if type == 'EW':
-        str0 += r'$\langle\log({\rm EW}_0)\rangle$ = %.2f' % avg
-        str0 += '\n' + r'$\sigma[\log({\rm EW}_0)]$ = %.2f' % sigma
+        str0 += r'$\langle\log({\rm EW})\rangle$ = %.2f' % avg
+        str0 += '\n' + r'$\sigma[\log({\rm EW})]$ = %.2f' % sigma
 
     if type == 'Flux':
         str0 += r'$\langle\log(F_{{\rm H}\alpha})\rangle$ = %.2f' % avg
@@ -752,8 +752,8 @@ def stats_plot(type0, ax2, ax3, ax, s_row, Ng, No, binso, EW_mean, EW_sig, ss):
     if type0 == 'EW':
         ax2[s_row][pn].set_ylabel(r'$(N_{\rm mock} - N_{\rm data})/\sigma$')
 
-        annot_txt  = r'$\langle\log({\rm EW}_0)\rangle = %.2f$  ' % EW_mean
-        annot_txt += r'$\sigma[\log({\rm EW}_0)] = %.2f$' % EW_sig
+        annot_txt  = r'$\langle\log({\rm EW})\rangle = %.2f$  ' % EW_mean
+        annot_txt += r'$\sigma[\log({\rm EW})] = %.2f$' % EW_sig
         ax2[s_row][pn].set_title(annot_txt, fontdict={'fontsize': 10}, loc='left')
 
     # Compute chi^2
@@ -1281,7 +1281,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
         pp2.close()
         pp4.close()
 
-        ax3ul.legend(loc='upper right', title=r'$\sigma[\log({\rm EW}_0)]$',
+        ax3ul.legend(loc='upper right', title=r'$\sigma[\log({\rm EW})]$',
                      fancybox=True, fontsize=8, framealpha=0.75, scatterpoints=1)
 
         # Compute best fit using weighted chi^2
