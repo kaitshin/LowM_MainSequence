@@ -574,7 +574,7 @@ def get_completeness(hist_bins, hist_data):
 #enddef
 
 
-def plot_completeness(t_ax, arr0, NB_sel0, bins, ref_arr0=None, above_break=None):
+def plot_completeness(t_ax, arr0, NB_sel0, bins, ref_arr0=None, above_break=None, annotate=True):
     finite = np.where(np.isfinite(arr0))
     if type(above_break) != type(None):
         finite  = intersect_ndim(above_break, finite, arr0.shape)
@@ -591,11 +591,13 @@ def plot_completeness(t_ax, arr0, NB_sel0, bins, ref_arr0=None, above_break=None
 
     x0 = bins_edges0[:-1]
     y0 = sel/np.float_(orig)
-    t_ax.step(x0, y0, 'b--', where='mid', label='mocked')
+    label0 = 'mocked' if annotate else ''
+    t_ax.step(x0, y0, 'b--', where='mid', label=label0)
 
     comp_50 = get_completeness(x0, y0)
-    t_ax.annotate('%.2f' % comp_50, [0.975,0.025], xycoords='axes fraction',
-                  ha='right', va='bottom', fontsize=8, color='blue')
+    if annotate:
+        t_ax.annotate('%.2f' % comp_50, [0.975,0.025], xycoords='axes fraction',
+                      ha='right', va='bottom', fontsize=8, color='blue')
 
     if type(ref_arr0) != type(None):
         arr1 = np.ones((arr0.shape[0],1)) * ref_arr0
@@ -617,9 +619,10 @@ def plot_completeness(t_ax, arr0, NB_sel0, bins, ref_arr0=None, above_break=None
         t_ax.step(x1, y1, 'k--', where='mid', label='true')
 
         comp_50_ref = get_completeness(x1, y1)
-        t_ax.annotate('%.2f' % comp_50_ref, [0.975,0.06], fontsize=8,
-                      xycoords='axes fraction', ha='right', va='bottom',
-                      color='black')
+        if annotate:
+            t_ax.annotate('%.2f' % comp_50_ref, [0.975,0.06], fontsize=8,
+                          xycoords='axes fraction', ha='right', va='bottom',
+                          color='black')
 
     t_ax.legend(loc='upper left', fancybox=True, fontsize=8, framealpha=0.75)
 
@@ -1246,6 +1249,14 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 comp_sSFR[mm,ss] = t_comp_sSFR
                 comp_SFR[mm,ss]  = t_comp_SFR
                 comp_flux[mm,ss] = t_comp_Fl
+
+                fig0, ax0 = plt.subplots()
+                plt.subplots_adjust(left=0.1, right=0.97, bottom=0.10,
+                                    top=0.98, wspace=0.25, hspace=0.05)
+                t_comp_SFR = plot_completeness(ax0, logSFR_MC, NB_sel, SFR_bins, annotate=False)
+                ax0.set_ylabel('Completeness')
+                ax0.set_xlabel(SFR_lab)
+                fig0.savefig(pp0, format='pdf')
 
                 xlabels = [r'$\log({\rm sSFR})$', Flux_lab, SFR_lab]
                 for t_ax,xlabel in zip([ax401, ax410, ax411],xlabels):
