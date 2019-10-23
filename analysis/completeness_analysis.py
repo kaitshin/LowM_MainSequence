@@ -1216,9 +1216,16 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 ax400.annotate(N_annot_txt, [0.025,0.975], va='top',
                                ha='left', xycoords='axes fraction')
 
+                logsSFR_ref = logSFR_ref - logM_ref
+                logsSFR_MC  = logSFR_MC - logM_MC
+
+                above_break = np.where(NB_MC <= NB_break)
+                NB_sel_break = intersect_ndim(NB_sel, above_break, NB_MC.shape)
+
                 t_comp_sSFR, \
-                    t_comp_sSFR_ref = plot_completeness(ax401, logSFR_MC - logM_MC,  NB_sel,
-                                                        sSFR_bins, ref_arr0=logSFR_ref - logM_ref)
+                    t_comp_sSFR_ref = plot_completeness(ax401, logsSFR_MC, NB_sel_break, sSFR_bins,
+                                                        ref_arr0=logsSFR_ref)
+
                 '''t_comp_EW, \
                     t_comp_EW_ref = plot_completeness(ax410, logEW_MC, NB_sel,
                                                       EW_bins, ref_arr0=logEW_MC_ref)
