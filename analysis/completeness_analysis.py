@@ -1061,7 +1061,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
                 # Plot cropped version
                 fig0, ax0 = plt.subplots()
-                plt.subplots_adjust(left=0.09, right=0.98, bottom=0.08,
+                plt.subplots_adjust(left=0.09, right=0.98, bottom=0.09,
                                     top=0.98, wspace=0.25, hspace=0.05)
 
                 plot_mock(ax0, NB_MC, x_MC, NB_sel, NB_nosel, filters[ff], cont0[ff]+' - '+filters[ff])
