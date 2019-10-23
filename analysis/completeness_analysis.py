@@ -1097,6 +1097,18 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
                 plot_MACT(ax11, logMstar, Ha_SFR, w_spec, wo_spec)
 
+                # Plot cropped version
+                fig0, ax0 = plt.subplots()
+                plt.subplots_adjust(left=0.08, right=0.98, bottom=0.08,
+                                    top=0.98, wspace=0.25, hspace=0.05)
+
+                plot_mock(ax0, logM_MC, logSFR_MC, NB_sel, NB_nosel,
+                          r'$\log(M_{\star}/M_{\odot})$', r'$\log({\rm SFR}({\rm H}\alpha))$')
+
+                plot_MACT(ax0, logMstar, Ha_SFR, w_spec, wo_spec)
+                fig0.savefig(pp0, format='pdf')
+
+
                 # Panel (2,0) - histogram of EW
                 min_EW = compute_EW(minthres[ff], ff)
                 mylog.info("minimum EW : %f " % min_EW)
