@@ -1239,6 +1239,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
         #endfor
 
         pp.close()
+        pp0.close()
         pp2.close()
         pp4.close()
 
@@ -1302,8 +1303,6 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
     if not debug:
         pp3.close()
-
-    pp0.close()
 
     t0._stop()
     mylog.info("ew_MC completed in : "+t0.format)
