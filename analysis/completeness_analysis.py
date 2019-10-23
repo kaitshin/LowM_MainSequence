@@ -78,6 +78,8 @@ m_AB = 48.6
 # Common text for labels
 EW_lab   = r'$\log({\rm EW}/\AA)$'
 Flux_lab = r'$\log(F_{{\rm H}\alpha})$'
+M_lab    = r'$\log(M_{\star}/M_{\odot})$'
+SFR_lab  = r'$\log({\rm SFR}[{\rm H}\alpha])$'
 
 EW_bins   = np.arange(0.2,3.0,0.2)
 Flux_bins = np.arange(-17.75,-14.00,0.25)
@@ -1092,8 +1094,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
                 # Panel (1,1) - stellar mass vs H-alpha SFR
 
-                plot_mock(ax11, logM_MC, logSFR_MC, NB_sel, NB_nosel,
-                          r'$\log(M_{\star}/M_{\odot})$', r'$\log({\rm SFR}({\rm H}\alpha))$')
+                plot_mock(ax11, logM_MC, logSFR_MC, NB_sel, NB_nosel, M_lab, SFR_lab)
 
                 plot_MACT(ax11, logMstar, Ha_SFR, w_spec, wo_spec)
 
@@ -1102,8 +1103,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 plt.subplots_adjust(left=0.08, right=0.98, bottom=0.08,
                                     top=0.98, wspace=0.25, hspace=0.05)
 
-                plot_mock(ax0, logM_MC, logSFR_MC, NB_sel, NB_nosel,
-                          r'$\log(M_{\star}/M_{\odot})$', r'$\log({\rm SFR}({\rm H}\alpha))$')
+                plot_mock(ax0, logM_MC, logSFR_MC, NB_sel, NB_nosel, M_lab, SFR_lab)
 
                 plot_MACT(ax0, logMstar, Ha_SFR, w_spec, wo_spec)
                 fig0.savefig(pp0, format='pdf')
