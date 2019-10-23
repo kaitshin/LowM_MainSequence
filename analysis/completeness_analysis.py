@@ -1253,9 +1253,11 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 fig0, ax0 = plt.subplots()
                 plt.subplots_adjust(left=0.1, right=0.97, bottom=0.10,
                                     top=0.98, wspace=0.25, hspace=0.05)
-                t_comp_SFR = plot_completeness(ax0, logSFR_MC, NB_sel, SFR_bins, annotate=False)
+                t_comp_SFR = plot_completeness(ax0, logSFR_MC, NB_sel, SFR_bins,
+                                               ref_arr0=logSFR_ref, annotate=False)
                 ax0.set_ylabel('Completeness')
                 ax0.set_xlabel(SFR_lab)
+                ax0.set_ylim([0.0,1.05])
                 fig0.savefig(pp0, format='pdf')
 
                 xlabels = [r'$\log({\rm sSFR})$', Flux_lab, SFR_lab]
