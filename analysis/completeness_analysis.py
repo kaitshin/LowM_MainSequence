@@ -1061,7 +1061,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
                 # Plot cropped version
                 fig0, ax0 = plt.subplots()
-                plt.subplots_adjust(left=0.08, right=0.98, bottom=0.08,
+                plt.subplots_adjust(left=0.09, right=0.98, bottom=0.08,
                                     top=0.98, wspace=0.25, hspace=0.05)
 
                 plot_mock(ax0, NB_MC, x_MC, NB_sel, NB_nosel, filters[ff], cont0[ff]+' - '+filters[ff])
@@ -1077,6 +1077,8 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 N_annot_txt += '\n' + r'$N$ = %i' % NB_MC.size
                 ax0.annotate(N_annot_txt, [0.025,0.975], va='top',
                              ha='left', xycoords='axes fraction')
+                ax0.annotate(filters[ff], [0.975,0.975], va='top',
+                             ha='right', xycoords='axes fraction')
                 fig0.savefig(pp0, format='pdf')
 
                 # Panel (1,0) - NB mag vs H-alpha flux
