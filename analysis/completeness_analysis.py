@@ -1057,7 +1057,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 temp_x = contmag-NBmag
                 plot_MACT(ax00, NBmag, temp_x, w_spec, wo_spec)
 
-                plot_NB_select(ff, ax00, NB, 'b')
+                NB_break = plot_NB_select(ff, ax00, NB, 'b')
 
                 N_annot_txt = avg_sig_label('', logEW_mean[mm], logEW_sig[ss],
                                             type='EW')
