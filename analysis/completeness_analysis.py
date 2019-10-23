@@ -1057,6 +1057,9 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
                 # Plot cropped version
                 fig0, ax0 = plt.subplots()
+                plt.subplots_adjust(left=0.08, right=0.98, bottom=0.08,
+                                    top=0.98, wspace=0.25, hspace=0.05)
+
                 plot_mock(ax0, NB_MC, x_MC, NB_sel, NB_nosel, 'NB', 'cont - NB')
                 ax0.axvline(m_NB[ff], linestyle='dashed', color='b')
 
@@ -1068,7 +1071,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 N_annot_txt = avg_sig_label('', logEW_mean[mm], logEW_sig[ss],
                                             type='EW')
                 N_annot_txt += '\n' + r'$N$ = %i' % NB_MC.size
-                ax0.annotate(N_annot_txt, [0.05,0.95], va='top',
+                ax0.annotate(N_annot_txt, [0.025,0.975], va='top',
                              ha='left', xycoords='axes fraction')
                 fig0.savefig(pp0, format='pdf')
 
