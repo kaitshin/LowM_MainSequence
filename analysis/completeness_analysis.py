@@ -574,8 +574,12 @@ def get_completeness(hist_bins, hist_data):
 #enddef
 
 
-def plot_completeness(t_ax, arr0, NB_sel0, bins, ref_arr0=None):
+def plot_completeness(t_ax, arr0, NB_sel0, bins, ref_arr0=None, above_break=None):
     finite = np.where(np.isfinite(arr0))
+    if type(above_break) != type(None):
+        finite  = intersect_ndim(above_break, finite, arr0.shape)
+        NB_sel0 = intersect_ndim(above_break, NB_sel0, arr0.shape)
+
     orig, bins_edges0 = np.histogram(arr0[finite], bins)
 
     NB_sel = intersect_ndim(NB_sel0, finite, arr0.shape)
@@ -596,6 +600,9 @@ def plot_completeness(t_ax, arr0, NB_sel0, bins, ref_arr0=None):
     if type(ref_arr0) != type(None):
         arr1 = np.ones((arr0.shape[0],1)) * ref_arr0
         finite = np.where(np.isfinite(arr1))
+        if type(above_break) != type(None):
+            finite = intersect_ndim(above_break, finite, arr0.shape)
+
         orig1, bins_edges01 = np.histogram(arr1[finite], bins)
 
         NB_sel = intersect_ndim(NB_sel0, finite, arr1.shape)
@@ -1220,11 +1227,10 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 logsSFR_MC  = logSFR_MC - logM_MC
 
                 above_break = np.where(NB_MC <= NB_break)
-                NB_sel_break = intersect_ndim(NB_sel, above_break, NB_MC.shape)
 
                 t_comp_sSFR, \
-                    t_comp_sSFR_ref = plot_completeness(ax401, logsSFR_MC, NB_sel_break, sSFR_bins,
-                                                        ref_arr0=logsSFR_ref)
+                    t_comp_sSFR_ref = plot_completeness(ax401, logsSFR_MC, NB_sel, sSFR_bins,
+                                                        ref_arr0=logsSFR_ref, above_break=above_break)
 
                 '''t_comp_EW, \
                     t_comp_EW_ref = plot_completeness(ax410, logEW_MC, NB_sel,
