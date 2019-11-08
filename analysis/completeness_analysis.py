@@ -934,7 +934,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
         stats_log(NB_MC, "NB_MC", mylog)
 
         # Read in mag vs mass extrapolation
-        mass_int = get_mag_vs_mass_interp(prefixes[ff])
+        mass_int, std_mass_int = get_mag_vs_mass_interp(prefixes[ff])
 
         lum_dist = cosmo.luminosity_distance(z_NB[ff]).to(u.cm).value
 
