@@ -382,10 +382,20 @@ def get_mag_vs_mass_interp(prefix_ff):
     cont_arr = npz_mass['cont_arr']
     dmag     = cont_arr[1]-cont_arr[0]
     mgood    = np.where(npz_mass['N_logM'] != 0)[0]
-    mass_int = interp1d(cont_arr[mgood]+dmag/2.0, npz_mass['avg_logM'][mgood],
+
+    x_temp   = cont_arr+dmag/2.0
+    mass_int = interp1d(x_temp[mgood], npz_mass['avg_logM'][mgood],
                         bounds_error=False, fill_value='extrapolate',
                         kind='linear')
-    return mass_int
+
+    mbad = np.where(npz_mass['N_logM'] <= 1)[0]
+    std0 = npz_mass['std_logM']
+    if len(mbad) > 0:
+        std0[mbad] = 0.30
+
+    std_mass_int = interp1d(x_temp, std0, fill_value=0.3, bounds_error=False,
+                            kind='nearest')
+    return mass_int, std_mass_int
 #enddef
 
 def dict_prop_maker(NB, BB, x, filt_dict, filt_corr, mass_int, lum_dist):
