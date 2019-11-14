@@ -398,9 +398,10 @@ def get_mag_vs_mass_interp(prefix_ff):
     return mass_int, std_mass_int
 #enddef
 
-def dict_prop_maker(NB, BB, x, filt_dict, filt_corr, mass_int, lum_dist):
+def dict_prop_maker(NB, BB, x, filt_dict, filt_corr, mass_int, std_mass_int, lum_dist):
     dict_prop = {'NB':NB, 'BB':BB, 'x':x, 'filt_dict':filt_dict,
-                 'filt_corr':filt_corr, 'mass_int':mass_int, 'lum_dist':lum_dist}
+                 'filt_corr':filt_corr, 'mass_int':mass_int,
+                 'std_mass_int':std_mass_int, 'lum_dist':lum_dist}
     return dict_prop
 #enddef
 
