@@ -1019,7 +1019,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
                     dict_prop = dict_prop_maker(NB_ref, BB_MC0_ref, x_MC0_ref,
                                                 filt_dict, filt_corr[ff], mass_int,
-                                                lum_dist)
+                                                std_mass_int, lum_dist)
                     _, flux_ref, logM_ref, NIIHa_ref, logOH_ref, HaFlux_ref, \
                         HaLum_ref, logSFR_ref = derived_properties(**dict_prop)
 
@@ -1043,7 +1043,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
                         dict_prop = dict_prop_maker(NB_ref, BB_MC0_ref, x_MC0_ref,
                                                     filt_dict, filt_corr[ff], mass_int,
-                                                    lum_dist)
+                                                    std_mass_int, lum_dist)
 
                 BB_seed = ff + 5
                 mylog.info("seed for broadband, mm=%i ss=%i : %i" % (mm, ss, BB_seed))
