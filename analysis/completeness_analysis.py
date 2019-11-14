@@ -398,21 +398,27 @@ def get_mag_vs_mass_interp(prefix_ff):
     return mass_int, std_mass_int
 #enddef
 
-def dict_prop_maker(NB, BB, x, filt_dict, filt_corr, mass_int, std_mass_int, lum_dist):
+def dict_prop_maker(NB, BB, x, filt_dict, filt_corr, mass_int, lum_dist):
     dict_prop = {'NB':NB, 'BB':BB, 'x':x, 'filt_dict':filt_dict,
                  'filt_corr':filt_corr, 'mass_int':mass_int,
-                 'std_mass_int':std_mass_int, 'lum_dist':lum_dist}
+                 'lum_dist':lum_dist}
     return dict_prop
 #enddef
 
-def derived_properties(NB, BB, x, filt_dict, filt_corr, mass_int, lum_dist):
-
+def derived_properties(NB, BB, x, filt_dict, filt_corr, mass_int, lum_dist,
+                       std_mass_int=None):
     EW, NB_flux = ew_flux_dual(NB, BB, x, filt_dict)
 
     # Apply NB filter correction from beginning
     NB_flux = np.log10(NB_flux * filt_corr)
 
     logM = mass_int(BB)
+    if type(std_mass_int) != type(None):
+        std_ref = std_mass_int(BB)
+        np.random.seed(348)
+        rtemp = np.random.normal(size=NB.shape)
+        logM += std_ref * rtemp
+
     NIIHa, logOH = get_NIIHa_logOH(logM)
 
     Ha_Flux = correct_NII(NB_flux, NIIHa)
@@ -1019,7 +1025,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
                     dict_prop = dict_prop_maker(NB_ref, BB_MC0_ref, x_MC0_ref,
                                                 filt_dict, filt_corr[ff], mass_int,
-                                                std_mass_int, lum_dist)
+                                                lum_dist)
                     _, flux_ref, logM_ref, NIIHa_ref, logOH_ref, HaFlux_ref, \
                         HaLum_ref, logSFR_ref = derived_properties(**dict_prop)
 
@@ -1043,7 +1049,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
                         dict_prop = dict_prop_maker(NB_ref, BB_MC0_ref, x_MC0_ref,
                                                     filt_dict, filt_corr[ff], mass_int,
-                                                    std_mass_int, lum_dist)
+                                                    lum_dist)
 
                 BB_seed = ff + 5
                 mylog.info("seed for broadband, mm=%i ss=%i : %i" % (mm, ss, BB_seed))
@@ -1065,7 +1071,8 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 dict_prop['BB'] = BB_MC
                 dict_prop['x']  = x_MC
                 logEW_MC, flux_MC, logM_MC, NIIHa, logOH, HaFlux_MC, HaLum_MC, \
-                    logSFR_MC = derived_properties(**dict_prop)
+                    logSFR_MC = derived_properties(std_mass_int=std_mass_int, \
+                                                   **dict_prop)
                 stats_log(logEW_MC, "logEW_MC", mylog)
                 stats_log(flux_MC, "flux_MC", mylog)
                 stats_log(HaFlux_MC, "HaFlux_MC", mylog)
