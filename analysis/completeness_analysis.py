@@ -1271,6 +1271,14 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                                     top=0.98, wspace=0.20, hspace=0.15)
                 fig4.set_size_inches(8,8)
                 fig4.savefig(pp4, format='pdf')
+
+                # Plot sSFR vs stellar mass
+                fig5, ax5 = plt.subplots()
+                plot_mock(ax5, logM_MC, logSFR_MC-logM_MC, NB_sel, NB_nosel, M_lab,
+                          r'$\log({\rm sSFR})$')
+                plt.subplots_adjust(left=0.09, right=0.98, bottom=0.1, top=0.98)
+                fig5.set_size_inches(8,8)
+                fig5.savefig(pp4, format='pdf')
             #endfor
         #endfor
 
