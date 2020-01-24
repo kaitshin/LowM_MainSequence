@@ -67,7 +67,10 @@ minthres = [0.15, 0.15, 0.15, 0.2, 0.25]
 
 from astropy import log
 
-path0 = '/Users/cly/Google Drive/NASA_Summer2015/'
+if exists('/Users/cly/GoogleDrive'):
+    path0 = '/Users/cly/GoogleDrive/Research/NASA_Summer2015/'
+if exists('/Users/cly/Google Drive'):
+    path0 = '/Users/cly/Google Drive/Research/NASA_Summer2015/'
 
 npz_path0 = '/Users/cly/data/SDF/MACT/LowM_MainSequence_npz/'
 if not exists(npz_path0):
