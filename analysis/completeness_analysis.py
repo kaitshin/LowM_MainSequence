@@ -361,7 +361,7 @@ def get_mag_vs_mass_interp(prefix_ff):
     '''
 
     npz_mass_file = path0 + 'Completeness/mag_vs_mass_'+prefix_ff+'.npz'
-    npz_mass = np.load(npz_mass_file)
+    npz_mass = np.load(npz_mass_file, allow_pickle=True)
     cont_arr = npz_mass['cont_arr']
     dmag     = cont_arr[1]-cont_arr[0]
     mgood    = np.where(npz_mass['N_logM'] != 0)[0]
@@ -813,7 +813,8 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
     z_NB     = lambdac/6562.8 - 1.0
 
-    npz_slope = np.load(path0 + 'Completeness/NB_numbers.npz')
+    npz_slope = np.load(path0 + 'Completeness/NB_numbers.npz',
+                        allow_pickle=True)
 
     logEW_mean_start = np.array([1.25, 1.25, 1.25, 1.25, 0.90])
     logEW_sig_start  = np.array([0.15, 0.55, 0.25, 0.35, 0.55])
