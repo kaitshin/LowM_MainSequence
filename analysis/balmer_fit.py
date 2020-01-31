@@ -6,6 +6,7 @@ PURPOSE:
     Provides a module where fitting functions can be called from 
     stack_spectral_data.py
 """
+from __future__ import print_function
 
 import numpy as np, math
 import scipy.optimize as optimization
@@ -69,7 +70,7 @@ def get_baseline_median(xval, yval, label):
                                   yval[peak_r:nii_2l], yval[nii_2r:]], axis=0)
         return np.median(temparr), np.nanstd(temparr)
     else:
-        print 'error!'
+        print('error!')
         return 0
 #enddef
 

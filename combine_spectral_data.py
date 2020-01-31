@@ -49,6 +49,7 @@ OUTPUTS:
 REVISION HISTORY:
     Created by Kaitlyn Shin 23 July 2016
 """
+from __future__ import print_function
 
 import numpy as np, matplotlib.pyplot as plt, glob, copy
 from astropy.io import fits as pyfits, ascii as asc
@@ -213,7 +214,7 @@ for version in ['MMT','Keck']:
     mark = 0
     masknum = 0
     for key in np.sort(type_len_dict.keys()):
-        print key,len(img_data_dict['img_'+key]),len(img_data_dict['img_'+key][0])
+        print(key,len(img_data_dict['img_'+key]),len(img_data_dict['img_'+key][0]))
         for (arr, arr_index) in zip(img_data_dict['img_'+key],
                                     range(len(img_data_dict['img_'+key]))):
             xarr = x0_dict[key]

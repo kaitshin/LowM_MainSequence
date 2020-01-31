@@ -20,6 +20,7 @@ OUTPUTS:
         '_'+ytype+'_'+fittype+'.pdf'
     FULL_PATH+'Plots/NewHa/mainseq_sSFRs_'+newha_sfr_type+'.pdf'
 """
+from __future__ import print_function
 
 import numpy as np, matplotlib.pyplot as plt
 import plot_nbia_mainseq, nbia_mainseq_dispersion
@@ -180,7 +181,7 @@ def main():
             print
 
 
-    print 'making sSFR plot'
+    print('making sSFR plot')
     f, axes = plt.subplots(1,2, sharey=True)
     plot_nbia_mainseq.make_ssfr_graph(f, axes, sfrs_with_newha,
         mass_with_newha, filts_with_newha, zspec_with_newha00, nh_cwheel,

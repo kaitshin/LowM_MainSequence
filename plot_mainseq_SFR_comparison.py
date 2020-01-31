@@ -38,6 +38,7 @@ REVISION HISTORY:
     Revised by Kaitlyn Shin 20 August 2015
     * Added get_bad_FUV_NUV
 """
+from __future__ import print_function
 
 import numpy as np, matplotlib.pyplot as plt, astropy.units as u, sys
 from astropy.io import fits as pyfits, ascii as asc
@@ -142,13 +143,13 @@ def plot_SFR_Ha_vs_SED():
     If using GALEX files, get_bad_FUV_NUV is called to find where there is
     no UV photometry (filter-dependent whether code looks at FUV or NUV).
     '''
-    print '### plotting SFR_Ha vs. SFR_SED'
+    print('### plotting SFR_Ha vs. SFR_SED')
     f, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, sharex='col', sharey='row')
     f.subplots_adjust(hspace=0.05)
     f.subplots_adjust(wspace=0.05)
     f.set_size_inches(10, 10)
     for (ff, cc) in zip(filt_arr, color_arr):
-        print ff
+        print(ff)
         filt_match = np.array([x for x in range(len(corrNAME0)) if 'Ha-'+ff in
                                corrNAME0[x]])
         filtz = corrzspec0[filt_match]
@@ -301,7 +302,7 @@ def get_corr12(filt_match):
                               in tempfilenames]) #index of filtmatch
     index_match_b = np.array([x for x in range(len(tempfilenames)) if
                               tempfilenames[x] in filtnames]) #index of asc file
-    print len(index_match_a), len(index_match_b)
+    print(len(index_match_a), len(index_match_b))
     
     
     Estar1    = A_V[filt_match]/K_V
@@ -338,13 +339,13 @@ def plot_SFR_Ha_vs_UV():
     If using GALEX files, get_bad_FUV_NUV is called to find where there is
     no UV photometry (filter-dependent whether code looks at FUV or NUV).
     '''
-    print '### plotting SFR_Ha vs. SFR_UV'
+    print('### plotting SFR_Ha vs. SFR_UV')
     f, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, sharex='col', sharey='row')
     f.subplots_adjust(hspace=0.05)
     f.subplots_adjust(wspace=0.05)
     f.set_size_inches(10, 10)
     for (ff, cc) in zip(filt_arr, color_arr):
-        print ff
+        print(ff)
         filt_match = np.array([x for x in range(len(corrzspec0)) if 'Ha-'+ff in
                                corrzspec0[x]])
         filtz = corrzspec0[filt_match]
@@ -406,7 +407,7 @@ def plot_SFR_Ha_vs_UV():
 
     lnu = get_lnu(range(len(nii_lumin)))
     for (ax, num) in zip(f.axes[:], [1, 2, 3, 4]):
-        print num
+        print(num)
         if num==1:
             median = np.median(nii_lumin - lnu)
             stddev = np.std(nii_lumin - lnu)
@@ -452,7 +453,7 @@ def plot_just_balmer_decrements():
 
     The plot is then saved and closed.
     '''
-    print '### plotting just_balmer_decrements'
+    print('### plotting just_balmer_decrements')
     f, ax = plt.subplots()
     for (ff, cc) in zip(filt_arr, color_arr):
         filt_match = np.array([x for x in range(len(corrzspec0)) if 'Ha-'+ff in
@@ -552,7 +553,7 @@ fout_ID = np.array(fout['col1'])
 sed_sfr    = np.array(fout['col8'])
 fout_zphot = np.array(fout['col2'])
 A_V   = np.array(fout['col6'])
-print '### done reading input files'
+print('### done reading input files')
 
 #getting just ha emitters
 id_match = np.array([x for x in range(len(fout_ID)) if fout_ID[x] in corrID])

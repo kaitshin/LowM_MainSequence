@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import numpy as np
 from matplotlib import pyplot as plt
 from astropy.stats import sigma_clip
@@ -7,7 +9,7 @@ from astropy.io import ascii as asc
 from MACT_utils import get_tempz, get_mainseq_fit_params, compute_onesig_pdf
 
 
-FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
+FULL_PATH = r'/Users/kaitlynshin/Google Drive/NASA_Summer2015/'
 CUTOFF_SIGMA = 4.0
 CUTOFF_MASS = 6.0
 
@@ -24,14 +26,14 @@ def contours(x, y, xsize=0.01, ysize=0.01, three_sig=False):
     Return: x_final, y_final, hist2d, sig_levels
     '''
     #removing outliers
-    xc = sigma_clip(x, sigma=3, iters=60)
-    yc = sigma_clip(y, sigma=3, iters=60)
+    xc = sigma_clip(x, sigma=3, maxiters=60)
+    yc = sigma_clip(y, sigma=3, maxiters=60)
     
     #caculating the number of bins along each axis    
-    x_nbins = np.ceil((max(x)-min(x))/xsize)     
-    y_nbins = np.ceil((max(y)-min(y))/ysize)        
+    x_nbins = int(np.ceil((max(x)-min(x))/xsize))
+    y_nbins = int(np.ceil((max(y)-min(y))/ysize))
 
-    #creating girds
+    #creating grids
     x_grid = np.linspace(min(x), max(x), x_nbins)
     y_grid = np.linspace(min(y), max(y), y_nbins)
     
@@ -92,7 +94,7 @@ def confidence(x):
     Return: low_limit, high_limit
     '''
     #removing outliers from data set
-    xc = sigma_clip(x, sigma=3, iters=40)
+    xc = sigma_clip(x, sigma=3, maxiters=40)
 
     #calculating number of bins to use
     nbins = np.ceil((max(x)-min(x))/(0.02*np.std(xc)))
@@ -203,7 +205,7 @@ def plot_contours_three_params(sfrs, delta_sfrs, mz_data):
     for i, ax, lbl in zip(range(3), axes, lbl_arr):
         j = (i+1)%3
 
-        print np.std(params_arr[i])
+        print(np.std(params_arr[i]))
         mult=2
         if i>0: # 0.0025 ?
             xsize=mult*0.001 if np.std(params_arr[i]) < mult*0.01 else mult*0.01
@@ -258,8 +260,8 @@ def main():
     tempz = get_tempz(zspec0, filts)
     mz_data = np.vstack([mass, tempz]).T
 
-    plot_contours_two_params(sfrs, delta_sfrs, mass)
-    # plot_contours_three_params(sfrs, delta_sfrs, mz_data)
+    # plot_contours_two_params(sfrs, delta_sfrs, mass)
+    plot_contours_three_params(sfrs, delta_sfrs, mz_data)
 
 
 if __name__ == '__main__':

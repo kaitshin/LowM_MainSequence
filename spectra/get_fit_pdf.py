@@ -4,6 +4,7 @@ get_fit_pdf
 
 Extract specific pages from IDL MPFIT fits results
 """
+from __future__ import print_function
 
 import sys, os
 import getpass
@@ -86,10 +87,10 @@ def main(MMT=False, Keck=False, silent=False, verbose=True):
         spec_cov_file = g_dir0+'Composite_Spectra/Keck_spectral_coverage.txt'
 
     if silent == False: log.info('## cat_files : ')
-    print cat_files
+    print(cat_files)
 
     if silent == False: log.info('## pdf_files : ')
-    print pdf_files
+    print(pdf_files)
 
     # Read in FITS catalogs | + on 23/01/2018
     cat_data = []

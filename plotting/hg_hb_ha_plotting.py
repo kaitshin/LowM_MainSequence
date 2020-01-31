@@ -6,6 +6,7 @@ PURPOSE:
     Provides a module where plotting functions can be called from 
     stack_spectral_data.py for Hg/Hb/Ha (MMT) plots
 """
+from __future__ import print_function
 
 from analysis.balmer_fit import find_nearest, get_best_fit, get_best_fit2, get_best_fit3
 from matplotlib.ticker import MaxNLocator
@@ -184,7 +185,7 @@ def subplots_plotting(ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, to
             flux2 = 0
             flux3 = 0
         else: #elif subtitle!='NB973':
-            print 'label|subtitle', label, subtitle
+            print('label|subtitle', label, subtitle)
             peak_idx2_left  = find_nearest(xval, NII6548-tol)
             peak_idx2_right = find_nearest(xval, NII6548+tol)
             xval2=xval[peak_idx2_left:peak_idx2_right]

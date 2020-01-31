@@ -33,6 +33,7 @@ OUTPUTS:
     'Composite_Spectra/StellarMass/Keck_all_five.pdf'
     'Composite_Spectra/StellarMassZ/Keck_stlrmassZ.pdf'
 """
+from __future__ import print_function
 
 import numpy as np, numpy.ma as ma, matplotlib.pyplot as plt
 import plotting.hg_hb_ha_plotting as MMT_plotting
@@ -236,7 +237,7 @@ def plot_MMT_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', publ
     
     '''
     if index_list == []:
-        print '>MMT STELLARMASS STACKING'
+        print('>MMT STELLARMASS STACKING')
     table_arrays = ([], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [])
     (HG_flux, HB_flux, HA_flux, NII_6548_flux, NII_6583_flux,
         HG_EW, HB_EW, HA_EW, HG_EW_corr, HB_EW_corr, HA_EW_corr,
@@ -260,7 +261,7 @@ def plot_MMT_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', publ
     # this for-loop stacks by stlr mass
     for (match_index) in (index_list):
         if len(match_index) == 0:
-            print 'this is an empty bin'
+            print('this is an empty bin')
             [arr.append(0) for arr in table_arrays]
             num_sources.append(0)
             num_stack_HG.append(0)
@@ -293,7 +294,7 @@ def plot_MMT_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', publ
                                 AP_match],dtype=np.int32)
 
         subtitle='stlrmass: '+str(min(stlr_mass[match_index]))+'-'+str(max(stlr_mass[match_index]))
-        print '>>>', subtitle
+        print('>>>', subtitle)
         avg_stlrmass_arr.append(np.mean(stlr_mass[match_index]))
         min_stlrmass_arr.append(np.min(stlr_mass[match_index]))
         max_stlrmass_arr.append(np.max(stlr_mass[match_index]))
@@ -355,9 +356,9 @@ def plot_MMT_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', publ
                 ## calculating composites error bars
                 flux_err = composite_errors(flux, rms, seed_i=SEED_ORIG+subplot_index, label=label)
                 err_arr.append(flux_err[0])
-                # print label, 'errs/1E-18:', flux_err[0]/1E-18
+                # print(label, 'errs/1E-18:', flux_err[0]/1E-18)
             except IndexError:
-                print 'Not enough sources to stack (less than two)'
+                print('Not enough sources to stack (less than two)')
                 rms_arr.append(0)
                 err_arr.append(np.zeros((1,2))[0])
                 continue
@@ -516,7 +517,7 @@ def plot_MMT_stlrmass_z():
     '''
     
     '''
-    print '>MMT STELLARMASS+REDSHIFT STACKING'
+    print('>MMT STELLARMASS+REDSHIFT STACKING')
     pp = PdfPages(FULL_PATH+'Composite_Spectra/StellarMassZ/MMT_stlrmassZ.pdf')
     table00 = None
 
@@ -544,7 +545,7 @@ def plot_MMT_stlrmass_z():
             title='NB704+NB711'
         else:
             title=ff
-        print '>>>', title
+        print('>>>', title)
 
         pp, table_data = plot_MMT_stlrmass(bins_ii_tbl_temp[ii], pp, title, 'StellarMassZ')
         if table00 == None:
@@ -564,7 +565,7 @@ def plot_Keck_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', pub
     
     '''
     if index_list == []:
-        print '>KECK STELLARMASS STACKING'
+        print('>KECK STELLARMASS STACKING')
     table_arrays = ([], [], [], [], [], [], [], [], [], [], [], [], [], [])
     (HB_flux, HA_flux, NII_6548_flux, NII_6583_flux, HB_EW, HA_EW, HB_EW_corr, HA_EW_corr,
         HB_EW_abs, HB_continuum, HA_continuum, HB_pos_amplitude, HA_pos_amplitude,
@@ -591,7 +592,7 @@ def plot_Keck_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', pub
                                 AP_match],dtype=np.int32)
 
         subtitle='stlrmass: '+str(min(stlr_mass[match_index]))+'-'+str(max(stlr_mass[match_index]))
-        print '>>>', subtitle
+        print('>>>', subtitle)
         avg_stlrmass_arr.append(np.mean(stlr_mass[match_index]))
      	min_stlrmass_arr.append(np.min(stlr_mass[match_index]))
      	max_stlrmass_arr.append(np.max(stlr_mass[match_index]))
@@ -773,7 +774,7 @@ def plot_Keck_stlrmass_z():
     '''
     
     '''
-    print '>KECK STELLARMASS+REDSHIFT STACKING'
+    print('>KECK STELLARMASS+REDSHIFT STACKING')
     pp = PdfPages(FULL_PATH+'Composite_Spectra/StellarMassZ/Keck_stlrmassZ.pdf')
     table00 = None
     
@@ -798,7 +799,7 @@ def plot_Keck_stlrmass_z():
             bins_ii_tbl_temp[ii][jj] = keck_ii[filt_ii][bins_ii_tbl[ii][jj]]
     
         title=ff
-        print '>>>', title
+        print('>>>', title)
 
         pp, table_data = plot_Keck_stlrmass(bins_ii_tbl_temp[ii], pp, title, 'StellarMassZ')
         if table00 == None:
@@ -852,7 +853,7 @@ nan_stlr_mass[nan_stlr_mass < 0] = np.nan
 data_dict = create_ordered_AP_arrays(AP_only = True)
 AP = data_dict['AP'] ##used
 
-print '### looking at the MMT grid'
+print('### looking at the MMT grid')
 griddata = asc.read(FULL_PATH+'Spectra/spectral_MMT_grid_data.txt',guess=False)
 gridz  = np.array(griddata['ZSPEC']) ##used
 gridap = np.array(griddata['AP']) ##used
@@ -872,12 +873,12 @@ bad_zspec = [x for x in range(len(gridz)) if gridz[x] > 9 or gridz[x] < 0]
 mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr, fill_value=np.nan)
 
-print '### plotting MMT'
+print('### plotting MMT')
 plot_MMT_stlrmass()
 plot_MMT_stlrmass_z()
 grid.close()
 
-print '### looking at the Keck grid'
+print('### looking at the Keck grid')
 griddata = asc.read(FULL_PATH+'Spectra/spectral_Keck_grid_data.txt',guess=False)
 gridz  = np.array(griddata['ZSPEC']) ##used
 gridap = np.array(griddata['AP']) ##used
@@ -897,11 +898,11 @@ bad_zspec = [x for x in range(len(gridz)) if gridz[x] > 9 or gridz[x] < 0]
 mask_ndarr[bad_zspec,:] = 1
 grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 
-print '### plotting Keck'
+print('### plotting Keck')
 plot_Keck_stlrmass()
 plot_Keck_stlrmass_z()
 grid.close()
 
 nbia.close()
-print '### done'
+print('### done')
 #endmain

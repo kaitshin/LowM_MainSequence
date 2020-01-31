@@ -24,6 +24,7 @@ INPUTS:
 OUTPUTS:
     FULL_PATH+'Main_Sequence/mainseq_corrections_tbl.txt'
 """
+from __future__ import print_function
 
 from astropy.io import fits as pyfits, ascii as asc
 from astropy.table import Table
@@ -62,7 +63,7 @@ def apply_filt_corrs_interp(ff, filt_corrs, zspec0, bad_z, good_z, AP, allcolsda
 
     (filt_corrs = filter_corrected_fluxes - orig_NB_flux_from_allcolsdata)
     '''
-    print ff, len(bad_z)+len(good_z)
+    print(ff, len(bad_z)+len(good_z))
     # reading data
     response = asc.read(FULL_PATH+'Filters/'+ff+'response.dat',guess=False,
                     Reader=asc.NoHeader)
@@ -75,15 +76,15 @@ def apply_filt_corrs_interp(ff, filt_corrs, zspec0, bad_z, good_z, AP, allcolsda
     f = interp1d(z_filt, response['col2'])
 
     if max(zspec0[good_z]) > max(z_filt):
-        print 'Source above filter profile range (', ff, '|| z =', max(zspec0[good_z]), ')'
+        print('Source above filter profile range (', ff, '|| z =', max(zspec0[good_z]), ')')
         bad_z0 = np.array([x for x in good_z if zspec0[x] == max(zspec0[good_z])])
         DEIMOS = pyfits.open('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Main_Sequence/Catalogs/Keck/DEIMOS_single_line_fit.fits')
         DEIMOSdata = DEIMOS[1].data
-        print 'Source name:', AP[bad_z0]
+        print('Source name:', AP[bad_z0])
         ii = np.where(DEIMOSdata['AP']==AP[bad_z0])[0]
         keck_flux = np.log10(DEIMOSdata['HA_FLUX_MOD'][ii])
         filtcorr_bflux = np.log10(10**keck_flux + 0.8e-17*1.33)
-        print '>>>>>>> Filter-corrected excess flux:', filtcorr_bflux
+        print('>>>>>>> Filter-corrected excess flux:', filtcorr_bflux)
         jj = np.where(zspec0==max(zspec0[good_z]))[0]
         filt_corrs[bad_z0] = filtcorr_bflux - allcolsdata[ff+'_FLUX'][jj]
 
@@ -246,7 +247,7 @@ def EBV_corrs_no_spectra(tab_no_spectra, mmt_mz, mmt_mz_EBV_hahb, mmt_mz_EBV_hgh
     # loop based on filter
     for ff in ['NB704', 'NB711', 'NB816', 'NB921', 'NB973']:
         bin_filt_iis = np.array([x for x in range(len(tab_no_spectra)) if tab_no_spectra['filter'][x]==ff])
-        print 'num in '+ff+':', len(bin_filt_iis)
+        print('num in '+ff+':', len(bin_filt_iis))
 
         if ff=='NB704' or ff=='NB711' or ff=='NB816':
             # using MMT hahb vals for all of these sources
@@ -327,7 +328,7 @@ def EBV_errs_no_spectra(tab_no_spectra, mmt_mz, mmt_mz_EBV_hahb_errs_neg, mmt_mz
     EBV_errs_pos = np.array([-100.0]*len(tab_no_spectra))
     for ff in ['NB704', 'NB711', 'NB816', 'NB921', 'NB973']:
         bin_filt_iis = np.array([x for x in range(len(tab_no_spectra)) if tab_no_spectra['filter'][x]==ff])
-        # print 'num in '+ff+':', len(bin_filt_iis)
+        # print('num in '+ff+':', len(bin_filt_iis))
 
         if ff=='NB704' or ff=='NB711' or ff=='NB816':
             # using MMT hahb errs for all of these sources
@@ -543,7 +544,7 @@ def main():
         np.array(tab_no_spectra['filter']), np.array(tab_yes_spectra['filter']), datatype='str')
 
 
-    print '### obtaining filter corrections'
+    print('### obtaining filter corrections')
     # dual nb704/nb711 emitters are corrected w/ only nb704 as the dual emitters
     #  fall more centrally within the nb704 filter profile
     orig_fluxes = np.zeros(len(allcolsdata))
@@ -565,7 +566,7 @@ def main():
     #endfor
 
 
-    print '### obtaining nii_ha corrections'
+    print('### obtaining nii_ha corrections')
     linedict = plot_NII_Ha_ratios.main()
     C = linedict['C']
     b = linedict['b']
