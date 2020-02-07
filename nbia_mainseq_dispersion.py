@@ -18,6 +18,7 @@ OUTPUTS:
     FULL_PATH+'Plots/main_sequence/mainseq_dispersion.pdf'
     FULL_PATH+'Main_Sequence/dispersion_tbl.txt'
 """
+from __future__ import print_function
 
 import numpy as np, matplotlib.pyplot as plt
 import scipy.optimize as optimize
@@ -175,7 +176,7 @@ def plot_avg_resids(ax, smass0, sfrs_resid, withnewha):
         ax.plot(mbins0[i], np.mean(sfrs_resid[bin_match]), 'ko')
         ax.errorbar(mbins0[i], np.mean(sfrs_resid[bin_match]), xerr=0.25,
             yerr=np.std(sfrs_resid[bin_match]), fmt='none', color='k')
-        # print 'sigma =',str(np.round(np.std(sfrs_resid[bin_match]), 4))
+        # print('sigma =',str(np.round(np.std(sfrs_resid[bin_match]), 4)))
 
 
 def plot_resids(ax, markarr, sizearr, z_arr, no_spectra, yes_spectra, smass0,
@@ -328,7 +329,7 @@ def main():
         corr_sfrs, sfrs_resid, meas_errs)
     # asc.write(tt, FULL_PATH+'Main_Sequence/dispersion_tbl.txt', 
     #     format='latex', overwrite=True)
-    print asc.write(tt, format='latex')
+    print(asc.write(tt, format='latex'))
 
 
 if __name__ == '__main__':

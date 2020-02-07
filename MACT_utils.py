@@ -5,11 +5,12 @@ NAME:
 PURPOSE:
     this code has functions that are used across multiple codes
 """
+from __future__ import print_function
 
 import numpy as np
 from analysis.cardelli import *   # k = cardelli(lambda0, R=3.1)
 
-FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
+FULL_PATH = r'/Users/kaitlynshin/Google Drive/NASA_Summer2015/'
 
 # emission line wavelengths (air)
 HA = 6562.80
@@ -201,7 +202,7 @@ def niiha_oh_determine(x0, type, index=None, silent=None, linear=None):
         if linear == None:
             OH_gas[index] = 9.37 + 2.03*x0[index] + 1.26*(x0[index])**2 + 0.32*(x0[index])**3
         else:
-            print '## Using linear relation!'
+            print('## Using linear relation!')
             # Bug found. Mod on 30/06/2016 OH_gas -> OH_gas[index]
             OH_gas[index] = 8.90 + 0.57 * x0[index] #xt0
     #endif

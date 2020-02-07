@@ -15,6 +15,7 @@ OUTPUTS:
     FULL_PATH+'Plots/main_sequence/NII_Ha_scatter.pdf'
     FULL_PATH+'Plots/main_sequence/NII_Ha_scatter_log.pdf'
 """
+from __future__ import print_function
 
 from MACT_utils import composite_errors
 from astropy.io import fits as pyfits, ascii as asc
@@ -64,7 +65,7 @@ def niiha_oh_determine(x0, type, index=None, silent=None, linear=None):
         if linear == None:
             OH_gas[index] = 9.37 + 2.03*x0[index] + 1.26*(x0[index])**2 + 0.32*(x0[index])**3
         else:
-            print '## Using linear relation!'
+            print('## Using linear relation!')
             # Bug found. Mod on 30/06/2016 OH_gas -> OH_gas[index]
             OH_gas[index] = 8.90 + 0.57 * x0[index] #xt0
     #endif
@@ -145,7 +146,7 @@ def main():
              color='purple', mec='purple', marker='o', lw=0, label='MMT+Keck', alpha=0.8)
     plt.errorbar(stlr_mass[big_good_nii][i2], BIG_FLUX_RAT[i2],
              yerr=niiha_errs[i2], fmt='none', mew=0, ecolor='purple', alpha=0.8)
-    print 'are there zeros in individuals?', [x for x in BIG_FLUX_RAT[i0] if x==0], [x for x in BIG_FLUX_RAT[i1] if x==0], [x for x in BIG_FLUX_RAT[i2] if x==0]
+    print('are there zeros in individuals?', [x for x in BIG_FLUX_RAT[i0] if x==0], [x for x in BIG_FLUX_RAT[i1] if x==0], [x for x in BIG_FLUX_RAT[i2] if x==0])
 
     ## SNR < 2 limits
     # getting indexes
@@ -179,7 +180,7 @@ def main():
     plt.plot(avgm_arr[9:], flux_rat_arr[9:], color='darkgreen', mec='darkgreen', lw=0, label='Keck composites', marker='s', alpha=0.8)
     plt.errorbar(avgm_arr[:9], flux_rat_arr[:9], xerr=np.array([avgm_arr[:9]-minm_arr[:9], maxm_arr[:9]-avgm_arr[:9]]), fmt='none', ecolor='limegreen', alpha=0.8)
     plt.errorbar(avgm_arr[9:], flux_rat_arr[9:], xerr=np.array([avgm_arr[9:]-minm_arr[9:], maxm_arr[9:]-avgm_arr[9:]]), fmt='none', ecolor='darkgreen', alpha=0.8)
-    print 'are there zeros in composites?', [x for x in flux_rat_arr[:9] if x==0]
+    print('are there zeros in composites?', [x for x in flux_rat_arr[:9] if x==0])
 
     # legend 1
     legendAA = plt.legend(loc='best', fontsize=11)
@@ -191,13 +192,13 @@ def main():
 
     # a constant line to the composites below 10^8 M*
     const = np.mean(flux_rat_arr[lowm_ii])
-    print 'C =', const
+    print('C =', const)
 
     # a linear line to the composites above 10^8 M*
     def line2(x, m):
         return m*(x-8.0)+const
     coeffs1, covar = curve_fit(line2, avgm_arr[highm_ii], flux_rat_arr[highm_ii])
-    print 'm =',coeffs1[0], '& b =', coeffs1[0]*-8+const
+    print('m =',coeffs1[0], '& b =', coeffs1[0]*-8+const)
 
     # plotting
     lineA, = plt.plot(np.arange(6.0,8.1,0.1), np.array([const]*len(np.arange(6.0,8.1,0.1))), 
@@ -229,7 +230,7 @@ def main():
     # ax2.tick_params(axis='y', which='both', direction='in')
     # ax2.yaxis.set_tick_params(labelsize=14)
     # ax2.set_ylim(ylims)
-    # print ax1.get_yticks()[2:]
+    # print(ax1.get_yticks()[2:])
     # x0 = np.log10(ax1.get_yticks() * (2.96)/(1+2.96))
     # ax2.set_yticklabels(np.round(niiha_oh_determine(x0, 'PP04_N2'),2))
     # ax2.set_yticks(ax1.get_yticks())

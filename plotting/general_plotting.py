@@ -7,6 +7,7 @@ PURPOSE:
     stack_spectral_data.py for both Hg/Hb/Ha and Hb/Ha (MMT, Keck)
     plots
 """
+from __future__ import print_function
 
 import numpy as np
 
@@ -53,7 +54,7 @@ def get_index_list(NAME0, inst_str0, inst_dict, instr):
             namematch='Ha-NB973',instr=instr)
         return [index_0]+[index_1]+[index_2]
     else:
-        print 'error'
+        print('error')
         return 0
 #enddef
 
@@ -139,7 +140,7 @@ def get_iter_lists(instr, stlr=False):
         subtitle_list = ['NB816']+['NB921']+['NB973']
         return (xmin_list, xmax_list, label_list, subtitle_list)
     else:
-        print 'error'
+        print('error')
         return 0
 #enddef
 

@@ -25,6 +25,7 @@ NOTES:
        we divided the g&b line by k_ha such that the g&b line is plotted on the A(Ha) scale.
        (for further clarification, look at troubleshooting notes 1/8)
 """
+from __future__ import print_function
 
 import numpy as np, matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
@@ -125,7 +126,7 @@ def main():
                 has_errs = np.array([x for x in yz_fmatch[inst_match] if x in good_EBV_iis])
 
                 if len(has_errs) > 0:
-                    # print '\nFILT, INSTR, IIs', ff, '/', inst, '/', has_errs
+                    # print('\nFILT, INSTR, IIs', ff, '/', inst, '/', has_errs)
                     mstar = corr_tbl['stlr_mass'][has_errs]
                     ebv00 = corr_tbl['EBV'][has_errs]
                     axarr[ax_ii].plot(mstar, ebv00, color=cc, marker=shape, lw=0, markersize=8, alpha=0.9, label=ff+'-'+inst)

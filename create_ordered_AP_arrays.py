@@ -18,6 +18,7 @@ INPUTS:
 OUTPUTS:
     A dictionary with ordered AP, <instr>_LMIN0/LMAX0 arrays as values
 """
+from __future__ import print_function
 
 import numpy as np
 from astropy.io import fits as pyfits, ascii as asc
@@ -427,14 +428,14 @@ def create_ordered_AP_arrays(AP_only=False):
     mergedHGFLUX = mergeddata['HG_FLUX_MOD']
 
     #end inputs
-    print '### done reading input files'
+    print('### done reading input files')
 
-    print '### creating ordered AP arr'
+    print('### creating ordered AP arr')
     AP0 = make_AP_arr_MMT(slit_str0)
     AP1 = make_AP_arr_DEIMOS(AP0, slit_str0)
     AP2 = make_AP_arr_merged(AP1, slit_str0)
     AP  = make_AP_arr_FOCAS(AP2, slit_str0)
-    print '### done creating ordered AP arr'
+    print('### done creating ordered AP arr')
 
     merged_iis = np.array([x for x in range(len(inst_str0)) if 'merged' in inst_str0[x]])
     AP_merged = AP[merged_iis]
@@ -449,7 +450,7 @@ def create_ordered_AP_arrays(AP_only=False):
         return {'AP': AP}
     #endif 
 
-    print '### creating ordered LMIN0/LMAX0 arrs'
+    print('### creating ordered LMIN0/LMAX0 arrs')
     MMT_LMIN0 = np.array([-99.99999]*len(AP))
     MMT_LMAX0 = np.array([-99.99999]*len(AP))
     KECK_LMIN0 = np.array([-99.99999]*len(AP))
@@ -466,9 +467,9 @@ def create_ordered_AP_arrays(AP_only=False):
         MMT_LMIN0, MMT_LMAX0, KECK_LMIN0, KECK_LMAX0, MMTallAP, MMTallLMIN0, MMTallLMAX0, 
         MMTsingleAP, MMTsingleLMIN0, MMTsingleLMAX0, DEIMOSAP, DEIMOSLMIN0, DEIMOSLMAX0, 
         DEIMOS00AP, DEIMOS00LMIN0, DEIMOS00LMAX0)
-    print '### done creating ordered LMIN0/LMAX0 arr'
+    print('### done creating ordered LMIN0/LMAX0 arr')
 
-    print '### creating ordered SNR arrs'
+    print('### creating ordered SNR arrs')
     NIIA_SNR = np.array([-99.99999]*len(AP))
     NIIB_SNR = np.array([-99.99999]*len(AP))
     HA_SNR = np.array([-99.99999]*len(AP))
@@ -484,9 +485,9 @@ def create_ordered_AP_arrays(AP_only=False):
         HA_SNR, DEIMOS00HASNR, HB_SNR, DEIMOS00HBSNR, HG_SNR, DEIMOS00HGSNR)
     NIIA_SNR, NIIB_SNR, HA_SNR, HB_SNR, HG_SNR = get_SNRs_FLUXs(AP, mergedAP, NIIA_SNR, NIIB_SNR, mergedNIIASNR, mergedNIIBSNR, 
         HA_SNR, mergedHASNR, HB_SNR, mergedHBSNR, HG_SNR, mergedHGSNR)
-    print '### done creating ordered SNR arrs'
+    print('### done creating ordered SNR arrs')
 
-    print '### creating ordered FLUX arrs'
+    print('### creating ordered FLUX arrs')
     NIIA_FLUX = np.array([-99.99999]*len(AP))
     NIIB_FLUX = np.array([-99.99999]*len(AP))
     HA_FLUX = np.array([-99.99999]*len(AP))
@@ -502,7 +503,7 @@ def create_ordered_AP_arrays(AP_only=False):
         HA_FLUX, DEIMOS00HAFLUX, HB_FLUX, DEIMOS00HBFLUX, HG_FLUX, DEIMOS00HGFLUX)
     NIIA_FLUX, NIIB_FLUX, HA_FLUX, HB_FLUX, HG_FLUX = get_SNRs_FLUXs(AP, mergedAP, NIIA_FLUX, NIIB_FLUX, mergedNIIAFLUX, mergedNIIBFLUX, 
         HA_FLUX, mergedHAFLUX, HB_FLUX, mergedHBFLUX, HG_FLUX, mergedHGFLUX)
-    print '### done creating ordered FLUX arrs'
+    print('### done creating ordered FLUX arrs')
 
     MMTall.close()
     MMTsingle.close()

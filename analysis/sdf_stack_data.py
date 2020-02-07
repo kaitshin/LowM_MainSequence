@@ -12,6 +12,7 @@ INPUTS:
 OUTPUTS:
     Returns (x_rest, plot_grid_avg)
 """
+from __future__ import print_function
 
 import numpy as np
 from stack_data import stack
@@ -47,7 +48,7 @@ def stack_data(ndarr, zspec, index, x0, xmin, xmax, dlambda, ff='', instr=''):
         if instr=='MMT':
             # to help mask MMT NB921 Halpha sources
             # return stack(ndarr, zspec, index[good_z], x0, xmin, xmax, ff=ff)
-            # print 'sdf_stack_data goodz length:', len(good_z), good_z
+            # print('sdf_stack_data goodz length:', len(good_z), good_z)
             x_rest, plot_grid_avg, index, avgz, minz, maxz, new_grid = stack(ndarr, 
                 zspec, index[good_z], x0, xmin, xmax, dlambda)
 

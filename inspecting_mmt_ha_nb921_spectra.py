@@ -20,6 +20,7 @@ INPUTS:
 OUTPUTS:
     'Composite_Spectra/all_MMT_HaNB921_spectra.pdf'
 """
+from __future__ import print_function
 
 import numpy as np, numpy.ma as ma, matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
@@ -61,7 +62,7 @@ def masked_MMT_grid(full_path, NAME0, inst_str0, inst_dict, AP):
     '''
     Obtains the masked MMT grid data
     '''
-    print '### looking at the MMT grid'
+    print('### looking at the MMT grid')
     griddata = asc.read(full_path+'Spectra/spectral_MMT_grid_data.txt',guess=False)
     gridz  = np.array(griddata['ZSPEC']) ##used
     gridap = np.array(griddata['AP']) ##used
@@ -119,7 +120,7 @@ def unmasked_MMT_grid(full_path, NAME0, inst_str0, inst_dict, AP):
     '''
     Obtains the unmasked MMT grid data
     '''
-    print '### looking at the unmasked (_um) MMT grid'
+    print('### looking at the unmasked (_um) MMT grid')
     griddata = asc.read(full_path+'Spectra/spectral_MMT_grid_data.unmasked.txt',guess=False)
     gridz  = np.array(griddata['ZSPEC']) ##used
     gridap = np.array(griddata['AP']) ##used
@@ -195,7 +196,7 @@ def plotting_spectra(full_path, new_grid, new_grid_um, gridap, input_index, x_re
 
         if not np.all(np.isnan(row/1e-17)):
             redmaskval = x_rest[np.max([x for x in range(len(row)) if not np.isnan(row[x]/1e-17)])]
-            print AP, '\t', redmaskval
+            print(AP, '\t', redmaskval)
         
         current_axis.plot(x_rest, row/1e-17, 'b', label='masked')
         current_axis.plot(x_rest, new_grid_um[row_ii]/1e-17, 'r--', alpha=0.6, label='unmasked')
@@ -248,7 +249,7 @@ def main():
 
     plotting_spectra(full_path, new_grid, new_grid_um, gridap, input_index, x_rest, match_index)
     
-    print 'done'
+    print('done')
 #enddef
 
 

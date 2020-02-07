@@ -31,6 +31,7 @@ OUTPUTS:
 REVISION HISTORY:
     Created by Kaitlyn Shin 13 August 2015
 """
+from __future__ import print_function
 
 import numpy as np, astropy.units as u, matplotlib.pyplot as plt, sys
 from scipy import interpolate
@@ -44,7 +45,7 @@ cosmo = FlatLambdaCDM(H0 = 70 * u.km / u.s / u.Mpc, Om0=0.3)
 # emission line wavelengths (air)
 HA = 6562.80
 
-FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
+FULL_PATH = r'/Users/kaitlynshin/Google Drive/NASA_Summer2015/'
 CUTOFF_SIGMA = 4.0
 CUTOFF_MASS = 6.0
 fileend='.GALEX'
@@ -657,7 +658,7 @@ def main():
     good_sig_iis = np.where((corr_tbl['flux_sigma'] >= CUTOFF_SIGMA) & 
         (corr_tbl['stlr_mass'] >= CUTOFF_MASS))[0]
     corr_tbl = corr_tbl[good_sig_iis]
-    print '### done reading input files'
+    print('### done reading input files')
 
     # getting SFR values
     log_SFR_UV = get_UV_SFR(corr_tbl)

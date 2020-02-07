@@ -12,6 +12,7 @@ INPUTS:
 OUTPUTS:
     Returns (x_rest, plot_grid_avg)
 """
+from __future__ import print_function
 
 import numpy as np
 from scipy.interpolate import interp1d
@@ -27,7 +28,7 @@ def stack(ndarr_in, zspec_in, index, x0, xmin, xmax, dlambda, ff=''):
     avgz = np.mean([x for x in zspec if (x > 0 and x < 9)])
     minz = min(x for x in zspec if x > 0)
     maxz = max(x for x in zspec if x < 9)
-    print '### zspec:', minz, maxz
+    print('### zspec:', minz, maxz)
     # deshifting to rest-frame wavelength
     for (row_num, ii) in zip(range(len(ndarr)), index):
         # normalizing

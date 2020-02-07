@@ -20,6 +20,7 @@ INPUTS:
 OUTPUTS:
     FULL_PATH+'Plots/SED_fits/'+filename+fileend+'.pdf'
 """
+from __future__ import print_function
 
 import numpy as np, matplotlib.pyplot as plt
 from astropy.io import ascii as asc, fits as pyfits
@@ -163,7 +164,7 @@ def scatter_data(ID_num, axis):
 def create_SED_fits(match_index, filename):
     '''
     '''
-    print '###'+filename
+    print('###'+filename)
     
     pp = PdfPages(FULL_PATH+'Plots/SED_fits/'+filename+'.pdf')
 
@@ -178,7 +179,7 @@ def create_SED_fits(match_index, filename):
     ltau_filt = ltau[match_index]
 
     for (ID_num, full_name, num, zp, zs, stlr, chsq, AV, age, tau) in zip(filt_ID, filt_full, range(len(filt_ID)), zphot_filt, zspec_filt, stlr_filt, chi2_filt, A_V_filt, lage_filt, ltau_filt):
-        print ID_num
+        print(ID_num)
         tempfile = asc.read(FULL_PATH+'FAST/outputs/BEST_FITS/NB_IA_emitters_allphot.emagcorr.ACpsf_fast'+fileend+'_'+str(ID_num)+'.fit',guess=False,Reader=asc.NoHeader)
         wavelength = np.array(tempfile['col1'])
         flux = np.array(tempfile['col2'])
@@ -283,7 +284,7 @@ dust_lumin0 = corrdata['dust_corr_lumin']
 dust_lumin = np.zeros(len(ID0))
 id_match = np.array([x for x in range(len(ID0)) if ID0[x] in ha_id])
 dust_lumin[id_match] = dust_lumin0
-print '### done reading files'
+print('### done reading files')
 
 lambda_naught = np.array([OII3727,(HB+OIII5007)/2.0,HA])
 lambda_label  = np.array(['[OII]','H'+r'$\beta$'+'+[OIII]', 'H'+r'$\alpha$'+''])

@@ -23,6 +23,7 @@ OUTPUTS:
     FULL_PATH+'Plots/main_sequence/zdep_mainseq.pdf'
     FULL_PATH+'Plots/main_sequence/mainseq_sSFRs.pdf'
 """
+from __future__ import print_function
 
 import numpy as np, matplotlib.pyplot as plt
 import scipy.optimize as optimize
@@ -296,7 +297,7 @@ def make_all_graph(stlr_mass, sfr, filtarr, markarr, z_arr, sizearr, title,
         filt_index_n = get_filt_index(no_spectra, ff, filts)
         filt_index_y = get_filt_index(yes_spectra, ff, filts)
 
-        print '>>>', ff, avg_z
+        print('>>>', ff, avg_z)
         check_nums.append(len(filt_index_y)+len(filt_index_n))
 
         temp = ax.scatter(stlr_mass[yes_spectra][filt_index_y],
@@ -509,8 +510,8 @@ def bestfit_zssfr(ax, filtbins_1z, filtbins_ssfr, delta_sfrs):
         errs_arr.append(compute_onesig_pdf(arr.reshape(len(arr),1).T,
             [np.mean(arr)])[0][0])
 
-    print 'sSFR a*log(1+z)+b params:', params
-    print '+/-', [errs_arr[0][0], errs_arr[0][1]]
+    print('sSFR a*log(1+z)+b params:', params)
+    print('+/-', [errs_arr[0][0], errs_arr[0][1]])
 
     stp = 0.02
     xrange_tmp = np.linspace(min(filtbins_1z[0])-stp, max(filtbins_1z[-1])+stp, 100)
@@ -628,7 +629,7 @@ def make_ssfr_graph_newha(f, ax, corr_sfrs, stlr_mass, filts, zspec0, zspec00,
         newha=True, openz=True, cc='gray', aa=0.7, zz=1)
     # fitting a constant line to the mact sources below 10^9 M*
     # const = np.mean(mact_mean_ssfr[:-1])
-    # print 'C =', const
+    # print('C =', const)
     # tmp_xarr = np.linspace(6.0,m_turnover,30)
     # ax.plot(tmp_xarr, np.array([const]*len(tmp_xarr)), 'k--', lw=2)
     # a linear line to the composites above 10^8 M*
@@ -640,7 +641,7 @@ def make_ssfr_graph_newha(f, ax, corr_sfrs, stlr_mass, filts, zspec0, zspec00,
     #     if mass_with_newha[x] >= m_turnover])
     # coeffs1, covar = curve_fit(line2,
     #     mass_with_newha[highm_ii], ssfrs_with_newha[highm_ii])
-    # print 'm =',coeffs1[0], '& b =', coeffs1[0]*-8+const
+    # print('m =',coeffs1[0], '& b =', coeffs1[0]*-8+const)
     # tmp_xarr2 = np.linspace(m_turnover,12.0,30)
     # ax.plot(tmp_xarr2, line2(tmp_xarr2, *coeffs1), 'k--', lw=2)
     # ax.plot(tmp_xarr2, salim07(tmp_xarr2), 'c', ls='--', lw=2)
@@ -721,7 +722,7 @@ def main():
     from MACT_utils import get_FUV_corrs
     FUV_corr_factor = get_FUV_corrs(corr_tbl)
 
-    # print 'making 4-panel mainseq plot now' # (with 'all' types of corrs)
+    # print('making 4-panel mainseq plot now' # (with 'all' types of corrs))
     # f_all, ax_all = plt.subplots(2,2)
     # axarr = np.ndarray.flatten(ax_all)
     # f_all.set_size_inches(14,14)
@@ -736,7 +737,7 @@ def main():
     #     #  should pass in e.g., "obs_sfr + corrs" to plot applied corrs
     #     make_all_graph(stlr_mass, obs_sfr+corrs, filtarr, markarr, z_arr, sizearr,
     #         title, no_spectra, yes_spectra, filts, ax, i, corr_tbl)
-    #     print 'done plotting', title
+    #     print('done plotting', title)
 
     # [a.tick_params(axis='both', labelsize='10', which='both', direction='in')
     #     for a in f_all.axes[:]]
@@ -747,7 +748,7 @@ def main():
 
 
     # if mainseq_fig4_only:
-    #     print 'making 1-panel mainseq plot now (with only \'all\' corrs)'
+    #     print('making 1-panel mainseq plot now (with only \'all\' corrs)')
     #     i=5
     #     corrs = filt_corr_factor+nii_ha_corr_factor+dust_corr_factor+FUV_corr_factor
     #     f, ax = plt.subplots()
@@ -763,7 +764,7 @@ def main():
 
     NEWHA = True
     
-    # print making zdep plot
+    # print('making zdep plot')
     # f, ax = plt.subplots()
     # make_redshift_graph(f, ax, z_arr, corr_sfrs+FUV_corr_factor, delta_sfrs,
     #     stlr_mass, zspec00, filts, no_spectra, yes_spectra, cwheel)
@@ -773,7 +774,7 @@ def main():
     # plt.savefig(FULL_PATH+'Plots/main_sequence/zdep_mainseq.pdf')
     # plt.close()
 
-    print 'making sSFR plot now'
+    print('making sSFR plot now')
     if NEWHA:
         f, ax = plt.subplots()
         make_ssfr_graph_newha(f, ax, corr_sfrs+FUV_corr_factor,
@@ -781,7 +782,7 @@ def main():
         plt.subplots_adjust(right=0.98, top=0.98, left=0.08, bottom=0.08)
         plt.savefig(FULL_PATH+'Plots/main_sequence/mainseq_sSFRs_FUV_corrs.pdf')
 
-    # print 'making old sSFR plot now'
+    # print('making old sSFR plot now')
     # lowm_ii = np.arange(len(corr_sfrs))
     # f, axes = plt.subplots(1,2, sharey=True)
     # make_ssfr_graph_old(f, axes, corr_sfrs[lowm_ii]+FUV_corr_factor[lowm_ii],

@@ -6,6 +6,7 @@ PURPOSE:
     Provides a module where plotting functions can be called from 
     stack_spectral_data.py for Hb/Ha (Keck) plots
 """
+from __future__ import print_function
 
 from analysis.balmer_fit import find_nearest, get_best_fit, get_best_fit2, get_best_fit3
 from matplotlib.ticker import MaxNLocator
@@ -117,7 +118,7 @@ def subplots_plotting(ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, to
         try:
             o2 = get_best_fit2(xval2, yval2, NII6548, label)
         except RuntimeError:
-            print '(For NII fitting) RuntimeError: Optimal parameters not found: Number of calls to function has reached maxfev = 1000.'
+            print('(For NII fitting) RuntimeError: Optimal parameters not found: Number of calls to function has reached maxfev = 1000.')
             o2 = [0,0,0,0]
         flux2 = np.sum(dlambda * (o2[0]*np.exp(-0.5*((xval2-o2[1])/o2[2])**2)))
         ax.plot(xval2, (o2[3]+o2[0]*np.exp(-0.5*((xval2-o2[1])/o2[2])**2))/1E-17, 'g,', zorder=3)
@@ -129,7 +130,7 @@ def subplots_plotting(ax, xval, yval, label, subtitle, dlambda, xmin0, xmax0, to
         try:
             o3 = get_best_fit2(xval3, yval3, NII6583, label)
         except RuntimeError:
-            print '(For NII fitting) RuntimeError: Optimal parameters not found: Number of calls to function has reached maxfev = 1000.'
+            print('(For NII fitting) RuntimeError: Optimal parameters not found: Number of calls to function has reached maxfev = 1000.')
             o3 = [0,0,0,0]
         flux3 = np.sum(dlambda * (o3[0]*np.exp(-0.5*((xval3-o3[1])/o3[2])**2)))
         ax.plot(xval3, (o3[3]+o3[0]*np.exp(-0.5*((xval3-o3[1])/o3[2])**2))/1E-17, 'g,', zorder=3)

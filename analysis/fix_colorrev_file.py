@@ -6,6 +6,7 @@ This code will modify the colorrev.fits file to use updated spectroscopic
 redshifts from MMT/Hectospec and Keck/DEIMOS.  Some SDF NB excess emitters
 were mis-classified using color information
 """
+from __future__ import print_function
 
 import sys, os
 
@@ -267,8 +268,8 @@ def main(silent=False, verbose=True):
                 z_line = np.array([xx for xx in range(len(idx_z)) if
                                    (z_spec0[idx_z][xx] >= z_vals[2*zz]) &
                                    (z_spec0[idx_z][xx] <= z_vals[2*zz+1])])
-                print '%s %.2f %.2f %03i' % ((ltype[zz]+'-'+filt0[ff]).rjust(11), z_vals[2*zz],
-                                             z_vals[2*zz+1], len(z_line))
+                print('%s %.2f %.2f %03i' % ((ltype[zz]+'-'+filt0[ff]).rjust(11), z_vals[2*zz],
+                                                             z_vals[2*zz+1], len(z_line)))
 
                 # + on 30/01/2018
                 if len(z_line) > 0:
@@ -299,7 +300,7 @@ def main(silent=False, verbose=True):
 
     # Write changes to source name to file | + on 30/01/2018
     change = [xx for xx in range(len(raw_Name)) if corr_Name[xx] != rev_Name[xx]]
-    print '## len of [change] : ', len(change)
+    print('## len of [change] : ', len(change))
 
     # Mod on 30/01/2018
     z_data_ch = z_data[change]

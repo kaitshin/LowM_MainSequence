@@ -24,6 +24,7 @@ OUTPUTS:
     FULL_PATH+'Composite_Spectra/MMT_spectral_coverage.txt'
     FULL_PATH+'Composite_Spectra/Keck_spectral_coverage.txt'
 """
+from __future__ import print_function
 
 import numpy as np, re
 import plotting.general_plotting as general_plotting
@@ -314,12 +315,12 @@ def main():
     KECK_LMAX0 = data_dict['KECK_LMAX0'][ha_ii]
     filt_arr = get_filt_arr(NAME0)
 
-    print 'writing MMT table...'
+    print('writing MMT table...')
     write_MMT_table(inst_str0, ID, zspec0, NAME0, AP, stlr_mass, filt_arr, 
         stlr_mass_orig, inst_str0_orig, inst_dict, MMT_LMIN0, MMT_LMAX0, NAME0_orig)
-    print 'finished writing MMT table'
+    print('finished writing MMT table')
 
-    print 'writing Keck table...'
+    print('writing Keck table...')
     bad_iis    = np.array([x for x in range(len(NAME0)) if ('Ha-NB816' not in NAME0[x] 
         and 'Ha-NB921' not in NAME0[x] and 'Ha-NB973' not in NAME0[x])])
     NAME0      = np.array([NAME0[x] for x in range(len(NAME0)) if x not in bad_iis])
@@ -333,7 +334,7 @@ def main():
     filt_arr   = np.array([filt_arr[x] for x in range(len(filt_arr)) if x not in bad_iis])
     write_Keck_table(inst_str0, ID, zspec0, NAME0, AP, stlr_mass, filt_arr, 
         stlr_mass_orig, inst_str0_orig, inst_dict, KECK_LMIN0, KECK_LMAX0, NAME0_orig)
-    print 'finished writing Keck table'
+    print('finished writing Keck table')
 
 if __name__ == '__main__':
     main()
