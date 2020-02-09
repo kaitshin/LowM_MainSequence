@@ -700,7 +700,7 @@ def ew_flux_hist(type0, mm, ss, t2_ax, x0, avg_x0, sig_x0, x0_bins, logEW_mean,
             ax3.scatter(temp_x, [avg_gd], marker='o', s=40, edgecolor='none',
                         color=avg_sig_ctype[ss], label=as_label)
             ax3.errorbar(temp_x, [avg_gd], yerr=[sig_gd], capsize=0,
-                         elinewidth=1.5, ecolor=avg_sig_ctype[ss], fmt=None)
+                         elinewidth=1.5, ecolor=avg_sig_ctype[ss], fmt='none')
 
     return No, Ng, binso, wht0
 #enddef
