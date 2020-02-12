@@ -20,6 +20,17 @@ def read_config_file():
     return config_tab
 
 
+def read_SE_file(infile):
+    print("Reading : " + infile)
+
+    SE_tab = asc.read(infile)
+
+    mag  = SE_tab['col13']  # aperture photometry (col #13)
+    dmag = SE_tab['col15']  # aperture photometry error (col #15)
+
+    return mag, dmag
+
+
 def color_plot_generator(NB_cat_path, filt, outfile):
     """
     Purpose:
