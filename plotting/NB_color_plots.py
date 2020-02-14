@@ -31,7 +31,7 @@ def read_SE_file(infile):
     return mag, dmag
 
 
-def color_plot_generator(NB_cat_path, filt, outfile):
+def color_plot_generator(NB_cat_path, filt, pdf_prefix):
     """
     Purpose:
       Generate two-color plots for include in paper (pre referee request)
@@ -39,8 +39,9 @@ def color_plot_generator(NB_cat_path, filt, outfile):
       based on their primary emission line (H-alpha, [OIII], or [OII])
       in the NB filter
 
+    :param NB_cat_path: str containing the path to NB-based SExtractor catalog
     :param filt: str containing the filter name
-    :param outfile: str containing the output file name
+    :param pdf_prefix: str containing the output file name
     """
 
     search0 = join(NB_cat_path, filt, 'sdf_pub2_*_{}.cat.mask'.format(filt))
@@ -49,4 +50,4 @@ def color_plot_generator(NB_cat_path, filt, outfile):
 
     config_tab = read_config_file()
 
-    out_pdf = join(path0, outfile)
+    out_pdf = join(path0, pdf_prefix + '_' + filt + '.pdf')
