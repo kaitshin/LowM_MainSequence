@@ -2,6 +2,7 @@ from os.path import join
 from os.path import dirname
 from glob import glob
 from astropy.io import ascii as asc
+import ast
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -50,4 +51,23 @@ def color_plot_generator(NB_cat_path, filt, pdf_prefix):
 
     config_tab = read_config_file()
 
+    f_idx = np.where(config_tab['filter'] == filt)[0][0]
+
+    x_title = config_tab['xtitle'][f_idx]
+    y_title = config_tab['ytitle'][f_idx]
+    xra = ast.literal_eval(config_tab['xra'][f_idx])
+    yra = ast.literal_eval(config_tab['yra'][f_idx])
+
+    print(type(xra))
+    print(type(yra))
+
     out_pdf = join(path0, pdf_prefix + '_' + filt + '.pdf')
+
+    fig, ax = plt.subplots()
+
+    ax.set_xlim(xra)
+    ax.set_ylim(yra)
+    ax.set_xlabel(x_title)
+    ax.set_ylabel(y_title)
+
+    fig.savefig(out_pdf, bbox_inches='tight')
