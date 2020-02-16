@@ -1,13 +1,15 @@
 from os.path import join
 from os.path import dirname
 from glob import glob
+import ast
+
 from astropy.io import ascii as asc
 from astropy.io import fits
-import ast
 
 import numpy as np
 import matplotlib.pyplot as plt
 
+from chun_codes import match_nosort
 
 path0 = '/Users/cly/GoogleDrive/Research/NASA_Summer2015/Plots/color_plots'
 
@@ -53,12 +55,22 @@ def color_plot_generator(NB_cat_path, filt, pdf_prefix):
 
     NB_tab = fits.getdata(NB_emitter_file)
 
+    # Define SExtractor photometric catalog filenames
     search0 = join(NB_cat_path, filt, 'sdf_pub2_*_{}.cat.mask'.format(filt))
     SE_files = glob(search0)
 
+    # Read in ID's from SExtractor catalog
+    SEx_ID = np.loadtxt(SE_files[0], usecols=0)
+
+    NB_idx, SEx_idx = match_nosort(NB_tab.ID, SEx_ID)
+    if NB_idx.size != len(NB_tab):
+        print("Issue with table!")
+        print("Exiting!")
+        return
+
     config_tab = read_config_file()
 
-    f_idx = np.where(config_tab['filter'] == filt)[0][0]
+    f_idx = np.where(config_tab['filter'] == filt)[0][0]  # config index
 
     # Read in SExtractor photometric catalogs
     mag_arr = {}
