@@ -105,7 +105,7 @@ def color_plot_generator(NB_cat_path, filt, pdf_prefix):
     # Define axis to plot
     exec("x_arr = {}".format(config_tab['x_color'][f_idx]))
     exec("y_arr = {}".format(config_tab['y_color'][f_idx]))
-    ax.scatter(x_arr, y_arr, marker='o', s=2)
+    ax.scatter(x_arr, y_arr, marker='ko', s=2)  # black circles
 
     ax.set_xlim(xra)
     ax.set_ylim(yra)
