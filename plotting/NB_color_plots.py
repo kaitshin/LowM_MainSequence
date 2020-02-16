@@ -66,9 +66,6 @@ def color_plot_generator(NB_cat_path, filt, pdf_prefix):
     xra = ast.literal_eval(config_tab['xra'][f_idx])
     yra = ast.literal_eval(config_tab['yra'][f_idx])
 
-    print(type(xra))
-    print(type(yra))
-
     out_pdf = join(path0, pdf_prefix + '_' + filt + '.pdf')
 
     fig, ax = plt.subplots()
