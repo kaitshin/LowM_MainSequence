@@ -93,8 +93,11 @@ def color_plot_generator(NB_cat_path, filt, pdf_prefix):
     if 'B_mag' in dict_keys and 'R_mag' in dict_keys:
         BR = mag_arr['B_mag'] - mag_arr['R_mag']
 
-    x_title = config_tab['xtitle'][f_idx]
-    y_title = config_tab['ytitle'][f_idx]
+    x_title = config_tab['xtitle'][f_idx].replace('-', ' - ')
+    y_title = config_tab['ytitle'][f_idx].replace('-', ' - ')
+    x_title = r'${}$'.format(x_title.replace('R', 'R_C'))
+    y_title = r'${}$'.format(y_title.replace('R', 'R_C'))
+
     xra = ast.literal_eval(config_tab['xra'][f_idx])
     yra = ast.literal_eval(config_tab['yra'][f_idx])
 
