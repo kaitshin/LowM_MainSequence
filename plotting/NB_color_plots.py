@@ -14,7 +14,7 @@ co_dir = dirname(__file__)
 
 
 def read_config_file():
-    config_file = join(co_dir, 'NBIA_color_plot.txt')
+    config_file = join(co_dir, 'NB_color_plot.txt')
 
     config_tab = asc.read(config_file, format='commented_header')
 
