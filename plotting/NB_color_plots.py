@@ -105,11 +105,12 @@ def color_plot_generator(NB_cat_path, filt, pdf_prefix):
     # Define axis to plot
     exec("x_arr = {}".format(config_tab['x_color'][f_idx]))
     exec("y_arr = {}".format(config_tab['y_color'][f_idx]))
-    ax.scatter(x_arr, y_arr, marker='o', s=5)
+    ax.scatter(x_arr, y_arr, marker='o', s=2)
 
     ax.set_xlim(xra)
     ax.set_ylim(yra)
     ax.set_xlabel(x_title)
     ax.set_ylabel(y_title)
 
+    fig.set_size_inches(8, 8)
     fig.savefig(out_pdf, bbox_inches='tight')
