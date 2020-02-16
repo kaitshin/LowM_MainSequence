@@ -2,6 +2,7 @@ from os.path import join
 from os.path import dirname
 from glob import glob
 from astropy.io import ascii as asc
+from astropy.io import fits
 import ast
 
 import numpy as np
@@ -45,9 +46,15 @@ def color_plot_generator(NB_cat_path, filt, pdf_prefix):
     :param pdf_prefix: str containing the output file name
     """
 
+    # Read in NB excess emitter catalog
+    search0 = join(NB_cat_path, filt, '{}emitters.fits'.format(filt))
+    NB_emitter_file = glob(search0)[0]
+    print(NB_emitter_file)
+
+    NB_tab = fits.getdata(NB_emitter_file)
+
     search0 = join(NB_cat_path, filt, 'sdf_pub2_*_{}.cat.mask'.format(filt))
     SE_files = glob(search0)
-    print(SE_files)
 
     config_tab = read_config_file()
 
