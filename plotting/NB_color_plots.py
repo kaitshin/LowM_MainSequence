@@ -53,6 +53,7 @@ def color_plot_generator(NB_cat_path, filt, pdf_prefix):
 
     f_idx = np.where(config_tab['filter'] == filt)[0][0]
 
+    # Read in SExtractor photometric catalogs
     mag_arr = {}
     for file0 in SE_files:
         mag, dmag = read_SE_file(file0)
@@ -60,6 +61,12 @@ def color_plot_generator(NB_cat_path, filt, pdf_prefix):
         broad_filt = temp.replace('_{}.cat.mask'.format(filt), '')
         mag_arr[broad_filt+'_mag'] = mag
         mag_arr[broad_filt+'_dmag'] = dmag
+
+    # Define broad-band colors
+    VR = mag_arr['V_mag'] - mag_arr['R_mag']
+    Ri = mag_arr['R_mag'] - mag_arr['i_mag']
+    BV = mag_arr['B_mag'] - mag_arr['V_mag']
+    BR = mag_arr['B_mag'] - mag_arr['R_mag']
 
     x_title = config_tab['xtitle'][f_idx]
     y_title = config_tab['ytitle'][f_idx]
