@@ -78,8 +78,8 @@ def color_plot_generator(NB_cat_path, filt, pdf_prefix):
         mag, dmag = read_SE_file(file0)
         temp = file0.replace(join(NB_cat_path, filt, 'sdf_pub2_'), '')
         broad_filt = temp.replace('_{}.cat.mask'.format(filt), '')
-        mag_arr[broad_filt+'_mag'] = mag
-        mag_arr[broad_filt+'_dmag'] = dmag
+        mag_arr[broad_filt+'_mag'] = mag[SEx_idx]
+        mag_arr[broad_filt+'_dmag'] = dmag[SEx_idx]
 
     # Define broad-band colors
     VR = mag_arr['V_mag'] - mag_arr['R_mag']
