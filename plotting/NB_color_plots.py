@@ -51,7 +51,7 @@ def color_plot_generator(NB_cat_path, filt, pdf_prefix):
     # Read in NB excess emitter catalog
     search0 = join(NB_cat_path, filt, '{}emitters.fits'.format(filt))
     NB_emitter_file = glob(search0)[0]
-    print(NB_emitter_file)
+    print("NB emitter catalog : " + NB_emitter_file)
 
     NB_tab = fits.getdata(NB_emitter_file)
 
@@ -81,11 +81,17 @@ def color_plot_generator(NB_cat_path, filt, pdf_prefix):
         mag_arr[broad_filt+'_mag'] = mag[SEx_idx]
         mag_arr[broad_filt+'_dmag'] = dmag[SEx_idx]
 
+    dict_keys = mag_arr.keys()
+
     # Define broad-band colors
-    VR = mag_arr['V_mag'] - mag_arr['R_mag']
-    Ri = mag_arr['R_mag'] - mag_arr['i_mag']
-    BV = mag_arr['B_mag'] - mag_arr['V_mag']
-    BR = mag_arr['B_mag'] - mag_arr['R_mag']
+    if 'V_mag' in dict_keys and 'R_mag' in dict_keys:
+        VR = mag_arr['V_mag'] - mag_arr['R_mag']
+    if 'R_mag' in dict_keys and 'i_mag' in dict_keys:
+        Ri = mag_arr['R_mag'] - mag_arr['i_mag']
+    if 'B_mag' in dict_keys and 'V_mag' in dict_keys:
+        BV = mag_arr['B_mag'] - mag_arr['V_mag']
+    if 'B_mag' in dict_keys and 'R_mag' in dict_keys:
+        BR = mag_arr['B_mag'] - mag_arr['R_mag']
 
     x_title = config_tab['xtitle'][f_idx]
     y_title = config_tab['ytitle'][f_idx]
@@ -95,6 +101,11 @@ def color_plot_generator(NB_cat_path, filt, pdf_prefix):
     out_pdf = join(path0, pdf_prefix + '_' + filt + '.pdf')
 
     fig, ax = plt.subplots()
+
+    # Define axis to plot
+    exec("x_arr = {}".format(config_tab['x_color'][f_idx]))
+    exec("y_arr = {}".format(config_tab['y_color'][f_idx]))
+    ax.scatter(x_arr, y_arr, marker='o', s=5)
 
     ax.set_xlim(xra)
     ax.set_ylim(yra)
