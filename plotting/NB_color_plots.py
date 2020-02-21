@@ -16,6 +16,62 @@ path0 = '/Users/cly/GoogleDrive/Research/NASA_Summer2015/Plots/color_plots'
 co_dir = dirname(__file__)
 
 
+def draw_color_selection_lines(filt, ax, xra, yra):
+
+    # NB704 and NB711 emitters
+    if 'NB7' in filt:
+        x1 = np.arange(0.30, 1.20, 0.01)
+        ax.plot(x1, 1.70 * x1 + 0.0)
+
+        x2 = np.arange(-0.2, 0.3, 0.01)
+        ax.plot(x2, 0.82 * x2 + 0.264)
+
+        ax.plot(x2, 2.5 * x2 - 0.24)
+
+        if filt == 'NB704':
+            ax.plot(x1, 0.8955*x1 + 0.02533)
+            ax.plot([0.2136, 0.3], [0.294]*2)
+        if filt == 'NB711':
+            x3 = [0.35, 1.2]
+            ax.plot(x3, 0.8955*x3 - 0.0588)
+            ax.plot([0.1960,0.35], [0.25]*2)
+
+    # NB816 emitters
+    if filt == 'NB816':
+        ax.plot([0.45, 0.45], [0.8, 2.0])
+
+        x1 = np.arange(-0.60, 0.45, 0.01)
+        ax.plot(x1, 2*x1 - 0.1)
+
+        x0 = [1.0, 2.0, 2.0, 1.0]
+        y0 = [1.0, 1.0, 2.0, 2.0]
+        ax.plot([x0, 1.0], [y0, 1.0])
+
+    # NB921 emitters
+    if filt == 'NB921':
+        x_val = [xra[0], 0.45]
+        x1 = np.arange(x_val[0], x_val[1], 0.01)
+        y1 = x1 * 1.46 + 0.58
+        ax.plot(x1, y1)
+
+        # Vertical dashed line
+        ax.plot(np.repeat(x_val[1], 2), [max(y1), yra[1]])\
+
+
+    # NB973 emitters:
+    if filt == 'NB973':
+        x_val = [0.18, 0.55]
+        x1 = np.arange(x_val[0], x_val[1], 0.01)
+        y1 = x1 * 2.423 + 0.06386
+        ax.plot(x1, y1)
+
+        # Vertical dashed line
+        ax.plot(np.repeat(x_val[1], 2), [1.4, 3.0])
+
+        # Horiz dashed line
+        ax.plot([xra[0], 0.18], [0.5, 0.5])
+
+
 def read_config_file():
     config_file = join(co_dir, 'NB_color_plot.txt')
 
