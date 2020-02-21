@@ -39,14 +39,16 @@ def draw_color_selection_lines(filt, ax, xra, yra):
 
     # NB816 emitters
     if filt == 'NB816':
-        ax.plot([0.45, 0.45], [0.8, 2.0])
+        # Color selection for H-alpha
+        ax.plot([0.45, 0.45], [0.8, 2.0], 'k--', linewidth=1.5)
 
         x1 = np.arange(-0.60, 0.45, 0.01)
-        ax.plot(x1, 2*x1 - 0.1)
+        ax.plot(x1, 2*x1 - 0.1, 'k--', linewidth=1.5)
 
+        # Color selection for other lines
         x0 = [1.0, 2.0, 2.0, 1.0]
         y0 = [1.0, 1.0, 2.0, 2.0]
-        ax.plot([x0, 1.0], [y0, 1.0])
+        ax.plot(x0 + [1.0], y0 + [1.0])
 
     # NB921 emitters
     if filt == 'NB921':
