@@ -35,7 +35,7 @@ def read_SE_file(infile):
     return mag, dmag
 
 
-def color_plot_generator(NB_cat_path, filt, pdf_prefix):
+def color_plot_generator(NB_cat_path, filt):
     """
     Purpose:
       Generate two-color plots for include in paper (pre referee request)
@@ -45,7 +45,6 @@ def color_plot_generator(NB_cat_path, filt, pdf_prefix):
 
     :param NB_cat_path: str containing the path to NB-based SExtractor catalog
     :param filt: str containing the filter name
-    :param pdf_prefix: str containing the output file name
     """
 
     # Read in NB excess emitter catalog
@@ -101,7 +100,7 @@ def color_plot_generator(NB_cat_path, filt, pdf_prefix):
     xra = ast.literal_eval(config_tab['xra'][f_idx])
     yra = ast.literal_eval(config_tab['yra'][f_idx])
 
-    out_pdf = join(path0, pdf_prefix + '_' + filt + '.pdf')
+    out_pdf = join(path0, filt + '.pdf')
 
     fig, ax = plt.subplots()
 
