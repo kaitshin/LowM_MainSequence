@@ -55,10 +55,10 @@ def draw_color_selection_lines(filt, ax, xra, yra):
         x_val = [xra[0], 0.45]
         x1 = np.arange(x_val[0], x_val[1], 0.01)
         y1 = x1 * 1.46 + 0.58
-        ax.plot(x1, y1)
+        ax.plot(x1, y1, 'k--', linewidth=1.5)
 
         # Vertical dashed line
-        ax.plot(np.repeat(x_val[1], 2), [max(y1), yra[1]])
+        ax.plot(np.repeat(x_val[1], 2), [max(y1), yra[1]], 'k--', linewidth=1.5)
 
     # NB973 emitters:
     if filt == 'NB973':
