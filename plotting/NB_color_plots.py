@@ -170,5 +170,7 @@ def color_plot_generator(NB_cat_path, filt):
     ax.set_xlabel(x_title)
     ax.set_ylabel(y_title)
 
+    draw_color_selection_lines(filt, ax, xra, yra)
+
     fig.set_size_inches(8, 8)
     fig.savefig(out_pdf, bbox_inches='tight')
