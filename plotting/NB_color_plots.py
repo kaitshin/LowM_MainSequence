@@ -63,16 +63,17 @@ def draw_color_selection_lines(filt, ax, xra, yra):
 
     # NB973 emitters:
     if filt == 'NB973':
+        # Color selection for H-alpha emitters
         x_val = [0.18, 0.55]
         x1 = np.arange(x_val[0], x_val[1], 0.01)
         y1 = x1 * 2.423 + 0.06386
-        ax.plot(x1, y1)
+        ax.plot(x1, y1, 'k--', linewidth=1.5)
 
         # Vertical dashed line
-        ax.plot(np.repeat(x_val[1], 2), [1.4, 3.0])
+        ax.plot(np.repeat(x_val[1], 2), [1.4, 3.0], 'k--', linewidth=1.5)
 
-        # Horiz dashed line
-        ax.plot([xra[0], 0.18], [0.5, 0.5])
+        # Horizontal dashed line
+        ax.plot([xra[0], 0.18], [0.5, 0.5], 'k--', linewidth=1.5)
 
 
 def read_config_file():
