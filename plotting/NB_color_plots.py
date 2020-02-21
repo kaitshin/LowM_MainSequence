@@ -52,6 +52,7 @@ def draw_color_selection_lines(filt, ax, xra, yra):
 
     # NB921 emitters
     if filt == 'NB921':
+        # Color selection for H-alpha emitters
         x_val = [xra[0], 0.45]
         x1 = np.arange(x_val[0], x_val[1], 0.01)
         y1 = x1 * 1.46 + 0.58
