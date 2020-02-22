@@ -223,6 +223,9 @@ def generate_paper_plot():
         if col <= 1:
             t_ax.set_xlim(-0.45, 1.25)
 
+        if col == 2:
+            t_ax.yaxis.tick_right()
+
     # Exclude bottom right panel
     ax[1][2].axis('off')
 
