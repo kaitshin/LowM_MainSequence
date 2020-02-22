@@ -178,3 +178,27 @@ def color_plot_generator(NB_cat_path, filt):
 
     fig.set_size_inches(8, 8)
     fig.savefig(out_pdf, bbox_inches='tight')
+
+
+def generate_paper_plot():
+    """
+    Purpose:
+      Generates 3x2 panel figure showing color selection for H-alpha emitters
+
+    :return: PDF file generated
+    """
+
+    NB_cat_path = '/Users/cly/data/SDF/NBcat/'
+
+    fig, ax = plt.subplots(ncols=3, nrows=2)
+
+    filters = ['NB704', 'NB711', 'NB816', 'NB921', 'NB973']
+
+    for filt in filters:
+        color_plot_generator(NB_cat_path, filt)
+
+    fig.set_size_inches(6.5, 4)
+
+    out_pdf = join(path0, 'color_selection.pdf')
+
+    fig.savefig(out_pdf, bbox_inches='tight')
