@@ -107,6 +107,10 @@ def color_plot_generator(NB_cat_path, filt, ax=None):
     :param filt: str containing the filter name
     """
 
+    make_single_plot = 0
+    if not ax:
+        make_single_plot = 1
+
     # Read in NB excess emitter catalog
     search0 = join(NB_cat_path, filt, '{}emitters.fits'.format(filt))
     NB_emitter_file = glob(search0)[0]
@@ -160,7 +164,7 @@ def color_plot_generator(NB_cat_path, filt, ax=None):
     xra = ast.literal_eval(config_tab['xra'][f_idx])
     yra = ast.literal_eval(config_tab['yra'][f_idx])
 
-    if not ax:
+    if make_single_plot:
         out_pdf = join(path0, filt + '.pdf')
 
         fig, ax = plt.subplots()
@@ -170,14 +174,16 @@ def color_plot_generator(NB_cat_path, filt, ax=None):
     exec("y_arr = {}".format(config_tab['y_color'][f_idx]))
     ax.scatter(x_arr, y_arr, marker='o', color='black', s=2)  # black circles
 
-    ax.set_xlim(xra)
-    ax.set_ylim(yra)
+    if make_single_plot:
+        ax.set_xlim(xra)
+        ax.set_ylim(yra)
+
     ax.set_xlabel(x_title)
     ax.set_ylabel(y_title)
 
     draw_color_selection_lines(filt, ax, xra, yra)
 
-    if not ax:
+    if make_single_plot:
         fig.set_size_inches(8, 8)
         fig.savefig(out_pdf, bbox_inches='tight')
 
