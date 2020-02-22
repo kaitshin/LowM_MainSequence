@@ -174,9 +174,8 @@ def color_plot_generator(NB_cat_path, filt, ax=None):
     exec("y_arr = {}".format(config_tab['y_color'][f_idx]))
     ax.scatter(x_arr, y_arr, marker='o', color='black', s=2)  # black circles
 
-    if make_single_plot:
-        ax.set_xlim(xra)
-        ax.set_ylim(yra)
+    ax.set_xlim(xra)
+    ax.set_ylim(yra)
 
     ax.set_xlabel(x_title)
     ax.set_ylabel(y_title)
