@@ -95,7 +95,7 @@ def read_SE_file(infile):
     return mag, dmag
 
 
-def color_plot_generator(NB_cat_path, filt, ax=None):
+def color_plot_generator(NB_cat_path, filt, config_tab=None, ax=None):
     """
     Purpose:
       Generate two-color plots for include in paper (pre referee request)
@@ -131,7 +131,8 @@ def color_plot_generator(NB_cat_path, filt, ax=None):
         print("Exiting!")
         return
 
-    config_tab = read_config_file()
+    if not config_tab:
+        config_tab = read_config_file()
 
     f_idx = np.where(config_tab['filter'] == filt)[0][0]  # config index
 
@@ -197,6 +198,8 @@ def generate_paper_plot():
 
     NB_cat_path = '/Users/cly/data/SDF/NBcat/'
 
+    config_tab = read_config_file()
+
     n_cols = 3
     n_rows = 2
     fig, ax = plt.subplots(ncols=n_cols, nrows=n_rows)
@@ -207,7 +210,7 @@ def generate_paper_plot():
         row = ii // n_cols
         col = ii % n_cols
         t_ax = ax[row][col]
-        color_plot_generator(NB_cat_path, filt, t_ax)
+        color_plot_generator(NB_cat_path, filt, config_tab=config_tab, ax=t_ax)
 
         if 'NB7' in filt:
             t_ax.set_xlabel('')
