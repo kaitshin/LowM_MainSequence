@@ -20,8 +20,9 @@ def draw_color_selection_lines(filt, ax, xra, yra):
 
     # NB704 and NB711 emitters
     if 'NB7' in filt:
-        x1 = np.arange(0.30, 1.20, 0.01)
-        ax.plot(x1, 1.70 * x1 + 0.0)
+        # Excluding this diagonal line
+        # x1 = np.arange(0.30, 1.20, 0.01)
+        # ax.plot(x1, 1.70 * x1 + 0.0)
 
         # These are the color selection for H-alpha
         x2 = np.arange(-0.2, 0.3, 0.01)
@@ -29,13 +30,14 @@ def draw_color_selection_lines(filt, ax, xra, yra):
         ax.plot(x2, 2.5 * x2 - 0.24, 'k--', linewidth=1.5)
 
         # Color selection for other lines
-        if filt == 'NB704':
-            ax.plot(x1, 0.8955*x1 + 0.02533, 'b--')
-            ax.plot([0.2136, 0.3], [0.294]*2, 'b--')
-        if filt == 'NB711':
-            x3 = np.array([0.35, 1.2])
-            ax.plot(x3, 0.8955*x3 - 0.0588, 'b--')
-            ax.plot([0.1960, 0.35], [0.25]*2, 'b--')
+        # Exclude for purpose of color selection in Shin+2020 paper
+        # if filt == 'NB704':
+        #    ax.plot(x1, 0.8955*x1 + 0.02533, 'b--')
+        #    ax.plot([0.2136, 0.3], [0.294]*2, 'b--')
+        # if filt == 'NB711':
+        #    x3 = np.array([0.35, 1.2])
+        #    ax.plot(x3, 0.8955*x3 - 0.0588, 'b--')
+        #    ax.plot([0.1960, 0.35], [0.25]*2, 'b--')
 
     # NB816 emitters
     if filt == 'NB816':
@@ -46,9 +48,10 @@ def draw_color_selection_lines(filt, ax, xra, yra):
         ax.plot(x1, 2*x1 - 0.1, 'k--', linewidth=1.5)
 
         # Color selection for other lines
-        x0 = [1.0, 2.0, 2.0, 1.0]
-        y0 = [1.0, 1.0, 2.0, 2.0]
-        ax.plot(x0 + [1.0], y0 + [1.0])
+        # Exclude this selection of weird emitters
+        # x0 = [1.0, 2.0, 2.0, 1.0]
+        # y0 = [1.0, 1.0, 2.0, 2.0]
+        # ax.plot(x0 + [1.0], y0 + [1.0])
 
     # NB921 emitters
     if filt == 'NB921':
