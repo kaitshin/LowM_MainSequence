@@ -198,17 +198,28 @@ def generate_paper_plot():
 
     NB_cat_path = '/Users/cly/data/SDF/NBcat/'
 
-    ncols = 3
-    nrows = 2
-    fig, ax = plt.subplots(ncols=ncols, nrows=nrows)
+    n_cols = 3
+    n_rows = 2
+    fig, ax = plt.subplots(ncols=n_cols, nrows=n_rows)
 
     filters = ['NB704', 'NB711', 'NB816', 'NB921', 'NB973']
 
     for ii, filt in zip(range(len(filters)), filters):
-        row = ii // ncols
-        col = ii % ncols
+        row = ii // n_cols
+        col = ii % n_cols
         t_ax = ax[row][col]
         color_plot_generator(NB_cat_path, filt, t_ax)
+
+        if 'NB7' in filt:
+            t_ax.set_xlabel('')
+        if col == 1:
+            t_ax.set_ylabel('')  # Remove label
+
+        if col <= 1:
+            t_ax.set_xlim(-0.45, 1.25)
+
+    # Exclude bottom right panel
+    ax[1][2].axis('off')
 
     fig.set_size_inches(6.5, 4)
 
