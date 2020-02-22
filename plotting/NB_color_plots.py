@@ -98,6 +98,12 @@ def read_SE_file(infile):
     return mag, dmag
 
 
+def latex_label_formatting(label):
+    new_label = label.replace('R', 'R_C').replace('i', 'i^{\prime}')
+
+    return r'${}$'.format(new_label)
+
+
 def color_plot_generator(NB_cat_path, filt, config_tab=None, ax=None):
     """
     Purpose:
@@ -165,8 +171,8 @@ def color_plot_generator(NB_cat_path, filt, config_tab=None, ax=None):
 
     x_title = config_tab['xtitle'][f_idx].replace('-', ' - ')
     y_title = config_tab['ytitle'][f_idx].replace('-', ' - ')
-    x_title = r'${}$'.format(x_title.replace('R', 'R_C'))
-    y_title = r'${}$'.format(y_title.replace('R', 'R_C'))
+    x_title = latex_label_formatting(x_title)
+    y_title = latex_label_formatting(y_title)
 
     xra = ast.literal_eval(config_tab['xra'][f_idx])
     yra = ast.literal_eval(config_tab['yra'][f_idx])
