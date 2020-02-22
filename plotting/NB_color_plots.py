@@ -232,10 +232,7 @@ def generate_paper_plot():
         if col == 2:
             t_ax.yaxis.tick_right()
 
-
-
-    # Exclude bottom right panel
-    ax[1][2].axis('off')
+    ax[1][2].axis('off')  # Exclude bottom right panel
 
     plt.subplots_adjust(hspace=0.025, wspace=0.03)
 
