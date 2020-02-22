@@ -211,9 +211,12 @@ def generate_paper_plot():
 
         if 'NB7' in filt:
             t_ax.set_xlabel('')
-        if col == 1:
-            t_ax.set_ylabel('')  # Remove label
+            t_ax.set_xticklabels([])  # Remove x-tick labels
 
+        if col == 1:
+            t_ax.set_ylabel('')       # Remove label
+            t_ax.set_yticklabels([])  # Remove y-tick labels
+        # Change x-limit for R-i colors
         if col <= 1:
             t_ax.set_xlim(-0.45, 1.25)
 
