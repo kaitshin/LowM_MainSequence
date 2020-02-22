@@ -184,6 +184,9 @@ def color_plot_generator(NB_cat_path, filt, config_tab=None, ax=None):
     ax.set_xlabel(x_title)
     ax.set_ylabel(y_title)
 
+    ax.tick_params(direction='in')  # ticks on the inside
+    ax.minorticks_on()  # Add minor tick marks
+
     draw_color_selection_lines(filt, ax, xra, yra)
 
     if make_single_plot:
@@ -228,6 +231,8 @@ def generate_paper_plot():
 
         if col == 2:
             t_ax.yaxis.tick_right()
+
+
 
     # Exclude bottom right panel
     ax[1][2].axis('off')
