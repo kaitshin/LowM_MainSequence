@@ -187,8 +187,8 @@ def color_plot_generator(NB_cat_path, filt, config_tab=None, ax=None):
     ax.set_xlabel(x_title)
     ax.set_ylabel(y_title)
 
-    ax.tick_params(direction='in')  # ticks on the inside
     ax.minorticks_on()  # Add minor tick marks
+    ax.tick_params(which='both', direction='in')  # ticks on the inside
 
     draw_color_selection_lines(filt, ax, xra, yra)
 
