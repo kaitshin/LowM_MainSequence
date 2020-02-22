@@ -229,7 +229,7 @@ def generate_paper_plot():
     # Exclude bottom right panel
     ax[1][2].axis('off')
 
-    plt.subplots_adjust(hspace=0.025)
+    plt.subplots_adjust(hspace=0.025, wspace=0.03)
 
     fig.set_size_inches(6.5, 4)
 
