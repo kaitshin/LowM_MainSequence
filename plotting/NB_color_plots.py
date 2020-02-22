@@ -95,7 +95,7 @@ def read_SE_file(infile):
     return mag, dmag
 
 
-def color_plot_generator(NB_cat_path, filt):
+def color_plot_generator(NB_cat_path, filt, ax=None):
     """
     Purpose:
       Generate two-color plots for include in paper (pre referee request)
@@ -160,9 +160,10 @@ def color_plot_generator(NB_cat_path, filt):
     xra = ast.literal_eval(config_tab['xra'][f_idx])
     yra = ast.literal_eval(config_tab['yra'][f_idx])
 
-    out_pdf = join(path0, filt + '.pdf')
+    if not ax:
+        out_pdf = join(path0, filt + '.pdf')
 
-    fig, ax = plt.subplots()
+        fig, ax = plt.subplots()
 
     # Define axis to plot
     exec("x_arr = {}".format(config_tab['x_color'][f_idx]))
@@ -176,8 +177,9 @@ def color_plot_generator(NB_cat_path, filt):
 
     draw_color_selection_lines(filt, ax, xra, yra)
 
-    fig.set_size_inches(8, 8)
-    fig.savefig(out_pdf, bbox_inches='tight')
+    if not ax:
+        fig.set_size_inches(8, 8)
+        fig.savefig(out_pdf, bbox_inches='tight')
 
 
 def generate_paper_plot():
@@ -190,12 +192,17 @@ def generate_paper_plot():
 
     NB_cat_path = '/Users/cly/data/SDF/NBcat/'
 
-    fig, ax = plt.subplots(ncols=3, nrows=2)
+    ncols = 3
+    nrows = 2
+    fig, ax = plt.subplots(ncols=ncols, nrows=nrows)
 
     filters = ['NB704', 'NB711', 'NB816', 'NB921', 'NB973']
 
-    for filt in filters:
-        color_plot_generator(NB_cat_path, filt)
+    for ii, filt in zip(range(len(filters)), filters):
+        row = ii // ncols
+        col = ii % ncols
+        t_ax = ax[row][col]
+        color_plot_generator(NB_cat_path, filt, t_ax)
 
     fig.set_size_inches(6.5, 4)
 
