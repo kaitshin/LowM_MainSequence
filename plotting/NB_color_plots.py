@@ -113,7 +113,8 @@ def latex_label_formatting(label):
     return r'${}$'.format(new_label)
 
 
-def color_plot_generator(NB_cat_path, filt, config_tab=None, ax=None):
+def color_plot_generator(NB_cat_path, filt, config_tab=None,
+                         z_cat_tab=None, ax=None):
     """
     Purpose:
       Generate two-color plots for include in paper (pre referee request)
@@ -123,6 +124,9 @@ def color_plot_generator(NB_cat_path, filt, config_tab=None, ax=None):
 
     :param NB_cat_path: str containing the path to NB-based SExtractor catalog
     :param filt: str containing the filter name
+    :param config_tab: table from read_config_file()
+    :param z_cat_tab: table from read_z_cat_file()
+    :param ax: matplotlib.Axes
     """
 
     make_single_plot = 0
@@ -154,6 +158,9 @@ def color_plot_generator(NB_cat_path, filt, config_tab=None, ax=None):
 
     if not config_tab:
         config_tab = read_config_file()
+
+    if not z_cat_tab:
+        z_cat_tab = read_z_cat_file()
 
     f_idx = np.where(config_tab['filter'] == filt)[0][0]  # config index
 
