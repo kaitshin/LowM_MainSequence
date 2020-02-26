@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 from chun_codes import match_nosort
 
 path0 = '/Users/cly/GoogleDrive/Research/NASA_Summer2015/Plots/color_plots'
+NB_cat_path = '/Users/cly/data/SDF/NBcat/'
 
 co_dir = dirname(__file__)
 
@@ -211,8 +212,6 @@ def generate_paper_plot():
 
     :return: PDF file generated
     """
-
-    NB_cat_path = '/Users/cly/data/SDF/NBcat/'
 
     config_tab = read_config_file()
 
