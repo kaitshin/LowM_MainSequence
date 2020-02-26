@@ -25,7 +25,7 @@ def draw_color_selection_lines(filt, ax, xra, yra):
         # ax.plot(x1, 1.70 * x1 + 0.0)
 
         # These are the color selection for H-alpha
-        x2 = np.arange(-0.2, 0.3, 0.01)
+        x2 = np.arange(-0.45, 0.3, 0.01)
         ax.plot(x2, 0.82 * x2 + 0.264, 'k--', linewidth=1.5)
         ax.plot(x2, 2.5 * x2 - 0.24, 'k--', linewidth=1.5)
 
