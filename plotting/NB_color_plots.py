@@ -223,6 +223,8 @@ def generate_paper_plot():
 
     config_tab = read_config_file()
 
+    z_cat_tab = read_z_cat_file()
+
     n_cols = 3
     n_rows = 2
     fig, ax = plt.subplots(ncols=n_cols, nrows=n_rows)
