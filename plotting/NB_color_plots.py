@@ -88,6 +88,14 @@ def read_config_file():
     return config_tab
 
 
+def read_z_cat_file():
+    z_cat_file = join(NB_cat_path, 'spec_match/current/NB_IA_zspec.txt')
+
+    z_cat_tab = asc.read(z_cat_file)
+
+    return z_cat_tab
+
+
 def read_SE_file(infile):
     print("Reading : " + infile)
 
