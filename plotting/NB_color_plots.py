@@ -11,6 +11,10 @@ import matplotlib.pyplot as plt
 
 from chun_codes import match_nosort
 
+# Map number to alphabet for panel labelling
+import string
+d = dict(enumerate(string.ascii_lowercase, 0))
+
 path0 = '/Users/cly/GoogleDrive/Research/NASA_Summer2015/Plots/color_plots'
 NB_cat_path = '/Users/cly/data/SDF/NBcat/'
 
@@ -258,6 +262,11 @@ def generate_paper_plot():
         if col == 2:
             t_ax.yaxis.tick_right()
             t_ax.yaxis.set_label_position("right")
+
+        t_ax.annotate("(%s)" % d[ii], [0.05, 0.95], xycoords='axes fraction',
+                      ha='left', va='top')
+        ax[1][2].annotate("(%s) %s" % (d[ii], filt), [0.05, 0.85-0.1*ii],
+                          xycoords='axes fraction', ha='left', va='top')
 
     ax[1][2].axis('off')  # Exclude bottom right panel
 
