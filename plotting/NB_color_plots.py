@@ -265,7 +265,7 @@ def generate_paper_plot():
 
         t_ax.annotate("(%s)" % d[ii], [0.05, 0.95], xycoords='axes fraction',
                       ha='left', va='top')
-        ax[1][2].annotate("(%s) %s" % (d[ii], filt), [0.05, 0.85-0.1*ii],
+        ax[1][2].annotate("(%s) %s" % (d[ii], filt), [0.05, 0.70-0.1*ii],
                           xycoords='axes fraction', ha='left', va='top')
 
     ax[1][2].axis('off')  # Exclude bottom right panel
