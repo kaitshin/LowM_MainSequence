@@ -201,7 +201,7 @@ def color_plot_generator(NB_cat_path, filt, config_tab=None,
     # Define axis to plot
     exec("x_arr = {}".format(config_tab['x_color'][f_idx]))
     exec("y_arr = {}".format(config_tab['y_color'][f_idx]))
-    ax.scatter(x_arr, y_arr, marker='o', alpha=0.5, facecolor='black',
+    ax.scatter(x_arr, y_arr, marker='o', alpha=0.25, facecolor='black',
                edgecolor='none', linewidth=0.5, s=2)
 
     ax.set_xlim(xra)
