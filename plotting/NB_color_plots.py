@@ -187,6 +187,9 @@ def color_plot_generator(NB_cat_path, filt, config_tab=None,
 
     NB_tab = fits.getdata(NB_emitter_file)
 
+    # Cross-match with NBIA full catalog to get spec-z
+    NBIA_idx = np.where(NBIA_tab[filt+'_ID'])[0]
+
     # Define SExtractor photometric catalog filenames
     search0 = join(NB_cat_path, filt, 'sdf_pub2_*_{}.cat.mask'.format(filt))
     SE_files = glob(search0)
@@ -208,6 +211,8 @@ def color_plot_generator(NB_cat_path, filt, config_tab=None,
 
     if not z_cat_tab:
         z_cat_tab = read_z_cat_file()
+
+    zspec0 = z_cat_tab['zspec0'][NBIA_idx]
 
     z_dict = NB_spec_redshift(filt)
 
