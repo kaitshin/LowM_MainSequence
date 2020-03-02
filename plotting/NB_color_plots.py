@@ -246,7 +246,8 @@ def generate_paper_plot():
         row = ii // n_cols
         col = ii % n_cols
         t_ax = ax[row][col]
-        color_plot_generator(NB_cat_path, filt, config_tab=config_tab, ax=t_ax)
+        color_plot_generator(NB_cat_path, filt, config_tab=config_tab,
+                             z_cat_tab=z_cat_tab, ax=t_ax)
 
         if 'NB7' in filt:
             t_ax.set_xlabel('')
