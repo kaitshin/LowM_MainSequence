@@ -205,6 +205,8 @@ def color_plot_generator(NB_cat_path, filt, config_tab=None,
     if not z_cat_tab:
         z_cat_tab = read_z_cat_file()
 
+    z_dict = NB_spec_redshift(filt)
+
     f_idx = np.where(config_tab['filter'] == filt)[0][0]  # config index
 
     # Read in SExtractor photometric catalogs
