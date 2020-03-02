@@ -21,6 +21,45 @@ NB_cat_path = '/Users/cly/data/SDF/NBcat/'
 co_dir = dirname(__file__)
 
 
+def NB_spec_redshift(filt):
+    """
+
+    z1, z2 : H-alpha
+
+    z3, z4 : OIII
+
+    z5, z6 : OII
+
+    z7, z8 : Ly-alpha
+
+    z9, z10 : NeIII
+
+    :param filt:
+    :return:
+    """
+
+    z_keys = ['z'+str(1+ii) for ii in range(10)]
+    z_arr = []
+
+    if filt == 'NB704':
+        z_arr = [0.050, 0.100, 0.370, 0.475, 0.870, 0.910, 4.600, 4.900,
+                 0.800, 0.850]
+    if filt == 'NB711':
+        z_arr = [0.050, 0.100, 0.375, 0.475, 0.875, 0.940, 4.650, 4.900,
+                 0.800, 0.870]
+    if filt == 'NB816':
+        z_arr = [0.210, 0.260, 0.600, 0.700, 1.150, 1.225, 5.600, 5.800,
+                 1.075, 1.150]
+    if filt == 'NB921':
+        z_arr = [0.385, 0.420, 0.810, 0.910, 1.460, 1.480, 6.520, 6.630,
+                 0.000, 0.000]
+    if filt == 'NB973':
+        z_arr = [0.450, 0.520, 0.940, 0.975, 1.585, 1.620, 6.950, 7.100,
+                 0.000, 0.000]
+
+    return dict(zip(z_keys, z_arr))
+
+
 def draw_color_selection_lines(filt, ax, xra, yra):
 
     # NB704 and NB711 emitters
