@@ -20,6 +20,10 @@ NB_cat_path = '/Users/cly/data/SDF/NBcat/'
 
 co_dir = dirname(__file__)
 
+# Read in NBIA full catalog
+NBIA_cat_file = join(NB_cat_path, 'NB_IA_emitters.allcols.fits')
+NBIA_tab = fits.getdata(NBIA_cat_file)
+
 
 def NB_spec_redshift(filt):
     """
