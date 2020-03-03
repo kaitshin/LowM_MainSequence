@@ -264,11 +264,11 @@ def color_plot_generator(NB_cat_path, filt, config_tab=None,
     OII_idx  = np.where((zspec0 >= z_dict['z5']) & (zspec0 <= z_dict['z6']))[0]
 
     ax.scatter(x_arr[Ha_idx], y_arr[Ha_idx], marker='o', s=5,
-               edgecolor='red', facecolor='none')
+               edgecolor='red', facecolor='none', linewidth=0.5)
     ax.scatter(x_arr[OIII_idx], y_arr[OIII_idx], marker='o', s=5,
-               edgecolor='green', facecolor='none')
+               edgecolor='green', facecolor='none', linewidth=0.5)
     ax.scatter(x_arr[OII_idx], y_arr[OII_idx], marker='o', s=5,
-               edgecolor='blue', facecolor='none')
+               edgecolor='blue', facecolor='none', linewidth=0.5)
 
     ax.set_xlim(xra)
     ax.set_ylim(yra)
