@@ -77,6 +77,9 @@ def draw_color_selection_lines(filt, ax, xra, yra):
         ax.plot(x2, 0.82 * x2 + 0.264, 'k--', linewidth=1.5)
         ax.plot(x2, 2.5 * x2 - 0.24, 'k--', linewidth=1.5)
 
+        x3 = np.arange(-0.45, 0.22, 0.01)
+        ax.plot(x3, 0.84 * x3 + 0.125, 'b--', linewidth=1.5)
+
         # Color selection for other lines
         # Exclude for purpose of color selection in Shin+2020 paper
         # if filt == 'NB704':
