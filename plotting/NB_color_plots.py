@@ -276,11 +276,11 @@ def color_plot_generator(NB_cat_path, filt, config_tab=None,
         dual_idx = [xx for xx in range(len(spec_name)) if
                     ('NB921' in spec_name[xx]) and ('NB704' in spec_name[xx])]
         if filt == 'NB704':
-            ax.scatter(x_arr[dual_idx], y_arr[dual_idx], marker='x',
-                       s=5, color='green')
+            ax.scatter(x_arr[dual_idx], y_arr[dual_idx], marker='X',
+                       s=10, edgecolor='none', alpha=0.5, color='green')
         if filt == 'NB921':
-            ax.scatter(x_arr[dual_idx], y_arr[dual_idx], marker='x',
-                       s=5, color='red')
+            ax.scatter(x_arr[dual_idx], y_arr[dual_idx], marker='X',
+                       s=10, edgecolor='none', alpha=0.5, color='red')
 
     ax.set_xlim(xra)
     ax.set_ylim(yra)
