@@ -64,7 +64,7 @@ def NB_spec_redshift(filt):
     return dict(zip(z_keys, z_arr))
 
 
-def draw_color_selection_lines(filt, ax, xra, yra):
+def draw_color_selection_lines(filt, ax, xra, yra, old_selection=False):
 
     # NB704 and NB711 emitters
     if 'NB7' in filt:
@@ -73,12 +73,14 @@ def draw_color_selection_lines(filt, ax, xra, yra):
         # ax.plot(x1, 1.70 * x1 + 0.0)
 
         # These are the color selection for H-alpha
-        x2 = np.arange(-0.45, 0.3, 0.01)
-        ax.plot(x2, 0.82 * x2 + 0.264, 'k--', linewidth=1.5)
-        ax.plot(x2, 2.5 * x2 - 0.24, 'k--', linewidth=1.5)
+        if old_selection:
+            x2 = np.arange(-0.45, 0.3, 0.01)
+            ax.plot(x2, 0.82 * x2 + 0.264, 'k--', linewidth=1.5)
+        else:
+            x2 = np.arange(-0.45, 0.22, 0.01)
+            ax.plot(x2, 0.84 * x2 + 0.125, 'k--', linewidth=1.5)
 
-        x3 = np.arange(-0.45, 0.22, 0.01)
-        ax.plot(x3, 0.84 * x3 + 0.125, 'b--', linewidth=1.5)
+        ax.plot(x2, 2.5 * x2 - 0.24, 'k--', linewidth=1.5)
 
         # Color selection for other lines
         # Exclude for purpose of color selection in Shin+2020 paper
