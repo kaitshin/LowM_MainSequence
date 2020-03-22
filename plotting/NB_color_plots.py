@@ -64,7 +64,10 @@ def NB_spec_redshift(filt):
     return dict(zip(z_keys, z_arr))
 
 
-def draw_color_selection_lines(filt, ax, xra, yra, old_selection=False):
+def draw_color_selection_lines(filt, ax, xra, yra, old_selection=False,
+                               paper=False):
+
+    linewidth = 1.0 if paper else 1.5
 
     # NB704 and NB711 emitters
     if 'NB7' in filt:
@@ -75,12 +78,12 @@ def draw_color_selection_lines(filt, ax, xra, yra, old_selection=False):
         # These are the color selection for H-alpha
         if old_selection:
             x2 = np.arange(-0.45, 0.3, 0.01)
-            ax.plot(x2, 0.82 * x2 + 0.264, 'k--', linewidth=1.5)
+            ax.plot(x2, 0.82 * x2 + 0.264, 'k--', linewidth=linewidth)
         else:
             x2 = np.arange(-0.45, 0.22, 0.01)
-            ax.plot(x2, 0.84 * x2 + 0.125, 'k--', linewidth=1.5)
+            ax.plot(x2, 0.84 * x2 + 0.125, 'k--', linewidth=linewidth)
 
-        ax.plot(x2, 2.5 * x2 - 0.24, 'k--', linewidth=1.5)
+        ax.plot(x2, 2.5 * x2 - 0.24, 'k--', linewidth=linewidth)
 
         # Color selection for other lines
         # Exclude for purpose of color selection in Shin+2020 paper
@@ -98,11 +101,11 @@ def draw_color_selection_lines(filt, ax, xra, yra, old_selection=False):
         x1 = np.arange(-0.60, 0.45, 0.01)
 
         if old_selection:
-            ax.plot([0.45, 0.45], [0.8, 2.0], 'k--', linewidth=1.5)
-            ax.plot(x1, 2*x1 - 0.1, 'k--', linewidth=1.5)
+            ax.plot([0.45, 0.45], [0.8, 2.0], 'k--', linewidth=linewidth)
+            ax.plot(x1, 2*x1 - 0.1, 'k--', linewidth=linewidth)
         else:
-            ax.plot([0.45, 0.45], [0.9, 2.0], 'k--', linewidth=1.5)
-            ax.plot(x1, 2*x1 - 0.0, 'k--', linewidth=1.5)
+            ax.plot([0.45, 0.45], [0.9, 2.0], 'k--', linewidth=linewidth)
+            ax.plot(x1, 2*x1 - 0.0, 'k--', linewidth=linewidth)
 
         # Color selection for other lines
         # Exclude this selection of weird emitters
@@ -119,7 +122,8 @@ def draw_color_selection_lines(filt, ax, xra, yra, old_selection=False):
         ax.plot(x1, y1, 'k--', linewidth=1.5)
 
         # Vertical dashed line
-        ax.plot(np.repeat(x_val[1], 2), [max(y1), yra[1]], 'k--', linewidth=1.5)
+        ax.plot(np.repeat(x_val[1], 2), [max(y1), yra[1]], 'k--',
+                linewidth=linewidth)
 
     # NB973 emitters:
     if filt == 'NB973':
@@ -130,10 +134,12 @@ def draw_color_selection_lines(filt, ax, xra, yra, old_selection=False):
         ax.plot(x1, y1, 'k--', linewidth=1.5)
 
         # Vertical dashed line
-        ax.plot(np.repeat(x_val[1], 2), [1.4, 3.0], 'k--', linewidth=1.5)
+        ax.plot(np.repeat(x_val[1], 2), [1.4, 3.0], 'k--',
+                linewidth=linewidth)
 
         # Horizontal dashed line
-        ax.plot([xra[0], 0.18], [0.5, 0.5], 'k--', linewidth=1.5)
+        ax.plot([xra[0], 0.18], [0.5, 0.5], 'k--',
+                linewidth=linewidth)
 
 
 def read_config_file():
