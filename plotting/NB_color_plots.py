@@ -95,10 +95,14 @@ def draw_color_selection_lines(filt, ax, xra, yra, old_selection=False):
     # NB816 emitters
     if filt == 'NB816':
         # Color selection for H-alpha
-        ax.plot([0.45, 0.45], [0.8, 2.0], 'k--', linewidth=1.5)
-
         x1 = np.arange(-0.60, 0.45, 0.01)
-        ax.plot(x1, 2*x1 - 0.1, 'k--', linewidth=1.5)
+
+        if old_selection:
+            ax.plot([0.45, 0.45], [0.8, 2.0], 'k--', linewidth=1.5)
+            ax.plot(x1, 2*x1 - 0.1, 'k--', linewidth=1.5)
+        else:
+            ax.plot([0.45, 0.45], [0.9, 2.0], 'k--', linewidth=1.5)
+            ax.plot(x1, 2*x1 - 0.0, 'k--', linewidth=1.5)
 
         # Color selection for other lines
         # Exclude this selection of weird emitters
