@@ -192,8 +192,10 @@ def color_plot_generator(NB_cat_path, filt, config_tab=None,
     """
 
     make_single_plot = 0
+    paper = True
     if not ax:
         make_single_plot = 1
+        paper = False
 
     # Read in NB excess emitter catalog
     search0 = join(NB_cat_path, filt, '{}emitters.fits'.format(filt))
@@ -306,7 +308,7 @@ def color_plot_generator(NB_cat_path, filt, config_tab=None,
     ax.minorticks_on()  # Add minor tick marks
     ax.tick_params(which='both', direction='in')  # ticks on the inside
 
-    draw_color_selection_lines(filt, ax, xra, yra)
+    draw_color_selection_lines(filt, ax, xra, yra, paper=paper)
 
     if make_single_plot:
         fig.set_size_inches(8, 8)
