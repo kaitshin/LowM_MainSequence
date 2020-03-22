@@ -280,12 +280,14 @@ def color_plot_generator(NB_cat_path, filt, config_tab=None,
     OIII_idx = np.where((zspec0 >= z_dict['z3']) & (zspec0 <= z_dict['z4']))[0]
     OII_idx  = np.where((zspec0 >= z_dict['z5']) & (zspec0 <= z_dict['z6']))[0]
 
-    ax.scatter(x_arr[Ha_idx], y_arr[Ha_idx], marker='o', s=5, alpha=0.5,
-               edgecolor='red', facecolor='none', linewidth=0.5)
-    ax.scatter(x_arr[OIII_idx], y_arr[OIII_idx], marker='o', s=5, alpha=0.5,
-               edgecolor='green', facecolor='none', linewidth=0.5)
-    ax.scatter(x_arr[OII_idx], y_arr[OII_idx], marker='o', s=5, alpha=0.5,
-               edgecolor='blue', facecolor='none', linewidth=0.5)
+    s1 = ax.scatter(x_arr[Ha_idx], y_arr[Ha_idx], marker='o', s=5, alpha=0.5,
+                    edgecolor='red', facecolor='none', linewidth=0.5)
+    s2 = ax.scatter(x_arr[OIII_idx], y_arr[OIII_idx], marker='o', s=5,
+                    alpha=0.5, edgecolor='green', facecolor='none',
+                    linewidth=0.5)
+    s3 = ax.scatter(x_arr[OII_idx], y_arr[OII_idx], marker='o', s=5,
+                    alpha=0.5, edgecolor='blue', facecolor='none',
+                    linewidth=0.5)
 
     # Indicate dual NB704+NB921 emitters
     if filt == 'NB704' or filt == 'NB921':
@@ -309,6 +311,11 @@ def color_plot_generator(NB_cat_path, filt, config_tab=None,
     ax.tick_params(which='both', direction='in')  # ticks on the inside
 
     draw_color_selection_lines(filt, ax, xra, yra, paper=paper)
+
+    if paper and filt == 'NB973':
+        ax.legend((s1, s2, s3), (r'H$\alpha$', '[O III]', '[O II]'),
+                  loc='upper left', bbox_to_anchor=[1.5, 0.5],
+                  frameon=False, handletextpad=0.1)
 
     if make_single_plot:
         fig.set_size_inches(8, 8)
