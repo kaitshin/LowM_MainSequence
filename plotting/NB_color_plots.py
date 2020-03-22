@@ -362,17 +362,18 @@ def generate_paper_plot():
             t_ax.yaxis.tick_right()
             t_ax.yaxis.set_label_position("right")
 
+        # Top subplot panel label
         t_ax.annotate("(%s)" % d[ii], [0.025, 0.975], xycoords='axes fraction',
                       ha='left', va='top')
+
+        # Lower right label for filter name
         ax[1][2].annotate("(%s) %s" % (d[ii], filt), [0.05, 0.70-0.1*ii],
                           xycoords='axes fraction', ha='left', va='top')
 
     ax[1][2].axis('off')  # Exclude bottom right panel
 
     plt.subplots_adjust(hspace=0.025, wspace=0.03)
-
     fig.set_size_inches(6.5, 4)
 
     out_pdf = join(path0, 'color_selection.pdf')
-
     fig.savefig(out_pdf, bbox_inches='tight')
