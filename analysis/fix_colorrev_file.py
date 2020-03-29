@@ -147,7 +147,8 @@ def read_nb_catalog():
 
     corr_Name = raw_Name.copy()
 
-    return raw_data, c_data, c_hdr, raw_Name, rev_Name, corr_Name
+    return colorrev_file, raw_data, c_data, c_hdr, raw_Name, rev_Name, \
+           corr_Name
 
 
 def read_zspec_data():
@@ -231,23 +232,9 @@ def main(silent=False):
     if not silent:
         log.info('### Begin main : '+systime())
 
-    # Mod on 29/01/2018
-    orig_file = dir0+'Catalogs/NB_IA_emitters.nodup.fits'
-    colorrev_file = orig_file.replace('.fits', '.colorrev.fits')
-
-    # + on 29/01/2018
-    log.info('### Reading : '+orig_file)
-    raw_data = fits.getdata(orig_file)
-
-    log.info('### Reading : '+colorrev_file)
-    c_data, c_hdr = fits.getdata(colorrev_file, header=True)  # Mod on 01/02/2018
-
-    # + on 29/01/2018
-    raw_Name = np.array([str0.replace(' ', '') for str0 in raw_data.NAME],
-                        dtype='|S67')
-    rev_Name = np.array([str0.replace(' ', '') for str0 in c_data.NAME])
-
-    corr_Name = raw_Name.copy()  # + on 29/01/2018
+    # Read in NB/IA photometric data
+    colorrev_file, raw_data, c_data, c_hdr, raw_Name, rev_Name, corr_Name = \
+        read_nb_catalog()
 
     # Read in spec-z dataset
     z_data, z_spec0, with_z, without_z = read_zspec_data()
