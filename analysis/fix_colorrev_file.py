@@ -125,6 +125,31 @@ def NB_spec_redshift(filt):
     return z_vals, ltype
 
 
+def read_nb_catalog():
+    """
+    Purpose:
+      Read in NB/IA excess photometric catalogs
+
+    """
+
+    orig_file = dir0+'Catalogs/NB_IA_emitters.nodup.fits'
+    colorrev_file = orig_file.replace('.fits', '.colorrev.fits')
+
+    log.info('### Reading : '+orig_file)
+    raw_data = fits.getdata(orig_file)
+
+    log.info('### Reading : '+colorrev_file)
+    c_data, c_hdr = fits.getdata(colorrev_file, header=True)
+
+    raw_Name = np.array([str0.replace(' ', '') for str0 in raw_data.NAME],
+                        dtype='|S67')
+    rev_Name = np.array([str0.replace(' ', '') for str0 in c_data.NAME])
+
+    corr_Name = raw_Name.copy()
+
+    return raw_data, c_data, c_hdr, raw_Name, rev_Name, corr_Name
+
+
 def read_zspec_data():
     """
     Purpose:
