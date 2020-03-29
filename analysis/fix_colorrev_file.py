@@ -148,7 +148,7 @@ def read_nb_catalog():
     corr_Name = raw_Name.copy()
 
     return colorrev_file, raw_data, c_data, c_hdr, raw_Name, rev_Name, \
-           corr_Name
+        corr_Name
 
 
 def read_zspec_data():
