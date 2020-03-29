@@ -224,6 +224,7 @@ def main(silent=False):
 
     corr_Name = raw_Name.copy()  # + on 29/01/2018
 
+    # Read in spec-z dataset
     z_data, z_spec0, with_z, without_z = read_zspec_data()
 
     corr_Name[without_z] = rev_Name[without_z]
