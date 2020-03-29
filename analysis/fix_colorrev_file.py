@@ -224,23 +224,7 @@ def main(silent=False):
 
     corr_Name = raw_Name.copy()  # + on 29/01/2018
 
-    zspec_file = dir0+'Catalogs/nb_ia_zspec.txt'
-    log.info('### Reading : '+zspec_file)
-    z_data = asc.read(zspec_file)
-
-    z_spec0 = z_data['zspec0']
-
-    # Note: This should give 1989. Which matches the number of spectra
-    # in spec_match/1014/NB_IA_emitters.spec.fits (current 'current')
-    # in_z_cat = np.where((z_spec0 != -10))[0]
-
-    # Note: This yields 1519 galaxies
-    with_z = np.where((z_spec0 != -10) & (z_spec0 < 9.999) &
-                      (z_spec0 != -1.0))[0]
-
-    # + on 30/01/2018
-    without_z = np.where((z_spec0 == -10) | (z_spec0 >= 9.999) |
-                         (z_spec0 == -1.0))[0]
+    z_data, z_spec0, with_z, without_z = read_zspec_data()
 
     corr_Name[without_z] = rev_Name[without_z]
 
