@@ -178,6 +178,28 @@ def latex_label_formatting(label):
     return r'${}$'.format(new_label)
 
 
+def identify_good_phot(filt, mag_dict):
+    mag_min = 0.1
+
+    if filt == 'NB704' or filt == 'NB711':
+        good_sigma = np.where((mag_dict['V_dmag'] <= mag_min) &
+                              (mag_dict['R_dmag'] <= mag_min) &
+                              (mag_dict['i_dmag'] <= mag_min))[0]
+
+    if filt == 'NB816':
+        good_sigma = np.where((mag_dict['B_dmag'] <= mag_min) &
+                              (mag_dict['V_dmag'] <= mag_min) &
+                              (mag_dict['R_dmag'] <= mag_min) &
+                              (mag_dict['i_dmag'] <= mag_min))[0]
+
+    if filt == 'NB921' or filt == 'NB973':
+        good_sigma = np.where((mag_dict['B_dmag'] <= mag_min) &
+                              (mag_dict['R_dmag'] <= mag_min) &
+                              (mag_dict['i_dmag'] <= mag_min))[0]
+
+    return good_sigma
+
+
 def color_plot_generator(NB_cat_path, filt, config_tab=None,
                          z_cat_tab=None, ax=None):
     """
