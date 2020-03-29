@@ -312,3 +312,20 @@ def main(silent=False):
     fits.writeto(colorrev_file.replace('.fits', '.fix.fits'), c_data, c_hdr)
     if not silent:
         log.info('### End main : '+systime())
+
+
+def main_color():
+    """
+    Purpose:
+      Update selection using revised color selection for non spec-z
+
+    :return:
+    """
+
+    # NB704, and NB711 selection
+    # VR <= 0.84 * Ri + 0.125
+    # VR >= 2.5 * Ri - 0.24
+
+    # NB816 selection
+    # Ri <= 0.45
+    # BV >= 2 * Ri
