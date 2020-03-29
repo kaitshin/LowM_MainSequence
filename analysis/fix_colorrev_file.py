@@ -125,6 +125,39 @@ def NB_spec_redshift(filt):
     return z_vals, ltype
 
 
+def read_zspec_data():
+    """
+    Purpose:
+      Read in z-spec data
+
+    :return:
+    z_data: astropy table
+    z_spec0: spec-z data
+    with_z : numpy index array with spec-z
+    without_z : numpy index array without spec-z
+    """
+
+    zspec_file = dir0+'Catalogs/nb_ia_zspec.txt'
+    log.info('### Reading : '+zspec_file)
+    z_data = asc.read(zspec_file)
+
+    z_spec0 = z_data['zspec0']
+
+    # Note: This should give 1989. Which matches the number of spectra
+    # in spec_match/1014/NB_IA_emitters.spec.fits (current 'current')
+    # in_z_cat = np.where((z_spec0 != -10))[0]
+
+    # Note: This yields 1519 galaxies
+    with_z = np.where((z_spec0 != -10) & (z_spec0 < 9.999) &
+                      (z_spec0 != -1.0))[0]
+
+    # + on 30/01/2018
+    without_z = np.where((z_spec0 == -10) | (z_spec0 >= 9.999) |
+                         (z_spec0 == -1.0))[0]
+
+    return z_data, z_spec0, with_z, without_z
+
+
 def main(silent=False):
     """
     Main function for fix_colorrev_file.py
