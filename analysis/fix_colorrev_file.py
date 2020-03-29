@@ -13,15 +13,15 @@ from chun_codes import systime, intersect
 
 from astropy.io import ascii as asc
 from astropy.io import fits
+from astropy import log
 
 import numpy as np
 
-from astropy import log
-
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
-
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+
+dir0 = '/Users/cly/GoogleDrive/Research/NASA_Summer2015/'
 
 
 def NB_spec_redshift(filt):
@@ -172,8 +172,6 @@ def main(silent=False):
     
     if not silent:
         log.info('### Begin main : '+systime())
-
-    dir0 = '/Users/cly/Google Drive/NASA_Summer2015/'
 
     # Mod on 29/01/2018
     orig_file = dir0+'Catalogs/NB_IA_emitters.nodup.fits'
