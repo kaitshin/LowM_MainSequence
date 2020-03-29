@@ -2,6 +2,7 @@ from os.path import join
 from os.path import dirname
 from glob import glob
 import ast
+from collections import OrderedDict
 
 import pandas as pd
 
@@ -238,7 +239,7 @@ def color_plot_generator(NB_cat_path, filt, config_tab=None,
     f_idx = np.where(config_tab['filter'] == filt)[0][0]  # config index
 
     # Read in SExtractor photometric catalogs
-    mag_arr = {}
+    mag_arr = OrderedDict()
     for file0 in SE_files:
         mag, dmag = read_SE_file(file0)
         temp = file0.replace(join(NB_cat_path, filt, 'sdf_pub2_'), '')
