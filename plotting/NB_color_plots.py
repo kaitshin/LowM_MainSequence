@@ -283,6 +283,8 @@ def color_plot_generator(NB_cat_path, filt, config_tab=None,
         fig, ax = plt.subplots()
 
     # Define axis to plot
+    x_arr = []
+    y_arr = []
     exec("x_arr = {}".format(config_tab['x_color'][f_idx]))
     exec("y_arr = {}".format(config_tab['y_color'][f_idx]))
     ax.scatter(x_arr, y_arr, marker='o', alpha=0.25, facecolor='black',
