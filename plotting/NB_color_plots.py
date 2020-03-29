@@ -252,12 +252,16 @@ def color_plot_generator(NB_cat_path, filt, config_tab=None,
     # Define broad-band colors
     if 'V_mag' in dict_keys and 'R_mag' in dict_keys:
         VR = mag_arr['V_mag'] - mag_arr['R_mag']
+        mag_arr['VR'] = VR
     if 'R_mag' in dict_keys and 'i_mag' in dict_keys:
         Ri = mag_arr['R_mag'] - mag_arr['i_mag']
+        mag_arr['Ri'] = Ri
     if 'B_mag' in dict_keys and 'V_mag' in dict_keys:
         BV = mag_arr['B_mag'] - mag_arr['V_mag']
+        mag_arr['BV'] = BV
     if 'B_mag' in dict_keys and 'R_mag' in dict_keys:
         BR = mag_arr['B_mag'] - mag_arr['R_mag']
+        mag_arr['BR'] = BR
 
     # Write CSV file
     df = pd.DataFrame(mag_arr)
