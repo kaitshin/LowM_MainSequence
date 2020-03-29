@@ -3,6 +3,8 @@ from os.path import dirname
 from glob import glob
 import ast
 
+import pandas as pd
+
 from astropy.io import ascii as asc
 from astropy.io import fits
 
@@ -255,6 +257,12 @@ def color_plot_generator(NB_cat_path, filt, config_tab=None,
         BV = mag_arr['B_mag'] - mag_arr['V_mag']
     if 'B_mag' in dict_keys and 'R_mag' in dict_keys:
         BR = mag_arr['B_mag'] - mag_arr['R_mag']
+
+    # Write CSV file
+    df = pd.DataFrame(mag_arr)
+    df_outfile = join(path0, filt+'_phot.csv')
+    print("Writing : "+df_outfile)
+    df.to_csv(df_outfile, index=False)
 
     x_title = config_tab['xtitle'][f_idx].replace('-', ' - ')
     y_title = config_tab['ytitle'][f_idx].replace('-', ' - ')
