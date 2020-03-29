@@ -337,6 +337,9 @@ def main_color():
     :return:
     """
 
+    # Read in z-spec data
+    z_data, z_spec0, with_z, without_z = read_zspec_data()
+
     # NB704, and NB711 selection
     # VR <= 0.84 * Ri + 0.125
     # VR >= 2.5 * Ri - 0.24
