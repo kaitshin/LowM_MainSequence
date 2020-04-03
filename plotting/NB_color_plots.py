@@ -285,6 +285,8 @@ def color_plot_generator(NB_cat_path, filt, config_tab=None,
         BR = mag_arr['B_mag'] - mag_arr['R_mag']
         mag_arr['BR'] = BR
 
+    good_sigma = identify_good_phot(filt, mag_arr)
+
     # Write CSV file
     df = pd.DataFrame(mag_arr)
     df_outfile = join(path0, filt+'_phot.csv')
