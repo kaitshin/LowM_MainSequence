@@ -287,6 +287,10 @@ def color_plot_generator(NB_cat_path, filt, config_tab=None,
 
     good_sigma = identify_good_phot(filt, mag_dict)
 
+    good_phot = np.zeros(len(NB_tab), dtype=np.int)
+    good_phot[good_sigma] = 1
+    mag_dict['good_phot'] = good_phot
+
     # Write CSV file
     df = pd.DataFrame(mag_dict)
     df_outfile = join(path0, filt+'_phot.csv')
