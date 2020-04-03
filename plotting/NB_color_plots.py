@@ -261,34 +261,34 @@ def color_plot_generator(NB_cat_path, filt, config_tab=None,
     f_idx = np.where(config_tab['filter'] == filt)[0][0]  # config index
 
     # Read in SExtractor photometric catalogs
-    mag_arr = OrderedDict()
+    mag_dict = OrderedDict()
     for file0 in SE_files:
         mag, dmag = read_SE_file(file0)
         temp = file0.replace(join(NB_cat_path, filt, 'sdf_pub2_'), '')
         broad_filt = temp.replace('_{}.cat.mask'.format(filt), '')
-        mag_arr[broad_filt+'_mag'] = mag[SEx_idx]
-        mag_arr[broad_filt+'_dmag'] = dmag[SEx_idx]
+        mag_dict[broad_filt+'_mag'] = mag[SEx_idx]
+        mag_dict[broad_filt+'_dmag'] = dmag[SEx_idx]
 
-    dict_keys = mag_arr.keys()
+    dict_keys = mag_dict.keys()
 
     # Define broad-band colors
     if 'V_mag' in dict_keys and 'R_mag' in dict_keys:
-        VR = mag_arr['V_mag'] - mag_arr['R_mag']
-        mag_arr['VR'] = VR
+        VR = mag_dict['V_mag'] - mag_dict['R_mag']
+        mag_dict['VR'] = VR
     if 'R_mag' in dict_keys and 'i_mag' in dict_keys:
-        Ri = mag_arr['R_mag'] - mag_arr['i_mag']
-        mag_arr['Ri'] = Ri
+        Ri = mag_dict['R_mag'] - mag_dict['i_mag']
+        mag_dict['Ri'] = Ri
     if 'B_mag' in dict_keys and 'V_mag' in dict_keys:
-        BV = mag_arr['B_mag'] - mag_arr['V_mag']
-        mag_arr['BV'] = BV
+        BV = mag_dict['B_mag'] - mag_dict['V_mag']
+        mag_dict['BV'] = BV
     if 'B_mag' in dict_keys and 'R_mag' in dict_keys:
-        BR = mag_arr['B_mag'] - mag_arr['R_mag']
-        mag_arr['BR'] = BR
+        BR = mag_dict['B_mag'] - mag_dict['R_mag']
+        mag_dict['BR'] = BR
 
-    good_sigma = identify_good_phot(filt, mag_arr)
+    good_sigma = identify_good_phot(filt, mag_dict)
 
     # Write CSV file
-    df = pd.DataFrame(mag_arr)
+    df = pd.DataFrame(mag_dict)
     df_outfile = join(path0, filt+'_phot.csv')
     print("Writing : "+df_outfile)
     df.to_csv(df_outfile, index=False)
