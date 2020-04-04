@@ -314,8 +314,8 @@ def color_plot_generator(NB_cat_path, filt, config_tab=None,
     y_arr = []
     exec("x_arr = {}".format(config_tab['x_color'][f_idx]))
     exec("y_arr = {}".format(config_tab['y_color'][f_idx]))
-    ax.scatter(x_arr, y_arr, marker='o', alpha=0.25, facecolor='black',
-               edgecolor='none', linewidth=0.5, s=2)
+    ax.scatter(x_arr[good_sigma], y_arr[good_sigma], marker='o', alpha=0.25,
+               facecolor='black', edgecolor='none', linewidth=0.5, s=2)
 
     # Plot spectroscopic sample
     Ha_idx   = np.where((zspec0 >= z_dict['z1']) & (zspec0 <= z_dict['z2']))[0]
