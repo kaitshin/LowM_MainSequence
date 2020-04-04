@@ -262,6 +262,9 @@ def color_plot_generator(NB_cat_path, filt, config_tab=None,
 
     # Read in SExtractor photometric catalogs
     mag_dict = OrderedDict()
+    mag_dict['ID'] = NB_tab.ID
+    mag_dict['zspec'] = zspec0
+
     for file0 in SE_files:
         mag, dmag = read_SE_file(file0)
         temp = file0.replace(join(NB_cat_path, filt, 'sdf_pub2_'), '')
