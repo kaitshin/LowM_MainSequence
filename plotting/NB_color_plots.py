@@ -318,7 +318,8 @@ def color_plot_generator(NB_cat_path, filt, config_tab=None,
     exec("x_arr = {}".format(config_tab['x_color'][f_idx]))
     exec("y_arr = {}".format(config_tab['y_color'][f_idx]))
     ax.scatter(x_arr[good_sigma], y_arr[good_sigma], marker='o', alpha=0.25,
-               facecolor='black', edgecolor='none', linewidth=0.5, s=2)
+               facecolor='black', edgecolor='none', linewidth=0.5, s=2,
+               zorder=2)
 
     # Plot spectroscopic sample
     Ha_idx   = np.where((zspec0 >= z_dict['z1']) & (zspec0 <= z_dict['z2']))[0]
@@ -326,13 +327,14 @@ def color_plot_generator(NB_cat_path, filt, config_tab=None,
     OII_idx  = np.where((zspec0 >= z_dict['z5']) & (zspec0 <= z_dict['z6']))[0]
 
     s1 = ax.scatter(x_arr[Ha_idx], y_arr[Ha_idx], marker='o', s=5, alpha=0.5,
-                    edgecolor='red', facecolor='none', linewidth=0.5)
+                    edgecolor='red', facecolor='none', linewidth=0.5,
+                    zorder=3)
     s2 = ax.scatter(x_arr[OIII_idx], y_arr[OIII_idx], marker='o', s=5,
                     alpha=0.5, edgecolor='green', facecolor='none',
-                    linewidth=0.5)
+                    linewidth=0.5, zorder=3)
     s3 = ax.scatter(x_arr[OII_idx], y_arr[OII_idx], marker='o', s=5,
                     alpha=0.5, edgecolor='blue', facecolor='none',
-                    linewidth=0.5)
+                    linewidth=0.5, zorder=3)
 
     # Indicate dual NB704+NB921 emitters
     if filt == 'NB704' or filt == 'NB921':
@@ -340,11 +342,11 @@ def color_plot_generator(NB_cat_path, filt, config_tab=None,
         dual_idx = [xx for xx in range(len(spec_name)) if
                     ('NB921' in spec_name[xx]) and ('NB704' in spec_name[xx])]
         if filt == 'NB704':
-            ax.scatter(x_arr[dual_idx], y_arr[dual_idx], marker='X',
-                       s=10, edgecolor='none', alpha=0.5, color='green')
+            ax.scatter(x_arr[dual_idx], y_arr[dual_idx], marker='x', s=10,
+                       linewidth=0.25, alpha=0.75, color='green', zorder=1)
         if filt == 'NB921':
-            ax.scatter(x_arr[dual_idx], y_arr[dual_idx], marker='X',
-                       s=10, edgecolor='none', alpha=0.5, color='red')
+            ax.scatter(x_arr[dual_idx], y_arr[dual_idx], marker='x', s=10,
+                       linewidth=0.25, alpha=0.75, color='red', zorder=1)
 
     ax.set_xlim(xra)
     ax.set_ylim(yra)
