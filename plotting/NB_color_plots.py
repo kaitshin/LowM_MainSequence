@@ -269,6 +269,8 @@ def color_plot_generator(NB_cat_path, filt, config_tab=None,
         mag_dict[broad_filt+'_mag'] = mag[SEx_idx]
         mag_dict[broad_filt+'_dmag'] = dmag[SEx_idx]
 
+    mag_dict['good_phot'] = np.zeros(len(NB_tab), dtype=np.int)
+
     dict_keys = mag_dict.keys()
 
     # Define broad-band colors
@@ -286,10 +288,7 @@ def color_plot_generator(NB_cat_path, filt, config_tab=None,
         mag_dict['BR'] = BR
 
     good_sigma = identify_good_phot(filt, mag_dict)
-
-    good_phot = np.zeros(len(NB_tab), dtype=np.int)
-    good_phot[good_sigma] = 1
-    mag_dict['good_phot'] = good_phot
+    mag_dict['good_phot'][good_sigma] = 1
 
     # Write CSV file
     df = pd.DataFrame(mag_dict)
