@@ -379,8 +379,13 @@ def main_color():
         with_specz = np.where(NB_zspec != -10.0)[0]
         print("with spec-z ({}) : {}".format(filt, len(with_specz)))
 
+        # Mark those with spec-z in H-alpha
+        z_vals, _ = NB_spec_redshift(filt)
+        Ha_specz = np.where((NB_zspec >= z_vals[0]) & (NB_zspec <= z_vals[1]))[0]
+        print("N(H-alpha) with spec-z ({}) : {}".format(filt, len(Ha_specz)))
+
         if 'NB7' in filt:
-            # NB704, and NB711 selection
+            # NB704 and NB711 selection
             VR = phot_df['VR']
             Ri = phot_df['Ri']
 
@@ -397,6 +402,7 @@ def main_color():
                               good_phot & (NB_zspec == -10))[0]
 
         if filt == 'NB921' or filt == 'NB973':
+            # NB921 and NB973 selection
             BR = phot_df['BR']
             Ri = phot_df['Ri']
 
