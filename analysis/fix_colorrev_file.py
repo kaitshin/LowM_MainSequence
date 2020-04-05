@@ -381,8 +381,13 @@ def main_color():
 
         # Mark those with spec-z in H-alpha
         z_vals, _ = NB_spec_redshift(filt)
-        Ha_specz = np.where((NB_zspec >= z_vals[0]) & (NB_zspec <= z_vals[1]))[0]
-        print("N(H-alpha) with spec-z ({}) : {}".format(filt, len(Ha_specz)))
+        Ha_zspec = np.where((NB_zspec >= z_vals[0]) & (NB_zspec <= z_vals[1]))[0]
+        print("N(H-alpha) with spec-z ({}) : {}".format(filt, len(Ha_zspec)))
+        Ha_zspec_file = join(dir0, 'Plots/color_plots/{}_Ha_zspec.txt'.format(filt))
+        print("Writing : "+Ha_zspec_file)
+        f0 = open(Ha_zspec_file, 'w')
+        f0.writelines([str0+'\n' for str0 in rev_Name[Ha_zspec]])
+        f0.close()
 
         if 'NB7' in filt:
             # NB704 and NB711 selection
