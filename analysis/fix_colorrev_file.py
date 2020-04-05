@@ -141,7 +141,7 @@ def read_nb_catalog(use_fix=False):
     orig_file = dir0+'Catalogs/NB_IA_emitters.nodup.fits'
     colorrev_file = orig_file.replace('.fits', '.colorrev.fits')
     if use_fix:
-        colorrev_file = colorrev_file.replace('.fits', 'fix.fits')
+        colorrev_file = colorrev_file.replace('.fits', '.fix.fits')
 
     log.info('### Reading : '+orig_file)
     raw_data = fits.getdata(orig_file)
@@ -242,7 +242,7 @@ def main(silent=False):
 
     # Read in NB/IA photometric data
     colorrev_file, raw_data, c_data, c_hdr, raw_Name, rev_Name, corr_Name = \
-        read_nb_catalog(use_fix=True)
+        read_nb_catalog()
 
     # Read in spec-z dataset
     z_data, z_spec0, with_z, without_z = read_zspec_data()
@@ -360,7 +360,7 @@ def main_color():
 
     # Read in NB/IA photometric data
     colorrev_file, raw_data, c_data, c_hdr, raw_Name, rev_Name, corr_Name = \
-        read_nb_catalog()
+        read_nb_catalog(use_fix=True)
 
     # Read in z-spec data
     # z_data, z_spec0, with_z, without_z = read_zspec_data()
@@ -404,3 +404,9 @@ def main_color():
                               good_phot & (NB_zspec == -10))[0]
 
         print("N(H-alpha) ({}) : {}".format(filt, len(Ha_sel)))
+
+    # Write new FITS file
+    # c_data.NAME = corr_Name
+    colorrev2_file = colorrev_file.replace('colorrev', 'colorrev2')
+    print("Writing : "+colorrev2_file)
+    # fits.writeto(colorrev_file.replace('colorrev', 'colorrev2'), c_data, c_hdr)
