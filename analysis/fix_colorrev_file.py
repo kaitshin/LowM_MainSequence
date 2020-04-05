@@ -358,7 +358,7 @@ def main_color():
         read_nb_catalog()
 
     # Read in z-spec data
-    z_data, z_spec0, with_z, without_z = read_zspec_data()
+    # z_data, z_spec0, with_z, without_z = read_zspec_data()
 
     filters = ['NB704', 'NB711', 'NB816', 'NB921', 'NB973']
 
