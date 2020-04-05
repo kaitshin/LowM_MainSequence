@@ -30,15 +30,17 @@ NBIA_tab = fits.getdata(NBIA_cat_file)
 
 def NB_spec_redshift(filt):
     """
+    Purpose:
+      Specify redshift limits for each spec-z sample
+
+    :param filt:
+    :return:
 
     z1, z2 : H-alpha
     z3, z4 : OIII
     z5, z6 : OII
     z7, z8 : Ly-alpha
     z9, z10 : NeIII
-
-    :param filt:
-    :return:
     """
 
     z_keys = ['z'+str(1+ii) for ii in range(10)]
