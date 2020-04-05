@@ -383,4 +383,10 @@ def main_color():
 
             Ha_sel = np.where((Ri <= 0.45) & (BV >= 2 * Ri) & good_phot)[0]
 
+        if filt == 'NB921' or filt == 'NB973':
+            BR = phot_df['BR']
+            Ri = phot_df['Ri']
+
+            Ha_sel = np.where((Ri <= 0.45) & (BR >= 1.46 + 0.58) & good_phot)[0]
+
         print("N ({}) : {}".format(filt, len(Ha_sel)))
