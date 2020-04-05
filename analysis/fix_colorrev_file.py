@@ -128,15 +128,20 @@ def NB_spec_redshift(filt):
     return z_vals, ltype
 
 
-def read_nb_catalog():
+def read_nb_catalog(use_fix=False):
     """
     Purpose:
       Read in NB/IA excess photometric catalogs
 
+    :param use_fix: bool to indicate whether to use revised colorrev file
+                    (see main()) based on new spec-z or the old one
+    :return:
     """
 
     orig_file = dir0+'Catalogs/NB_IA_emitters.nodup.fits'
     colorrev_file = orig_file.replace('.fits', '.colorrev.fits')
+    if use_fix:
+        colorrev_file = colorrev_file.replace('.fits', 'fix.fits')
 
     log.info('### Reading : '+orig_file)
     raw_data = fits.getdata(orig_file)
@@ -237,7 +242,7 @@ def main(silent=False):
 
     # Read in NB/IA photometric data
     colorrev_file, raw_data, c_data, c_hdr, raw_Name, rev_Name, corr_Name = \
-        read_nb_catalog()
+        read_nb_catalog(use_fix=True)
 
     # Read in spec-z dataset
     z_data, z_spec0, with_z, without_z = read_zspec_data()
