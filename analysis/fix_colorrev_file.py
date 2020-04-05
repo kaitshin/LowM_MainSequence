@@ -387,6 +387,6 @@ def main_color():
             BR = phot_df['BR']
             Ri = phot_df['Ri']
 
-            Ha_sel = np.where((Ri <= 0.45) & (BR >= 1.46 + 0.58) & good_phot)[0]
+            Ha_sel = np.where((Ri <= 0.45) & (BR >= 1.46 * Ri + 0.58) & good_phot)[0]
 
         print("N ({}) : {}".format(filt, len(Ha_sel)))
