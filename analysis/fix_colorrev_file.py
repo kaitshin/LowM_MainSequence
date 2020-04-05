@@ -369,6 +369,11 @@ def main_color():
         good_phot = phot_df['good_phot']
         NB_zspec = phot_df['zspec']
 
+        print("N ({}) : {}".format(filt, len(phot_df)))
+
+        with_specz = np.where(NB_zspec != -10.0)[0]
+        print("with spec-z ({}) : {}".format(filt, len(with_specz)))
+
         if 'NB7' in filt:
             # NB704, and NB711 selection
             VR = phot_df['VR']
@@ -393,4 +398,4 @@ def main_color():
             Ha_sel = np.where((Ri <= 0.45) & (BR >= 1.46 * Ri + 0.58) &
                               good_phot & (NB_zspec == -10))[0]
 
-        print("N ({}) : {}".format(filt, len(Ha_sel)))
+        print("N(H-alpha) ({}) : {}".format(filt, len(Ha_sel)))
