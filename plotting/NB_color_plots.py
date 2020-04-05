@@ -322,12 +322,17 @@ def color_plot_generator(NB_cat_path, filt, config_tab=None,
     df.to_csv(df_outfile, index=False)
 
     x_title = config_tab['xtitle'][f_idx].replace('-', ' - ')
-    y_title = config_tab['ytitle'][f_idx].replace('-', ' - ')
     x_title = latex_label_formatting(x_title)
+    ax.set_xlabel(x_title)
+
+    y_title = config_tab['ytitle'][f_idx].replace('-', ' - ')
     y_title = latex_label_formatting(y_title)
+    ax.set_ylabel(y_title)
 
     xra = ast.literal_eval(config_tab['xra'][f_idx])
     yra = ast.literal_eval(config_tab['yra'][f_idx])
+    ax.set_xlim(xra)
+    ax.set_ylim(yra)
 
     if make_single_plot:
         out_pdf = join(path0, filt + '.pdf')
@@ -370,12 +375,6 @@ def color_plot_generator(NB_cat_path, filt, config_tab=None,
         if filt == 'NB921':
             ax.scatter(x_arr[dual_idx], y_arr[dual_idx], marker='x', s=size,
                        linewidth=0.25, alpha=0.75, color='red', zorder=1)
-
-    ax.set_xlim(xra)
-    ax.set_ylim(yra)
-
-    ax.set_xlabel(x_title)
-    ax.set_ylabel(y_title)
 
     ax.minorticks_on()  # Add minor tick marks
     ax.tick_params(which='both', direction='in')  # ticks on the inside
