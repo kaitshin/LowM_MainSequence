@@ -169,6 +169,13 @@ def read_config_file():
 
 
 def read_z_cat_file():
+    """
+    Purpose:
+      Read in spectroscopic catalog
+
+    :return config_tab: AstroPy table
+    """
+
     z_cat_file = join(NB_cat_path, 'spec_match/current/NB_IA_zspec.txt')
 
     z_cat_tab = asc.read(z_cat_file)
