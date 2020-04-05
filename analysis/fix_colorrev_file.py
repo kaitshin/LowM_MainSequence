@@ -367,6 +367,7 @@ def main_color():
         phot_file = join(dir0, 'Plots/color_plots/{}_phot.csv'.format(filt))
         phot_df = pd.read_csv(phot_file)
         good_phot = phot_df['good_phot']
+        NB_zspec = phot_df['zspec']
 
         if 'NB7' in filt:
             # NB704, and NB711 selection
@@ -374,19 +375,22 @@ def main_color():
             Ri = phot_df['Ri']
 
             Ha_sel = np.where((VR <= 0.84 * Ri + 0.125) &
-                              (VR >= 2.5 * Ri - 0.24) & good_phot)[0]
+                              (VR >= 2.5 * Ri - 0.24) &
+                              good_phot & (NB_zspec == -10))[0]
 
         if filt == 'NB816':
             # NB816 selection
             BV = phot_df['BV']
             Ri = phot_df['Ri']
 
-            Ha_sel = np.where((Ri <= 0.45) & (BV >= 2 * Ri) & good_phot)[0]
+            Ha_sel = np.where((Ri <= 0.45) & (BV >= 2 * Ri) &
+                              good_phot & (NB_zspec == -10))[0]
 
         if filt == 'NB921' or filt == 'NB973':
             BR = phot_df['BR']
             Ri = phot_df['Ri']
 
-            Ha_sel = np.where((Ri <= 0.45) & (BR >= 1.46 * Ri + 0.58) & good_phot)[0]
+            Ha_sel = np.where((Ri <= 0.45) & (BR >= 1.46 * Ri + 0.58) &
+                              good_phot & (NB_zspec == -10))[0]
 
         print("N ({}) : {}".format(filt, len(Ha_sel)))
