@@ -9,7 +9,7 @@ were mis-classified using color information
 
 from __future__ import print_function
 
-from chun_codes import systime, intersect
+from chun_codes import systime, intersect, match_nosort
 
 from astropy.io import ascii as asc
 from astropy.io import fits
@@ -128,17 +128,21 @@ def NB_spec_redshift(filt):
     return z_vals, ltype
 
 
-def read_nb_catalog(use_fix=False):
+def read_nb_catalog(filt='', ID=None, use_fix=False):
     """
     Purpose:
       Read in NB/IA excess photometric catalogs
 
+    :param filt: Optional input.  Use for main_color() to restrict sample to
+                 a specific NB sample. Options are:
+                   'NB704', 'NB711', 'NB816', 'NB921', or 'NB973'
+    :param ID: Optional input.  Use for cross-matching to specific filt
     :param use_fix: bool to indicate whether to use revised colorrev file
                     (see main()) based on new spec-z or the old one
     :return:
     """
 
-    orig_file = dir0+'Catalogs/NB_IA_emitters.nodup.fits'
+    orig_file   = dir0+'Catalogs/NB_IA_emitters.nodup.fits'
     colorrev_file = orig_file.replace('.fits', '.colorrev.fits')
     if use_fix:
         colorrev_file = colorrev_file.replace('.fits', '.fix.fits')
@@ -152,6 +156,18 @@ def read_nb_catalog(use_fix=False):
     raw_Name = np.array([str0.replace(' ', '') for str0 in raw_data.NAME],
                         dtype='|S67')
     rev_Name = np.array([str0.replace(' ', '') for str0 in c_data.NAME])
+
+    if not isinstance(ID, type(None)):
+        allcol_file = dir0+'Catalogs/NB_IA_emitters.allcols.fits'
+        log.info('### Reading : '+allcol_file)
+        allcol_data = fits.getdata(allcol_file)
+
+        idx1, NBIA_idx = match_nosort(ID, allcol_data[filt+'_ID'])
+
+        raw_data = raw_data[NBIA_idx]
+        c_data = c_data[NBIA_idx]
+        raw_Name = raw_Name[NBIA_idx]
+        rev_Name = rev_Name[NBIA_idx]
 
     corr_Name = raw_Name.copy()
 
