@@ -67,6 +67,17 @@ def NB_spec_redshift(filt):
 
 def draw_color_selection_lines(filt, ax, xra, yra, old_selection=False,
                                paper=False):
+    """
+    Purpose:
+      Draw color selection plots for each filter
+
+    :param filt: filter name. NB704, NB711, NB816, NB921, NB973
+    :param ax: matplotlib axes
+    :param xra: range in x-axis
+    :param yra: range in y-axis
+    :param old_selection: bool to indicate to use old selection. Default: False
+    :param paper: bool to indicate if plot is color. Default: False
+    """
 
     linewidth = 1.0 if paper else 1.5
 
