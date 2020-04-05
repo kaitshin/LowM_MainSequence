@@ -155,6 +155,12 @@ def draw_color_selection_lines(filt, ax, xra, yra, old_selection=False,
 
 
 def read_config_file():
+    """
+    Purpose:
+      Read in configuration file for color selection
+
+    :return config_tab: AstroPy table
+    """
     config_file = join(co_dir, 'NB_color_plot.txt')
 
     config_tab = asc.read(config_file, format='commented_header')
