@@ -32,13 +32,9 @@ def NB_spec_redshift(filt):
     """
 
     z1, z2 : H-alpha
-
     z3, z4 : OIII
-
     z5, z6 : OII
-
     z7, z8 : Ly-alpha
-
     z9, z10 : NeIII
 
     :param filt:
@@ -339,13 +335,14 @@ def color_plot_generator(NB_cat_path, filt, config_tab=None,
     # Indicate dual NB704+NB921 emitters
     if filt == 'NB704' or filt == 'NB921':
         spec_name = z_cat_tab['cat_Name'][NBIA_idx]
+        size = 5 if paper else 10
         dual_idx = [xx for xx in range(len(spec_name)) if
                     ('NB921' in spec_name[xx]) and ('NB704' in spec_name[xx])]
         if filt == 'NB704':
-            ax.scatter(x_arr[dual_idx], y_arr[dual_idx], marker='x', s=10,
+            ax.scatter(x_arr[dual_idx], y_arr[dual_idx], marker='x', s=size,
                        linewidth=0.25, alpha=0.75, color='green', zorder=1)
         if filt == 'NB921':
-            ax.scatter(x_arr[dual_idx], y_arr[dual_idx], marker='x', s=10,
+            ax.scatter(x_arr[dual_idx], y_arr[dual_idx], marker='x', s=size,
                        linewidth=0.25, alpha=0.75, color='red', zorder=1)
 
     ax.set_xlim(xra)
