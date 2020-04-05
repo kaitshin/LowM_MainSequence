@@ -374,10 +374,6 @@ def main_color():
     :return:
     """
 
-    # Read in NB/IA photometric data
-    colorrev_file, raw_data, c_data, c_hdr, raw_Name, rev_Name, corr_Name = \
-        read_nb_catalog(use_fix=True)
-
     # Read in z-spec data
     # z_data, z_spec0, with_z, without_z = read_zspec_data()
 
@@ -389,6 +385,10 @@ def main_color():
         phot_df = pd.read_csv(phot_file)
         good_phot = phot_df['good_phot']
         NB_zspec = phot_df['zspec']
+
+        # Read in NB/IA photometric data
+        colorrev_file, raw_data, c_data, c_hdr, raw_Name, rev_Name, corr_Name = \
+            read_nb_catalog(filt=filt, ID=phot_df['ID'], use_fix=True)
 
         print("N ({}) : {}".format(filt, len(phot_df)))
 
