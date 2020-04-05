@@ -21,6 +21,9 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
+from os.path import join
+import pandas as pd
+
 dir0 = '/Users/cly/GoogleDrive/Research/NASA_Summer2015/'
 
 
@@ -350,13 +353,17 @@ def main_color():
     :return:
     """
 
+    # Read in NB/IA photometric data
+    colorrev_file, raw_data, c_data, c_hdr, raw_Name, rev_Name, corr_Name = \
+        read_nb_catalog()
+
     # Read in z-spec data
     z_data, z_spec0, with_z, without_z = read_zspec_data()
 
-    # NB704, and NB711 selection
-    # VR <= 0.84 * Ri + 0.125
-    # VR >= 2.5 * Ri - 0.24
+    filters = ['NB816']
 
-    # NB816 selection
-    # Ri <= 0.45
-    # BV >= 2 * Ri
+    for filt in filters:
+        # Read in photometric data
+        phot_file = join(dir0, 'Plots/color_plots/{}_phot.csv'.format(filt))
+        pd.read_csv(phot_file)
+
