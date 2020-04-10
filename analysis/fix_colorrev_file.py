@@ -390,10 +390,14 @@ def main_color():
         colorrev_file, raw_data, c_data, c_hdr, raw_Name, rev_Name, corr_Name = \
             read_nb_catalog(filt=filt, ID=phot_df['ID'], use_fix=True)
 
-        print("N ({}) : {}".format(filt, len(phot_df)))
+        N_NB = len(phot_df)
+        print("N ({}) : {}".format(filt, N_NB))
 
         with_specz = np.where(NB_zspec != -10.0)[0]
         print("with spec-z ({}) : {}".format(filt, len(with_specz)))
+
+        Ha_orig_full = [xx for xx in range(N_NB) if 'Ha-'+filt in rev_Name[xx]]
+        print("N(H-alpha) original ({}) : {}".format(filt, len(Ha_orig_full)))
 
         # Mark those with spec-z in H-alpha
         z_vals, _ = NB_spec_redshift(filt)
@@ -440,7 +444,7 @@ def main_color():
 
         print("N(H-alpha) phot ({}) : {}".format(filt, len(Ha_sel)))
 
-        Ha_sel_orig = np.array([xx for xx in range(len(phot_df)) if
+        Ha_sel_orig = np.array([xx for xx in range(N_NB) if
                                 ('Ha-'+filt in rev_Name[xx]) and
                                 (NB_zspec[xx] == -10 or NB_zspec[xx] >= 9.9)])
         print("N(H-alpha) original ({}) : {}".format(filt, len(Ha_sel_orig)))
