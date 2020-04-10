@@ -384,8 +384,17 @@ def color_plot_generator(NB_cat_path, filt, config_tab=None,
                        linewidth=0.25, alpha=0.75, color='blue', zorder=1)
 
         if filt == 'NB921':
-            ax.scatter(x_arr[dual_idx], y_arr[dual_idx], marker='x', s=size,
+            # H-alpha
+            dual_Ha_idx = np.where(y_arr[dual_idx] >= x_arr[dual_idx] * 1.46 + 0.58)[0]
+            dual_Ha_idx = dual_idx[dual_Ha_idx]
+            ax.scatter(x_arr[dual_Ha_idx], y_arr[dual_Ha_idx], marker='x', s=size,
                        linewidth=0.25, alpha=0.75, color='red', zorder=1)
+
+            # H-beta
+            dual_Hb_idx = np.where(y_arr[dual_idx] < x_arr[dual_idx] * 1.46 + 0.58)[0]
+            dual_Hb_idx = dual_idx[dual_Hb_idx]
+            ax.scatter(x_arr[dual_Hb_idx], y_arr[dual_Hb_idx], marker='x', s=size,
+                       linewidth=0.25, alpha=0.75, color='green', zorder=1)
 
     ax.minorticks_on()  # Add minor tick marks
     ax.tick_params(which='both', direction='in')  # ticks on the inside
