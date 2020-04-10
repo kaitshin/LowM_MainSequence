@@ -321,6 +321,11 @@ def color_plot_generator(NB_cat_path, filt, config_tab=None,
     print("Writing : "+df_outfile)
     df.to_csv(df_outfile, index=False)
 
+    if make_single_plot:
+        out_pdf = join(path0, filt + '.pdf')
+
+        fig, ax = plt.subplots()
+
     x_title = config_tab['xtitle'][f_idx].replace('-', ' - ')
     x_title = latex_label_formatting(x_title)
     ax.set_xlabel(x_title)
@@ -333,11 +338,6 @@ def color_plot_generator(NB_cat_path, filt, config_tab=None,
     yra = ast.literal_eval(config_tab['yra'][f_idx])
     ax.set_xlim(xra)
     ax.set_ylim(yra)
-
-    if make_single_plot:
-        out_pdf = join(path0, filt + '.pdf')
-
-        fig, ax = plt.subplots()
 
     # Define axis to plot
     x_arr = []
