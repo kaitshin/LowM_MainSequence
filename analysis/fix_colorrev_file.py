@@ -410,25 +410,24 @@ def main_color():
             VR = phot_df['VR']
             Ri = phot_df['Ri']
 
-            Ha_sel = np.where((VR <= 0.84 * Ri + 0.125) &
-                              (VR >= 2.5 * Ri - 0.24) &
-                              good_phot & (NB_zspec == -10))[0]
+            Ha_sel = np.where((VR <= 0.84 * Ri + 0.125) & (VR >= 2.5 * Ri - 0.24) &
+                              good_phot & ((NB_zspec == -10) | (NB_zspec >= 9.9)))[0]
 
         if filt == 'NB816':
             # NB816 selection
             BV = phot_df['BV']
             Ri = phot_df['Ri']
 
-            Ha_sel = np.where((Ri <= 0.45) & (BV >= 2 * Ri) &
-                              good_phot & (NB_zspec == -10))[0]
+            Ha_sel = np.where((Ri <= 0.45) & (BV >= 2 * Ri) & good_phot &\
+                              ((NB_zspec == -10) | (NB_zspec >= 9.9)))[0]
 
         if filt == 'NB921':
             # NB921 selection
             BR = phot_df['BR']
             Ri = phot_df['Ri']
 
-            Ha_sel = np.where((Ri <= 0.45) & (BR >= 1.46 * Ri + 0.58) &
-                              good_phot & (NB_zspec == -10))[0]
+            Ha_sel = np.where((Ri <= 0.45) & (BR >= 1.46 * Ri + 0.58) & good_phot &
+                              ((NB_zspec == -10) | (NB_zspec >= 9.9)))[0]
 
         if filt == 'NB973':
             # NB973 selection
@@ -436,9 +435,15 @@ def main_color():
             Ri = phot_df['Ri']
 
             Ha_sel = np.where((Ri >= -0.4) & (Ri <= 0.55) & (BR >= 2.423 * Ri + 0.06386) &
-                              (BR >= 0.5) & (BR <= 3.0) & good_phot & (NB_zspec == -10))[0]
+                              (BR >= 0.5) & (BR <= 3.0) & good_phot &
+                              ((NB_zspec == -10) | (NB_zspec >= 9.9)))[0]
 
-        print("N(H-alpha) ({}) : {}".format(filt, len(Ha_sel)))
+        print("N(H-alpha) phot ({}) : {}".format(filt, len(Ha_sel)))
+
+        Ha_sel_orig = np.array([xx for xx in range(len(phot_df)) if
+                                ('Ha-'+filt in rev_Name[xx]) and
+                                (NB_zspec[xx] == -10 or NB_zspec[xx] >= 9.9)])
+        print("N(H-alpha) original ({}) : {}".format(filt, len(Ha_sel_orig)))
 
     # Write new FITS file
     # c_data.NAME = corr_Name
