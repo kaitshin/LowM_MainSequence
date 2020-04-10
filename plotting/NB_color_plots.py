@@ -367,11 +367,22 @@ def color_plot_generator(NB_cat_path, filt, config_tab=None,
     if filt == 'NB704' or filt == 'NB921':
         spec_name = z_cat_tab['cat_Name'][NBIA_idx]
         size = 5 if paper else 10
-        dual_idx = [xx for xx in range(len(spec_name)) if
-                    ('NB921' in spec_name[xx]) and ('NB704' in spec_name[xx])]
+        dual_idx = np.array([xx for xx in range(len(spec_name)) if
+                             ('NB921' in spec_name[xx]) and
+                             ('NB704' in spec_name[xx])])
         if filt == 'NB704':
-            ax.scatter(x_arr[dual_idx], y_arr[dual_idx], marker='x', s=size,
+            # OIII
+            dual_OIII_idx = np.where(y_arr[dual_idx] >= x_arr[dual_idx])[0]
+            dual_OIII_idx = dual_idx[dual_OIII_idx]
+            ax.scatter(x_arr[dual_OIII_idx], y_arr[dual_OIII_idx], marker='x', s=size,
                        linewidth=0.25, alpha=0.75, color='green', zorder=1)
+
+            # OII
+            dual_OII_idx = np.where(y_arr[dual_idx] < x_arr[dual_idx])[0]
+            dual_OII_idx = dual_idx[dual_OII_idx]
+            ax.scatter(x_arr[dual_OII_idx], y_arr[dual_OII_idx], marker='x', s=size,
+                       linewidth=0.25, alpha=0.75, color='blue', zorder=1)
+
         if filt == 'NB921':
             ax.scatter(x_arr[dual_idx], y_arr[dual_idx], marker='x', s=size,
                        linewidth=0.25, alpha=0.75, color='red', zorder=1)
