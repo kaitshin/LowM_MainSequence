@@ -422,13 +422,21 @@ def main_color():
             Ha_sel = np.where((Ri <= 0.45) & (BV >= 2 * Ri) &
                               good_phot & (NB_zspec == -10))[0]
 
-        if filt == 'NB921' or filt == 'NB973':
-            # NB921 and NB973 selection
+        if filt == 'NB921':
+            # NB921 selection
             BR = phot_df['BR']
             Ri = phot_df['Ri']
 
             Ha_sel = np.where((Ri <= 0.45) & (BR >= 1.46 * Ri + 0.58) &
                               good_phot & (NB_zspec == -10))[0]
+
+        if filt == 'NB973':
+            # NB973 selection
+            BR = phot_df['BR']
+            Ri = phot_df['Ri']
+
+            Ha_sel = np.where((Ri >= -0.4) & (Ri <= 0.55) & (BR >= 2.423 * Ri + 0.06386) &
+                              (BR >= 0.5) & (BR <= 3.0) & good_phot & (NB_zspec == -10))[0]
 
         print("N(H-alpha) ({}) : {}".format(filt, len(Ha_sel)))
 
