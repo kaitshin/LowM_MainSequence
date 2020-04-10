@@ -445,6 +445,10 @@ def main_color():
                                 (NB_zspec[xx] == -10 or NB_zspec[xx] >= 9.9)])
         print("N(H-alpha) original ({}) : {}".format(filt, len(Ha_sel_orig)))
 
+        # Identify those that were previously selected as H-alpha photometrically
+        # that should not be included, and fix those using set logic
+        non_Ha = set(Ha_sel_orig) - set(Ha_sel)
+
     # Write new FITS file
     # c_data.NAME = corr_Name
     colorrev2_file = colorrev_file.replace('colorrev', 'colorrev2')
