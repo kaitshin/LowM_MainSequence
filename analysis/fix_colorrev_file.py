@@ -366,11 +366,12 @@ def main(silent=False):
         log.info('### End main : '+systime())
 
 
-def main_color():
+def main_color(old_selection=False):
     """
     Purpose:
       Update selection using revised color selection for non spec-z
 
+    :param old_selection: boolean to indicate whether to use old selection or new. Default: False
     :return:
     """
 
@@ -414,16 +415,25 @@ def main_color():
             VR = phot_df['VR']
             Ri = phot_df['Ri']
 
-            Ha_sel = np.where((VR <= 0.84 * Ri + 0.125) & (VR >= 2.5 * Ri - 0.24) &
-                              good_phot & ((NB_zspec == -10) | (NB_zspec >= 9.9)))[0]
+            # Old selection
+            if old_selection:
+                Ha_sel = np.where((VR <= 0.82 * Ri + 0.264) & (VR >= 2.5 * Ri - 0.24) &
+                                  good_phot & ((NB_zspec == -10) | (NB_zspec >= 9.9)))[0]
+            else:
+                Ha_sel = np.where((VR <= 0.84 * Ri + 0.125) & (VR >= 2.5 * Ri - 0.24) &
+                                  good_phot & ((NB_zspec == -10) | (NB_zspec >= 9.9)))[0]
 
         if filt == 'NB816':
             # NB816 selection
             BV = phot_df['BV']
             Ri = phot_df['Ri']
 
-            Ha_sel = np.where((Ri <= 0.45) & (BV >= 2 * Ri) & good_phot &\
-                              ((NB_zspec == -10) | (NB_zspec >= 9.9)))[0]
+            if old_selection:
+                Ha_sel = np.where((Ri <= 0.45) & (BV >= 2 * Ri - 0.1) & good_phot &
+                                  ((NB_zspec == -10) | (NB_zspec >= 9.9)))[0]
+            else:
+                Ha_sel = np.where((Ri <= 0.45) & (BV >= 2 * Ri) & good_phot &
+                                  ((NB_zspec == -10) | (NB_zspec >= 9.9)))[0]
 
         if filt == 'NB921':
             # NB921 selection
