@@ -433,6 +433,8 @@ def exclude_bad_sources(ha_ii, NAME0):
              NAME0[x]=='Ha-NB973_064347' or NAME0[x]=='Ha-NB973_084633')])
 
     bad_sources = np.concatenate([bad_highz_gal, bad_HbNB704_SIINB973_gals, no_flux_gal, weird_SFR_gal, possibly_AGNs])
+    print("bad_sources: {}".format(len(bad_sources)))
+
     ha_ii = np.delete(ha_ii, bad_sources)
     NAME0 = np.delete(NAME0, bad_sources)
 
