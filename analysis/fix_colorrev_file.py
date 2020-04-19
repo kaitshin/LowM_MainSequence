@@ -24,6 +24,8 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from os.path import join
 import pandas as pd
 
+from ..mainseq_corrections import exclude_bad_sources
+
 dir0 = '/Users/cly/GoogleDrive/Research/NASA_Summer2015/'
 
 
@@ -397,8 +399,13 @@ def main_color(old_selection=False):
         with_specz = np.where(NB_zspec != -10.0)[0]
         print("with spec-z ({}) : {}".format(filt, len(with_specz)))
 
-        Ha_orig_full = [xx for xx in range(N_NB) if 'Ha-'+filt in rev_Name[xx]]
-        print("N(H-alpha) original ({}) : {}".format(filt, len(Ha_orig_full)))
+        Ha_orig_full = np.array([xx for xx in range(N_NB) if 'Ha-'+filt in rev_Name[xx]])
+
+        Ha_orig_full_exclude, rev_Name_exclude = \
+            exclude_bad_sources(Ha_orig_full, rev_Name[Ha_orig_full])
+
+        print("N(H-alpha) original ({}) : {} -> {}".format(filt, len(Ha_orig_full),
+                                                           len(Ha_orig_full_exclude)))
 
         # Mark those with spec-z in H-alpha
         z_vals, _ = NB_spec_redshift(filt)
