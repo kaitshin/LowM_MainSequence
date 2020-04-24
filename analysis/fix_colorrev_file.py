@@ -216,14 +216,20 @@ def handle_bad_sources_dual_emitters(Ha_index, rev_Name, filt):
     Ha_index_exclude, rev_Name_exclude = exclude_bad_sources(Ha_index, rev_Name)
 
     filts, dual_iis, dual_ii2 = handle_unusual_dual_emitters(rev_Name_exclude)
-    filts[dual_iis] = 'NB921'
-    filts[dual_ii2] = 'NB921'
 
-    filt_index = np.where(filts == filt)[0]
-    final_Ha_index = Ha_index_exclude[filt_index]
-    final_Ha_ref_Name = rev_Name_exclude[filt_index]
+    final_Ha_index = np.copy(Ha_index_exclude)
+    final_Ha_rev_Name = np.copy(rev_Name_exclude)
 
-    return final_Ha_index, final_Ha_ref_Name
+    if filt != 'NB921':
+        if len(dual_iis) > 0:
+            final_Ha_index = np.delete(final_Ha_index, dual_iis)
+            final_Ha_rev_Name = np.delete(final_Ha_rev_Name, dual_iis)
+
+        if len(dual_ii2) > 0:
+            final_Ha_index = np.delete(final_Ha_index, dual_ii2)
+            final_Ha_rev_Name = np.delete(final_Ha_rev_Name, dual_iis)
+
+    return final_Ha_index, final_Ha_rev_Name
 
 
 def main(silent=False):
