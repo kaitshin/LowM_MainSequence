@@ -14,6 +14,7 @@ from chun_codes import systime, intersect, match_nosort
 from astropy.io import ascii as asc
 from astropy.io import fits
 from astropy import log
+from astropy.table import Table
 
 import numpy as np
 
@@ -403,6 +404,10 @@ def main_color(old_selection=False):
 
         Ha_orig_full_exclude, rev_Name_exclude = \
             exclude_bad_sources(Ha_orig_full, rev_Name[Ha_orig_full])
+
+        test_tab = Table([rev_Name_exclude], names=['rev_Name_exclude'])
+        exclude_filename = 'Plots/color_plots/{}_Ha_exclude_names.txt'.format(filt)
+        test_tab.write(join(dir0, exclude_filename), format='ascii.fixed_width_two_line')
 
         print("N(H-alpha) original ({}) : {} -> {}".format(filt, len(Ha_orig_full),
                                                            len(Ha_orig_full_exclude)))
