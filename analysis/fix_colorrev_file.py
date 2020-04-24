@@ -487,14 +487,23 @@ def main_color(old_selection=False):
 
         print("N(H-alpha) phot ({}) : {}".format(filt, len(Ha_sel)))
 
-        Ha_sel_orig = np.array([xx for xx in range(N_NB) if
-                                ('Ha-'+filt in rev_Name[xx]) and
-                                (NB_zspec[xx] == -10 or NB_zspec[xx] >= 9.9)])
-        print("N(H-alpha) original ({}) : {}".format(filt, len(Ha_sel_orig)))
+        new_Ha_index, new_Ha_rev_Name = \
+            handle_bad_sources_dual_emitters(Ha_sel, rev_Name[Ha_sel], filt)
+        print("N(H-alpha) phot ({}) : {}".format(filt, len(new_Ha_index)))
+
+        Ha_sel_orig_phot = np.where((NB_zspec[final_Ha_index] == -10) |
+                                    (NB_zspec[final_Ha_index] >= 9.9))[0]
+        print("N(H-alpha) original phot ({}) : {} ".format(filt, len(Ha_sel_orig_phot)))
+        Ha_sel_orig_phot = final_Ha_index[Ha_sel_orig_phot]
+
+        # Ha_sel_orig = np.array([xx for xx in range(N_NB) if
+        #                         ('Ha-'+filt in rev_Name[xx]) and
+        #                        (NB_zspec[xx] == -10 or NB_zspec[xx] >= 9.9)])
+        # print("N(H-alpha) original ({}) : {}".format(filt, len(Ha_sel_orig)))
 
         # Identify those that were previously selected as H-alpha photometrically
         # that should not be included, and fix those using set logic
-        non_Ha = set(Ha_sel_orig) - set(Ha_sel)
+        # non_Ha = set(Ha_sel_orig) - set(Ha_sel)
 
     # Write new FITS file
     # c_data.NAME = corr_Name
