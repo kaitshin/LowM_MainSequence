@@ -25,7 +25,7 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from os.path import join
 import pandas as pd
 
-from ..mainseq_corrections import exclude_bad_sources
+from ..mainseq_corrections import exclude_bad_sources, handle_unusual_dual_emitters
 
 dir0 = '/Users/cly/GoogleDrive/Research/NASA_Summer2015/'
 
@@ -211,11 +211,20 @@ def read_zspec_data():
     return z_data, z_spec0, with_z, without_z
 
 
-def handle_bad_sources_dual_emitters(Ha_index, rev_Name):
+def handle_bad_sources_dual_emitters(Ha_index, rev_Name, filt):
 
     Ha_index_exclude, rev_Name_exclude = exclude_bad_sources(Ha_index, rev_Name)
 
-    return Ha_index_exclude, ref_Name_exclude
+    filts, dual_iis, dual_ii2 = handle_unusual_dual_emitters(rev_Name_exclude)
+    filts[dual_iis] = 'NB921'
+    filts[dual_ii2] = 'NB921'
+
+    filt_index = np.where(filts == filt)[0]
+    final_Ha_index = Ha_index_exclude[filt_index]
+    final_Ha_ref_Name = rev_Name_exclude[filt_index]
+
+    return final_Ha_index, final_Ha_ref_Name
+
 
 def main(silent=False):
     """
@@ -408,15 +417,15 @@ def main_color(old_selection=False):
 
         Ha_orig_full = np.array([xx for xx in range(N_NB) if 'Ha-'+filt in rev_Name[xx]])
 
-        Ha_orig_full_exclude, ref_Name_exclude = \
-            handle_bad_sources_dual_emitters(Ha_orig_full, rev_Name[Ha_orig_full])
+        final_Ha_index, final_Ha_rev_Name = \
+            handle_bad_sources_dual_emitters(Ha_orig_full, rev_Name[Ha_orig_full], filt)
 
-        test_tab = Table([rev_Name_exclude], names=['rev_Name_exclude'])
+        test_tab = Table([final_Ha_rev_Name], names=['final_Ha_ref_name'])
         exclude_filename = 'Plots/color_plots/{}_Ha_exclude_names.txt'.format(filt)
         test_tab.write(join(dir0, exclude_filename), format='ascii.fixed_width_two_line')
 
         print("N(H-alpha) original ({}) : {} -> {}".format(filt, len(Ha_orig_full),
-                                                           len(Ha_orig_full_exclude)))
+                                                           len(final_Ha_index)))
 
         # Mark those with spec-z in H-alpha
         z_vals, _ = NB_spec_redshift(filt)
