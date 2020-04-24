@@ -211,6 +211,12 @@ def read_zspec_data():
     return z_data, z_spec0, with_z, without_z
 
 
+def handle_bad_sources_dual_emitters(Ha_index, rev_Name):
+
+    Ha_index_exclude, rev_Name_exclude = exclude_bad_sources(Ha_index, rev_Name)
+
+    return Ha_index_exclude, ref_Name_exclude
+
 def main(silent=False):
     """
     Main function for fix_colorrev_file.py
@@ -402,8 +408,8 @@ def main_color(old_selection=False):
 
         Ha_orig_full = np.array([xx for xx in range(N_NB) if 'Ha-'+filt in rev_Name[xx]])
 
-        Ha_orig_full_exclude, rev_Name_exclude = \
-            exclude_bad_sources(Ha_orig_full, rev_Name[Ha_orig_full])
+        Ha_orig_full_exclude, ref_Name_exclude = \
+            handle_bad_sources_dual_emitters(Ha_orig_full, rev_Name[Ha_orig_full])
 
         test_tab = Table([rev_Name_exclude], names=['rev_Name_exclude'])
         exclude_filename = 'Plots/color_plots/{}_Ha_exclude_names.txt'.format(filt)
