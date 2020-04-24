@@ -154,7 +154,8 @@ def get_z_arr():
     '''
     z_arr0 = np.array([7045.0, 7126.0, 8152.0, 9193.0, 9749.0])/HA - 1
     z_arr0 = np.around(z_arr0, 2)
-    z_arr  = np.array(z_arr0, dtype='|S9')
+    # z_arr  = np.array(z_arr0, dtype='|S9')
+    z_arr = z_arr0.astype(str)
     z_arr[0] = ",".join(z_arr[:2])
     z_arr = np.delete(z_arr, 1)
     z_arr  = np.array([x+'0' if len(x)==3 else x for x in z_arr])
