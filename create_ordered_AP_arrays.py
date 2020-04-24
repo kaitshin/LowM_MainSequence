@@ -23,6 +23,8 @@ from __future__ import print_function
 import numpy as np
 from astropy.io import fits as pyfits, ascii as asc
 
+FULL_PATH = '/Users/kaitlynshin/Google Drive/NASA_Summer2015/'
+
 def make_AP_arr_MMT(slit_str0):
     '''
     Creates an AP (aperture) array with the slit_str0 input from
@@ -262,8 +264,8 @@ def get_LMIN0_LMAX0_merged(all_AP, mergedAP, all_MMT_LMIN0, all_MMT_LMAX0, all_K
     '''
     for ii in range(len(mergedAP)):
         bothap = mergedAP[ii]
-        mmt = bothap.split(',')[0]
-        keck = bothap.split(',')[1]
+        mmt = bothap.decode().split(',')[0]
+        keck = bothap.decode().split(',')[1]
 
         # index in 9264-ordering corresponding to index in data
         jj = [x for x in range(len(all_AP)) if mmt==all_AP[x][:5]]
@@ -340,12 +342,12 @@ def create_ordered_AP_arrays(AP_only=False):
     Using the AP order, then creates '9264'-ordered arrays
     '''
 
-    zspec = asc.read('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Catalogs/nb_ia_zspec.txt',guess=False,
+    zspec = asc.read(FULL_PATH+'Catalogs/nb_ia_zspec.txt',guess=False,
                      Reader=asc.CommentedHeader)
     slit_str0 = np.array(zspec['slit_str0'])
     inst_str0 = np.array(zspec['inst_str0'])
 
-    MMTall = pyfits.open('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Main_Sequence/Catalogs/MMT/MMTS_all_line_fit.fits')
+    MMTall = pyfits.open(FULL_PATH+'Main_Sequence/Catalogs/MMT/MMTS_all_line_fit.fits')
     MMTalldata = MMTall[1].data
     MMTallAP = MMTalldata['AP']
     MMTallLMIN0 = MMTalldata['LMIN0']
@@ -361,7 +363,7 @@ def create_ordered_AP_arrays(AP_only=False):
     MMTallHBFLUX = MMTalldata['HB_FLUX_MOD']
     MMTallHGFLUX = MMTalldata['HG_FLUX_MOD']
 
-    MMTsingle = pyfits.open('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Main_Sequence/Catalogs/MMT/MMT_single_line_fit.fits')
+    MMTsingle = pyfits.open(FULL_PATH+'Main_Sequence/Catalogs/MMT/MMT_single_line_fit.fits')
     MMTsingledata = MMTsingle[1].data
     MMTsingleAP = MMTsingledata['AP']
     MMTsingleLMIN0 = MMTsingledata['LMIN0']
@@ -377,7 +379,7 @@ def create_ordered_AP_arrays(AP_only=False):
     MMTsingleHBFLUX = MMTsingledata['HB_FLUX_MOD']
     MMTsingleHGFLUX = MMTsingledata['HG_FLUX_MOD']
 
-    DEIMOS = pyfits.open('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Main_Sequence/Catalogs/Keck/DEIMOS_single_line_fit.fits')
+    DEIMOS = pyfits.open(FULL_PATH+'Main_Sequence/Catalogs/Keck/DEIMOS_single_line_fit.fits')
     DEIMOSdata = DEIMOS[1].data
     DEIMOSAP = DEIMOSdata['AP']
     DEIMOSLMIN0 = DEIMOSdata['LMIN0']
@@ -393,7 +395,7 @@ def create_ordered_AP_arrays(AP_only=False):
     DEIMOSHBFLUX = DEIMOSdata['HB_FLUX_MOD']
     DEIMOSHGFLUX = DEIMOSdata['HG_FLUX_MOD']
 
-    DEIMOS00=pyfits.open('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Main_Sequence/Catalogs/Keck/DEIMOS_00_all_line_fit.fits')
+    DEIMOS00=pyfits.open(FULL_PATH+'Main_Sequence/Catalogs/Keck/DEIMOS_00_all_line_fit.fits')
     DEIMOS00data = DEIMOS00[1].data
     DEIMOS00AP = DEIMOS00data['AP']
     DEIMOS00LMIN0 = DEIMOS00data['LMIN0']
@@ -409,7 +411,7 @@ def create_ordered_AP_arrays(AP_only=False):
     DEIMOS00HBFLUX = DEIMOS00data['HB_FLUX_MOD']
     DEIMOS00HGFLUX = DEIMOS00data['HG_FLUX_MOD']
 
-    merged = pyfits.open('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Main_Sequence/Catalogs/merged/MMT_Keck_line_fit.fits')
+    merged = pyfits.open(FULL_PATH+'Main_Sequence/Catalogs/merged/MMT_Keck_line_fit.fits')
     mergeddata = merged[1].data
     mergedAP = mergeddata['AP']
     mergedLMIN0_MMT = mergeddata['MMT_LMIN0']
