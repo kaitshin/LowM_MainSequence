@@ -186,6 +186,7 @@ def bins_table(indexes, NAME0, AP, stlr_mass, massbins_MMT, massbins_Keck,
     filts[dual_iis] = 'NB921'
     
     # this ensures that the NB816+NB921 dual emitter will be placed in the NB921 bin
+    #  (the dual emitter is source 'Ha-NB816_183935_Ha-NB921_190177')
     #  we decided this based on visual inspection of the photometry
     dual_ii2 = [x for x in range(len(names)) if 'Ha-NB816' in names[x] and 'Ha-NB921' in names[x]]
     filts[dual_ii2] = 'NB921'
