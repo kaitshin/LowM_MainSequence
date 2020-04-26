@@ -222,12 +222,14 @@ def handle_bad_sources_dual_emitters(Ha_index, rev_Name, filt):
 
     if filt != 'NB921':
         if len(dual_iis) > 0:
+            print("dual_iis: {}".format(len(dual_iis)))
             final_Ha_index = np.delete(final_Ha_index, dual_iis)
             final_Ha_rev_Name = np.delete(final_Ha_rev_Name, dual_iis)
 
         if len(dual_ii2) > 0:
+            print("dual_ii2: {}".format(len(dual_ii2)))
             final_Ha_index = np.delete(final_Ha_index, dual_ii2)
-            final_Ha_rev_Name = np.delete(final_Ha_rev_Name, dual_iis)
+            final_Ha_rev_Name = np.delete(final_Ha_rev_Name, dual_ii2)
 
     return final_Ha_index, final_Ha_rev_Name
 
