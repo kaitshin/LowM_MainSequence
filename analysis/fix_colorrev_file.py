@@ -453,10 +453,10 @@ def main_color(old_selection=False):
             # Old selection
             if old_selection:
                 Ha_sel = np.where((VR <= 0.82 * Ri + 0.264) & (VR >= 2.5 * Ri - 0.24) &
-                                  good_phot & ((NB_zspec == -10) | (NB_zspec >= 9.9)))[0]
+                                  good_phot & ((NB_zspec == -10) | (NB_zspec == -1) | (NB_zspec >= 9.9)))[0]
             else:
                 Ha_sel = np.where((VR <= 0.84 * Ri + 0.125) & (VR >= 2.5 * Ri - 0.24) &
-                                  good_phot & ((NB_zspec == -10) | (NB_zspec >= 9.9)))[0]
+                                  good_phot & ((NB_zspec == -10) | (NB_zspec == -1) | (NB_zspec >= 9.9)))[0]
 
         if filt == 'NB816':
             # NB816 selection
@@ -465,10 +465,10 @@ def main_color(old_selection=False):
 
             if old_selection:
                 Ha_sel = np.where((Ri <= 0.45) & (BV >= 2 * Ri - 0.1) & good_phot &
-                                  ((NB_zspec == -10) | (NB_zspec >= 9.9)))[0]
+                                  ((NB_zspec == -10) | (NB_zspec == -1) | (NB_zspec >= 9.9)))[0]
             else:
                 Ha_sel = np.where((Ri <= 0.45) & (BV >= 2 * Ri) & good_phot &
-                                  ((NB_zspec == -10) | (NB_zspec >= 9.9)))[0]
+                                  ((NB_zspec == -10) | (NB_zspec == -1) | (NB_zspec >= 9.9)))[0]
 
         if filt == 'NB921':
             # NB921 selection
@@ -476,7 +476,7 @@ def main_color(old_selection=False):
             Ri = phot_df['Ri']
 
             Ha_sel = np.where((Ri <= 0.45) & (BR >= 1.46 * Ri + 0.58) & good_phot &
-                              ((NB_zspec == -10) | (NB_zspec >= 9.9)))[0]
+                              ((NB_zspec == -10) | (NB_zspec == -1) | (NB_zspec >= 9.9)))[0]
 
         if filt == 'NB973':
             # NB973 selection
@@ -485,7 +485,7 @@ def main_color(old_selection=False):
 
             Ha_sel = np.where((Ri >= -0.4) & (Ri <= 0.55) & (BR >= 2.423 * Ri + 0.06386) &
                               (BR >= 0.5) & (BR <= 3.0) & good_phot &
-                              ((NB_zspec == -10) | (NB_zspec >= 9.9)))[0]
+                              ((NB_zspec == -10) | (NB_zspec == -1) | (NB_zspec >= 9.9)))[0]
 
         print("N(H-alpha) phot ({}) : {}".format(filt, len(Ha_sel)))
 
@@ -494,6 +494,7 @@ def main_color(old_selection=False):
         print("N(H-alpha) phot ({}) : {}".format(filt, len(new_Ha_index)))
 
         Ha_sel_orig_phot = np.where((NB_zspec[final_Ha_index] == -10) |
+                                    (NB_zspec[final_Ha_index] == -1) |
                                     (NB_zspec[final_Ha_index] >= 9.9))[0]
         print("N(H-alpha) original phot ({}) : {} ".format(filt, len(Ha_sel_orig_phot)))
         Ha_sel_orig_phot = final_Ha_index[Ha_sel_orig_phot]
