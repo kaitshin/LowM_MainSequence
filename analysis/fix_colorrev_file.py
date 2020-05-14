@@ -493,7 +493,7 @@ def main_color(old_selection=False):
             handle_bad_sources_dual_emitters(Ha_sel, rev_Name[Ha_sel], filt)
         print("N(H-alpha) phot ({}) : {}".format(filt, len(new_Ha_index)))
 
-        test_tab = Table([new_Ha_rev_Name], names=['new_Ha_rev_Name'])
+        test_tab = Table([new_Ha_rev_Name, NB_zspec[new_Ha_index]], names=['new_Ha_rev_Name', 'zspec'])
         exclude_filename = 'Plots/color_plots/{}_Ha_phot.txt'.format(filt)
         test_tab.write(join(dir0, exclude_filename), format='ascii.fixed_width_two_line')
 
@@ -503,7 +503,8 @@ def main_color(old_selection=False):
         print("N(H-alpha) original phot ({}) : {} ".format(filt, len(Ha_sel_orig_phot)))
         Ha_sel_orig_phot = final_Ha_index[Ha_sel_orig_phot]
 
-        test_tab = Table([rev_Name[Ha_sel_orig_phot]], names=['Ha_sel_orig_phot'])
+        test_tab = Table([rev_Name[Ha_sel_orig_phot], NB_zspec[Ha_sel_orig_phot]],
+                         names=['Ha_sel_orig_phot', 'zspec'])
         exclude_filename = 'Plots/color_plots/{}_Ha_orig_phot.txt'.format(filt)
         test_tab.write(join(dir0, exclude_filename), format='ascii.fixed_width_two_line')
 
