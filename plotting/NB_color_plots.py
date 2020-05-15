@@ -261,7 +261,10 @@ def color_plot_generator(NB_cat_path, filt, config_tab=None,
     SE_files = glob(search0)
 
     # Remove z- or zr-band files
-    SE_files = [file0 for file0 in SE_files if '_zr' not in file0]
+    if 'NB7' in filt:
+        SE_files = [file0 for file0 in SE_files if '_z' not in file0]
+    else:
+        SE_files = [file0 for file0 in SE_files if '_zr' not in file0]
 
     # Read in ID's from SExtractor catalog
     SEx_ID = np.loadtxt(SE_files[0], usecols=0)
