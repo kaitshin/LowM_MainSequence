@@ -515,7 +515,17 @@ def main_color(old_selection=False):
 
         # Identify those that were previously selected as H-alpha photometrically
         # that should not be included, and fix those using set logic
-        # non_Ha = set(Ha_sel_orig) - set(Ha_sel)
+        # These are the drops
+        common_Ha = set(Ha_sel_orig_phot) & set(new_Ha_index)
+        print("common_Ha {} : {}".format(filt, len(common_Ha)))
+
+        non_Ha = set(Ha_sel_orig_phot) - set(new_Ha_index)
+        print("non_Ha {} : {}".format(filt, len(non_Ha)))
+
+        # These are the adds
+        new_Ha = set(new_Ha_index) - set(Ha_sel_orig_phot)
+        print("new_Ha {} : {}".format(filt, len(new_Ha)))
+
 
     # Write new FITS file
     # c_data.NAME = corr_Name
