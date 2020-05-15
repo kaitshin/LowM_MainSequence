@@ -526,9 +526,24 @@ def main_color(old_selection=False):
         new_Ha = set(new_Ha_index) - set(Ha_sel_orig_phot)
         print("new_Ha {} : {}".format(filt, len(new_Ha)))
 
+        if len(non_Ha) > 0:
+            print("Changing {} instances".format(len(non_Ha)))
+            corr_Name[non_Ha] = [str0.replace('Ha-'+filt,'???-'+filt) for str0 in rev_Name[non_Ha]]
+
+            phot_df_ch = phot_df.loc[non_Ha]
+            arr0 = zip(phot_df_ch['ID'], rev_Name[non_Ha], corr_Name[non_Ha])
+            change_str0 = [str(a)+' '+b+' -> '+c+'\n' for a, b, c in arr0]
+
+            outfile = join(dir0, 'Plots/color_plots/{}_fix_colorrev2_file.dat'.format(filt))
+            log.info('## Writing : '+outfile)
+            f0 = open(outfile, 'w')
+            f0.writelines(change_str0)
+            f0.close()
+        else:
+            print("!!! New catalog does not require reducing old catalog! No change applied !!!")
 
     # Write new FITS file
     # c_data.NAME = corr_Name
     colorrev2_file = colorrev_file.replace('colorrev', 'colorrev2')
-    print("Writing : "+colorrev2_file)
+    # print("Writing : "+colorrev2_file)
     # fits.writeto(colorrev_file.replace('colorrev', 'colorrev2'), c_data, c_hdr)
