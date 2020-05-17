@@ -174,8 +174,12 @@ def read_nb_catalog(filt='', ID=None, use_fix=False):
 
     corr_Name = raw_Name.copy()
 
-    return colorrev_file, raw_data, c_data, c_hdr, raw_Name, rev_Name, \
-        corr_Name
+    if isinstance(ID, type(None)):
+        return colorrev_file, raw_data, c_data, c_hdr, raw_Name, rev_Name, \
+               corr_Name
+    else:
+        return colorrev_file, raw_data, c_data, c_hdr, raw_Name, rev_Name, \
+               corr_Name, NBIA_idx
 
 
 def read_zspec_data():
@@ -414,7 +418,7 @@ def main_color(old_selection=False):
         NB_zspec = phot_df['zspec']
 
         # Read in NB/IA photometric data
-        colorrev_file, raw_data, c_data, c_hdr, raw_Name, rev_Name, corr_Name = \
+        colorrev_file, raw_data, c_data, c_hdr, raw_Name, rev_Name, corr_Name, NBIA_idx = \
             read_nb_catalog(filt=filt, ID=phot_df['ID'], use_fix=True)
 
         N_NB = len(phot_df)
