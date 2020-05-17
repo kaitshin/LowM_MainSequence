@@ -410,6 +410,8 @@ def main_color(old_selection=False):
 
     filters = ['NB704', 'NB711', 'NB816', 'NB921', 'NB973']
 
+    _, raw_data0, c_data0, _, _, _, corr_Name0 = read_nb_catalog(use_fix=True)
+
     for filt in filters:
         # Read in photometric data
         phot_file = join(dir0, 'Plots/color_plots/{}_phot.csv'.format(filt))
@@ -533,6 +535,7 @@ def main_color(old_selection=False):
         if len(non_Ha) > 0:
             print("Changing {} instances".format(len(non_Ha)))
             corr_Name[non_Ha] = [str0.replace('Ha-'+filt, '???-'+filt) for str0 in rev_Name[non_Ha]]
+            corr_Name0[NBIA_idx] = corr_Name
 
             phot_df_ch = phot_df.loc[non_Ha]
             arr0 = zip(phot_df_ch['ID'], rev_Name[non_Ha], corr_Name[non_Ha])
@@ -547,7 +550,7 @@ def main_color(old_selection=False):
             print("!!! New catalog does not require reducing old catalog! No change applied !!!")
 
     # Write new FITS file
-    # c_data.NAME = corr_Name
+    c_data0.NAME = corr_Name0
     colorrev2_file = colorrev_file.replace('colorrev', 'colorrev2')
-    # print("Writing : "+colorrev2_file)
-    # fits.writeto(colorrev_file.replace('colorrev', 'colorrev2'), c_data, c_hdr)
+    print("Writing : "+colorrev2_file)
+    fits.writeto(colorrev_file.replace('colorrev', 'colorrev2'), c_data0, c_hdr, overwrite=True)
