@@ -515,20 +515,20 @@ def main_color(old_selection=False):
 
         # Identify those that were previously selected as H-alpha photometrically
         # that should not be included, and fix those using set logic
-        # These are the drops
-        common_Ha = set(Ha_sel_orig_phot) & set(new_Ha_index)
+        common_Ha = list(set(Ha_sel_orig_phot) & set(new_Ha_index))
         print("common_Ha {} : {}".format(filt, len(common_Ha)))
 
-        non_Ha = set(Ha_sel_orig_phot) - set(new_Ha_index)
+        # These are the drops
+        non_Ha = list(set(Ha_sel_orig_phot) - set(new_Ha_index))
         print("non_Ha {} : {}".format(filt, len(non_Ha)))
 
         # These are the adds
-        new_Ha = set(new_Ha_index) - set(Ha_sel_orig_phot)
+        new_Ha = list(set(new_Ha_index) - set(Ha_sel_orig_phot))
         print("new_Ha {} : {}".format(filt, len(new_Ha)))
 
         if len(non_Ha) > 0:
             print("Changing {} instances".format(len(non_Ha)))
-            corr_Name[non_Ha] = [str0.replace('Ha-'+filt,'???-'+filt) for str0 in rev_Name[non_Ha]]
+            corr_Name[non_Ha] = [str0.replace('Ha-'+filt, '???-'+filt) for str0 in rev_Name[non_Ha]]
 
             phot_df_ch = phot_df.loc[non_Ha]
             arr0 = zip(phot_df_ch['ID'], rev_Name[non_Ha], corr_Name[non_Ha])
