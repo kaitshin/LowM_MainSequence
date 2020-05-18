@@ -441,7 +441,8 @@ def main_color(old_selection=False):
 
         test_tab = Table([final_Ha_rev_Name], names=['final_Ha_ref_name'])
         exclude_filename = 'Plots/color_plots/{}_Ha_exclude_names.txt'.format(filt)
-        test_tab.write(join(dir0, exclude_filename), format='ascii.fixed_width_two_line')
+        test_tab.write(join(dir0, exclude_filename), overwrite=True,
+                       format='ascii.fixed_width_two_line')
 
         print("N(H-alpha) original ({}) : {} -> {}".format(filt, len(Ha_orig_full),
                                                            len(final_Ha_index)))
@@ -506,7 +507,8 @@ def main_color(old_selection=False):
 
         test_tab = Table([new_Ha_rev_Name, NB_zspec[new_Ha_index]], names=['new_Ha_rev_Name', 'zspec'])
         exclude_filename = 'Plots/color_plots/{}_Ha_phot.txt'.format(filt)
-        test_tab.write(join(dir0, exclude_filename), format='ascii.fixed_width_two_line')
+        test_tab.write(join(dir0, exclude_filename), overwrite=True,
+                       format='ascii.fixed_width_two_line')
 
         Ha_sel_orig_phot = np.where((NB_zspec[final_Ha_index] == -10) |
                                     (NB_zspec[final_Ha_index] == -1) |
@@ -517,7 +519,8 @@ def main_color(old_selection=False):
         test_tab = Table([rev_Name[Ha_sel_orig_phot], NB_zspec[Ha_sel_orig_phot]],
                          names=['Ha_sel_orig_phot', 'zspec'])
         exclude_filename = 'Plots/color_plots/{}_Ha_orig_phot.txt'.format(filt)
-        test_tab.write(join(dir0, exclude_filename), format='ascii.fixed_width_two_line')
+        test_tab.write(join(dir0, exclude_filename), overwrite=True,
+                       format='ascii.fixed_width_two_line')
 
         # Ha_sel_orig = np.array([xx for xx in range(N_NB) if
         #                         ('Ha-'+filt in rev_Name[xx]) and
