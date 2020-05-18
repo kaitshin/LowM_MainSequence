@@ -157,8 +157,36 @@ def fix_masses_out_of_range(masses_MMT_ii, masses_Keck_ii, masstype):
     return masses_MMT_ii, masses_Keck_ii
 
 
-def bins_table(indexes, NAME0, AP, stlr_mass, massbins_MMT, massbins_Keck, 
-    massZbins_MMT, massZbins_Keck, massZlist_filts_MMT, massZlist_filts_Keck):
+def handle_unusual_dual_emitters(names):
+    """
+    Purpose:
+      This is intended to refactor handling of dual emitters and how to classify them
+
+    :param names: list of full NB-IA identifying names
+
+    :return filts:
+    :return dual_iis:
+    :return dual_ii2:
+    """
+
+    # get redshift bins
+    #  ensures that dual NB704+NB711 emitters are treated as NB704-only emitters
+    #  purely for the purpose of more convenient filter corrections
+    filts = np.array([x[x.find('Ha-')+3:x.find('Ha-')+8] for x in names])
+
+    # this ensures that NB704+NB921 dual emitters will be placed in Ha-NB921 bins
+    #  since these sources are likely OIII-NB704 and Ha-NB921
+    dual_iis = [x for x in range(len(names)) if 'Ha-NB704' in names[x] and 'Ha-NB921' in names[x]]
+
+    # this ensures that the NB816+NB921 dual emitter will be placed in the NB921 bin
+    #  we decided this based on visual inspection of the photometry
+    dual_ii2 = [x for x in range(len(names)) if 'Ha-NB816' in names[x] and 'Ha-NB921' in names[x]]
+
+    return filts, dual_iis, dual_ii2
+
+
+def bins_table(indexes, NAME0, AP, stlr_mass, massbins_MMT, massbins_Keck,
+               massZbins_MMT, massZbins_Keck, massZlist_filts_MMT, massZlist_filts_Keck):
     '''
     Creates and returns a table of bins as such:
 
@@ -175,19 +203,12 @@ def bins_table(indexes, NAME0, AP, stlr_mass, massbins_MMT, massbins_Keck,
     names = NAME0[indexes]
     masses = stlr_mass[indexes]
 
-    # get redshift bins
-    #  ensures that dual NB704+NB711 emitters are treated as NB704-only emitters
-    #  purely for the purpose of more convenient filter corrections
-    filts = np.array([x[x.find('Ha-')+3:x.find('Ha-')+8] for x in names])
-    
-    # this ensures that NB704+NB921 dual emitters will be placed in Ha-NB921 bins
-    #  since these sources are likely OIII-NB704 and Ha-NB921
-    dual_iis = [x for x in range(len(names)) if 'Ha-NB704' in names[x] and 'Ha-NB921' in names[x]]
+    # Handle dual NB704+NB711 emitters, NB704+NB921 emitters, and
+    # NB816+NB921 emitters
+    filts, dual_iis, dual_ii2 = handle_unusual_dual_emitters(names)
+
     filts[dual_iis] = 'NB921'
     
-    # this ensures that the NB816+NB921 dual emitter will be placed in the NB921 bin
-    #  we decided this based on visual inspection of the photometry
-    dual_ii2 = [x for x in range(len(names)) if 'Ha-NB816' in names[x] and 'Ha-NB921' in names[x]]
     filts[dual_ii2] = 'NB921'
 
     # get stlrmass bins
@@ -433,6 +454,8 @@ def exclude_bad_sources(ha_ii, NAME0):
              NAME0[x]=='Ha-NB973_064347' or NAME0[x]=='Ha-NB973_084633')])
 
     bad_sources = np.concatenate([bad_highz_gal, bad_HbNB704_SIINB973_gals, no_flux_gal, weird_SFR_gal, possibly_AGNs])
+    print("bad_sources: {}".format(len(bad_sources)))
+
     ha_ii = np.delete(ha_ii, bad_sources)
     NAME0 = np.delete(NAME0, bad_sources)
 
