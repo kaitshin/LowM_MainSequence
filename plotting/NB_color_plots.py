@@ -323,10 +323,11 @@ def color_plot_generator(NB_cat_path, filt, config_tab=None, z_cat_tab=None,
     mag_dict['good_phot'][good_sigma] = 1
 
     # Write CSV file
-    df = pd.DataFrame(mag_dict)
-    df_outfile = join(path0, filt+'_phot.csv')
-    print("Writing : "+df_outfile)
-    df.to_csv(df_outfile, index=False)
+    if isinstance(color_sample_change, type(None)):
+        df = pd.DataFrame(mag_dict)
+        df_outfile = join(path0, filt+'_phot.csv')
+        print("Writing : "+df_outfile)
+        df.to_csv(df_outfile, index=False)
 
     if make_single_plot:
         if isinstance(color_sample_change, type(None)):
