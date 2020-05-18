@@ -27,6 +27,8 @@ import pandas as pd
 
 from ..mainseq_corrections import exclude_bad_sources, handle_unusual_dual_emitters
 
+from ..plotting.NB_color_plots import read_config_file, read_z_cat_file, color_plot_generator, NB_cat_path
+
 dir0 = '/Users/cly/GoogleDrive/Research/NASA_Summer2015/'
 
 
@@ -412,6 +414,9 @@ def main_color(old_selection=False):
 
     _, raw_data0, c_data0, _, _, _, corr_Name0 = read_nb_catalog(use_fix=True)
 
+    config_tab = read_config_file()
+    z_cat_tab = read_z_cat_file()
+
     for filt in filters:
         # Read in photometric data
         phot_file = join(dir0, 'Plots/color_plots/{}_phot.csv'.format(filt))
@@ -546,6 +551,9 @@ def main_color(old_selection=False):
             f0 = open(outfile, 'w')
             f0.writelines(change_str0)
             f0.close()
+
+            color_plot_generator(NB_cat_path, filt, config_tab=config_tab, z_cat_tab=z_cat_tab,
+                                 color_sample_change=non_Ha)
         else:
             print("!!! New catalog does not require reducing old catalog! No change applied !!!")
 
