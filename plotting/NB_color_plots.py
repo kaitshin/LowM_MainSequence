@@ -224,8 +224,8 @@ def identify_good_phot(filt, mag_dict):
     return good_sigma
 
 
-def color_plot_generator(NB_cat_path, filt, config_tab=None,
-                         z_cat_tab=None, ax=None):
+def color_plot_generator(NB_cat_path, filt, config_tab=None, z_cat_tab=None,
+                         ax=None, color_sample_change=None):
     """
     Purpose:
       Generate two-color plots for include in paper (pre referee request)
@@ -238,6 +238,8 @@ def color_plot_generator(NB_cat_path, filt, config_tab=None,
     :param config_tab: table from read_config_file()
     :param z_cat_tab: table from read_z_cat_file()
     :param ax: matplotlib.Axes
+    :param color_sample_change: list or numpy array containing index array of
+           sources that are not included in the new selection
     """
 
     make_single_plot = 0
@@ -327,7 +329,10 @@ def color_plot_generator(NB_cat_path, filt, config_tab=None,
     df.to_csv(df_outfile, index=False)
 
     if make_single_plot:
-        out_pdf = join(path0, filt + '.pdf')
+        if isinstance(color_sample_change, type(None)):
+            out_pdf = join(path0, filt + '.pdf')
+        else:
+            out_pdf = join(path0, filt + '_color_QA.pdf')
 
         fig, ax = plt.subplots()
 
@@ -400,6 +405,10 @@ def color_plot_generator(NB_cat_path, filt, config_tab=None,
             dual_Hb_idx = dual_idx[dual_Hb_idx]
             ax.scatter(x_arr[dual_Hb_idx], y_arr[dual_Hb_idx], marker='x', s=size,
                        linewidth=0.25, alpha=0.75, color='green', zorder=1)
+
+    if not isinstance(color_sample_change, type(None)):
+        ax.scatter(x_arr[color_sample_change], y_arr[color_sample_change], marker='x',
+                   facecolor='red', edgecolor='none', s=2, zorder=2)
 
     ax.minorticks_on()  # Add minor tick marks
     ax.tick_params(which='both', direction='in')  # ticks on the inside
