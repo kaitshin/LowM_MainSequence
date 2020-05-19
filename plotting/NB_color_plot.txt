@@ -1,0 +1,6 @@
+#filter   y_color  x_color   ytitle xtitle           yra         xra
+NB704     VR       Ri        V-R    R-i         [-0.20,1.8] [-0.2,1.20]
+NB711     VR       Ri        V-R    R-i         [-0.20,1.8] [-0.2,1.20]
+NB816     BV       Ri        B-V    R-i         [-0.40,2.0] [-0.3,2.00]
+NB921     BR       Ri        B-R    R-i         [-0.30,3.0] [-0.45,1.25]
+NB973     BR       Ri        B-R    R-i         [-0.30,3.0] [-0.4,1.25]

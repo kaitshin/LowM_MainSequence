@@ -6,30 +6,34 @@ This code will modify the colorrev.fits file to use updated spectroscopic
 redshifts from MMT/Hectospec and Keck/DEIMOS.  Some SDF NB excess emitters
 were mis-classified using color information
 """
+
 from __future__ import print_function
 
-import sys, os
+from chun_codes import systime, intersect, match_nosort
 
-from chun_codes import systime, intersect
-
-from os.path import exists
 from astropy.io import ascii as asc
 from astropy.io import fits
+from astropy import log
+from astropy.table import Table
 
 import numpy as np
 
-import glob
-
-from astropy.table import Table
-from astropy import log
-
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
-
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
+from os.path import join
+import pandas as pd
+
+from ..mainseq_corrections import exclude_bad_sources, handle_unusual_dual_emitters
+
+from ..plotting.NB_color_plots import read_config_file, read_z_cat_file, color_plot_generator, NB_cat_path
+
+dir0 = '/Users/cly/GoogleDrive/Research/NASA_Summer2015/'
+
+
 def NB_spec_redshift(filt):
-    '''
+    """
     Redshift for NB excess emitter selection for various emission lines
 
     Parameters
@@ -55,85 +59,189 @@ def NB_spec_redshift(filt):
     Modified by Chun Ly, 1 February 2018
      - Add MgII for IA679
      - Define and return z_vals
-    '''
+    """
 
     if filt == 'NB704':
-        z1, z2  = 0.050, 0.100 # H-alpha
-        z3, z4  = 0.370, 0.475 # OIII
-        z5, z6  = 0.870, 0.910 # OII
-        z7, z8  = 4.600, 4.900 # Ly-alpha
-        z9, z10 = 0.800, 0.850 # NeIII
-        z11,z12 = 1.460, 1.560 # MgII | + on 31/01/2018
+        z1,   z2 = 0.050, 0.100  # H-alpha
+        z3,   z4 = 0.370, 0.475  # OIII
+        z5,   z6 = 0.870, 0.910  # OII
+        z7,   z8 = 4.600, 4.900  # Ly-alpha
+        z9,  z10 = 0.800, 0.850  # NeIII
+        z11, z12 = 1.460, 1.560  # MgII | + on 31/01/2018
         z_vals = (z1, z2, z3, z4, z5, z6, z7, z8, z9, z10, z11, z12)
         ltype = ['Ha', 'OIII', 'OII',  'Lya', 'NeIII', 'MgII']
-    #endif
+
     if filt == 'NB711':
-        z1, z2  = 0.050, 0.100 # H-alpha
-        z3, z4  = 0.375, 0.475 # OIII
-        z5, z6  = 0.875, 0.940 # OII
-        z7, z8  = 4.650, 4.900 # Ly-alpha
-        z9, z10 = 0.800, 0.870 # NeIII
-        z11,z12 = 1.460, 1.560 # MgII | + on 31/01/2018
+        z1,   z2 = 0.050, 0.100  # H-alpha
+        z3,   z4 = 0.375, 0.475  # OIII
+        z5,   z6 = 0.875, 0.940  # OII
+        z7,   z8 = 4.650, 4.900  # Ly-alpha
+        z9,  z10 = 0.800, 0.870  # NeIII
+        z11, z12 = 1.460, 1.560  # MgII | + on 31/01/2018
         z_vals = (z1, z2, z3, z4, z5, z6, z7, z8, z9, z10, z11, z12)
         ltype = ['Ha', 'OIII', 'OII',  'Lya', 'NeIII', 'MgII']
-    #endif
+
     if filt == 'NB816':
-        z1, z2  = 0.210, 0.260 # H-alpha
-        z3, z4  = 0.600, 0.700 # OIII
-        z5, z6  = 1.150, 1.225 # OII
-        z7, z8  = 5.600, 5.800 # Ly-alpha
-        z9, z10 = 1.075, 1.150 # NeIII
+        z1,  z2 = 0.210, 0.260  # H-alpha
+        z3,  z4 = 0.600, 0.700  # OIII
+        z5,  z6 = 1.150, 1.225  # OII
+        z7,  z8 = 5.600, 5.800  # Ly-alpha
+        z9, z10 = 1.075, 1.150  # NeIII
         z_vals = (z1, z2, z3, z4, z5, z6, z7, z8, z9, z10)
         ltype = ['Ha', 'OIII', 'OII',  'Lya', 'NeIII']
-    #endif
+
     if filt == 'NB921':
-        z1, z2  = 0.385, 0.429 # H-alpha
-        z3, z4  = 0.810, 0.910 # OIII
-        z5, z6  = 1.445, 1.492 # OII
-        z7, z8  = 6.520, 6.630 # Ly-alpha
-        z9, z10 = 0.000, 0.000 # NeIII
+        z1,  z2 = 0.385, 0.429  # H-alpha
+        z3,  z4 = 0.810, 0.910  # OIII
+        z5,  z6 = 1.445, 1.492  # OII
+        z7,  z8 = 6.520, 6.630  # Ly-alpha
+        z9, z10 = 0.000, 0.000  # NeIII
         z_vals = (z1, z2, z3, z4, z5, z6, z7, z8, z9, z10)
         ltype = ['Ha', 'OIII', 'OII',  'Lya', 'NeIII']
-    #endif
+
     if filt == 'NB973':
-        z1, z2  = 0.450, 0.520 # H-alpha
-        z3, z4  = 0.940, 0.975 # OIII
-        z5, z6  = 1.585, 1.620 # OII
-        z7, z8  = 6.950, 7.100 # Ly-alpha
-        z9, z10 = 0.000, 0.000 # NeIII
+        z1,  z2 = 0.450, 0.520  # H-alpha
+        z3,  z4 = 0.940, 0.975  # OIII
+        z5,  z6 = 1.585, 1.620  # OII
+        z7,  z8 = 6.950, 7.100  # Ly-alpha
+        z9, z10 = 0.000, 0.000  # NeIII
         z_vals = (z1, z2, z3, z4, z5, z6, z7, z8, z9, z10)
         ltype = ['Ha', 'OIII', 'OII',  'Lya', 'NeIII']
-    #endif
 
     # + on 29/01/2018
     if filt == 'IA598':
-        z1, z2  = 0.000, 0.000 # Don't really use this
-        z3, z4  = 0.150, 0.300 # [OIII]/H-beta
-        z5, z6  = 0.550, 0.650 # [OII]
-        z7, z8  = 3.600, 4.100 # Ly-alpha
-        z9, z10 = 0.000, 0.000 # NeIII
-        #Also, we have 1 CIII] 1909. No [NeIII]
+        z1,  z2 = 0.000, 0.000  # Don't really use this
+        z3,  z4 = 0.150, 0.300  # [OIII]/H-beta
+        z5,  z6 = 0.550, 0.650  # [OII]
+        z7,  z8 = 3.600, 4.100  # Ly-alpha
+        z9, z10 = 0.000, 0.000  # NeIII
+        # Also, we have 1 CIII] 1909. No [NeIII]
         z_vals = (z1, z2, z3, z4, z5, z6, z7, z8, z9, z10)
         ltype = ['Ha', 'OIII', 'OII',  'Lya', 'NeIII']
-    #endif
+
     if filt == 'IA679':
-        z1, z2  = 0.000, 0.080 # Ha. Don't really use this
-        z3, z4  = 0.300, 0.450 # [OIII]/H-beta
-        z5, z6  = 0.750, 0.950 # [OII]
-        z7, z8  = 4.200, 4.900 # Ly-alpha
-        z9, z10 = 0.000, 0.000 # NeIII
-        z11,z12 = 1.500, 1.510 # MgII
-        #Also, we have 1 CIII] 1909 and 1 or 2 CIV 1549. No [NeIII]
+        z1,   z2 = 0.000, 0.080  # Ha. Don't really use this
+        z3,   z4 = 0.300, 0.450  # [OIII]/H-beta
+        z5,   z6 = 0.750, 0.950  # [OII]
+        z7,   z8 = 4.200, 4.900  # Ly-alpha
+        z9,  z10 = 0.000, 0.000  # NeIII
+        z11, z12 = 1.500, 1.510  # MgII
+        # Also, we have 1 CIII] 1909 and 1 or 2 CIV 1549. No [NeIII]
         z_vals = (z1, z2, z3, z4, z5, z6, z7, z8, z9, z10, z11, z12)
         ltype = ['Ha', 'OIII', 'OII',  'Lya', 'NeIII', 'MgII']
-    #endif
 
     return z_vals, ltype
-#enddef
 
-def main(silent=False, verbose=True):
 
-    '''
+def read_nb_catalog(filt='', ID=None, use_fix=False):
+    """
+    Purpose:
+      Read in NB/IA excess photometric catalogs
+
+    :param filt: Optional input.  Use for main_color() to restrict sample to
+                 a specific NB sample. Options are:
+                   'NB704', 'NB711', 'NB816', 'NB921', or 'NB973'
+    :param ID: Optional input.  Use for cross-matching to specific filt
+    :param use_fix: bool to indicate whether to use revised colorrev file
+                    (see main()) based on new spec-z or the old one
+    :return:
+    """
+
+    orig_file   = dir0+'Catalogs/NB_IA_emitters.nodup.fits'
+    colorrev_file = orig_file.replace('.fits', '.colorrev.fits')
+    if use_fix:
+        colorrev_file = colorrev_file.replace('.fits', '.fix.fits')
+
+    log.info('### Reading : '+orig_file)
+    raw_data = fits.getdata(orig_file)
+
+    log.info('### Reading : '+colorrev_file)
+    c_data, c_hdr = fits.getdata(colorrev_file, header=True)
+
+    raw_Name = np.array([str0.replace(' ', '') for str0 in raw_data.NAME],
+                        dtype='|S67')
+    rev_Name = np.array([str0.replace(' ', '') for str0 in c_data.NAME])
+
+    if not isinstance(ID, type(None)):
+        allcol_file = dir0+'Catalogs/NB_IA_emitters.allcols.fits'
+        log.info('### Reading : '+allcol_file)
+        allcol_data = fits.getdata(allcol_file)
+
+        idx1, NBIA_idx = match_nosort(ID, allcol_data[filt+'_ID'])
+
+        raw_data = raw_data[NBIA_idx]
+        c_data = c_data[NBIA_idx]
+        raw_Name = raw_Name[NBIA_idx]
+        rev_Name = rev_Name[NBIA_idx]
+
+    corr_Name = raw_Name.copy()
+
+    if isinstance(ID, type(None)):
+        return colorrev_file, raw_data, c_data, c_hdr, raw_Name, rev_Name, \
+               corr_Name
+    else:
+        return colorrev_file, raw_data, c_data, c_hdr, raw_Name, rev_Name, \
+               corr_Name, NBIA_idx
+
+
+def read_zspec_data():
+    """
+    Purpose:
+      Read in z-spec data
+
+    :return:
+    z_data: astropy table
+    z_spec0: spec-z data
+    with_z : numpy index array with spec-z
+    without_z : numpy index array without spec-z
+    """
+
+    zspec_file = dir0+'Catalogs/nb_ia_zspec.txt'
+    log.info('### Reading : '+zspec_file)
+    z_data = asc.read(zspec_file)
+
+    z_spec0 = z_data['zspec0']
+
+    # Note: This should give 1989. Which matches the number of spectra
+    # in spec_match/1014/NB_IA_emitters.spec.fits (current 'current')
+    # in_z_cat = np.where((z_spec0 != -10))[0]
+
+    # Note: This yields 1519 galaxies
+    with_z = np.where((z_spec0 != -10) & (z_spec0 < 9.999) &
+                      (z_spec0 != -1.0))[0]
+
+    # + on 30/01/2018
+    without_z = np.where((z_spec0 == -10) | (z_spec0 >= 9.999) |
+                         (z_spec0 == -1.0))[0]
+
+    return z_data, z_spec0, with_z, without_z
+
+
+def handle_bad_sources_dual_emitters(Ha_index, rev_Name, filt):
+
+    Ha_index_exclude, rev_Name_exclude = exclude_bad_sources(Ha_index, rev_Name)
+
+    filts, dual_iis, dual_ii2 = handle_unusual_dual_emitters(rev_Name_exclude)
+
+    final_Ha_index = np.copy(Ha_index_exclude)
+    final_Ha_rev_Name = np.copy(rev_Name_exclude)
+
+    if filt != 'NB921':
+        if len(dual_iis) > 0:
+            print("dual_iis: {}".format(len(dual_iis)))
+            final_Ha_index = np.delete(final_Ha_index, dual_iis)
+            final_Ha_rev_Name = np.delete(final_Ha_rev_Name, dual_iis)
+
+        if len(dual_ii2) > 0:
+            print("dual_ii2: {}".format(len(dual_ii2)))
+            final_Ha_index = np.delete(final_Ha_index, dual_ii2)
+            final_Ha_rev_Name = np.delete(final_Ha_rev_Name, dual_ii2)
+
+    return final_Ha_index, final_Ha_rev_Name
+
+
+def main(silent=False):
+    """
     Main function for fix_colorrev_file.py
 
     Parameters
@@ -142,8 +250,6 @@ def main(silent=False, verbose=True):
     silent : boolean
       Turns off stdout messages. Default: False
 
-    verbose : boolean
-      Turns on additional stdout messages. Default: True
 
     Returns
     -------
@@ -177,56 +283,26 @@ def main(silent=False, verbose=True):
      - Bug fix: Incorrect boolean statement. Allow for zmin = 0.0
     Modified by Chun Ly,  1 February 2018
      - Write updated colorrev file
-    '''
+    """
     
-    if silent == False: log.info('### Begin main : '+systime())
+    if not silent:
+        log.info('### Begin main : '+systime())
 
-    dir0 = '/Users/cly/Google Drive/NASA_Summer2015/'
+    # Read in NB/IA photometric data
+    colorrev_file, raw_data, c_data, c_hdr, raw_Name, rev_Name, corr_Name = \
+        read_nb_catalog()
 
-    # Mod on 29/01/2018
-    orig_file     = dir0+'Catalogs/NB_IA_emitters.nodup.fits'
-    colorrev_file = orig_file.replace('.fits','.colorrev.fits')
-
-    # + on 29/01/2018
-    log.info('### Reading : '+orig_file)
-    raw_data = fits.getdata(orig_file)
-
-    log.info('### Reading : '+colorrev_file)
-    c_data, c_hdr = fits.getdata(colorrev_file, header=True) # Mod on 01/02/2018
-
-    # + on 29/01/2018
-    raw_Name = np.array([str0.replace(' ','') for str0 in raw_data.NAME],
-                        dtype='|S67')
-    rev_Name = np.array([str0.replace(' ','') for str0 in c_data.NAME])
-
-    corr_Name = raw_Name.copy() # + on 29/01/2018
-
-    zspec_file = dir0+'Catalogs/nb_ia_zspec.txt'
-    log.info('### Reading : '+zspec_file)
-    z_data = asc.read(zspec_file)
-
-    z_spec0 = z_data['zspec0']
-
-    # Note: This should give 1989. Which matches the number of spectra
-    # in spec_match/1014/NB_IA_emitters.spec.fits (current 'current')
-    in_z_cat = np.where((z_spec0 != -10))[0]
-
-    # Note: This yields 1519 galaxies
-    with_z = np.where((z_spec0 != -10) & (z_spec0 < 9.999) &
-                      (z_spec0 != -1.0))[0]
-
-    # + on 30/01/2018
-    without_z = np.where((z_spec0 == -10) | (z_spec0 >= 9.999) |
-                         (z_spec0 == -1.0))[0]
+    # Read in spec-z dataset
+    z_data, z_spec0, with_z, without_z = read_zspec_data()
 
     corr_Name[without_z] = rev_Name[without_z]
 
-    filt0 = ['NB704','NB711','NB816','NB921','NB973','IA598','IA679']
+    filt0 = ['NB704', 'NB711', 'NB816', 'NB921', 'NB973', 'IA598', 'IA679']
 
     out_pdf = dir0+'Plots/NB_IA_zspec.pdf'
     pp = PdfPages(out_pdf)
 
-    zmax = [1.05, 1.05, 1.3, 1.55, 1.70, 0.70, 0.96]
+    z_max = [1.05, 1.05, 1.3, 1.55, 1.70, 0.70, 0.96]
     for ff in range(len(filt0)):
         idx = [xx for xx in range(len(c_data)) if filt0[ff] in c_data.NAME[xx]]
         idx_z = intersect(idx, with_z)
@@ -234,26 +310,25 @@ def main(silent=False, verbose=True):
         z_vals, ltype = NB_spec_redshift(filt0[ff])
 
         fig, ax = plt.subplots()
-        N, bins, patch = ax.hist(z_spec0[idx_z], bins=500, alpha=0.5,
-                                 edgecolor='none', histtype='bar',
-                                 align='mid')
+        ax.hist(z_spec0[idx_z], bins=500, alpha=0.5, edgecolor='none',
+                histtype='bar', align='mid')
         ax.set_xlabel('Spectroscopic Redshift')
         ax.set_ylabel('Number of Spectra')
         ax.minorticks_on()
-        ax.annotate(filt0[ff], [0.025,0.975], xycoords='axes fraction',
+        ax.annotate(filt0[ff], [0.025, 0.975], xycoords='axes fraction',
                     ha='left', va='top')
 
         # zoom-in inset panel | + on 12/12/2016
         axins = inset_axes(ax, width=4., height=4., loc=1)
         axins.hist(z_spec0[idx_z], bins=500, alpha=0.5, edgecolor='none',
                    histtype='bar', align='mid')
-        axins.set_xlim([0.0,zmax[ff]])
+        axins.set_xlim([0.0, z_max[ff]])
         axins.set_xlabel(r'$z_{\rm spec}$')
         # axins.set_ylim([0.0,max(N)])
         axins.minorticks_on()
 
         # Draw vertical lines for selection | + on 29/01/2018
-        ctype = ['red','green','blue','black','purple', 'magenta']
+        ctype = ['red', 'green', 'blue', 'black', 'purple', 'magenta']
         # ltype = [ 'Ha', 'OIII', 'OII',  'Lya', 'NeIII']
 
         for zz in range(len(z_vals)/2):
@@ -269,18 +344,18 @@ def main(silent=False, verbose=True):
                                    (z_spec0[idx_z][xx] >= z_vals[2*zz]) &
                                    (z_spec0[idx_z][xx] <= z_vals[2*zz+1])])
                 print('%s %.2f %.2f %03i' % ((ltype[zz]+'-'+filt0[ff]).rjust(11), z_vals[2*zz],
-                                                             z_vals[2*zz+1], len(z_line)))
+                                             z_vals[2*zz+1], len(z_line)))
 
                 # + on 30/01/2018
                 if len(z_line) > 0:
                     z_temp = np.array(idx_z)[z_line]
-                    new_Name = [str0.replace(filt0[ff],ltype[zz]+'-'+filt0[ff]) for
+                    new_Name = [str0.replace(filt0[ff], ltype[zz]+'-'+filt0[ff]) for
                                 str0 in corr_Name[z_temp]]
                     corr_Name[z_temp] = new_Name
-            #endif
-        #endfor
+            # endif
+        # end for
 
-        fig.set_size_inches(8,8)
+        fig.set_size_inches(8, 8)
         fig.savefig(pp, format='pdf', bbox_inches='tight')
 
         # Get spec-z cases that don't have color info updated | + on 30/01/2018
@@ -293,8 +368,9 @@ def main(silent=False, verbose=True):
             tab_temp.sort('zspec0')
             outfile2 = dir0+'Catalogs/'+filt0[ff]+'_nochange.tbl'
             log.info('### Writing : '+outfile2)
-            tab_temp.write(outfile2, format='ascii.fixed_width_two_line', overwrite=True)
-    #endfor
+            tab_temp.write(outfile2, format='ascii.fixed_width_two_line',
+                           overwrite=True)
+    # end for
 
     pp.close()
 
@@ -306,7 +382,8 @@ def main(silent=False, verbose=True):
     z_data_ch = z_data[change]
     arr0 = zip(z_data_ch['ID0'], z_data_ch['zspec0'], z_data_ch['slit_str0'],
                rev_Name[change], corr_Name[change])
-    change_str0 = [str(a)+' '+str(b)+' '+c+' '+d+' -> '+e+'\n' for a,b,c,d,e in arr0]
+    change_str0 = [str(a)+' '+str(b)+' '+c+' '+d+' -> '+e+'\n' for
+                   a, b, c, d, e in arr0]
 
     outfile = dir0+'Catalogs/fix_colorrev_file.dat'
     log.info('## Writing : '+outfile)
@@ -316,7 +393,177 @@ def main(silent=False, verbose=True):
 
     # + on 01/02/2018
     c_data.NAME = corr_Name
-    fits.writeto(colorrev_file.replace('.fits','.fix.fits'), c_data, c_hdr)
-    if silent == False: log.info('### End main : '+systime())
-#enddef
+    fits.writeto(colorrev_file.replace('.fits', '.fix.fits'), c_data, c_hdr)
+    if not silent:
+        log.info('### End main : '+systime())
 
+
+def main_color(old_selection=False):
+    """
+    Purpose:
+      Update selection using revised color selection for non spec-z
+
+    :param old_selection: boolean to indicate whether to use old selection or new. Default: False
+    :return:
+    """
+
+    # Read in z-spec data
+    # z_data, z_spec0, with_z, without_z = read_zspec_data()
+
+    filters = ['NB704', 'NB711', 'NB816', 'NB921', 'NB973']
+
+    _, raw_data0, c_data0, _, _, _, corr_Name0 = read_nb_catalog(use_fix=True)
+
+    config_tab = read_config_file()
+    z_cat_tab = read_z_cat_file()
+
+    for filt in filters:
+        # Read in photometric data
+        phot_file = join(dir0, 'Plots/color_plots/{}_phot.csv'.format(filt))
+        phot_df = pd.read_csv(phot_file)
+        good_phot = phot_df['good_phot']
+        NB_zspec = phot_df['zspec']
+
+        # Read in NB/IA photometric data
+        colorrev_file, raw_data, c_data, c_hdr, raw_Name, rev_Name, corr_Name, NBIA_idx = \
+            read_nb_catalog(filt=filt, ID=phot_df['ID'], use_fix=True)
+
+        N_NB = len(phot_df)
+        print("N ({}) : {}".format(filt, N_NB))
+
+        with_specz = np.where(NB_zspec != -10.0)[0]
+        print("with spec-z ({}) : {}".format(filt, len(with_specz)))
+
+        Ha_orig_full = np.array([xx for xx in range(N_NB) if 'Ha-'+filt in rev_Name[xx]])
+
+        final_Ha_index, final_Ha_rev_Name = \
+            handle_bad_sources_dual_emitters(Ha_orig_full, rev_Name[Ha_orig_full], filt)
+
+        test_tab = Table([final_Ha_rev_Name], names=['final_Ha_ref_name'])
+        exclude_filename = 'Plots/color_plots/{}_Ha_exclude_names.txt'.format(filt)
+        test_tab.write(join(dir0, exclude_filename), overwrite=True,
+                       format='ascii.fixed_width_two_line')
+
+        print("N(H-alpha) original ({}) : {} -> {}".format(filt, len(Ha_orig_full),
+                                                           len(final_Ha_index)))
+
+        # Mark those with spec-z in H-alpha
+        z_vals, _ = NB_spec_redshift(filt)
+        Ha_zspec = np.where((NB_zspec >= z_vals[0]) & (NB_zspec <= z_vals[1]))[0]
+        print("N(H-alpha) with spec-z ({}) : {}".format(filt, len(Ha_zspec)))
+        Ha_zspec_file = join(dir0, 'Plots/color_plots/{}_Ha_zspec.txt'.format(filt))
+        print("Writing : "+Ha_zspec_file)
+        f0 = open(Ha_zspec_file, 'w')
+        f0.writelines([str0+'\n' for str0 in rev_Name[Ha_zspec]])
+        f0.close()
+
+        if 'NB7' in filt:
+            # NB704 and NB711 selection
+            VR = phot_df['VR']
+            Ri = phot_df['Ri']
+
+            # Old selection
+            if old_selection:
+                Ha_sel = np.where((VR <= 0.82 * Ri + 0.264) & (VR >= 2.5 * Ri - 0.24) &
+                                  good_phot & ((NB_zspec == -10) | (NB_zspec == -1) | (NB_zspec >= 9.9)))[0]
+            else:
+                Ha_sel = np.where((VR <= 0.84 * Ri + 0.125) & (VR >= 2.5 * Ri - 0.24) &
+                                  good_phot & ((NB_zspec == -10) | (NB_zspec == -1) | (NB_zspec >= 9.9)))[0]
+
+        if filt == 'NB816':
+            # NB816 selection
+            BV = phot_df['BV']
+            Ri = phot_df['Ri']
+
+            if old_selection:
+                Ha_sel = np.where((Ri <= 0.45) & (BV >= 2 * Ri - 0.1) & good_phot &
+                                  ((NB_zspec == -10) | (NB_zspec == -1) | (NB_zspec >= 9.9)))[0]
+            else:
+                Ha_sel = np.where((Ri <= 0.45) & (BV >= 2 * Ri) & good_phot &
+                                  ((NB_zspec == -10) | (NB_zspec == -1) | (NB_zspec >= 9.9)))[0]
+
+        if filt == 'NB921':
+            # NB921 selection
+            BR = phot_df['BR']
+            Ri = phot_df['Ri']
+
+            Ha_sel = np.where((Ri <= 0.45) & (BR >= 1.46 * Ri + 0.58) & good_phot &
+                              ((NB_zspec == -10) | (NB_zspec == -1) | (NB_zspec >= 9.9)))[0]
+
+        if filt == 'NB973':
+            # NB973 selection
+            BR = phot_df['BR']
+            Ri = phot_df['Ri']
+
+            Ha_sel = np.where((Ri >= -0.4) & (Ri <= 0.55) & (BR >= 2.423 * Ri + 0.06386) &
+                              (BR >= 0.5) & (BR <= 3.0) & good_phot &
+                              ((NB_zspec == -10) | (NB_zspec == -1) | (NB_zspec >= 9.9)))[0]
+
+        print("N(H-alpha) phot ({}) : {}".format(filt, len(Ha_sel)))
+
+        new_Ha_index, new_Ha_rev_Name = \
+            handle_bad_sources_dual_emitters(Ha_sel, rev_Name[Ha_sel], filt)
+        print("N(H-alpha) phot ({}) : {}".format(filt, len(new_Ha_index)))
+
+        test_tab = Table([new_Ha_rev_Name, NB_zspec[new_Ha_index]], names=['new_Ha_rev_Name', 'zspec'])
+        exclude_filename = 'Plots/color_plots/{}_Ha_phot.txt'.format(filt)
+        test_tab.write(join(dir0, exclude_filename), overwrite=True,
+                       format='ascii.fixed_width_two_line')
+
+        Ha_sel_orig_phot = np.where((NB_zspec[final_Ha_index] == -10) |
+                                    (NB_zspec[final_Ha_index] == -1) |
+                                    (NB_zspec[final_Ha_index] >= 9.9))[0]
+        print("N(H-alpha) original phot ({}) : {} ".format(filt, len(Ha_sel_orig_phot)))
+        Ha_sel_orig_phot = final_Ha_index[Ha_sel_orig_phot]
+
+        test_tab = Table([rev_Name[Ha_sel_orig_phot], NB_zspec[Ha_sel_orig_phot]],
+                         names=['Ha_sel_orig_phot', 'zspec'])
+        exclude_filename = 'Plots/color_plots/{}_Ha_orig_phot.txt'.format(filt)
+        test_tab.write(join(dir0, exclude_filename), overwrite=True,
+                       format='ascii.fixed_width_two_line')
+
+        # Ha_sel_orig = np.array([xx for xx in range(N_NB) if
+        #                         ('Ha-'+filt in rev_Name[xx]) and
+        #                        (NB_zspec[xx] == -10 or NB_zspec[xx] >= 9.9)])
+        # print("N(H-alpha) original ({}) : {}".format(filt, len(Ha_sel_orig)))
+
+        # Identify those that were previously selected as H-alpha photometrically
+        # that should not be included, and fix those using set logic
+        common_Ha = list(set(Ha_sel_orig_phot) & set(new_Ha_index))
+        print("common_Ha {} : {}".format(filt, len(common_Ha)))
+
+        # These are the drops
+        non_Ha = list(set(Ha_sel_orig_phot) - set(new_Ha_index))
+        print("non_Ha {} : {}".format(filt, len(non_Ha)))
+
+        # These are the adds
+        new_Ha = list(set(new_Ha_index) - set(Ha_sel_orig_phot))
+        print("new_Ha {} : {}".format(filt, len(new_Ha)))
+
+        if len(non_Ha) > 0:
+            print("Changing {} instances".format(len(non_Ha)))
+            corr_Name[non_Ha] = [str0.replace('Ha-'+filt, '???-'+filt) for str0 in rev_Name[non_Ha]]
+            corr_Name0[NBIA_idx] = corr_Name
+
+            phot_df_ch = phot_df.loc[non_Ha]
+            arr0 = zip(raw_data0.ID[NBIA_idx[non_Ha]], phot_df_ch['ID'],
+                       rev_Name[non_Ha], corr_Name[non_Ha])
+            change_str0 = ['{:04} {:06} {} -> {}\n'.format(a, b, c, d) for
+                           a, b, c, d in arr0]
+
+            outfile = join(dir0, 'Plots/color_plots/{}_fix_colorrev2_file.dat'.format(filt))
+            log.info('## Writing : '+outfile)
+            f0 = open(outfile, 'w')
+            f0.writelines(change_str0)
+            f0.close()
+
+            color_plot_generator(NB_cat_path, filt, config_tab=config_tab, z_cat_tab=z_cat_tab,
+                                 color_sample_change=non_Ha)
+        else:
+            print("!!! New catalog does not require reducing old catalog! No change applied !!!")
+
+    # Write new FITS file
+    c_data0.NAME = corr_Name0
+    colorrev2_file = colorrev_file.replace('colorrev', 'colorrev2')
+    print("Writing : "+colorrev2_file)
+    fits.writeto(colorrev_file.replace('colorrev', 'colorrev2'), c_data0, c_hdr, overwrite=True)
