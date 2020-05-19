@@ -412,7 +412,9 @@ def main_color(old_selection=False):
 
     filters = ['NB704', 'NB711', 'NB816', 'NB921', 'NB973']
 
-    _, raw_data0, c_data0, _, _, _, corr_Name0 = read_nb_catalog(use_fix=True)
+    _, raw_data0, c_data0, _, _, rev_Name, corr_Name0 = read_nb_catalog(use_fix=True)
+
+    corr_Name0 = rev_Name
 
     config_tab = read_config_file()
     z_cat_tab = read_z_cat_file()
@@ -543,7 +545,7 @@ def main_color(old_selection=False):
         if len(non_Ha) > 0:
             print("Changing {} instances".format(len(non_Ha)))
             corr_Name[non_Ha] = [str0.replace('Ha-'+filt, '???-'+filt) for str0 in rev_Name[non_Ha]]
-            corr_Name0[NBIA_idx] = corr_Name
+            corr_Name0[NBIA_idx[non_Ha]] = corr_Name[non_Ha]
 
             phot_df_ch = phot_df.loc[non_Ha]
             arr0 = zip(raw_data0.ID[NBIA_idx[non_Ha]], phot_df_ch['ID'],
