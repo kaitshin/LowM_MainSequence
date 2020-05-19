@@ -546,8 +546,10 @@ def main_color(old_selection=False):
             corr_Name0[NBIA_idx] = corr_Name
 
             phot_df_ch = phot_df.loc[non_Ha]
-            arr0 = zip(phot_df_ch['ID'], rev_Name[non_Ha], corr_Name[non_Ha])
-            change_str0 = [str(a)+' '+b+' -> '+c+'\n' for a, b, c in arr0]
+            arr0 = zip(raw_data0.ID[NBIA_idx[non_Ha]], phot_df_ch['ID'],
+                       rev_Name[non_Ha], corr_Name[non_Ha])
+            change_str0 = ['{:04} {:06} {} -> {}\n'.format(a, b, c, d) for
+                           a, b, c, d in arr0]
 
             outfile = join(dir0, 'Plots/color_plots/{}_fix_colorrev2_file.dat'.format(filt))
             log.info('## Writing : '+outfile)
