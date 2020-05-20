@@ -1,3 +1,17 @@
+"""
+NAME:
+    MC_contours.py
+
+PURPOSE:
+    
+
+INPUTS:
+    config.FULL_PATH+'Main_Sequence/mainseq_corrections_tbl.txt'
+
+OUTPUTS:
+    config.FULL_PATH+'Plots/main_sequence/MC_regr_contours_noz.pdf'
+    config.FULL_PATH+'Plots/main_sequence/MC_regr_contours.pdf'
+"""
 from __future__ import print_function
 
 import numpy as np
@@ -6,12 +20,9 @@ from astropy.stats import sigma_clip
 from scipy import interpolate
 from astropy.convolution import convolve, Box2DKernel
 from astropy.io import ascii as asc
+
+import config
 from MACT_utils import get_tempz, get_mainseq_fit_params, compute_onesig_pdf
-
-
-FULL_PATH = r'/Users/kaitlynshin/Google Drive/NASA_Summer2015/'
-CUTOFF_SIGMA = 4.0
-CUTOFF_MASS = 6.0
 
 num_iters = 10000
 
@@ -178,15 +189,13 @@ def plot_contours_two_params(sfrs, delta_sfrs, mass):
         transform=ax.transAxes, fontsize=13)
     ax.set_xlabel(lbl_arr[i], fontsize=12)
     ax.set_ylabel(lbl_arr[j], fontsize=12)
-    # ax.set_xlim([0.863,0.907])
-    # ax.set_ylim([-8.77, -8.39])
-    ax.set_xlim([0.77, 0.815])
-    ax.set_ylim([-7.82, -7.4])
+    ax.set_xlim([np.mean(params_arr[i])-0.02, np.mean(params_arr[i])+0.02])
+    ax.set_ylim([np.mean(params_arr[j])-0.2, np.mean(params_arr[j])+0.2])
 
     ax.tick_params(axis='both', labelsize='10', which='both', direction='in')
     f.set_size_inches(5,4)
     plt.tight_layout()
-    plt.savefig(FULL_PATH+'Plots/main_sequence/MC_regr_contours_noz.pdf')
+    plt.savefig(config.FULL_PATH+'Plots/main_sequence/MC_regr_contours_noz.pdf')
 
 
 def plot_contours_three_params(sfrs, delta_sfrs, mz_data):
@@ -231,15 +240,15 @@ def plot_contours_three_params(sfrs, delta_sfrs, mz_data):
         direction='in') for ax in axes]
     f.set_size_inches(15,5)
     plt.tight_layout()
-    plt.savefig(FULL_PATH+'Plots/main_sequence/MC_regr_contours.pdf')
+    plt.savefig(config.FULL_PATH+'Plots/main_sequence/MC_regr_contours.pdf')
 
 
 def main():
     # reading input files
-    corr_tbl = asc.read(FULL_PATH+'Main_Sequence/mainseq_corrections_tbl.txt',
+    corr_tbl = asc.read(config.FULL_PATH+'Main_Sequence/mainseq_corrections_tbl.txt',
         guess=False, Reader=asc.FixedWidthTwoLine)
-    good_sig_iis = np.where((corr_tbl['flux_sigma'] >= CUTOFF_SIGMA) & 
-        (corr_tbl['stlr_mass'] >= CUTOFF_MASS))[0]
+    good_sig_iis = np.where((corr_tbl['flux_sigma'] >= config.CUTOFF_SIGMA) & 
+        (corr_tbl['stlr_mass'] >= config.CUTOFF_MASS))[0]
     corr_tbl = corr_tbl[good_sig_iis]
 
     filts = corr_tbl['filt'].data
@@ -260,7 +269,7 @@ def main():
     tempz = get_tempz(zspec0, filts)
     mz_data = np.vstack([mass, tempz]).T
 
-    # plot_contours_two_params(sfrs, delta_sfrs, mass)
+    plot_contours_two_params(sfrs, delta_sfrs, mass)
     plot_contours_three_params(sfrs, delta_sfrs, mz_data)
 
 

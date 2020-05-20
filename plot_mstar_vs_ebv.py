@@ -7,12 +7,12 @@ PURPOSE:
     depends on mainseq_corrections.py, 
 
 INPUTS:
-    FULL_PATH+'Main_Sequence/mainseq_corrections_tbl.txt'
-    FULL_PATH+'Composite_Spectra/StellarMassZ/MMT_stlrmassZ_data.txt'
-    FULL_PATH+'Composite_Spectra/StellarMassZ/Keck_stlrmassZ_data.txt'
+    config.FULL_PATH+'Main_Sequence/mainseq_corrections_tbl.txt'
+    config.FULL_PATH+'Composite_Spectra/StellarMassZ/MMT_stlrmassZ_data.txt'
+    config.FULL_PATH+'Composite_Spectra/StellarMassZ/Keck_stlrmassZ_data.txt'
 
 OUTPUTS:
-    FULL_PATH+'Plots/main_sequence/mstar_vs_ebv.pdf'
+    config.FULL_PATH+'Plots/main_sequence/mstar_vs_ebv.pdf'
 
 NOTES:
     for the garn & best scaling, the following was done.
@@ -30,33 +30,26 @@ from __future__ import print_function
 import numpy as np, matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import matplotlib.lines as mlines
-
-from analysis.cardelli import *
-from MACT_utils import composite_errors
 from astropy.io import ascii as asc
-from create_ordered_AP_arrays import create_ordered_AP_arrays
 
-# emission line wavelengths (air)
-HA = 6562.80
+import config
+from MACT_utils import composite_errors
 
-FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
 SEED_ORIG = 276389
 
 ### starting here
 def main():
     # reading in data
-    k_ha = cardelli(HA * u.Angstrom)
+    mmt_cvg = asc.read(config.FULL_PATH+'Composite_Spectra/MMT_spectral_coverage.txt')
+    keck_cvg = asc.read(config.FULL_PATH+'Composite_Spectra/Keck_spectral_coverage.txt')
 
-    mmt_cvg = asc.read(FULL_PATH+'Composite_Spectra/MMT_spectral_coverage.txt')
-    keck_cvg = asc.read(FULL_PATH+'Composite_Spectra/Keck_spectral_coverage.txt')
-
-    corr_tbl = asc.read(FULL_PATH+'Main_Sequence/mainseq_corrections_tbl.txt',guess=False,
+    corr_tbl = asc.read(config.FULL_PATH+'Main_Sequence/mainseq_corrections_tbl.txt',guess=False,
         Reader=asc.FixedWidthTwoLine)
     ha_ii = np.array(corr_tbl['ID'])-1
     zspec0 = corr_tbl['zspec0'].data
     yes_spectra = np.where((zspec0 >= 0) & (zspec0 < 9))[0]
 
-    data_dict = create_ordered_AP_arrays()
+    data_dict = config.data_dict
     HA_FLUX   = data_dict['HA_FLUX'][ha_ii]
     HB_FLUX   = data_dict['HB_FLUX'][ha_ii]
     HA_SNR    = data_dict['HA_SNR'][ha_ii]
@@ -75,9 +68,9 @@ def main():
 
 
     # reading in more data
-    mmt_mz  = asc.read(FULL_PATH+'Composite_Spectra/StellarMassZ/MMT_stlrmassZ_data.txt',
+    mmt_mz  = asc.read(config.FULL_PATH+'Composite_Spectra/StellarMassZ/MMT_stlrmassZ_data.txt',
         guess=False, format='fixed_width_two_line', delimiter=' ')
-    keck_mz = asc.read(FULL_PATH+'Composite_Spectra/StellarMassZ/Keck_stlrmassZ_data.txt',
+    keck_mz = asc.read(config.FULL_PATH+'Composite_Spectra/StellarMassZ/Keck_stlrmassZ_data.txt',
         guess=False, format='fixed_width_two_line', delimiter=' ')
     # using only valid mmt_mz m bins
     aa = np.array([x for x in range(len(mmt_mz)) if mmt_mz['stlrmass_bin'][x] != 'N/A'])
@@ -174,7 +167,7 @@ def main():
     for ax, ii in zip(axarr, range(2)):
         ax.set_xlabel('log(M'+r'$_\bigstar$'+'/M'+r'$_\odot$'+')', size=14)
 
-        ax.plot(x_arr, gb2010/k_ha, 'k--', lw=3, label='Garn & Best (2010)')
+        ax.plot(x_arr, gb2010/config.k_ha, 'k--', lw=3, label='Garn & Best (2010)')
         ax.text(9.65, 0.47, 'Garn & Best (2010)', rotation=33, color='k',
              alpha=1, fontsize=10, fontweight='bold')
 
@@ -191,7 +184,7 @@ def main():
     ax2.set_ylabel(r'A(H$\alpha$)', size=14)
     ax2.tick_params(axis='y', which='both', direction='in')
     ax2.set_yticks(axarr[0].get_yticks())
-    ax2.set_yticklabels(np.round(k_ha*axarr[0].get_yticks(),2))
+    ax2.set_yticklabels(np.round(config.k_ha*axarr[0].get_yticks(),2))
     ax2.set_xticks([])
     axarr[0].set_ylim(-0.1, 1.45)
 
@@ -222,7 +215,7 @@ def main():
     f.set_size_inches(15,6)
     f.subplots_adjust(wspace=0, left=0.04, right=0.95, top=0.86, bottom=0.09)
 
-    plt.savefig(FULL_PATH+'Plots/main_sequence/mstar_vs_ebv.pdf')
+    plt.savefig(config.FULL_PATH+'Plots/main_sequence/mstar_vs_ebv.pdf')
 
 
 if __name__ == '__main__':

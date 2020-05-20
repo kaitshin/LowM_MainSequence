@@ -264,8 +264,8 @@ def get_LMIN0_LMAX0_merged(all_AP, mergedAP, all_MMT_LMIN0, all_MMT_LMAX0, all_K
     '''
     for ii in range(len(mergedAP)):
         bothap = mergedAP[ii]
-        mmt = bothap.decode().split(',')[0]
-        keck = bothap.decode().split(',')[1]
+        mmt = bothap.split(',')[0]
+        keck = bothap.split(',')[1]
 
         # index in 9264-ordering corresponding to index in data
         jj = [x for x in range(len(all_AP)) if mmt==all_AP[x][:5]]
@@ -436,7 +436,7 @@ def create_ordered_AP_arrays(AP_only=False):
     AP0 = make_AP_arr_MMT(slit_str0)
     AP1 = make_AP_arr_DEIMOS(AP0, slit_str0)
     AP2 = make_AP_arr_merged(AP1, slit_str0)
-    AP  = make_AP_arr_FOCAS(AP2, slit_str0)
+    AP  = np.char.decode(make_AP_arr_FOCAS(AP2, slit_str0))
     print('### done creating ordered AP arr')
 
     merged_iis = np.array([x for x in range(len(inst_str0)) if 'merged' in inst_str0[x]])

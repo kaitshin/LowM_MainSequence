@@ -27,18 +27,12 @@ OUTPUTS:
 from __future__ import print_function
 
 import numpy as np, re
-import plotting.general_plotting as general_plotting
 from astropy.io import fits as pyfits, ascii as asc
 from astropy.table import Table
-from create_ordered_AP_arrays import create_ordered_AP_arrays
-from stack_spectral_data import exclude_AGN
 
-# emission line wavelengths (air)
-HG_VAL = 4340.46
-HB_VAL = 4861.32
-HA_VAL = 6562.80
-
-FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
+import config
+import plotting.general_plotting as general_plotting
+from MACT_utils import exclude_AGN
 
 def get_filt_arr(NAME0):
     '''
@@ -82,7 +76,7 @@ def get_stlrmassbin_arr(stlr_mass, min_mass, max_mass):
     return stlrmassbin
 
 
-def get_stlrmassbinZ_arr(filt_arr, stlr_mass, tab1, instr):
+def get_stlrmassbinZ_arr(filt_arr, stlr_mass, tabfiltarr, min_mass_arr, max_mass_arr, instr):
     '''
     '''
     stlrmassZbin = np.array([])
@@ -91,17 +85,17 @@ def get_stlrmassbinZ_arr(filt_arr, stlr_mass, tab1, instr):
             stlrmassZbin = np.append(stlrmassZbin, 'N/A')
         elif instr=='MMT' and 'NB7' in ff:
             assigned_bin = ''
-            good_filt_iis = np.array([x for x in range(len(tab1)) if tab1['filter'][x]=='NB704+NB711'])
-            min_mass = np.array(tab1['min_stlrmass'][good_filt_iis])
-            max_mass = np.array(tab1['max_stlrmass'][good_filt_iis])
+            good_filt_iis = np.array([x for x in range(len(tabfiltarr)) if tabfiltarr[x]=='NB704+NB711'])
+            min_mass = np.array(min_mass_arr[good_filt_iis])
+            max_mass = np.array(max_mass_arr[good_filt_iis])
             for ii in range(len(good_filt_iis)):
                 if m >= min_mass[ii] and m <= max_mass[ii]:
                     assigned_bin += str(ii+1)+'-NB704+NB711'
             stlrmassZbin = np.append(stlrmassZbin, assigned_bin)
         else:
-            good_filt_iis = np.array([x for x in range(len(tab1)) if tab1['filter'][x]==ff])
-            min_mass = np.array(tab1['min_stlrmass'][good_filt_iis])
-            max_mass = np.array(tab1['max_stlrmass'][good_filt_iis])
+            good_filt_iis = np.array([x for x in range(len(tabfiltarr)) if tabfiltarr[x]==ff])
+            min_mass = np.array(min_mass_arr[good_filt_iis])
+            max_mass = np.array(max_mass_arr[good_filt_iis])
             for ii in range(len(good_filt_iis)):
                 if m >= min_mass[ii] and m <= max_mass[ii]:
                     stlrmassZbin = np.append(stlrmassZbin, str(ii+1)+'-'+ff)
@@ -117,16 +111,16 @@ def get_spectral_cvg_MMT(MMT_LMIN0, MMT_LMAX0, zspec0, grid_ndarr_match_ii, x0):
     HB = np.array([])
     HA = np.array([])
     for lmin0, lmax0, row, z in zip(MMT_LMIN0, MMT_LMAX0, grid_ndarr_match_ii, zspec0):
-        hg_near_iis = find_nearest_iis(x0, HG_VAL*(1+z))
-        hb_near_iis = find_nearest_iis(x0, HB_VAL*(1+z))
-        ha_near_iis = find_nearest_iis(x0, HA_VAL*(1+z))
+        hg_near_iis = find_nearest_iis(x0, config.HG_VAL*(1+z))
+        hb_near_iis = find_nearest_iis(x0, config.HB_VAL*(1+z))
+        ha_near_iis = find_nearest_iis(x0, config.HA_VAL*(1+z))
 
         if lmin0 < 0:
             HG = np.append(HG, 'NO')
             HB = np.append(HB, 'NO')
             HA = np.append(HA, 'NO')
         else:
-            if lmin0 <= HG_VAL and lmax0 >= HG_VAL:
+            if lmin0 <= config.HG_VAL and lmax0 >= config.HG_VAL:
                 if np.average(row[hg_near_iis])==0:
                     HG = np.append(HG, 'MASK')
                 else:
@@ -134,7 +128,7 @@ def get_spectral_cvg_MMT(MMT_LMIN0, MMT_LMAX0, zspec0, grid_ndarr_match_ii, x0):
             else:
                 HG = np.append(HG, 'NO')
             
-            if lmin0 <= HB_VAL and lmax0 >= HB_VAL:
+            if lmin0 <= config.HB_VAL and lmax0 >= config.HB_VAL:
                 if np.average(row[hb_near_iis])==0:
                     HB = np.append(HB, 'MASK')
                 else:
@@ -142,7 +136,7 @@ def get_spectral_cvg_MMT(MMT_LMIN0, MMT_LMAX0, zspec0, grid_ndarr_match_ii, x0):
             else:
                 HB = np.append(HB, 'NO')
                 
-            if lmin0 <= HA_VAL and lmax0 >= HA_VAL:
+            if lmin0 <= config.HA_VAL and lmax0 >= config.HA_VAL:
                 if np.average(row[ha_near_iis])==0:
                     HA = np.append(HA, 'MASK')
                 else:
@@ -158,11 +152,11 @@ def write_MMT_table(inst_str0, ID, zspec0, NAME0, AP, stlr_mass, filt_arr,
     '''
     '''
     # reading in grid tables
-    griddata = asc.read(FULL_PATH+'Spectra/spectral_MMT_grid_data.txt',guess=False)
+    griddata = asc.read(config.FULL_PATH+'Spectra/spectral_MMT_grid_data.txt',guess=False)
     gridz  = np.array(griddata['ZSPEC']) ##used
     gridap = np.array(griddata['AP']) ##used
 
-    grid   = pyfits.open(FULL_PATH+'Spectra/spectral_MMT_grid.fits')
+    grid   = pyfits.open(config.FULL_PATH+'Spectra/spectral_MMT_grid.fits')
     grid_ndarr = grid[0].data ##used
     grid_hdr   = grid[0].header
     CRVAL1 = grid_hdr['CRVAL1']
@@ -183,14 +177,15 @@ def write_MMT_table(inst_str0, ID, zspec0, NAME0, AP, stlr_mass, filt_arr,
     MMT_LMAX0 = MMT_LMAX0[mmt_ii]
 
     # getting stlrmassbin cols for the table
-    tab0 = asc.read(FULL_PATH+'Composite_Spectra/StellarMass/MMT_all_five_data.txt')
+    tab0 = asc.read(config.FULL_PATH+'Composite_Spectra/StellarMass/MMT_all_five_data.txt')
     min_mass = np.array(tab0['min_stlrmass'])
     max_mass = np.array(tab0['max_stlrmass'])
     stlrmassbin = get_stlrmassbin_arr(stlr_mass, min_mass, max_mass)
 
     # getting stlrmassZbin cols for the table
-    tab1 = asc.read(FULL_PATH+'Composite_Spectra/StellarMassZ/MMT_stlrmassZ_data.txt')
-    stlrmassbinZ = get_stlrmassbinZ_arr(filt_arr, stlr_mass, tab1, 'MMT')
+    tab1 = asc.read(config.FULL_PATH+'Composite_Spectra/StellarMassZ/MMT_stlrmassZ_data.txt')
+    stlrmassbinZ = get_stlrmassbinZ_arr(filt_arr, stlr_mass, tab1['filter'],
+        tab1['min_stlrmass'], tab1['max_stlrmass'], 'MMT')
     
     # setting 'YES' and 'NO' and 'MASK' coverage values
     match_ii = np.array([])
@@ -204,7 +199,7 @@ def write_MMT_table(inst_str0, ID, zspec0, NAME0, AP, stlr_mass, filt_arr,
         HG_cvg, HB_cvg, HA_cvg, MMT_LMIN0, MMT_LMAX0], 
         names=['ID', 'NAME', 'AP', 'z', 'filter', 'stlrmass', 'stlrmassbin', 'stlrmassZbin',
         'HG_cvg', 'HB_cvg', 'HA_cvg', 'LMIN0', 'LMAX0']) 
-    asc.write(tt_mmt, FULL_PATH+'Composite_Spectra/MMT_spectral_coverage.txt', format='fixed_width', delimiter=' ', overwrite=True)
+    asc.write(tt_mmt, config.FULL_PATH+'Composite_Spectra/MMT_spectral_coverage.txt', format='fixed_width', delimiter=' ', overwrite=True)
 
 
 def get_spectral_cvg_Keck(KECK_LMIN0, KECK_LMAX0):
@@ -217,12 +212,12 @@ def get_spectral_cvg_Keck(KECK_LMIN0, KECK_LMAX0):
             HB = np.append(HB, 'NO')
             HA = np.append(HA, 'NO')
         else:
-            if lmin0 < HB_VAL and lmax0 > HB_VAL:
+            if lmin0 < config.HB_VAL and lmax0 > config.HB_VAL:
                 HB = np.append(HB, 'YES')
             else:
                 HB = np.append(HB, 'NO')
                 
-            if lmin0 < HA_VAL and lmax0 > HA_VAL:
+            if lmin0 < config.HA_VAL and lmax0 > config.HA_VAL:
                 HA = np.append(HA, 'YES')
             else:
                 HA = np.append(HA, 'NO')
@@ -235,11 +230,11 @@ def write_Keck_table(inst_str0, ID, zspec0, NAME0, AP, stlr_mass, filt_arr,
     '''
     '''
     # reading in grid tables
-    griddata = asc.read(FULL_PATH+'Spectra/spectral_Keck_grid_data.txt',guess=False)
+    griddata = asc.read(config.FULL_PATH+'Spectra/spectral_Keck_grid_data.txt',guess=False)
     gridz  = np.array(griddata['ZSPEC']) ##used
     gridap = np.array(griddata['AP']) ##used
 
-    grid   = pyfits.open(FULL_PATH+'Spectra/spectral_Keck_grid.fits')
+    grid   = pyfits.open(config.FULL_PATH+'Spectra/spectral_Keck_grid.fits')
     grid_ndarr = grid[0].data ##used
     grid_hdr   = grid[0].header
     CRVAL1 = grid_hdr['CRVAL1']
@@ -260,14 +255,15 @@ def write_Keck_table(inst_str0, ID, zspec0, NAME0, AP, stlr_mass, filt_arr,
     AP = np.array([x if len(x) == 6 else x[6:] for x in AP], dtype=np.float64)
 
     # getting stlrmassbin cols for the table
-    tab0 = asc.read(FULL_PATH+'Composite_Spectra/StellarMass/Keck_all_five_data.txt')
+    tab0 = asc.read(config.FULL_PATH+'Composite_Spectra/StellarMass/Keck_all_five_data.txt')
     min_mass = np.array(tab0['min_stlrmass'])
     max_mass = np.array(tab0['max_stlrmass'])
     stlrmassbin = get_stlrmassbin_arr(stlr_mass, min_mass, max_mass)
 
     # getting stlrmassZbin cols for the table
-    tab1 = asc.read(FULL_PATH+'Composite_Spectra/StellarMassZ/Keck_stlrmassZ_data.txt')
-    stlrmassbinZ = get_stlrmassbinZ_arr(filt_arr, stlr_mass, tab1, 'Keck')
+    tab1 = asc.read(config.FULL_PATH+'Composite_Spectra/StellarMassZ/Keck_stlrmassZ_data.txt')
+    stlrmassbinZ = get_stlrmassbinZ_arr(filt_arr, stlr_mass, tab1['filter'],
+        tab1['min_stlrmass'], tab1['max_stlrmass'], 'Keck')
 
     # setting 'YES' and 'NO' and 'MASK' coverage values
     HB_cvg, HA_cvg = get_spectral_cvg_Keck(KECK_LMIN0, KECK_LMAX0)
@@ -275,20 +271,17 @@ def write_Keck_table(inst_str0, ID, zspec0, NAME0, AP, stlr_mass, filt_arr,
     # creating/writing the table
     tt_keck = Table([ID, NAME0, AP, zspec0, filt_arr, stlr_mass, stlrmassbin, stlrmassbinZ, HB_cvg, HA_cvg, KECK_LMIN0, KECK_LMAX0], 
         names=['ID', 'NAME', 'AP', 'z', 'filter', 'stlrmass', 'stlrmassbin', 'stlrmassZbin', 'HB_cvg', 'HA_cvg', 'LMIN0', 'LMAX0']) 
-    asc.write(tt_keck, FULL_PATH+'Composite_Spectra/Keck_spectral_coverage.txt', format='fixed_width', delimiter=' ', overwrite=True)
+    asc.write(tt_keck, config.FULL_PATH+'Composite_Spectra/Keck_spectral_coverage.txt', format='fixed_width', delimiter=' ', overwrite=True)
 
 
 def main():
-    inst_dict = {} ##used
-    inst_dict['MMT'] = ['MMT,FOCAS,','MMT,','merged,','MMT,Keck,']
-    inst_dict['Keck'] = ['merged,','Keck,','Keck,Keck,','Keck,FOCAS,',
-                         'Keck,FOCAS,FOCAS,','Keck,Keck,FOCAS,']
+    inst_dict = config.inst_dict
 
-    nbia = pyfits.open(FULL_PATH+'Catalogs/NB_IA_emitters.nodup.colorrev.fix.fits')
+    nbia = pyfits.open(config.FULL_PATH+config.NB_IA_emitters_cat)
     nbiadata = nbia[1].data
     NAME0_orig = np.array(nbiadata['NAME'])
 
-    zspec = asc.read(FULL_PATH+'Catalogs/nb_ia_zspec.txt',guess=False,
+    zspec = asc.read(config.FULL_PATH+'Catalogs/nb_ia_zspec.txt',guess=False,
                      Reader=asc.CommentedHeader)
     zspec0 = np.array(zspec['zspec0'])
 
@@ -302,12 +295,12 @@ def main():
     inst_str0_orig = np.array(zspec['inst_str0'])
     inst_str0 = inst_str0_orig[ha_ii]
 
-    fout  = asc.read(FULL_PATH+'FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast.GALEX.fout',
+    fout  = asc.read(config.FULL_PATH+'FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast.GALEX.fout',
                      guess=False,Reader=asc.NoHeader)
     stlr_mass_orig = np.array(fout['col7'])
     stlr_mass = stlr_mass_orig[ha_ii]
 
-    data_dict = create_ordered_AP_arrays()
+    data_dict = config.data_dict
     AP = data_dict['AP'][ha_ii]
     MMT_LMIN0 = data_dict['MMT_LMIN0'][ha_ii]
     MMT_LMAX0 = data_dict['MMT_LMAX0'][ha_ii]

@@ -8,7 +8,7 @@ PURPOSE:
     plotted in a 'de-redshifted' frame.
     Specific to SDF data.
 
-    Depends on combine_spectral_data.py and create_ordered_AP_arrays.py
+    Depends on combine_spectral_data.py
     Depends on write_spectral_coverage_table.py for easy MMT Ha-NB921 coverage info
 
 INPUTS:
@@ -35,7 +35,12 @@ OUTPUTS:
 """
 from __future__ import print_function
 
-import numpy as np, numpy.ma as ma, matplotlib.pyplot as plt
+import numpy as np, numpy.ma as ma, matplotlib.pyplot as plt, astropy.units as u
+from astropy.io import fits as pyfits, ascii as asc
+from astropy.table import Table, vstack
+from matplotlib.backends.backend_pdf import PdfPages
+
+import config
 import plotting.hg_hb_ha_plotting as MMT_plotting
 import plotting.hb_ha_plotting as Keck_plotting
 import plotting.general_plotting as general_plotting
@@ -43,25 +48,14 @@ import writing_tables.hg_hb_ha_tables as MMT_twriting
 import writing_tables.hb_ha_tables as Keck_twriting
 import writing_tables.general_tables as general_twriting
 from analysis.balmer_fit import get_best_fit3, get_baseline_median
-from MACT_utils import composite_errors
+from MACT_utils import composite_errors, exclude_AGN
 from analysis.sdf_stack_data import stack_data
-from astropy.io import fits as pyfits, ascii as asc
-from astropy.table import Table, vstack
-from create_ordered_AP_arrays import create_ordered_AP_arrays
-from matplotlib.backends.backend_pdf import PdfPages
-from analysis.cardelli import *   # k = cardelli(lambda0, R=3.1)
-from astropy import units as u
-
-# emission line wavelengths (air)
-HG = 4340.46
-HB = 4861.32
-HA = 6562.80
 
 MIN_NUM_PER_BIN = 9
 MAX_NUM_OF_BINS = 5
 SEED_ORIG = 19823
 
-FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
+# config.FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
 
 def correct_instr_AP(indexed_AP, indexed_inst_str0, instr):
     '''
@@ -81,26 +75,6 @@ def correct_instr_AP(indexed_AP, indexed_inst_str0, instr):
     return indexed_AP
 
 
-def exclude_AGN(index, NAME0):
-    '''
-    excludes AGNs based on manual inspection whre NII6583/Ha > 0.54 (Kennicutt+08)
-    '''
-    # affected by skyline. don't use individ NII measurements
-    index = np.delete(index, np.where(index==np.where(NAME0=='Ha-NB921_063859')[0])[0])
-
-    # affected by skyline. don't use individ NII measurements
-    index = np.delete(index, np.where(index==np.where(NAME0=='Ha-NB973_054540')[0])[0])
-
-    # lines too broad b/c of poor sky subtraction (bad fit).
-    # redo IRAF fit?  otherwise don't use individ. NII measurements.
-    index = np.delete(index, np.where(index==np.where(NAME0=='Ha-NB973_064347')[0])[0])
-
-    # definitely an AGN (seifert 2 galaxy) --> narrow hb line. def exclude!
-    index = np.delete(index, np.where(index==np.where(NAME0=='Ha-NB973_084633')[0])[0])
-
-    return index
-
-
 def HG_HB_EBV(hg, hb):
     '''
     instr is always MMT
@@ -111,12 +85,14 @@ def HG_HB_EBV(hg, hb):
     hg = np.array(hg)
     hb = np.array(hb)
     hghb = np.array([0.468 if x > 0.468 else x for x in hg/hb])
-    EBV_hghb = np.log10((hghb)/0.468)/(-0.4*(k_hg - k_hb))
+    EBV_hghb = np.log10((hghb)/0.468)/(-0.4*(config.k_hg - config.k_hb))
     EBV_hghb = np.array([-99.0 if np.isnan(x) else x for x in EBV_hghb])
     return EBV_hghb
 
 
-def get_HB_NB921_flux(bintype='redshift'):
+def get_HB_NB921_flux(cvg_ref,
+    data_dict, stlr_mass, NAME0, inst_str0, zspec0,
+    gridap, gridz, grid_ndarr, x0, bintype='redshift'):
     '''
     instr is always MMT
 
@@ -124,9 +100,43 @@ def get_HB_NB921_flux(bintype='redshift'):
     This is useful for getting the correct HB/HA ratio used to get the hb/ha-derived E(B-V).
     Returns the flux values for each stack in a particular bin in an array.
     '''
-    cvg = asc.read(FULL_PATH+'Composite_Spectra/MMT_spectral_coverage.txt')
-    nb921 = np.array([x for x in range(len(cvg)) if cvg['filter'][x]=='NB921' and cvg['HB_cvg'][x]=='YES'])
-    nb921_ha = np.array([x for x in range(len(nb921)) if cvg['HA_cvg'][nb921][x] == 'YES'])
+    import write_spectral_coverage_table
+    # getting indices relevant to ha
+    ha_ii = np.array([x for x in range(len(NAME0))
+        if 'Ha-NB' in NAME0[x] and (zspec0[x] < 9.0 and zspec0[x] > 0.0)])
+    ha_ii = exclude_AGN(ha_ii, NAME0)
+    inst_str0 = inst_str0[ha_ii]
+    NAME0 = NAME0[ha_ii]
+    zspec0 = zspec0[ha_ii]
+    stlr_mass = stlr_mass[ha_ii]
+    AP = data_dict['AP'][ha_ii]
+    MMT_LMIN0 = data_dict['MMT_LMIN0'][ha_ii]
+    MMT_LMAX0 = data_dict['MMT_LMAX0'][ha_ii]
+    filt_arr = write_spectral_coverage_table.get_filt_arr(NAME0)
+
+    # getting indices relevant to mmt
+    mmt_ii = [x for x in range(len(inst_str0)) if 'MMT' in inst_str0[x] or 'merged' in inst_str0[x]]
+    NAME0 = NAME0[mmt_ii]
+    zspec0 = zspec0[mmt_ii]
+    stlr_mass = stlr_mass[mmt_ii]
+    AP = AP[mmt_ii]
+    AP = np.array([ap[:5] for ap in AP])
+    MMT_LMIN0 = MMT_LMIN0[mmt_ii]
+    MMT_LMAX0 = MMT_LMAX0[mmt_ii]
+    filt_arr = filt_arr[mmt_ii]
+
+    match_ii = np.array([])
+    for ii in range(len(AP)):
+        match_ii = np.append(match_ii, np.where(gridap == AP[ii])[0])
+    match_ii = np.array(match_ii, dtype=np.int32)    
+
+    HG_cvg, HB_cvg, HA_cvg = write_spectral_coverage_table.get_spectral_cvg_MMT(MMT_LMIN0, MMT_LMAX0, zspec0, grid_ndarr[match_ii], x0)
+
+    nb921 = np.array([x for x in range(len(mmt_ii)) if filt_arr[x]=='NB921' and HB_cvg[x]=='YES'])
+    nb921_ha = np.array([x for x in range(len(nb921)) if HA_cvg[nb921][x] == 'YES'])
+
+    stlrmassZbin = write_spectral_coverage_table.get_stlrmassbinZ_arr(filt_arr, stlr_mass, cvg_ref['filter'],
+        cvg_ref['min_stlrmass'], cvg_ref['max_stlrmass'], 'MMT')
 
     if bintype=='redshift':
         flux_arr = np.array([-99.0])
@@ -139,17 +149,18 @@ def get_HB_NB921_flux(bintype='redshift'):
         # i = index of array (0-indexed)
         if bintype == 'StellarMassZ':
             # i+1 = index of bin (1-indexed)
-            bin_i = np.array([x for x in range(len(nb921_ha)) if str(i+1)+'-' in cvg['stlrmassZbin'][nb921[nb921_ha]].data[x]])
+            bin_i = np.array([x for x in range(len(nb921_ha)) if str(i+1)+'-' in stlrmassZbin[nb921[nb921_ha]][x]])
             if len(bin_i) < 2:
                 continue
-            i0 = np.array([x for x in range(len(gridap)) if gridap[x] in cvg['AP'][nb921[nb921_ha[bin_i]]]])
+            i0 = np.array([x for x in range(len(gridap)) if gridap[x] in AP[nb921[nb921_ha[bin_i]]]])
         elif bintype == 'StlrMass':
+            cvg = asc.read(config.FULL_PATH+'Composite_Spectra/MMT_spectral_coverage.txt')
             bin_i = np.array([x for x in range(len(nb921_ha)) if i+1==cvg['stlrmassbin'][nb921[nb921_ha]].data[x]])
             if len(bin_i) < 2:
                 continue
-            i0 = np.array([x for x in range(len(gridap)) if gridap[x] in cvg['AP'][nb921[nb921_ha[bin_i]]]])
+            i0 = np.array([x for x in range(len(gridap)) if gridap[x] in AP[nb921[nb921_ha[bin_i]]]])
         else:
-            i0 = np.array([x for x in range(len(gridap)) if gridap[x] in cvg['AP'][nb921[nb921_ha]]])
+            i0 = np.array([x for x in range(len(gridap)) if gridap[x] in AP[nb921[nb921_ha]]])
         
         zs = np.array(gridz[i0])
         good_z2 = np.where((zs >= 0.385) & (zs <= 0.429))[0]
@@ -194,7 +205,7 @@ def HA_HB_EBV(ha, hb, instr, bintype='redshift', filt='N/A'):
     hb = np.array(hb)
 
     hahb = np.array([2.86 if (x < 2.86 and x > 0) else x for x in ha/hb])
-    EBV_hahb = np.log10((hahb)/2.86)/(-0.4*(k_ha - k_hb))
+    EBV_hahb = np.log10((hahb)/2.86)/(-0.4*(config.k_ha - config.k_hb))
 
     if instr=='MMT' and bintype=='redshift':
         EBV_hahb[-1] = -99.0 #no nb973 halpha
@@ -232,7 +243,11 @@ def split_into_bins(masses, n):
         return index_arrs
 
 
-def plot_MMT_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', publ=True, instr00='MMT'):
+def plot_MMT_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', publ=True, instr00='MMT',
+    data_dict=None,
+    NAME0=None, AP=None, inst_str0=None, inst_dict=None, 
+    stlr_mass=None, zspec0=None,
+    gridap=None, grid_ndarr=None, gridz=None, x0=None, tol=None, cvg_ref=None):
     '''
     
     '''
@@ -293,7 +308,10 @@ def plot_MMT_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', publ
         input_index = np.array([x for x in range(len(gridap)) if gridap[x] in
                                 AP_match],dtype=np.int32)
 
-        subtitle='stlrmass: '+str(min(stlr_mass[match_index]))+'-'+str(max(stlr_mass[match_index]))
+        min_smass = min(stlr_mass[match_index])
+        max_smass = max(stlr_mass[match_index])
+        num_smass = len(stlr_mass[match_index])
+        subtitle='stlrmass: '+str(min_smass)+'-'+str(max_smass)
         print('>>>', subtitle)
         avg_stlrmass_arr.append(np.mean(stlr_mass[match_index]))
         min_stlrmass_arr.append(np.min(stlr_mass[match_index]))
@@ -319,7 +337,7 @@ def plot_MMT_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', publ
 
         # writing the spectra table
         table0 = Table([xval, yval/1E-17], names=['xval','yval/1E-17'])
-        spectra_file_path = FULL_PATH+'Composite_Spectra/StellarMass/MMT_spectra_vals/'+subtitle[10:]+'.txt'
+        spectra_file_path = config.FULL_PATH+'Composite_Spectra/StellarMass/MMT_spectra_vals/'+subtitle[10:]+'.txt'
         asc.write(table0, spectra_file_path, format='fixed_width', delimiter=' ', overwrite=True)
 
         pos_flux_list = []
@@ -404,7 +422,7 @@ def plot_MMT_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', publ
             try:
                 pos_flux = pos_flux_list[i]
                 flux = flux_list[i]
-                rms = arr[subplot_index/3]
+                rms = arr[subplot_index//3]
                 flux_niib = flux_niib_list[i]
                 ew = ew_list[i]
                 ew_abs = ew_abs_list[i]
@@ -416,7 +434,9 @@ def plot_MMT_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', publ
                     neg_sigma = neg_sigma_list[i]
                     median = median_list[i]
                     if title=='NB921' and i==1:
-                        hb_nb921_flux = get_HB_NB921_flux(bintype=bintype)[subplot_index/3]
+                        hb_nb921_flux = get_HB_NB921_flux(cvg_ref,
+                            data_dict, stlr_mass, NAME0, inst_str0, zspec0, gridap, gridz, grid_ndarr, x0,
+                            bintype=bintype)[subplot_index//3]
                     else:
                         hb_nb921_flux = 0
                     ax = MMT_plotting.subplots_setup(ax, ax_list, label, subtitle, subplot_index, pos_flux, flux,
@@ -438,7 +458,7 @@ def plot_MMT_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', publ
     plt.subplots_adjust(hspace=0, wspace=0.05)
 
     if pp == None:
-        plt.savefig(FULL_PATH+'Composite_Spectra/StellarMass/MMT_all_five.pdf')
+        plt.savefig(config.FULL_PATH+'Composite_Spectra/StellarMass/MMT_all_five.pdf')
         subtitle_list = np.array(['all']*len(stlrmass_bin_arr))
     else:
         pp.savefig()
@@ -462,7 +482,9 @@ def plot_MMT_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', publ
 
     HB_NB921_flux = np.copy(HB_flux)
     if title=='NB921' or bintype=='StlrMass':
-        HB_NB921_flux = get_HB_NB921_flux(bintype=bintype)
+        HB_NB921_flux = get_HB_NB921_flux(cvg_ref,
+            data_dict, stlr_mass, NAME0, inst_str0, zspec0, gridap, gridz, grid_ndarr, x0,
+            bintype=bintype)
 
     # getting flux ratio errs
     FLUX_hghb_errs = composite_errors([HG_flux, HB_flux], [HG_RMS, HB_RMS], seed_i=SEED_ORIG+subplot_index, label='HG/HB_flux_rat_errs')
@@ -509,16 +531,17 @@ def plot_MMT_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', publ
 
     if pp != None: return pp, table00
 
-    asc.write(table00, FULL_PATH+'Composite_Spectra/StellarMass/MMT_all_five_data.txt',
+    asc.write(table00, config.FULL_PATH+'Composite_Spectra/StellarMass/MMT_all_five_data.txt',
         format='fixed_width_two_line', delimiter=' ', overwrite=True)
 
 
-def plot_MMT_stlrmass_z():
+def plot_MMT_stlrmass_z(data_dict, NAME0, AP, inst_str0, inst_dict, stlr_mass, zspec0,
+    gridap, grid_ndarr, gridz, x0, tol, cvg_ref):
     '''
     
     '''
     print('>MMT STELLARMASS+REDSHIFT STACKING')
-    pp = PdfPages(FULL_PATH+'Composite_Spectra/StellarMassZ/MMT_stlrmassZ.pdf')
+    pp = PdfPages(config.FULL_PATH+'Composite_Spectra/StellarMassZ/MMT_stlrmassZ.pdf')
     table00 = None
 
     mmt_ii = np.array([x for x in range(len(NAME0)) if 
@@ -547,7 +570,12 @@ def plot_MMT_stlrmass_z():
             title=ff
         print('>>>', title)
 
-        pp, table_data = plot_MMT_stlrmass(bins_ii_tbl_temp[ii], pp, title, 'StellarMassZ')
+        pp, table_data = plot_MMT_stlrmass(index_list=bins_ii_tbl_temp[ii], pp=pp, title=title,
+            bintype='StellarMassZ',
+            data_dict=data_dict,
+            NAME0=NAME0, AP=AP, inst_str0=inst_str0, inst_dict=inst_dict, 
+            stlr_mass=stlr_mass, zspec0=zspec0,
+            gridap=gridap, grid_ndarr=grid_ndarr, gridz=gridz, x0=x0, tol=tol, cvg_ref=cvg_ref)
         if table00 == None:
             table00 = table_data
         else:
@@ -555,12 +583,17 @@ def plot_MMT_stlrmass_z():
         #endif
     #endfor
 
-    asc.write(table00, FULL_PATH+'Composite_Spectra/StellarMassZ/MMT_stlrmassZ_data.txt',
+    asc.write(table00, config.FULL_PATH+'Composite_Spectra/StellarMassZ/MMT_stlrmassZ_data.txt',
         format='fixed_width_two_line', delimiter=' ', overwrite=True)
     pp.close()
 
 
-def plot_Keck_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', publ=True, instr00='Keck'):
+def plot_Keck_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', 
+    publ=True, instr00='Keck',
+    data_dict=None,
+    NAME0=None, AP=None, inst_str0=None, inst_dict=None, 
+    stlr_mass=None, zspec0=None,
+    gridap=None, grid_ndarr=None, gridz=None, x0=None, tol=None):
     '''
     
     '''
@@ -594,8 +627,8 @@ def plot_Keck_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', pub
         subtitle='stlrmass: '+str(min(stlr_mass[match_index]))+'-'+str(max(stlr_mass[match_index]))
         print('>>>', subtitle)
         avg_stlrmass_arr.append(np.mean(stlr_mass[match_index]))
-     	min_stlrmass_arr.append(np.min(stlr_mass[match_index]))
-     	max_stlrmass_arr.append(np.max(stlr_mass[match_index]))
+        min_stlrmass_arr.append(np.min(stlr_mass[match_index]))
+        max_stlrmass_arr.append(np.max(stlr_mass[match_index]))
 
         if bintype=='StellarMassZ':
             zs = np.mean(zspec0[match_index]) # avgz
@@ -625,7 +658,7 @@ def plot_Keck_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', pub
 
         # writing the spectra table
         table0 = Table([xval, yval/1E-17], names=['xval','yval/1E-17'])
-        spectra_file_path = FULL_PATH+'Composite_Spectra/StellarMass/Keck_spectra_vals/'+subtitle[10:]+'.txt'
+        spectra_file_path = config.FULL_PATH+'Composite_Spectra/StellarMass/Keck_spectra_vals/'+subtitle[10:]+'.txt'
         asc.write(table0, spectra_file_path, format='fixed_width', delimiter=' ', overwrite=True)
 
         pos_flux_list = []
@@ -694,7 +727,7 @@ def plot_Keck_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', pub
             try:
                 pos_flux = pos_flux_list[i]
                 flux = flux_list[i]
-                rms = arr[subplot_index/2]
+                rms = arr[subplot_index//2]
                 flux_niib = flux_niib_list[i]
                 ew = ew_list[i]
                 ew_abs = ew_abs_list[i]
@@ -720,7 +753,7 @@ def plot_Keck_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', pub
     plt.subplots_adjust(hspace=0, wspace=0.05)
 
     if pp == None:
-        plt.savefig(FULL_PATH+'Composite_Spectra/StellarMass/Keck_all_five.pdf')
+        plt.savefig(config.FULL_PATH+'Composite_Spectra/StellarMass/Keck_all_five.pdf')
         subtitle_list = np.array(['all']*len(stlrmass_bin_arr))
     else:
         pp.savefig()
@@ -766,16 +799,17 @@ def plot_Keck_stlrmass(index_list=[], pp=None, title='', bintype='StlrMass', pub
 
     if pp != None: return pp, table00
 
-    asc.write(table00, FULL_PATH+'Composite_Spectra/StellarMass/Keck_all_five_data.txt',
+    asc.write(table00, config.FULL_PATH+'Composite_Spectra/StellarMass/Keck_all_five_data.txt',
             format='fixed_width_two_line', delimiter=' ', overwrite=True)
 
 
-def plot_Keck_stlrmass_z():
+def plot_Keck_stlrmass_z(data_dict, NAME0, AP, inst_str0, inst_dict, stlr_mass, zspec0,
+    gridap, grid_ndarr, gridz, x0, tol):
     '''
     
     '''
     print('>KECK STELLARMASS+REDSHIFT STACKING')
-    pp = PdfPages(FULL_PATH+'Composite_Spectra/StellarMassZ/Keck_stlrmassZ.pdf')
+    pp = PdfPages(config.FULL_PATH+'Composite_Spectra/StellarMassZ/Keck_stlrmassZ.pdf')
     table00 = None
     
     keck_ii = np.array([x for x in range(len(NAME0)) if 
@@ -801,7 +835,13 @@ def plot_Keck_stlrmass_z():
         title=ff
         print('>>>', title)
 
-        pp, table_data = plot_Keck_stlrmass(bins_ii_tbl_temp[ii], pp, title, 'StellarMassZ')
+        pp, table_data = plot_Keck_stlrmass(
+            index_list=bins_ii_tbl_temp[ii], pp=pp, title=title,
+            bintype='StellarMassZ',
+            data_dict=data_dict,
+            NAME0=NAME0, AP=AP, inst_str0=inst_str0, inst_dict=inst_dict, 
+            stlr_mass=stlr_mass, zspec0=zspec0,
+            gridap=gridap, grid_ndarr=grid_ndarr, gridz=gridz, x0=x0, tol=tol)
         if table00 == None:
             table00 = table_data
         else:
@@ -809,7 +849,7 @@ def plot_Keck_stlrmass_z():
         #endif
     #endfor
     
-    asc.write(table00, FULL_PATH+'Composite_Spectra/StellarMassZ/Keck_stlrmassZ_data.txt',
+    asc.write(table00, config.FULL_PATH+'Composite_Spectra/StellarMassZ/Keck_stlrmassZ_data.txt',
         format='fixed_width_two_line', delimiter=' ', overwrite=True)
     pp.close()
 
@@ -825,84 +865,88 @@ def plot_Keck_stlrmass_z():
 # o Then calls plot_*_Ha.
 # o Done for both MMT and Keck data.
 #----------------------------------------------------------------------------#
-inst_dict = {} ##used
-inst_dict['MMT'] = ['MMT,FOCAS,','MMT,','merged,','MMT,Keck,','merged,FOCAS,']
-inst_dict['Keck'] = ['merged,','Keck,','Keck,Keck,','Keck,FOCAS,',
-                     'Keck,FOCAS,FOCAS,','Keck,Keck,FOCAS,','merged,FOCAS,']
-tol = 3 #in angstroms, used for NII emission flux calculations ##used
+def main():
+    inst_dict = {} ##used
+    inst_dict['MMT'] = ['MMT,FOCAS,','MMT,','merged,','MMT,Keck,','merged,FOCAS,']
+    inst_dict['Keck'] = ['merged,','Keck,','Keck,Keck,','Keck,FOCAS,',
+                         'Keck,FOCAS,FOCAS,','Keck,Keck,FOCAS,','merged,FOCAS,']
+    tol = 3 #in angstroms, used for NII emission flux calculations ##used
 
-k_hg = cardelli(HG * u.Angstrom)
-k_hb = cardelli(HB * u.Angstrom)
-k_ha = cardelli(HA * u.Angstrom)
+    k_hg = cardelli(HG * u.Angstrom)
+    k_hb = cardelli(HB * u.Angstrom)
+    k_ha = cardelli(HA * u.Angstrom)
 
-nbia = pyfits.open(FULL_PATH+'Catalogs/NB_IA_emitters.nodup.colorrev.fix.fits')
-nbiadata = nbia[1].data
-NAME0 = nbiadata['NAME']
+    nbia = pyfits.open(config.FULL_PATH+config.NB_IA_emitters_cat)
+    nbiadata = nbia[1].data
+    NAME0 = nbiadata['NAME']
 
-zspec = asc.read(FULL_PATH+'Catalogs/nb_ia_zspec.txt',guess=False,
-                 Reader=asc.CommentedHeader)
-zspec0 = np.array(zspec['zspec0'])
-inst_str0 = np.array(zspec['inst_str0']) ##used
+    zspec = asc.read(config.FULL_PATH+'Catalogs/nb_ia_zspec.txt',guess=False,
+                     Reader=asc.CommentedHeader)
+    zspec0 = np.array(zspec['zspec0'])
+    inst_str0 = np.array(zspec['inst_str0']) ##used
 
-fout  = asc.read(FULL_PATH+'FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast.GALEX.fout',
-                 guess=False,Reader=asc.NoHeader)
-stlr_mass = np.array(fout['col7']) ##used
-nan_stlr_mass = np.copy(stlr_mass)
-nan_stlr_mass[nan_stlr_mass < 0] = np.nan
+    fout  = asc.read(config.FULL_PATH+'FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast.GALEX.fout',
+                     guess=False,Reader=asc.NoHeader)
+    stlr_mass = np.array(fout['col7']) ##used
+    nan_stlr_mass = np.copy(stlr_mass)
+    nan_stlr_mass[nan_stlr_mass < 0] = np.nan
 
-data_dict = create_ordered_AP_arrays(AP_only = True)
-AP = data_dict['AP'] ##used
+    data_dict = config.data_dict
+    AP = data_dict['AP'] ##used
 
-print('### looking at the MMT grid')
-griddata = asc.read(FULL_PATH+'Spectra/spectral_MMT_grid_data.txt',guess=False)
-gridz  = np.array(griddata['ZSPEC']) ##used
-gridap = np.array(griddata['AP']) ##used
-grid   = pyfits.open(FULL_PATH+'Spectra/spectral_MMT_grid.fits')
-grid_ndarr = grid[0].data ##used
-grid_hdr   = grid[0].header
-CRVAL1 = grid_hdr['CRVAL1']
-CDELT1 = grid_hdr['CDELT1']
-NAXIS1 = grid_hdr['NAXIS1'] #npix
-x0 = np.arange(CRVAL1, CDELT1*NAXIS1+CRVAL1, CDELT1) ##used
-# mask spectra that doesn't exist or lacks coverage in certain areas
-ndarr_zeros = np.where(grid_ndarr == 0)
-mask_ndarr = np.zeros_like(grid_ndarr)
-mask_ndarr[ndarr_zeros] = 1
-# mask spectra with unreliable redshift
-bad_zspec = [x for x in range(len(gridz)) if gridz[x] > 9 or gridz[x] < 0]
-mask_ndarr[bad_zspec,:] = 1
-grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr, fill_value=np.nan)
+    print('### looking at the MMT grid')
+    griddata = asc.read(config.FULL_PATH+'Spectra/spectral_MMT_grid_data.txt',guess=False)
+    gridz  = np.array(griddata['ZSPEC']) ##used
+    gridap = np.array(griddata['AP']) ##used
+    grid   = pyfits.open(config.FULL_PATH+'Spectra/spectral_MMT_grid.fits')
+    grid_ndarr = grid[0].data ##used
+    grid_hdr   = grid[0].header
+    CRVAL1 = grid_hdr['CRVAL1']
+    CDELT1 = grid_hdr['CDELT1']
+    NAXIS1 = grid_hdr['NAXIS1'] #npix
+    x0 = np.arange(CRVAL1, CDELT1*NAXIS1+CRVAL1, CDELT1) ##used
+    # mask spectra that doesn't exist or lacks coverage in certain areas
+    ndarr_zeros = np.where(grid_ndarr == 0)
+    mask_ndarr = np.zeros_like(grid_ndarr)
+    mask_ndarr[ndarr_zeros] = 1
+    # mask spectra with unreliable redshift
+    bad_zspec = [x for x in range(len(gridz)) if gridz[x] > 9 or gridz[x] < 0]
+    mask_ndarr[bad_zspec,:] = 1
+    grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr, fill_value=np.nan)
 
-print('### plotting MMT')
-plot_MMT_stlrmass()
-plot_MMT_stlrmass_z()
-grid.close()
+    print('### plotting MMT')
+    plot_MMT_stlrmass()
+    plot_MMT_stlrmass_z()
+    grid.close()
 
-print('### looking at the Keck grid')
-griddata = asc.read(FULL_PATH+'Spectra/spectral_Keck_grid_data.txt',guess=False)
-gridz  = np.array(griddata['ZSPEC']) ##used
-gridap = np.array(griddata['AP']) ##used
-grid   = pyfits.open(FULL_PATH+'Spectra/spectral_Keck_grid.fits')
-grid_ndarr = grid[0].data ##used
-grid_hdr   = grid[0].header
-CRVAL1 = grid_hdr['CRVAL1']
-CDELT1 = grid_hdr['CDELT1']
-NAXIS1 = grid_hdr['NAXIS1'] #npix
-x0 = np.arange(CRVAL1, CDELT1*NAXIS1+CRVAL1, CDELT1) ##used
-# mask spectra that doesn't exist or lacks coverage in certain areas
-ndarr_zeros = np.where(grid_ndarr == 0)
-mask_ndarr = np.zeros_like(grid_ndarr)
-mask_ndarr[ndarr_zeros] = 1
-# mask spectra with unreliable redshift
-bad_zspec = [x for x in range(len(gridz)) if gridz[x] > 9 or gridz[x] < 0]
-mask_ndarr[bad_zspec,:] = 1
-grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
+    print('### looking at the Keck grid')
+    griddata = asc.read(config.FULL_PATH+'Spectra/spectral_Keck_grid_data.txt',guess=False)
+    gridz  = np.array(griddata['ZSPEC']) ##used
+    gridap = np.array(griddata['AP']) ##used
+    grid   = pyfits.open(config.FULL_PATH+'Spectra/spectral_Keck_grid.fits')
+    grid_ndarr = grid[0].data ##used
+    grid_hdr   = grid[0].header
+    CRVAL1 = grid_hdr['CRVAL1']
+    CDELT1 = grid_hdr['CDELT1']
+    NAXIS1 = grid_hdr['NAXIS1'] #npix
+    x0 = np.arange(CRVAL1, CDELT1*NAXIS1+CRVAL1, CDELT1) ##used
+    # mask spectra that doesn't exist or lacks coverage in certain areas
+    ndarr_zeros = np.where(grid_ndarr == 0)
+    mask_ndarr = np.zeros_like(grid_ndarr)
+    mask_ndarr[ndarr_zeros] = 1
+    # mask spectra with unreliable redshift
+    bad_zspec = [x for x in range(len(gridz)) if gridz[x] > 9 or gridz[x] < 0]
+    mask_ndarr[bad_zspec,:] = 1
+    grid_ndarr = ma.masked_array(grid_ndarr, mask=mask_ndarr)
 
-print('### plotting Keck')
-plot_Keck_stlrmass()
-plot_Keck_stlrmass_z()
-grid.close()
+    print('### plotting Keck')
+    plot_Keck_stlrmass()
+    plot_Keck_stlrmass_z()
+    grid.close()
 
-nbia.close()
-print('### done')
-#endmain
+    nbia.close()
+    print('### done')
+    #endmain
+
+if __name__ == '__main__':
+    main()

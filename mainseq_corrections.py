@@ -22,29 +22,23 @@ INPUTS:
     'Filters/'+ff+'response.dat'
 
 OUTPUTS:
-    FULL_PATH+'Main_Sequence/mainseq_corrections_tbl.txt'
+    'Main_Sequence/mainseq_corrections_tbl.txt'
 """
 from __future__ import print_function
 
+import numpy as np, matplotlib.pyplot as plt, astropy.units as u
 from astropy.io import fits as pyfits, ascii as asc
 from astropy.table import Table
-from create_ordered_AP_arrays import create_ordered_AP_arrays
-import numpy as np, matplotlib.pyplot as plt
-import plotting.general_plotting as general_plotting
-import plot_NII_Ha_ratios
-
-from MACT_utils import niiha_oh_determine, composite_errors
-from analysis.cardelli import *
-from astropy.cosmology import FlatLambdaCDM
 from scipy import stats
 from scipy.interpolate import interp1d
+from astropy.cosmology import FlatLambdaCDM
 cosmo = FlatLambdaCDM(H0 = 70 * u.km / u.s / u.Mpc, Om0=0.3)
 
-# emission line wavelengths (air)
-HB = 4861.32
-HA = 6562.80
+import config
+import plotting.general_plotting as general_plotting
+import plot_NII_Ha_ratios
+from MACT_utils import niiha_oh_determine, composite_errors, exclude_bad_sources
 
-FULL_PATH = '/Users/kaitlynshin/Google Drive/NASA_Summer2015/'
 SEED_ORIG = 57842
 
 
@@ -65,9 +59,9 @@ def apply_filt_corrs_interp(ff, filt_corrs, zspec0, bad_z, good_z, AP, allcolsda
     '''
     print(ff, len(bad_z)+len(good_z))
     # reading data
-    response = asc.read(FULL_PATH+'Filters/'+ff+'response.dat',guess=False,
+    response = asc.read(config.FULL_PATH+'Filters/'+ff+'response.dat',guess=False,
                     Reader=asc.NoHeader)
-    z_filt = response['col1'].data/HA - 1
+    z_filt = response['col1'].data/config.HA_VAL - 1
     yresponse = np.array(response['col2'])
 
     filter_stat_corr_dict = {'NB704':1.289439104, 'NB711':1.41022358406, 'NB816':1.29344789854, 'NB921':1.32817034288, 'NB973':1.29673596942}
@@ -78,7 +72,7 @@ def apply_filt_corrs_interp(ff, filt_corrs, zspec0, bad_z, good_z, AP, allcolsda
     if max(zspec0[good_z]) > max(z_filt):
         print('Source above filter profile range (', ff, '|| z =', max(zspec0[good_z]), ')')
         bad_z0 = np.array([x for x in good_z if zspec0[x] == max(zspec0[good_z])])
-        DEIMOS = pyfits.open('/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/Main_Sequence/Catalogs/Keck/DEIMOS_single_line_fit.fits')
+        DEIMOS = pyfits.open(config.FULL_PATH+'Main_Sequence/Catalogs/Keck/DEIMOS_single_line_fit.fits')
         DEIMOSdata = DEIMOS[1].data
         print('Source name:', AP[bad_z0])
         ii = np.where(DEIMOSdata['AP']==AP[bad_z0])[0]
@@ -320,15 +314,12 @@ def EBV_corrs_no_spectra(tab_no_spectra, mmt_mz, mmt_mz_EBV_hahb, mmt_mz_EBV_hgh
 def EBV_corrs_yes_spectra(EBV_corrs_ys, yes_spectra, HA_FLUX, HB_FLUX, HB_SNR, HA_SNR):
     '''
     '''
-    k_hb = cardelli(HB * u.Angstrom)
-    k_ha = cardelli(HA * u.Angstrom)
-    
     gooddata_iis = np.where((HB_SNR[yes_spectra] >= 5) & (HA_SNR[yes_spectra] > 0) & (HA_FLUX[yes_spectra] > 1e-20) & (HA_FLUX[yes_spectra] < 99))[0]
     good_EBV_iis = yes_spectra[gooddata_iis]
 
     hahb = HA_FLUX[good_EBV_iis]/HB_FLUX[good_EBV_iis]
     hahb = np.array([2.86 if (x < 2.86 and x > 0) else x for x in hahb])
-    EBV_hahb = np.log10((hahb)/2.86)/(-0.4*(k_ha - k_hb))
+    EBV_hahb = np.log10((hahb)/2.86)/(-0.4*(config.k_ha - config.k_hb))
     
     EBV_corrs_ys[gooddata_iis] = EBV_hahb
     
@@ -431,53 +422,22 @@ def get_NBIA_errs(nbiaerrsdata, filtarr, FILT):
     return NBIA_errs_neg, NBIA_errs_pos
 
 
-def exclude_bad_sources(ha_ii, NAME0):
-    '''
-    excludes sources from the mainseq sample depending on their unreliable properties
-    '''
-    # getting rid of special cases (no_spectra):
-    bad_highz_gal = np.where(NAME0=='Ha-NB816_174829_Ha-NB921_187439_Lya-IA598_163379')[0]
-
-    bad_HbNB704_SIINB973_gals = np.array([x for x in range(len(ha_ii)) if 
-            (NAME0[x]=='Ha-NB704_028405_OII-NB973_056979' or 
-             NAME0[x]=='Ha-NB704_090945_OII-NB973_116533')])
-
-    # getting rid of a source w/o flux (yes_spectra):
-    no_flux_gal = np.where(NAME0=='Ha-NB921_069950')[0]
-
-    # getting rid of a source w/ atypical SFR behavior we don't understand
-    weird_SFR_gal = np.where(NAME0=='OIII-NB704_063543_Ha-NB816_086540')[0]
-
-    # getting rid of AGN candidate galaxies
-    possibly_AGNs = np.array([x for x in range(len(ha_ii)) if 
-            (NAME0[x]=='Ha-NB921_063859' or NAME0[x]=='Ha-NB973_054540' or
-             NAME0[x]=='Ha-NB973_064347' or NAME0[x]=='Ha-NB973_084633')])
-
-    bad_sources = np.concatenate([bad_highz_gal, bad_HbNB704_SIINB973_gals, no_flux_gal, weird_SFR_gal, possibly_AGNs])
-    print("bad_sources: {}".format(len(bad_sources)))
-
-    ha_ii = np.delete(ha_ii, bad_sources)
-    NAME0 = np.delete(NAME0, bad_sources)
-
-    return ha_ii, NAME0
-
-
 def main():
     # reading in data
-    nbia = pyfits.open(FULL_PATH+'Catalogs/NB_IA_emitters.nodup.colorrev.fix.fits')
+    nbia = pyfits.open(config.FULL_PATH+config.NB_IA_emitters_cat)
     nbiadata = nbia[1].data
-    allcols = pyfits.open(FULL_PATH+'Catalogs/NB_IA_emitters.allcols.colorrev.fits')
+    allcols = pyfits.open(config.FULL_PATH+config.allcols_cat)
     allcolsdata0 = allcols[1].data
     NAME0 = np.array(nbiadata['NAME'])
     ID0   = np.array(nbiadata['ID'])
-    zspec = asc.read(FULL_PATH+'Catalogs/nb_ia_zspec.txt',guess=False,
+    zspec = asc.read(config.FULL_PATH+'Catalogs/nb_ia_zspec.txt',guess=False,
                      Reader=asc.CommentedHeader)
     zspec0 = np.array(zspec['zspec0'])
     inst_str0 = np.array(zspec['inst_str0'])
-    fout  = asc.read(FULL_PATH+'FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast.GALEX.fout',
+    fout  = asc.read(config.FULL_PATH+'FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast.GALEX.fout',
                      guess=False,Reader=asc.NoHeader)
     stlr_mass = np.array(fout['col7'])
-    data_dict = create_ordered_AP_arrays()
+    data_dict = config.data_dict
     AP = data_dict['AP']
     HA_FLUX   = data_dict['HA_FLUX']
     HB_FLUX   = data_dict['HB_FLUX']
@@ -485,15 +445,13 @@ def main():
     HB_SNR    = data_dict['HB_SNR']
     NIIB_FLUX = data_dict['NIIB_FLUX']
     NIIB_SNR  = data_dict['NIIB_SNR']
-    nbiaerrs = pyfits.open(FULL_PATH+'Catalogs/NB_IA_emitters.allcols.colorrev.fix.errors.fits')
+    nbiaerrs = pyfits.open(config.FULL_PATH+config.allcols_errs_cat)
     nbiaerrsdata0 = nbiaerrs[1].data
 
 
     # defining other useful data structs
     filtarr = np.array(['NB704', 'NB711', 'NB816', 'NB921', 'NB973'])
-    inst_dict = {}
-    inst_dict['MMT']  = ['MMT,FOCAS,','MMT,','merged,','MMT,Keck,']
-    inst_dict['Keck'] = ['merged,','Keck,','Keck,Keck,','Keck,FOCAS,','Keck,FOCAS,FOCAS,','Keck,Keck,FOCAS,']
+    inst_dict = config.inst_dict
 
 
     # limit all data to Halpha emitters only
@@ -522,14 +480,14 @@ def main():
 
 
     # reading in EBV data tables & getting relevant EBV cols
-    mmt_m   = asc.read(FULL_PATH+'Composite_Spectra/StellarMass/MMT_all_five_data.txt')
+    mmt_m   = asc.read(config.FULL_PATH+'Composite_Spectra/StellarMass/MMT_all_five_data.txt')
     mmt_m_EBV_hahb = np.array(mmt_m['E(B-V)_hahb'])
     mmt_m_EBV_hghb = np.array(mmt_m['E(B-V)_hghb'])
     
-    keck_m  = asc.read(FULL_PATH+'Composite_Spectra/StellarMass/Keck_all_five_data.txt')
+    keck_m  = asc.read(config.FULL_PATH+'Composite_Spectra/StellarMass/Keck_all_five_data.txt')
     keck_m_EBV_hahb = np.array(keck_m['E(B-V)_hahb'])
     
-    mmt_mz  = asc.read(FULL_PATH+'Composite_Spectra/StellarMassZ/MMT_stlrmassZ_data.txt')
+    mmt_mz  = asc.read(config.FULL_PATH+'Composite_Spectra/StellarMassZ/MMT_stlrmassZ_data.txt')
     mmt_mz_EBV_hahb = np.array(mmt_mz['E(B-V)_hahb'])
     mmt_mz_EBV_hahb_errs_neg = np.array(mmt_mz['E(B-V)_hahb_errs_neg'])
     mmt_mz_EBV_hahb_errs_pos = np.array(mmt_mz['E(B-V)_hahb_errs_pos'])
@@ -537,7 +495,7 @@ def main():
     mmt_mz_EBV_hghb_errs_neg = np.array(mmt_mz['E(B-V)_hghb_errs_neg'])
     mmt_mz_EBV_hghb_errs_pos = np.array(mmt_mz['E(B-V)_hghb_errs_pos'])
     
-    keck_mz = asc.read(FULL_PATH+'Composite_Spectra/StellarMassZ/Keck_stlrmassZ_data.txt')
+    keck_mz = asc.read(config.FULL_PATH+'Composite_Spectra/StellarMassZ/Keck_stlrmassZ_data.txt')
     keck_mz_EBV_hahb = np.array(keck_mz['E(B-V)_hahb'])
     keck_mz_EBV_hahb_errs_neg = np.array(keck_mz['E(B-V)_hahb_errs_neg'])
     keck_mz_EBV_hahb_errs_pos = np.array(keck_mz['E(B-V)_hahb_errs_pos'])
@@ -565,6 +523,7 @@ def main():
         massbins_MMT, massbins_Keck, massZbins_MMT, massZbins_Keck, massZlist_filts_MMT, massZlist_filts_Keck)
     FILT = consolidate_ns_ys(allcolsdata, no_spectra, yes_spectra,
         np.array(tab_no_spectra['filter']), np.array(tab_yes_spectra['filter']), datatype='str')
+    FILT = np.char.decode(FILT)
 
 
     print('### obtaining filter corrections')
@@ -658,11 +617,10 @@ def main():
 
 
     # getting dust extinction factors and corrections
-    k_ha = cardelli(HA * u.Angstrom)
-    A_V = k_ha * EBV_corrs
+    A_V = config.k_ha * EBV_corrs
     dustcorr_fluxes = orig_fluxes + 0.4*A_V # A_V = A(Ha) = extinction at Ha
     dust_corr_factor = dustcorr_fluxes - orig_fluxes
-    dust_errs = 0.4*(k_ha * EBV_errs)
+    dust_errs = 0.4*(config.k_ha * EBV_errs)
 
     # getting the errors associated w/ measurements by adding in quadrature
     meas_errs = np.sqrt(NBIA_errs**2 + dust_errs**2)
@@ -673,7 +631,7 @@ def main():
     tempz = np.array([-100.0]*len(no_spectra))
     for ff, ii in zip(filtarr, range(len(filt_cen))):
         filt_match = np.array([x for x in range(len(no_spectra)) if tab_no_spectra['filter'][x]==ff])
-        tempz[filt_match] = filt_cen[ii]/HA - 1
+        tempz[filt_match] = filt_cen[ii]/config.HA_VAL - 1
     #endfor
     lum_dist_ns = (cosmo.luminosity_distance(tempz).to(u.cm).value)
     lum_factor_ns = np.log10(4*np.pi)+2*np.log10(lum_dist_ns) # = log10(L[Ha])
@@ -710,7 +668,7 @@ def main():
         'obs_fluxes', 'obs_lumin', 'obs_sfr', 'met_dep_sfr',
         'filt_corr_factor', 'nii_ha_corr_factor', 'NII_Ha_ratio', 'ratio_vs_line', 
         'A(Ha)', 'EBV', 'dust_corr_factor', 'EBV_errs', 'dust_errs', 'NBIA_errs', 'meas_errs'])
-    asc.write(tab00, FULL_PATH+'Main_Sequence/mainseq_corrections_tbl.txt',
+    asc.write(tab00, config.FULL_PATH+'Main_Sequence/mainseq_corrections_tbl.txt',
         format='fixed_width_two_line', delimiter=' ', overwrite=True)
 
 

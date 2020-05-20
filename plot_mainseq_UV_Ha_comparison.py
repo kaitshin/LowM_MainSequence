@@ -11,11 +11,10 @@ PURPOSE:
 
 INPUTS:
     'Catalogs/nb_ia_zspec.txt'
-    'FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast'+fileend+'.fout'
-    'Catalogs/NB_IA_emitters.nodup.colorrev.fix.fits'
+    'FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast'+config.fileend+'.fout'
     'Main_Sequence/mainseq_corrections_tbl.txt'
     'FAST/outputs/BEST_FITS/NB_IA_emitters_allphot.emagcorr.ACpsf_fast'
-         +fileend+'_'+str(ID[ii])+'.fit'
+         +config.fileend+'_'+str(ID[ii])+'.fit'
 
 CALLING SEQUENCE:
     main body -> get_nu_lnu -> get_flux
@@ -24,9 +23,9 @@ CALLING SEQUENCE:
                                          get_binned_stats)
 
 OUTPUTS:
-    'Plots/main_sequence_UV_Ha/'+ff+'_'+ltype+fileend+'.pdf'
-    'Plots/main_sequence_UV_Ha/ratios/'+ff+'_'+ltype+fileend+'.pdf'
-    'Plots/main_sequence_UV_Ha/ratios/all_filt_'+ltype+fileend+'.pdf'
+    'Plots/main_sequence_UV_Ha/'+ff+'_'+ltype+config.fileend+'.pdf'
+    'Plots/main_sequence_UV_Ha/ratios/'+ff+'_'+ltype+config.fileend+'.pdf'
+    'Plots/main_sequence_UV_Ha/ratios/all_filt_'+ltype+config.fileend+'.pdf'
     
 REVISION HISTORY:
     Created by Kaitlyn Shin 13 August 2015
@@ -38,46 +37,11 @@ from scipy import interpolate
 from astropy import constants
 from astropy.io import fits as pyfits, ascii as asc
 from astropy.cosmology import FlatLambdaCDM
-from mainseq_corrections import niiha_oh_determine
-from MACT_utils import get_flux_from_FAST, get_tempz
 cosmo = FlatLambdaCDM(H0 = 70 * u.km / u.s / u.Mpc, Om0=0.3)
 
-# emission line wavelengths (air)
-HA = 6562.80
-
-FULL_PATH = r'/Users/kaitlynshin/Google Drive/NASA_Summer2015/'
-CUTOFF_SIGMA = 4.0
-CUTOFF_MASS = 6.0
-fileend='.GALEX'
-
-
-def get_LUV(corrID, corrzspec0, centr_filts, filt_index_haii, ff):
-    '''
-    get FUV luminosity (at 1500 AA) by converting the flux (get_flux_from_FAST())
-
-    sources without spectroscopic z are estimated by the center of the
-    filter profile
-
-    returns the log of the luminosity log_L_nu (nu=1500AA)
-    '''
-    ID = corrID[filt_index_haii]
-    zspec = corrzspec0[filt_index_haii]
-
-    goodz = np.where((zspec >= 0) & (zspec < 9))[0]
-    badz  = np.where((zspec <= 0) | (zspec > 9))[0]
-
-    tempz = np.zeros(len(filt_index_haii))
-    tempz[goodz] = zspec[goodz]
-    tempz[badz] = centr_filts[ff]
-
-    lambda_arr = (1+tempz)*1500
-
-    f_lambda = get_flux_from_FAST(ID, lambda_arr)
-    f_nu = f_lambda*(1E-19*(lambda_arr**2*1E-10)/(constants.c.value))
-    log_L_nu = np.log10(f_nu*4*np.pi) + \
-        2*np.log10(cosmo.luminosity_distance(tempz).to(u.cm).value)
-
-    return log_L_nu
+import config
+from mainseq_corrections import niiha_oh_determine
+from MACT_utils import get_flux_from_FAST, get_tempz, get_UV_SFR
 
 
 def plot_ff_zz_color_filled(ax, xvals, yvals, corr_tbl,
@@ -269,49 +233,7 @@ def plot_SFR_comparison(log_SFR_HA, log_SFR_UV, corr_tbl):
     ax.minorticks_on()
     f.set_size_inches(6,6)
     # ax.legend(frameon=False, loc='best')
-    plt.savefig(FULL_PATH+'Plots/main_sequence_UV_Ha/SFR_UV_vs_HA.pdf')
-
-
-def get_UV_SFR(corr_tbl):
-    '''
-    deriving log UV SFR from the 1500AA measurements
-    '''
-    # defining useful things
-    corrID = corr_tbl['ID'].data
-    corrfilts = corr_tbl['filt'].data
-    corrzspec0 = corr_tbl['zspec0'].data
-    centr_filts = {'NB7':((7045.0/HA - 1) + (7126.0/HA - 1))/2.0, 
-        'NB816':8152.0/HA - 1, 'NB921':9193.0/HA - 1, 'NB973':9749.0/HA - 1}
-
-    npz_files = np.load(FULL_PATH+'Plots/sfr_metallicity_plot_fit.npz')
-
-    Lnu_fit_ch = npz_files['Lnu_fit_ch']
-
-    P2, P1, P0 = -1*Lnu_fit_ch
-    def log_SFR_from_L(zz):
-        '''zz is metallicity: log(Z/Z_sol)'''
-        return P0 + P1*zz + P2*zz**2
-
-    # niiha_oh_determine estimates log(O/H)+12
-    NII6583_Ha = corr_tbl['NII_Ha_ratio'].data * 2.96/(1+2.96)
-    logOH = niiha_oh_determine(np.log10(NII6583_Ha), 'PP04_N2') - 12
-    y = logOH + 3.31
-
-    # this is luminosity
-    log_SFR_LUV = log_SFR_from_L(y)
-
-    # this is luminosity correction
-    LUV = np.zeros(len(corr_tbl))
-    for ff in ['NB7','NB816','NB921','NB973']:
-        filt_index_haii = np.array([x for x in range(len(corr_tbl)) if ff in
-            corrfilts[x]])
-
-        lnu = get_LUV(corrID, corrzspec0, centr_filts, filt_index_haii, ff)
-        LUV[filt_index_haii] = lnu
-
-    log_SFR_UV = log_SFR_LUV + LUV
-
-    return log_SFR_UV
+    # plt.savefig(config.FULL_PATH+'Plots/main_sequence_UV_Ha/SFR_UV_vs_HA.pdf')
 
 
 def lee_09(ax, xlims0, lee_fig_num):
@@ -481,7 +403,7 @@ def plot_SFR_ratios_final_touches(f, ax0, ax1, ax2):
     f.set_size_inches(14,5)
     plt.tight_layout()
     plt.subplots_adjust(wspace=0.015, left=0.04, bottom=0.09)
-    plt.savefig(FULL_PATH+'Plots/main_sequence_UV_Ha/SFR_ratio.pdf')
+    plt.savefig(config.FULL_PATH+'Plots/main_sequence_UV_Ha/SFR_ratio.pdf')
 
 
 def plot_SFR_ratios(log_SFR_HA, log_SFR_UV, corr_tbl):
@@ -559,7 +481,7 @@ def plot_SFR_ratios_final_touches_dustcorr(f, ax):
     f.set_size_inches(6,5)
     plt.tight_layout()
     # plt.subplots_adjust(wspace=0.015, left=0.04, bottom=0.09)
-    plt.savefig(FULL_PATH+'Plots/main_sequence_UV_Ha/SFR_ratio_dustcorr.pdf')
+    plt.savefig(config.FULL_PATH+'Plots/main_sequence_UV_Ha/SFR_ratio_dustcorr.pdf')
 
 
 def plot_SFR_ratios_dustcorr(log_SFR_HA, log_SFR_UV, corr_tbl):
@@ -649,14 +571,14 @@ def main():
     +190531: only GALEX files will be used
     '''
     # reading input files
-    fout  = asc.read(FULL_PATH+
-        'FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast'+fileend+'.fout',
+    fout  = asc.read(config.FULL_PATH+
+        'FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast'+config.fileend+'.fout',
         guess=False, Reader=asc.NoHeader)
 
-    corr_tbl = asc.read(FULL_PATH+'Main_Sequence/mainseq_corrections_tbl.txt',
+    corr_tbl = asc.read(config.FULL_PATH+'Main_Sequence/mainseq_corrections_tbl.txt',
         guess=False, Reader=asc.FixedWidthTwoLine)
-    good_sig_iis = np.where((corr_tbl['flux_sigma'] >= CUTOFF_SIGMA) & 
-        (corr_tbl['stlr_mass'] >= CUTOFF_MASS))[0]
+    good_sig_iis = np.where((corr_tbl['flux_sigma'] >= config.CUTOFF_SIGMA) & 
+        (corr_tbl['stlr_mass'] >= config.CUTOFF_MASS))[0]
     corr_tbl = corr_tbl[good_sig_iis]
     print('### done reading input files')
 

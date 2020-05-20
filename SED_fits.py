@@ -9,16 +9,16 @@ PURPOSE:
     o SEDs randomly selected
 
 INPUTS:
-    FULL_PATH+'FAST/outputs/BEST_FITS/NB_IA_emitters_allphot.emagcorr.ACpsf_fast'+fileend+'_'+str(ID_num)+'.input_res.fit'
-    FULL_PATH+'FAST/outputs/BEST_FITS/NB_IA_emitters_allphot.emagcorr.ACpsf_fast'+fileend+'_'+str(ID_num)+'.fit'
-    FULL_PATH+'Catalogs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast'+fileend+'.cat'
-    FULL_PATH+'FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast'+fileend+'.fout'
-    FULL_PATH+'Catalogs/nb_ia_zspec.txt'
-    FULL_PATH+'Catalogs/NB_IA_emitters.nodup.colorrev.fix.fits'
-    FULL_PATH+'Main_Sequence/Catalogs/mainseq_Ha_corrections'+fileend+'.fits'
+    config.FULL_PATH+'FAST/outputs/BEST_FITS/NB_IA_emitters_allphot.emagcorr.ACpsf_fast'+fileend+'_'+str(ID_num)+'.input_res.fit'
+    config.FULL_PATH+'FAST/outputs/BEST_FITS/NB_IA_emitters_allphot.emagcorr.ACpsf_fast'+fileend+'_'+str(ID_num)+'.fit'
+    config.FULL_PATH+'Catalogs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast'+fileend+'.cat'
+    config.FULL_PATH+'FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast'+fileend+'.fout'
+    config.FULL_PATH+'Catalogs/nb_ia_zspec.txt'
+    config.FULL_PATH+'Catalogs/NB_IA_emitters.nodup.colorrev.fix.fits'
+    config.FULL_PATH+'Main_Sequence/Catalogs/mainseq_Ha_corrections'+fileend+'.fits'
 
 OUTPUTS:
-    FULL_PATH+'Plots/SED_fits/'+filename+fileend+'.pdf'
+    config.FULL_PATH+'Plots/SED_fits/'+filename+fileend+'.pdf'
 """
 from __future__ import print_function
 
@@ -27,14 +27,7 @@ from astropy.io import ascii as asc, fits as pyfits
 from astropy import constants
 from matplotlib.backends.backend_pdf import PdfPages
 
-# emission line wavelengths (air)
-HB = 4861.32
-HA = 6562.80
-OII3727 = (3726.16+3728.91)/2.0
-OIII5007 = 5006.84
-
-fileend='.GALEX'
-FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
+import config
 
 
 def modify_current_plot(current_axis, full_name, zs, stlr, zp, chsq, AV, 
@@ -100,6 +93,9 @@ def plot_dotted_lines(zspec, zphot, axis, ymin, ymax):
     else:
         z = zphot
 
+    lambda_naught = np.array([config.OII3727_VAL,(config.HB_VAL+config.OIII5007_VAL)/2.0,config.HA_VAL])
+    lambda_label  = np.array(['[OII]','H'+r'$\beta$'+'+[OIII]', 'H'+r'$\alpha$'+''])
+
     lambda_vals = lambda_naught*(1+z)
 
     for (xpos, label) in zip(lambda_vals, lambda_label):
@@ -113,9 +109,9 @@ def scatter_data(ID_num, axis):
     o Scatters SEDs (black circles) along w/ error bars
     o 
     '''
-    x_input_file = asc.read(FULL_PATH+
+    x_input_file = asc.read(config.FULL_PATH+
         'FAST/outputs/BEST_FITS/NB_IA_emitters_allphot.emagcorr.ACpsf_fast'
-        +fileend+'_'+str(ID_num)+'.input_res.fit',
+        +config.fileend+'_'+str(ID_num)+'.input_res.fit',
         guess=False,Reader=asc.NoHeader)
     
     x_input = np.array(x_input_file['col1']) # actual data, not from the model. 
@@ -130,7 +126,7 @@ def scatter_data(ID_num, axis):
         e_IA598[y_index], e_IA679[y_index], e_K[y_index],
         e_ZB[y_index], e_ZR[y_index], e_J[y_index], e_H[y_index]])
 
-    if fileend=='.GALEX':
+    if config.fileend=='.GALEX':
         y_input  = np.append(y_input, [f_NUV[y_index], f_FUV[y_index]])
         yerr_arr = np.append(yerr_arr, [e_NUV[y_index], e_FUV[y_index]])
 
@@ -161,12 +157,12 @@ def scatter_data(ID_num, axis):
     #endif
 
 
-def create_SED_fits(match_index, filename):
+def create_SED_fits(match_index, filename, zspec0, names):
     '''
     '''
     print('###'+filename)
     
-    pp = PdfPages(FULL_PATH+'Plots/SED_fits/'+filename+'.pdf')
+    pp = PdfPages(config.FULL_PATH+'Plots/SED_fits/'+filename+'.pdf')
 
     filt_ID = ID0[match_index]
     filt_full = names[match_index]
@@ -180,7 +176,7 @@ def create_SED_fits(match_index, filename):
 
     for (ID_num, full_name, num, zp, zs, stlr, chsq, AV, age, tau) in zip(filt_ID, filt_full, range(len(filt_ID)), zphot_filt, zspec_filt, stlr_filt, chi2_filt, A_V_filt, lage_filt, ltau_filt):
         print(ID_num)
-        tempfile = asc.read(FULL_PATH+'FAST/outputs/BEST_FITS/NB_IA_emitters_allphot.emagcorr.ACpsf_fast'+fileend+'_'+str(ID_num)+'.fit',guess=False,Reader=asc.NoHeader)
+        tempfile = asc.read(config.FULL_PATH+'FAST/outputs/BEST_FITS/NB_IA_emitters_allphot.emagcorr.ACpsf_fast'+config.fileend+'_'+str(ID_num)+'.fit',guess=False,Reader=asc.NoHeader)
         wavelength = np.array(tempfile['col1'])
         flux = np.array(tempfile['col2'])
         
@@ -218,12 +214,43 @@ def create_SED_fits(match_index, filename):
     pp.close()
 
 
-# def main():
-# create a SED plot w/ ea. of the 1 filters
-catfile='Catalogs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast'+fileend+'.cat'
-foutfile='FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast'+fileend+'.fout'
+def main():
+    nbia = asc.read(config.FULL_PATH+'Catalogs/nb_ia_zspec.txt',guess=False,Reader=asc.CommentedHeader)
+    zspec0 = np.array(nbia['zspec0'])
 
-scatter_y_input = asc.read(FULL_PATH+catfile,guess=False,Reader=asc.CommentedHeader)
+    nbia = pyfits.open(config.FULL_PATH+config.NB_IA_emitters_cat)
+    nbiadata = nbia[1].data
+    names = nbiadata['NAME']
+
+    #+170815
+    Ha_corrs = pyfits.open(config.FULL_PATH+'Main_Sequence/Catalogs/mainseq_Ha_corrections'+config.fileend+'.fits')
+    corrdata = Ha_corrs[1].data
+    ha_id = corrdata['ID']
+    dust_lumin0 = corrdata['dust_corr_lumin']
+
+    dust_lumin = np.zeros(len(ID0))
+    id_match = np.array([x for x in range(len(ID0)) if ID0[x] in ha_id])
+    dust_lumin[id_match] = dust_lumin0
+    print('### done reading files')
+
+    np.random.seed(436)
+    match_index0 = np.array([np.random.choice(np.array([x for x in range(len(names)) if 'Ha-NB704' in names[x] and len(names[x]) < 20 and zspec0[x] > 0 and zspec0[x] < 9])),
+                             np.random.choice(np.array([x for x in range(len(names)) if 'Ha-NB711' in names[x] and len(names[x]) < 20 and zspec0[x] > 0 and zspec0[x] < 9])),
+                             np.random.choice(np.array([x for x in range(len(names)) if 'Ha-NB816' in names[x] and len(names[x]) < 20 and zspec0[x] > 0 and zspec0[x] < 9])),
+                             np.random.choice(np.array([x for x in range(len(names)) if 'Ha-NB921' in names[x] and len(names[x]) < 20 and zspec0[x] > 0 and zspec0[x] < 9])),
+                             np.random.choice(np.array([x for x in range(len(names)) if 'Ha-NB973' in names[x] and len(names[x]) < 20 and zspec0[x] > 0 and zspec0[x] < 9]))])
+    create_SED_fits(match_index0, 'allfilt'+config.fileend, zspec0, names)
+
+
+if __name__ == '__main__':
+    main()
+
+
+# create a SED plot w/ ea. of the 1 filters
+catfile='Catalogs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast'+config.fileend+'.cat'
+foutfile='FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast'+config.fileend+'.fout'
+
+scatter_y_input = asc.read(config.FULL_PATH+catfile,guess=False,Reader=asc.CommentedHeader)
 y_input_id = np.array(scatter_y_input['id'])
 f_U     = np.array(scatter_y_input['f_U'])
 e_U     = np.array(scatter_y_input['e_U'])
@@ -251,14 +278,14 @@ f_J     = np.array(scatter_y_input['f_J'])
 e_J     = np.array(scatter_y_input['e_J'])
 f_H     = np.array(scatter_y_input['f_H'])
 e_H     = np.array(scatter_y_input['e_H'])
-if fileend=='.GALEX':
+if config.fileend=='.GALEX':
     f_NUV = np.array(scatter_y_input['f_NUV'])
     e_NUV = np.array(scatter_y_input['e_NUV'])
     f_FUV = np.array(scatter_y_input['f_FUV'])
     e_FUV = np.array(scatter_y_input['e_FUV'])
 #endif
 
-fout      = asc.read(FULL_PATH+foutfile,guess=False,Reader=asc.NoHeader)
+fout      = asc.read(config.FULL_PATH+foutfile,guess=False,Reader=asc.NoHeader)
 ID0       = np.array(fout['col1'])
 zphot     = np.array(fout['col2'])
 ltau      = np.array(fout['col3'])
@@ -267,32 +294,3 @@ A_V       = np.array(fout['col6'])
 stlr_mass = np.array(fout['col7'])
 sed_sfr   = np.array(fout['col8'])
 chi2      = np.array(fout['col11'])
-
-nbia = asc.read(FULL_PATH+'Catalogs/nb_ia_zspec.txt',guess=False,Reader=asc.CommentedHeader)
-zspec0 = np.array(nbia['zspec0'])
-
-nbia = pyfits.open(FULL_PATH+'Catalogs/NB_IA_emitters.nodup.colorrev.fix.fits')
-nbiadata = nbia[1].data
-names = nbiadata['NAME']
-
-#+170815
-Ha_corrs = pyfits.open(FULL_PATH+'Main_Sequence/Catalogs/mainseq_Ha_corrections'+fileend+'.fits')
-corrdata = Ha_corrs[1].data
-ha_id = corrdata['ID']
-dust_lumin0 = corrdata['dust_corr_lumin']
-
-dust_lumin = np.zeros(len(ID0))
-id_match = np.array([x for x in range(len(ID0)) if ID0[x] in ha_id])
-dust_lumin[id_match] = dust_lumin0
-print('### done reading files')
-
-lambda_naught = np.array([OII3727,(HB+OIII5007)/2.0,HA])
-lambda_label  = np.array(['[OII]','H'+r'$\beta$'+'+[OIII]', 'H'+r'$\alpha$'+''])
-
-np.random.seed(436)
-match_index0 = np.array([np.random.choice(np.array([x for x in range(len(names)) if 'Ha-NB704' in names[x] and len(names[x]) < 20 and zspec0[x] > 0 and zspec0[x] < 9])),
-                         np.random.choice(np.array([x for x in range(len(names)) if 'Ha-NB711' in names[x] and len(names[x]) < 20 and zspec0[x] > 0 and zspec0[x] < 9])),
-                         np.random.choice(np.array([x for x in range(len(names)) if 'Ha-NB816' in names[x] and len(names[x]) < 20 and zspec0[x] > 0 and zspec0[x] < 9])),
-                         np.random.choice(np.array([x for x in range(len(names)) if 'Ha-NB921' in names[x] and len(names[x]) < 20 and zspec0[x] > 0 and zspec0[x] < 9])),
-                         np.random.choice(np.array([x for x in range(len(names)) if 'Ha-NB973' in names[x] and len(names[x]) < 20 and zspec0[x] > 0 and zspec0[x] < 9]))])
-create_SED_fits(match_index0, 'allfilt'+fileend)
