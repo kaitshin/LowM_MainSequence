@@ -569,3 +569,17 @@ def main_color(old_selection=False):
     colorrev2_file = colorrev_file.replace('colorrev', 'colorrev2')
     print("Writing : "+colorrev2_file)
     fits.writeto(colorrev_file.replace('colorrev', 'colorrev2'), c_data0, c_hdr, overwrite=True)
+
+    # Write in allcols file
+    allcols_list = ['NB_IA_emitters.allcols.colorrev.fix.fits',
+                    'NB_IA_emitters.allcols.colorrev.fix.errors.fits']
+
+    for allcols_file in allcols_list:
+        temp_file = join(dir0, 'Catalogs/', allcols_file)
+        all_hdu = fits.open(temp_file)
+        all_data = all_hdu[1].data
+        all_data.NAME = corr_Name0
+        all_hdu[1].data = all_data
+        allcols_outfile = temp_file.replace('colorrev', 'colorrev2')
+        print("Writing : " + allcols_outfile)
+        all_hdu.writeto(allcols_outfile, overwrite=True)
