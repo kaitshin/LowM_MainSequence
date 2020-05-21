@@ -6,44 +6,62 @@ PURPOSE:
     run all the scripts in order to generate figures 1–11, A1, and A2 in the paper
     as well as tables 2–4, A1, and A2
 
-CODE FLOW:
+CODE FLOW (incl. outputs):
     1. stack_spectral_data.py
-        - figs A1, A2
-        - tabs A1, A2
         - directly calls colorrev2.fix.fits
+        * figs A1, A2
+            - 'Composite_Spectra/StellarMassZ/MMT_stlrmassZ.pdf'
+            - 'Composite_Spectra/StellarMassZ/Keck_stlrmassZ.pdf'
+        * tabs A1, A2
+            - 'Tables/A1.txt'
+            - 'Tables/A2.txt'
     2. write_spectral_coverage_table.py
-        - depends on file(s) from (1)
         - directly calls colorrev2.fix.fits
+        - depends on file(s) from (1)
     3. mainseq_corrections.py
-        - fig 1
-        - tabs 2, 3
+        - directly calls colorrev2.fix.fits
         - depends on file(s) from (1), (2)
             - (tabs 2,3 depend on file from (3))
         - calls plot_NII_Ha_ratios.py (which also depends on file(s) from (1))
-        - directly calls colorrev2.fix.fits
+        * fig 1
+            - 'Plots/main_sequence/NII_Ha_scatter_log.pdf'
+        * tabs 2, 3
+            - 'Tables/2.txt'
+            - 'Tables/2_footnote.txt'
+            - 'Tables/3.txt'
     4. plot_mstar_vs_ebv.py
-        - fig 2
         - depends on file(s) from (1), (2), (3)
+        * fig 2
+            - 'Plots/main_sequence/mstar_vs_ebv.pdf'
     5. SED_fits.py
-        - fig 3
         - directly calls colorrev2.fix.fits
+        * fig 3
+            - 'Plots/SED_fits/allfilt.galex.PDF'
     6. plot_mainseq_UV_Ha_comparison.py
-        - figs 4, 5
         - depends on file(s) from (3)
+        * figs 4, 5
+            - 'Plots/main_sequence/UV_Ha/SFR_ratio.pdf'
+            - 'Plots/main_sequence/UV_Ha/SFR_ratio_dustcorr.pdf'
     7. plot_nbia_mainseq.py
-        - figs 6, 7, 10
         - depends on file(s) from (3)
+        * figs 6, 7, 10
+            - 'Plots/main_sequence/mainseq_sSFRs_FUV_corrs.pdf'
+            - 'Plots/main_sequence/mainseq.pdf'
+            - 'Plots/main_sequence/zdep_mainseq.pdf'
     8. MC_contours.py
-        - figs 8, 9
         - depends on file(s) from (3)
+        * figs 8, 9
+            - 'Plots/main_sequence/MC_regr_contours_noz.pdf'
+            - 'Plots/main_sequence/MC_regr_contours.pdf'
     9. nbia_mainseq_dispersion.py
-        - fig 11
-        - tab 4
         - depends on file(s) from (3)
+        * fig 11
+            - 'Plots/main_sequence/mainseq_dispersion.pdf'
+        * tab 4
+            - 'Tables/4.txt'
 
 INPUTS:
-    
-OUTPUTS:
+
 
 """
 from astropy.io import fits as pyfits, ascii as asc
