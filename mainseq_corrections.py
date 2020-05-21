@@ -44,7 +44,7 @@ cosmo = FlatLambdaCDM(H0 = 70 * u.km / u.s / u.Mpc, Om0=0.3)
 HB = 4861.32
 HA = 6562.80
 
-FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
+FULL_PATH = '/Users/kaitlynshin/Google Drive/NASA_Summer2015/'
 SEED_ORIG = 57842
 
 

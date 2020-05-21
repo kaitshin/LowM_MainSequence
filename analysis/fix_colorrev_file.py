@@ -412,7 +412,9 @@ def main_color(old_selection=False):
 
     filters = ['NB704', 'NB711', 'NB816', 'NB921', 'NB973']
 
-    _, raw_data0, c_data0, _, _, _, corr_Name0 = read_nb_catalog(use_fix=True)
+    _, raw_data0, c_data0, _, _, rev_Name, corr_Name0 = read_nb_catalog(use_fix=True)
+
+    corr_Name0 = rev_Name
 
     config_tab = read_config_file()
     z_cat_tab = read_z_cat_file()
@@ -543,11 +545,13 @@ def main_color(old_selection=False):
         if len(non_Ha) > 0:
             print("Changing {} instances".format(len(non_Ha)))
             corr_Name[non_Ha] = [str0.replace('Ha-'+filt, '???-'+filt) for str0 in rev_Name[non_Ha]]
-            corr_Name0[NBIA_idx] = corr_Name
+            corr_Name0[NBIA_idx[non_Ha]] = corr_Name[non_Ha]
 
             phot_df_ch = phot_df.loc[non_Ha]
-            arr0 = zip(phot_df_ch['ID'], rev_Name[non_Ha], corr_Name[non_Ha])
-            change_str0 = [str(a)+' '+b+' -> '+c+'\n' for a, b, c in arr0]
+            arr0 = zip(raw_data0.ID[NBIA_idx[non_Ha]], phot_df_ch['ID'],
+                       rev_Name[non_Ha], corr_Name[non_Ha])
+            change_str0 = ['{:04} {:06} {} -> {}\n'.format(a, b, c, d) for
+                           a, b, c, d in arr0]
 
             outfile = join(dir0, 'Plots/color_plots/{}_fix_colorrev2_file.dat'.format(filt))
             log.info('## Writing : '+outfile)
@@ -565,3 +569,17 @@ def main_color(old_selection=False):
     colorrev2_file = colorrev_file.replace('colorrev', 'colorrev2')
     print("Writing : "+colorrev2_file)
     fits.writeto(colorrev_file.replace('colorrev', 'colorrev2'), c_data0, c_hdr, overwrite=True)
+
+    # Write in allcols file
+    allcols_list = ['NB_IA_emitters.allcols.colorrev.fix.fits',
+                    'NB_IA_emitters.allcols.colorrev.fix.errors.fits']
+
+    for allcols_file in allcols_list:
+        temp_file = join(dir0, 'Catalogs/', allcols_file)
+        all_hdu = fits.open(temp_file)
+        all_data = all_hdu[1].data
+        all_data.NAME = corr_Name0
+        all_hdu[1].data = all_data
+        allcols_outfile = temp_file.replace('colorrev', 'colorrev2')
+        print("Writing : " + allcols_outfile)
+        all_hdu.writeto(allcols_outfile, overwrite=True)
