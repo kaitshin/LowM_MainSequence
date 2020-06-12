@@ -142,25 +142,22 @@ class MLog:
         return log
 
 
-def stats_log(arr, arr_type, mylog):
+def stats_log(input_arr, arr_type, mylog):
     """
-    Computes, min, max, median, and average value of input array and
-    output to log
+    Purpose:
+      Computes, min, max, median, and average value of input array and
+      output to log
 
-    Parameters
-    ----------
-    arr: numpy.ndarray
-      Input array
-
-    Returns
-    -------
-    None.  mylog is called.
+    :param input_arr: input array (numpy.ndarray)
+    :param arr_type: string
+    :param mylog: MLog class
+    :return None. mylog is called
     """
 
-    min0  = np.nanmin(arr)
-    max0  = np.nanmax(arr)
-    mean0 = np.nanmean(arr)
-    med0  = np.nanmedian(arr)
+    min0  = np.nanmin(input_arr)
+    max0  = np.nanmax(input_arr)
+    mean0 = np.nanmean(input_arr)
+    med0  = np.nanmedian(input_arr)
 
     str0 = "%s: min=%f max=%f mean=%f median=%f" % (arr_type, min0, max0,
                                                     mean0, med0)
