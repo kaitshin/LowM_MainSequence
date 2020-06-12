@@ -299,8 +299,14 @@ def correct_NII(log_flux, NIIHa):
 
 def get_NIIHa_logOH(logM):
     """
-    Get [NII]6548,6583/H-alpha flux ratios and oxygen abundance based on
-    stellar mass.  Metallicity is from PP04
+    Purpose:
+      Get [NII]6548,6583/H-alpha flux ratios and oxygen abundance based on
+      stellar mass.  Metallicity is from PP04
+
+    :param logM: numpy array of logarithm of stellar mass
+
+    :return NIIHa: array of NII/Ha flux ratios
+    :return logOH: log(O/H) abundances from PP04 formula
     """
 
     NIIHa = np.zeros(logM.shape)
