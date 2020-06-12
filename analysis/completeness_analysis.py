@@ -81,18 +81,18 @@ Flux_lab = r'$\log(F_{{\rm H}\alpha})$'
 M_lab    = r'$\log(M_{\star}/M_{\odot})$'
 SFR_lab  = r'$\log({\rm SFR}[{\rm H}\alpha]/M_{\odot}\,{\rm yr}^{-1})$'
 
-EW_bins   = np.arange(0.2,3.0,0.2)
-Flux_bins = np.arange(-17.75,-14.00,0.25)
-sSFR_bins = np.arange(-11.0,-6.0,0.2)
-SFR_bins  = np.arange(-5.0,2.0,0.2)
+EW_bins   = np.arange(0.2, 3.0, 0.2)
+Flux_bins = np.arange(-17.75, -14.00, 0.25)
+sSFR_bins = np.arange(-11.0, -6.0, 0.2)
+SFR_bins  = np.arange(-5.0, 2.0, 0.2)
 # Colors for each separate points on avg_sigma plots
-avg_sig_ctype = ['m','r','g','b','k']
+avg_sig_ctype = ['m', 'r', 'g', 'b', 'k']
 
 cmap_sel   = plt.cm.Blues
 cmap_nosel = plt.cm.Reds
 
 # Dictionary names
-npz_NBnames = ['N_mag_mock','Ndist_mock','Ngal','Nmock','NB_ref','NB_sig_ref']
+npz_NBnames = ['N_mag_mock', 'Ndist_mock', 'Ngal', 'Nmock', 'NB_ref', 'NB_sig_ref']
 
 npz_MCnames = ['EW_seed', 'logEW_MC_ref', 'x_MC0_ref', 'BB_MC0_ref',
                'BB_sig_ref', 'sig_limit_ref', 'NB_sel_ref', 'NB_nosel_ref',
@@ -120,7 +120,7 @@ class MLog:
     Created by Chun Ly, 2 October 2019
     """
 
-    def __init__(self,dir0,str_date):
+    def __init__(self, dir0, str_date):
         self.LOG_FILENAME = dir0 + 'completeness_analysis.'+str_date+'.log'
         self._log = self._get_logger()
 
@@ -250,7 +250,7 @@ def color_cut(x, lim1, lim2, mean=0.0, sigma=3.0):
 
     f = 10**(-0.4*(m_AB+x))
 
-    val = mean -2.5*np.log10(1 - np.sqrt(f1**2+f2**2)/f)
+    val = mean - 2.5*np.log10(1 - np.sqrt(f1**2+f2**2)/f)
 
     return val
 
@@ -319,7 +319,6 @@ def get_NIIHa_logOH(logM):
     high_mass = np.where(logM > 8.0)
     if len(high_mass[0]) > 0:
         NIIHa[high_mass] = 0.169429547993*logM[high_mass] - 1.29299670728
-
 
     # Compute metallicity
     NII6583_Ha = NIIHa * 1/(1+1/2.96)
