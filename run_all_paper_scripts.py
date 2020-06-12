@@ -316,7 +316,7 @@ def tab_A2():
 
 
 def tab_2():
-    mainseq = asc.read(config.FULL_PATH+'Main_Sequence/mainseq_corrections_tbl.txt',
+    mainseq = asc.read(config.FULL_PATH+config.mainseq_corrs_tbl,
         format='fixed_width_two_line', delimiter=' ')
     col1 = ['NB704', 'NB711', 'NB816', 'NB921', 'NB973']
     col2,col3,col4,col5,col6,col7,col8,col9,col10 = [],[],[],[],[],[],[],[],[]
@@ -359,7 +359,7 @@ def tab_2():
 def tab_3():
     from MACT_utils import get_FUV_corrs
 
-    corr_tbl = asc.read(config.FULL_PATH+'Main_Sequence/mainseq_corrections_tbl.txt',
+    corr_tbl = asc.read(config.FULL_PATH+config.mainseq_corrs_tbl,
         guess=False, Reader=asc.FixedWidthTwoLine)
     good_sig_iis = np.where((corr_tbl['flux_sigma'] >= config.CUTOFF_SIGMA) 
         & (corr_tbl['stlr_mass'] >= config.CUTOFF_MASS))[0]
@@ -519,10 +519,8 @@ def main():
     # READ-IN FILES, DEFINED DATA STRUCTS
     nbia = pyfits.open(config.FULL_PATH+config.NB_IA_emitters_cat)
     nbiadata = nbia[1].data
-    zspec = asc.read(config.FULL_PATH+'Catalogs/nb_ia_zspec.txt',guess=False,
-                     Reader=asc.CommentedHeader)
-    fout  = asc.read(config.FULL_PATH+'FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast.GALEX.fout',
-                     guess=False,Reader=asc.NoHeader)
+    zspec = asc.read(config.FULL_PATH+config.zspec_cat, guess=False, Reader=asc.CommentedHeader)
+    fout  = asc.read(config.FULL_PATH+config.fout_cat, guess=False, Reader=asc.NoHeader)
 
 
     ## some number checks
@@ -542,7 +540,7 @@ def main():
     run_mainseq_corrections() # CHANGES!!!
 
     # calling plot_mstar_vs_ebv.py
-    run_plot_mstar_vs_ebv() # CHANGES!!!
+    run_plot_mstar_vs_ebv() # CHANGES!!! TODO: but why??
 
     # calling SED_fits.py
     run_SED_fits()

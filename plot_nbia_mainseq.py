@@ -380,11 +380,6 @@ def make_redshift_graph(f, ax, z_arr, corr_sfrs, delta_sfrs, stlr_mass, zspec0, 
     '''
     func0, eqn0 = get_func0_eqn0(fittype)
 
-    centr_filts = {'NB7':((7045.0/config.HA_VAL - 1) + (7126.0/config.HA_VAL - 1))/2.0, 
-        'NB816':8152.0/config.HA_VAL - 1, 'NB921':9193.0/config.HA_VAL - 1, 'NB973':9749.0/config.HA_VAL - 1,
-        'NEWHA':0.8031674}
-
-
     data00 = np.vstack([stlr_mass, zspec0]).T
 
     params_arr = get_mainseq_fit_params(corr_sfrs, delta_sfrs, data00, num_params=3)
@@ -410,7 +405,7 @@ def make_redshift_graph(f, ax, z_arr, corr_sfrs, delta_sfrs, stlr_mass, zspec0, 
         filt_match = np.array([x for x in range(len(filts)) if ff in filts[x]])
         mrange = np.arange(min(stlr_mass[filt_match]),
             max(stlr_mass[filt_match]), 0.1)
-        avgz = np.array([centr_filts[ff]]*len(mrange))
+        avgz = np.array([config.centr_filts[ff]]*len(mrange))
         tmpdata = np.vstack([mrange, avgz]).T
         ax.plot(mrange, func0(tmpdata, *params), color=cc, lw=2)
 

@@ -244,16 +244,12 @@ def get_tempz(zspec0, filt_arr):
     sources with spectroscopically confirmed redshifts use that spec_z
     otherwise, estimated redshifts based on the center of the filter are used
     '''
-    centr_filts = {'NB7':((7045.0/config.HA_VAL - 1) + (7126.0/config.HA_VAL - 1))/2.0,  
-        'NB704':7045.0/config.HA_VAL - 1, 'NB711':7126.0/config.HA_VAL - 1, 
-        'NB816':8152.0/config.HA_VAL - 1, 'NB921':9193.0/config.HA_VAL - 1, 'NB973':9749.0/config.HA_VAL - 1}
-
     tempz = np.zeros(len(zspec0))
     for ii, zspec in enumerate(zspec0):
         if (zspec > 0 and zspec < 9):
             tempz[ii] = zspec
         elif (zspec <= 0 or zspec > 9):
-            tempz[ii] = centr_filts[filt_arr[ii]]
+            tempz[ii] = config.centr_filts[filt_arr[ii]]
         else:
             raise ValueError('something went wrong with zspecs?')
 
@@ -440,8 +436,6 @@ def get_UV_SFR(corr_tbl):
     corrID = corr_tbl['ID'].data
     corrfilts = corr_tbl['filt'].data
     corrzspec0 = corr_tbl['zspec0'].data
-    centr_filts = {'NB7':((7045.0/config.HA_VAL - 1) + (7126.0/config.HA_VAL - 1))/2.0, 
-        'NB816':8152.0/config.HA_VAL - 1, 'NB921':9193.0/config.HA_VAL - 1, 'NB973':9749.0/config.HA_VAL - 1}
 
     npz_files = np.load(config.FULL_PATH+'Plots/sfr_metallicity_plot_fit.npz')
 
@@ -466,7 +460,7 @@ def get_UV_SFR(corr_tbl):
         filt_index_haii = np.array([x for x in range(len(corr_tbl)) if ff in
             corrfilts[x]])
 
-        lnu = get_LUV(corrID, corrzspec0, centr_filts, filt_index_haii, ff)
+        lnu = get_LUV(corrID, corrzspec0, config.centr_filts, filt_index_haii, ff)
         LUV[filt_index_haii] = lnu
 
     log_SFR_UV = log_SFR_LUV + LUV

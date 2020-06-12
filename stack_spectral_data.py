@@ -55,8 +55,6 @@ MIN_NUM_PER_BIN = 9
 MAX_NUM_OF_BINS = 5
 SEED_ORIG = 19823
 
-# config.FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
-
 def correct_instr_AP(indexed_AP, indexed_inst_str0, instr):
     '''
     Returns the indexed AP_match array based on the 'match_index' from
@@ -880,12 +878,12 @@ def main():
     nbiadata = nbia[1].data
     NAME0 = nbiadata['NAME']
 
-    zspec = asc.read(config.FULL_PATH+'Catalogs/nb_ia_zspec.txt',guess=False,
+    zspec = asc.read(config.FULL_PATH+config.zspec_cat,guess=False,
                      Reader=asc.CommentedHeader)
     zspec0 = np.array(zspec['zspec0'])
     inst_str0 = np.array(zspec['inst_str0']) ##used
 
-    fout  = asc.read(config.FULL_PATH+'FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast.GALEX.fout',
+    fout  = asc.read(config.FULL_PATH+config.fout_cat,
                      guess=False,Reader=asc.NoHeader)
     stlr_mass = np.array(fout['col7']) ##used
     nan_stlr_mass = np.copy(stlr_mass)
