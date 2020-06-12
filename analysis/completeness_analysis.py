@@ -377,9 +377,9 @@ def get_mag_vs_mass_interp(prefix_ff):
 
 
 def dict_prop_maker(NB, BB, x, filt_dict, filt_corr, mass_int, lum_dist):
-    dict_prop = {'NB':NB, 'BB':BB, 'x':x, 'filt_dict':filt_dict,
-                 'filt_corr':filt_corr, 'mass_int':mass_int,
-                 'lum_dist':lum_dist}
+    dict_prop = {'NB': NB, 'BB': BB, 'x': x, 'filt_dict': filt_dict,
+                 'filt_corr': filt_corr, 'mass_int': mass_int,
+                 'lum_dist': lum_dist}
     return dict_prop
 
 
@@ -438,7 +438,7 @@ def avg_sig_plot_init(t_filt, logEW_mean, avg_NB, sig_NB, avg_NB_flux,
     ylim1 = [avg_NB-sig_NB-0.05, avg_NB+sig_NB+0.15]
     ylim2 = [avg_NB_flux-sig_NB_flux-0.05, avg_NB_flux+sig_NB_flux+0.15]
 
-    xticks = np.arange(xlim[0],xlim[1],0.1)
+    xticks = np.arange(xlim[0], xlim[1], 0.1)
     fig3, ax3 = plt.subplots(ncols=2, nrows=2)
 
     ax3[0][0].axhline(y=avg_NB, color='black', linestyle='dashed')
@@ -448,8 +448,8 @@ def avg_sig_plot_init(t_filt, logEW_mean, avg_NB, sig_NB, avg_NB_flux,
     # ax3[0][0].set_ylim(ylim1)
     ax3[0][0].set_ylabel(EW_lab)
     ax3[0][0].set_xticklabels([])
-    ax3_txt = avg_sig_label(t_filt +'\n', avg_NB, sig_NB, panel_type='EW')
-    ax3[0][0].annotate(ax3_txt, (0.025,0.975), xycoords='axes fraction',
+    ax3_txt = avg_sig_label(t_filt + '\n', avg_NB, sig_NB, panel_type='EW')
+    ax3[0][0].annotate(ax3_txt, (0.025, 0.975), xycoords='axes fraction',
                     ha='left', va='top', fontsize=11)
 
     ax3[1][0].axhline(y=avg_NB_flux, color='black', linestyle='dashed')
@@ -461,7 +461,7 @@ def avg_sig_plot_init(t_filt, logEW_mean, avg_NB, sig_NB, avg_NB_flux,
     ax3[1][0].set_xlabel(EW_lab)
     ax3[1][0].set_ylabel(Flux_lab)
     ax3_txt = avg_sig_label('', avg_NB_flux, sig_NB_flux, panel_type='Flux')
-    ax3[1][0].annotate(ax3_txt, (0.025,0.975), xycoords='axes fraction',
+    ax3[1][0].annotate(ax3_txt, (0.025, 0.975), xycoords='axes fraction',
                        ha='left', va='top', fontsize=11)
 
     ax3[0][1].set_xlim(xlim)
@@ -536,9 +536,9 @@ def plot_mock(ax, x0, y0, NB_sel, NB_nosel, xlabel, ylabel):
     is1, is2 = NB_sel[0], NB_sel[1]
     in1, in2 = NB_nosel[0], NB_nosel[1]
 
-    ax.hexbin(x0[is1,is2], y0[is1,is2], gridsize=100, mincnt=1, cmap=cmap_sel,
+    ax.hexbin(x0[is1, is2], y0[is1, is2], gridsize=100, mincnt=1, cmap=cmap_sel,
               linewidth=0.2)
-    ax.hexbin(x0[in1,in2], y0[in1,in2], gridsize=100, mincnt=1, cmap=cmap_nosel,
+    ax.hexbin(x0[in1, in2], y0[in1, in2], gridsize=100, mincnt=1, cmap=cmap_nosel,
               linewidth=0.2)
     # ax.scatter(x0[is1,is2], y0[is1,is2], alpha=0.25, s=2, edgecolor='none')
     # ax.scatter(x0[in1,in2], y0[in1,in2], alpha=0.25, s=2, edgecolor='red',
@@ -613,7 +613,7 @@ def plot_completeness(t_ax, arr0, NB_sel0, bins, ref_arr0=None, above_break=None
 
         comp_50_ref = get_completeness(x1, y1)
         if annotate:
-            t_ax.annotate('%.2f' % comp_50_ref, [0.975,0.06], fontsize=8,
+            t_ax.annotate('%.2f' % comp_50_ref, [0.975, 0.06], fontsize=8,
                           xycoords='axes fraction', ha='right', va='bottom',
                           color='black')
 
@@ -680,9 +680,9 @@ def ew_flux_hist(type0, mm, ss, t2_ax, x0, avg_x0, sig_x0, x0_bins, logEW_mean,
         if type0 == 'Flux':
             t2_ax.set_ylabel('')
             t2_ax.set_yticklabels(['']*5)
-            t2_ax.set_xlim([-18.0,-14.0])
-            t2_ax.set_xticks(np.arange(-17.5,-13.5,1.0))
-            t2_ax.set_xticks(np.arange(-17.5,-13.5,1.0))
+            t2_ax.set_xlim([-18.0, -14.0])
+            t2_ax.set_xticks(np.arange(-17.5, -13.5, 1.0))
+            t2_ax.set_xticks(np.arange(-17.5, -13.5, 1.0))
 
         as_label = ''
         if mm == 0:
@@ -734,7 +734,7 @@ def stats_plot(type0, ax2, ax3, ax, s_row, Ng, No, binso, EW_mean, EW_sig, ss):
     if type0 == 'Flux':
         pn = 1
 
-    ax2[s_row][pn].axhline(0.0, linestyle='dashed') # horizontal line at zero
+    ax2[s_row][pn].axhline(0.0, linestyle='dashed')  # horizontal line at zero
 
     ax2[s_row][pn].scatter(binso[:-1], delta)
     no_use = np.where((Ng == 0) | (No == 0))[0]
@@ -796,12 +796,12 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
     str_date = "%02i%02i" % (today0.month, today0.day)
     if debug:
         str_date += ".debug"
-    mylog    = MLog(path0+'Completeness/', str_date)._get_logger()
+    mylog = MLog(path0+'Completeness/', str_date)._get_logger()
 
     t0 = TimerClass()
     t0._start()
 
-    prefixes = ['Ha-NB7','Ha-NB7','Ha-NB816','Ha-NB921','Ha-NB973']
+    prefixes = ['Ha-NB7', 'Ha-NB7', 'Ha-NB816', 'Ha-NB921', 'Ha-NB973']
 
     # NB statistical filter correction
     filt_corr = [1.289439104,   1.41022358406, 1.29344789854,
@@ -850,20 +850,20 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
         out_pdf = path0 + 'Completeness/ew_MC_'+filters[ff]+'.pdf'
         if debug:
-            out_pdf = out_pdf.replace('.pdf','.debug.pdf')
+            out_pdf = out_pdf.replace('.pdf', '.debug.pdf')
         pp = PdfPages(out_pdf)
 
         # This is cropped to fit
         out_pdf0 = path0 + 'Completeness/ew_MC_'+filters[ff]+'.crop.pdf'
-        if debug: out_pdf0 = out_pdf0.replace('.pdf','.debug.pdf')
+        if debug: out_pdf0 = out_pdf0.replace('.pdf', '.debug.pdf')
         pp0 = PdfPages(out_pdf0)
 
         out_pdf2 = path0 + 'Completeness/ew_MC_'+filters[ff]+'.stats.pdf'
-        if debug: out_pdf2 = out_pdf2.replace('.pdf','.debug.pdf')
+        if debug: out_pdf2 = out_pdf2.replace('.pdf', '.debug.pdf')
         pp2 = PdfPages(out_pdf2)
 
         out_pdf4 = path0 + 'Completeness/ew_MC_'+filters[ff]+'.comp.pdf'
-        if debug: out_pdf4 = out_pdf4.replace('.pdf','.debug.pdf')
+        if debug: out_pdf4 = out_pdf4.replace('.pdf', '.debug.pdf')
         pp4 = PdfPages(out_pdf4)
 
         filt_dict = {'dNB': dNB[ff], 'dBB': dBB[ff], 'lambdac': lambdac[ff]}
@@ -879,7 +879,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
         NBmin = 20.0
         NBmax = m_NB[ff]-0.25
-        NB = np.arange(NBmin,NBmax+NBbin,NBbin)
+        NB = np.arange(NBmin, NBmax+NBbin, NBbin)
         mylog.info('NB (min/max): %f %f ' % (min(NB), max(NB)))
 
         npz_NBfile = npz_path0 + filters[ff]+'_init.npz'
@@ -913,7 +913,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                     cmd1 = key0+" = npz_NB['"+key0+"']"
                     exec(cmd1)
 
-        mock_sz = (Nmock,Ngal)
+        mock_sz = (Nmock, Ngal)
 
         # Randomize NB magnitudes. First get relative sigma, then scale by size
         NB_seed = ff
@@ -935,8 +935,8 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
         NBmag    = npz_NB['NBmag']
         contmag  = npz_NB['contmag']
         logMstar = npz_NB['logMstar']
-        Ha_SFR   = npz_NB['Ha_SFR'] # metallicity-dependent observed SFR
-        Ha_Lum   = npz_NB['Ha_Lum'] # filter and [NII] corrected
+        Ha_SFR   = npz_NB['Ha_SFR']  # metallicity-dependent observed SFR
+        Ha_Lum   = npz_NB['Ha_Lum']  # filter and [NII] corrected
 
         spec_flag = npz_NB['spec_flag']
         w_spec    = np.where(spec_flag)[0]
@@ -978,7 +978,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 # This is for statistics plot
                 if count % nrow_stats == 0:
                     fig2, ax2 = plt.subplots(ncols=2, nrows=nrow_stats)
-                s_row = count % nrow_stats # For statistics plot
+                s_row = count % nrow_stats  # For statistics plot
 
                 if not exists(npz_MCfile) or redo == True:
                     EW_seed = mm*len(ss_range) + ss
@@ -1091,7 +1091,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 N_annot_txt = avg_sig_label('', logEW_mean[mm], logEW_sig[ss],
                                             panel_type='EW')
                 N_annot_txt += '\n' + r'$N$ = %i' % NB_MC.size
-                ax0.annotate(N_annot_txt, [0.025,0.975], va='top',
+                ax0.annotate(N_annot_txt, [0.025, 0.975], va='top',
                              ha='left', xycoords='axes fraction')
                 fig0.savefig(pp0, format='pdf')
 
@@ -1188,7 +1188,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 comp_arr = np.sum(EW_flag0, axis=0)/float(Nmock)
 
                 # Plot Type 1 and 2 errors
-                cticks = np.arange(0,1.2,0.2)
+                cticks = np.arange(0, 1.2, 0.2)
 
                 fig4, ax4 = plt.subplots(nrows=2, ncols=2)
                 [[ax400, ax401], [ax410, ax411]] = ax4
@@ -1216,10 +1216,10 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 plot_NB_select(ff, ax400, NB, 'k', linewidth=2)
 
                 ax400.set_xlabel(filters[ff])
-                ax400.set_ylim([-0.5,2.0])
+                ax400.set_ylim([-0.5, 2.0])
                 ax400.set_ylabel(cont0[ff]+' - '+filters[ff])
 
-                ax400.annotate(N_annot_txt, [0.025,0.975], va='top',
+                ax400.annotate(N_annot_txt, [0.025, 0.975], va='top',
                                ha='left', xycoords='axes fraction')
 
                 logsSFR_ref = logSFR_ref - logM_ref
@@ -1253,20 +1253,20 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                                                ref_arr0=logSFR_ref, annotate=False)
                 ax0.set_ylabel('Completeness')
                 ax0.set_xlabel(SFR_lab)
-                ax0.set_ylim([0.0,1.05])
+                ax0.set_ylim([0.0, 1.05])
                 fig0.savefig(pp0, format='pdf')
 
                 xlabels = [r'$\log({\rm sSFR})$', Flux_lab, SFR_lab]
                 for t_ax,xlabel in zip([ax401, ax410, ax411],xlabels):
                     t_ax.set_ylabel('Completeness')
                     t_ax.set_xlabel(xlabel)
-                    t_ax.set_ylim([0.0,1.05])
+                    t_ax.set_ylim([0.0, 1.05])
 
                 # ax410.axvline(x=compute_EW(minthres[ff], ff), color='red')
 
                 plt.subplots_adjust(left=0.09, right=0.98, bottom=0.065,
                                     top=0.98, wspace=0.20, hspace=0.15)
-                fig4.set_size_inches(8,8)
+                fig4.set_size_inches(8, 8)
                 fig4.savefig(pp4, format='pdf')
 
                 # Plot sSFR vs stellar mass
