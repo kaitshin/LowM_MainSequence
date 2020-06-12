@@ -166,28 +166,19 @@ def stats_log(input_arr, arr_type, mylog):
 
 def get_sigma(x, lim1, sigma=3.0):
     """
-    Magnitude errors based on limiting magnitude
+    Purpose:
+      Magnitude errors based on limiting magnitude
 
-    Parameters
-    ----------
+    :param x: numpy array of magnitudes
+    :param lim1: 3-sigma limiting magnitude for corresponding x (float)
+    :param sigma: Sigma threshold (float).  Default: 3.0
 
-    x : Array of magnitudes
-
-    lim1 : float
-      3-sigma limiting magnitude for corresponding x
-
-    sigma : float
-      Sigma threshold.  Default: 3.0
-
-    Returns
-    -------
-
-    dmag : array of magnitude errors
+    :return dmag: numpy array of magnitude errors
     """
 
     SNR = sigma * 10**(-0.4*(x - lim1))
-
     dmag = 2.5*np.log10(1 + 1/SNR)
+
     return dmag
 
 
