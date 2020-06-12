@@ -194,17 +194,17 @@ def get_sigma(x, lim1, sigma=3.0):
     return dmag
 
 
-def avg_sig_label(str0, avg, sigma, type=''):
+def avg_sig_label(str0, avg, sigma, panel_type=''):
     """
     Generate raw strings that contain proper formatting for average and sigma
     EW and fluxes
     """
 
-    if type == 'EW':
+    if panel_type == 'EW':
         str0 += r'$\langle\log({\rm EW})\rangle$ = %.2f' % avg
         str0 += '\n' + r'$\sigma[\log({\rm EW})]$ = %.2f' % sigma
 
-    if type == 'Flux':
+    if panel_type == 'Flux':
         str0 += r'$\langle\log(F_{{\rm H}\alpha})\rangle$ = %.2f' % avg
         str0 += '\n' + r'$\sigma[\log(F_{{\rm H}\alpha})]$ = %.2f' % sigma
 
@@ -448,7 +448,7 @@ def avg_sig_plot_init(t_filt, logEW_mean, avg_NB, sig_NB, avg_NB_flux,
     # ax3[0][0].set_ylim(ylim1)
     ax3[0][0].set_ylabel(EW_lab)
     ax3[0][0].set_xticklabels([])
-    ax3_txt = avg_sig_label(t_filt+'\n', avg_NB, sig_NB, type='EW')
+    ax3_txt = avg_sig_label(t_filt +'\n', avg_NB, sig_NB, panel_type='EW')
     ax3[0][0].annotate(ax3_txt, (0.025,0.975), xycoords='axes fraction',
                     ha='left', va='top', fontsize=11)
 
@@ -460,7 +460,7 @@ def avg_sig_plot_init(t_filt, logEW_mean, avg_NB, sig_NB, avg_NB_flux,
     # ax3[1][0].set_ylim(ylim2)
     ax3[1][0].set_xlabel(EW_lab)
     ax3[1][0].set_ylabel(Flux_lab)
-    ax3_txt = avg_sig_label('', avg_NB_flux, sig_NB_flux, type='Flux')
+    ax3_txt = avg_sig_label('', avg_NB_flux, sig_NB_flux, panel_type='Flux')
     ax3[1][0].annotate(ax3_txt, (0.025,0.975), xycoords='axes fraction',
                        ha='left', va='top', fontsize=11)
 
@@ -1070,7 +1070,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 NB_break = plot_NB_select(ff, ax00, NB, 'b')
 
                 N_annot_txt = avg_sig_label('', logEW_mean[mm], logEW_sig[ss],
-                                            type='EW')
+                                            panel_type='EW')
                 N_annot_txt += '\n' + r'$N$ = %i' % NB_MC.size
                 ax00.annotate(N_annot_txt, [0.05,0.95], va='top',
                               ha='left', xycoords='axes fraction')
@@ -1089,7 +1089,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 plot_NB_select(ff, ax0, NB, 'b', plot4=False)
 
                 N_annot_txt = avg_sig_label('', logEW_mean[mm], logEW_sig[ss],
-                                            type='EW')
+                                            panel_type='EW')
                 N_annot_txt += '\n' + r'$N$ = %i' % NB_MC.size
                 ax0.annotate(N_annot_txt, [0.025,0.975], va='top',
                              ha='left', xycoords='axes fraction')
