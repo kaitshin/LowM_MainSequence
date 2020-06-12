@@ -14,8 +14,6 @@ from datetime import date
 
 from os.path import exists
 
-from astropy.io import fits
-from astropy.io import ascii as asc
 from astropy.table import Table, vstack
 
 import numpy as np
@@ -26,17 +24,18 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 from scipy.interpolate import interp1d
 
-from NB_errors import ew_flux_dual, fluxline, mag_combine
+from NB_errors import ew_flux_dual, mag_combine
 
 from NB_errors import filt_ref, dNB, lambdac, dBB, epsilon
 
 from ..mainseq_corrections import niiha_oh_determine
 
+import logging
+
 import astropy.units as u
 from astropy.cosmology import FlatLambdaCDM
-cosmo = FlatLambdaCDM(H0 = 70 * u.km / u.s / u.Mpc, Om0=0.3)
+cosmo = FlatLambdaCDM(H0=70 * u.km / u.s / u.Mpc, Om0=0.3)
 
-import logging
 formatter = logging.Formatter('%(asctime)s - %(module)12s.%(funcName)20s - %(levelname)s: %(message)s')
 
 """
@@ -446,7 +445,7 @@ def avg_sig_plot_init(t_filt, logEW_mean, avg_NB, sig_NB, avg_NB_flux,
     ax3[0][0].axhspan(avg_NB-sig_NB, avg_NB+sig_NB, alpha=0.5, color='black')
     ax3[0][0].set_xlim(xlim)
     ax3[0][0].set_xticks(xticks)
-    #ax3[0][0].set_ylim(ylim1)
+    # ax3[0][0].set_ylim(ylim1)
     ax3[0][0].set_ylabel(EW_lab)
     ax3[0][0].set_xticklabels([])
     ax3_txt = avg_sig_label(t_filt+'\n', avg_NB, sig_NB, type='EW')
@@ -458,7 +457,7 @@ def avg_sig_plot_init(t_filt, logEW_mean, avg_NB, sig_NB, avg_NB_flux,
                       alpha=0.5, color='black')
     ax3[1][0].set_xlim(xlim)
     ax3[1][0].set_xticks(xticks)
-    #ax3[1][0].set_ylim(ylim2)
+    # ax3[1][0].set_ylim(ylim2)
     ax3[1][0].set_xlabel(EW_lab)
     ax3[1][0].set_ylabel(Flux_lab)
     ax3_txt = avg_sig_label('', avg_NB_flux, sig_NB_flux, type='Flux')
@@ -541,9 +540,9 @@ def plot_mock(ax, x0, y0, NB_sel, NB_nosel, xlabel, ylabel):
               linewidth=0.2)
     ax.hexbin(x0[in1,in2], y0[in1,in2], gridsize=100, mincnt=1, cmap=cmap_nosel,
               linewidth=0.2)
-    #ax.scatter(x0[is1,is2], y0[is1,is2], alpha=0.25, s=2, edgecolor='none')
-    #ax.scatter(x0[in1,in2], y0[in1,in2], alpha=0.25, s=2, edgecolor='red',
-    #           linewidth=0.25, facecolor='none')
+    # ax.scatter(x0[is1,is2], y0[is1,is2], alpha=0.25, s=2, edgecolor='none')
+    # ax.scatter(x0[in1,in2], y0[in1,in2], alpha=0.25, s=2, edgecolor='red',
+    #            linewidth=0.25, facecolor='none')
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
 
@@ -686,7 +685,8 @@ def ew_flux_hist(type0, mm, ss, t2_ax, x0, avg_x0, sig_x0, x0_bins, logEW_mean,
             t2_ax.set_xticks(np.arange(-17.5,-13.5,1.0))
 
         as_label = ''
-        if mm == 0: as_label = '%.2f' % logEW_sig[ss]
+        if mm == 0:
+            as_label = '%.2f' % logEW_sig[ss]
 
         if type(ax3) != type(None):
             temp_x = [logEW_mean[mm]+0.005*(ss-3/2.)]
@@ -729,8 +729,10 @@ def stats_plot(type0, ax2, ax3, ax, s_row, Ng, No, binso, EW_mean, EW_sig, ss):
 
     delta    = (Ng-No)/np.sqrt(Ng + No)
 
-    if type0 == 'EW':   pn = 0
-    if type0 == 'Flux': pn = 1
+    if type0 == 'EW':
+        pn = 0
+    if type0 == 'Flux':
+        pn = 1
 
     ax2[s_row][pn].axhline(0.0, linestyle='dashed') # horizontal line at zero
 
@@ -792,7 +794,8 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
     today0   = date.today()
     str_date = "%02i%02i" % (today0.month, today0.day)
-    if debug: str_date += ".debug"
+    if debug:
+        str_date += ".debug"
     mylog    = MLog(path0+'Completeness/', str_date)._get_logger()
 
     t0 = TimerClass()
@@ -839,14 +842,15 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
         comp_shape  = (len(mm_range), len(ss_range))
         comp_sSFR   = np.zeros(comp_shape)
-        #comp_EW    = np.zeros(comp_shape)
+        # comp_EW   = np.zeros(comp_shape)
         comp_SFR    = np.zeros(comp_shape)
         comp_flux   = np.zeros(comp_shape)
         comp_EWmean = np.zeros(comp_shape)
         comp_EWsig  = np.zeros(comp_shape)
 
         out_pdf = path0 + 'Completeness/ew_MC_'+filters[ff]+'.pdf'
-        if debug: out_pdf = out_pdf.replace('.pdf','.debug.pdf')
+        if debug:
+            out_pdf = out_pdf.replace('.pdf','.debug.pdf')
         pp = PdfPages(out_pdf)
 
         # This is cropped to fit
@@ -864,7 +868,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
         filt_dict = {'dNB': dNB[ff], 'dBB': dBB[ff], 'lambdac': lambdac[ff]}
 
-        x      = np.arange(0.01,10.00,0.01)
+        x      = np.arange(0.01, 10.00, 0.01)
         EW_ref = compute_EW(x, ff)
 
         good = np.where(np.isfinite(EW_ref))[0]
@@ -886,7 +890,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
             Ndist_mock = np.int_(np.round(N_interp(NB)))
             NB_ref     = np.repeat(NB, Ndist_mock)
 
-            Ngal = NB_ref.size # Number of galaxies
+            Ngal = NB_ref.size  # Number of galaxies
 
             NB_sig     = get_sigma(NB, m_NB[ff], sigma=3.0)
             NB_sig_ref = np.repeat(NB_sig, Ndist_mock)
@@ -901,7 +905,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 mylog.info("Writing : "+npz_NBfile)
             np.savez(npz_NBfile, **npz_NBdict)
         else:
-            if redo == False:
+            if not redo:
                 mylog.info("File found : " + npz_NBfile)
                 npz_NB = np.load(npz_NBfile)
 
@@ -953,20 +957,20 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
         ax3ur = ax3[0][1]
         ax3lr = ax3[1][1]
 
-        chi2_EW0 = np.zeros((n_mean,n_sigma))
-        chi2_Fl0 = np.zeros((n_mean,n_sigma))
+        chi2_EW0 = np.zeros((n_mean, n_sigma))
+        chi2_Fl0 = np.zeros((n_mean, n_sigma))
 
         count = 0
-        for mm in mm_range: # loop over median of EW dist
+        for mm in mm_range:  # loop over median of EW dist
             comp_EWmean[mm] = logEW_mean[mm]
-            for ss in ss_range: # loop over sigma of EW dist
-                comp_EWsig[mm,ss] = logEW_sig[ss]
+            for ss in ss_range:  # loop over sigma of EW dist
+                comp_EWsig[mm, ss] = logEW_sig[ss]
 
                 npz_MCfile = npz_path0 + filters[ff] + ('_%.2f_%.2f.npz') \
                              % (logEW_mean[mm], logEW_sig[ss])
 
                 fig, ax = plt.subplots(ncols=2, nrows=3)
-                [[ax00,ax01],[ax10,ax11],[ax20,ax21]] = ax
+                [[ax00, ax01], [ax10, ax11], [ax20, ax21]] = ax
 
                 plt.subplots_adjust(left=0.105, right=0.98, bottom=0.05,
                                     top=0.98, wspace=0.25, hspace=0.05)
@@ -1016,7 +1020,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                         npz_MCdict[name] = eval(name)
                     np.savez(npz_MCfile, **npz_MCdict)
                 else:
-                    if redo == False:
+                    if not redo:
                         mylog.info("File found : " + npz_MCfile)
                         npz_MC = np.load(npz_MCfile)
 
@@ -1097,14 +1101,12 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
                 plot_MACT(ax10, NBmag, Ha_Flux, w_spec, wo_spec)
 
-
                 # Panel (0,1) - stellar mass vs H-alpha luminosity
 
                 plot_mock(ax01, logM_MC, HaLum_MC, NB_sel, NB_nosel, '',
                           r'$\log(L_{{\rm H}\alpha})$')
 
                 plot_MACT(ax01, logMstar, Ha_Lum, w_spec, wo_spec)
-
 
                 # Panel (1,1) - stellar mass vs H-alpha SFR
 
@@ -1120,9 +1122,8 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 plot_mock(ax0, logM_MC, logSFR_MC, NB_sel, NB_nosel, M_lab, SFR_lab)
 
                 plot_MACT(ax0, logMstar, Ha_SFR, w_spec, wo_spec)
-                #ax0.set_ylim([-5,-1])
+                # ax0.set_ylim([-5,-1])
                 fig0.savefig(pp0, format='pdf')
-
 
                 # Panel (2,0) - histogram of EW
                 min_EW = compute_EW(minthres[ff], ff)
@@ -1181,7 +1182,6 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                     fig2.savefig(pp2, format='pdf')
                     plt.close(fig2)
                 count += 1
-
 
                 # Compute and plot completeness
                 # Combine over modelled galaxies
@@ -1242,9 +1242,9 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 t_comp_SFR, \
                     t_comp_SFR_ref = plot_completeness(ax411, logSFR_MC, NB_sel,
                                                        SFR_bins, ref_arr0=logSFR_ref)
-                comp_sSFR[mm,ss] = t_comp_sSFR
-                comp_SFR[mm,ss]  = t_comp_SFR
-                comp_flux[mm,ss] = t_comp_Fl
+                comp_sSFR[mm, ss] = t_comp_sSFR
+                comp_SFR[mm, ss]  = t_comp_SFR
+                comp_flux[mm, ss] = t_comp_Fl
 
                 fig0, ax0 = plt.subplots()
                 plt.subplots_adjust(left=0.1, right=0.97, bottom=0.10,
