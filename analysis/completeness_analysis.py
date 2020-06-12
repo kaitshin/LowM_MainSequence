@@ -264,13 +264,16 @@ def plot_NB_select(ff, t_ax, NB, ctype, linewidth=1, plot4=True):
 
 def NB_select(ff, NB_mag, x_mag):
     """
-    NB excess color selection
+    Purpose:
+      NB excess color selection
 
-    ff : integer for filter
+    :param ff: integer for filter
+    :param NB_mag: numpy array of NB magnitudes
+    :param x_mag: numpy array of NB excess colors, continuum - NB
 
-    NB_mag : array of NB magnitudes
-
-    x_mag : array of NB excess colors, continuum - NB
+    :return NB_sel: numpy index for NB excess selection
+    :return NB_nosel: numpy index for non NB excess selection
+    :return sig_limit: numpy array providing 3-sig limit for NB_mag input
     """
 
     sig_limit = color_cut(NB_mag, m_NB[ff], cont_lim[ff])
