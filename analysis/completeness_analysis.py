@@ -6,9 +6,9 @@ A set of Python 2.7 codes for completeness analysis of NB-selected galaxies
 in the M*-SFR plot
 """
 
-import sys, os
+import os
 
-from chun_codes import systime, intersect_ndim, TimerClass
+from chun_codes import intersect_ndim, TimerClass
 
 from datetime import date
 
@@ -47,25 +47,24 @@ Nsim  = 5000. # Number of modelled galaxies
 Nmock = 10    # Number of mocked galaxies
 """
 
-filters = ['NB704','NB711','NB816','NB921','NB973']
-cont0   = [r'$R_Ci^{\prime}$', r'$R_Ci^{\prime}$', r'$i^{\prime}z^{\prime}$', r'$z^{\prime}$', r'$z^{\prime}$']
+filters = ['NB704', 'NB711', 'NB816', 'NB921', 'NB973']
+cont0 = [r'$R_Ci^{\prime}$', r'$R_Ci^{\prime}$', r'$i^{\prime}z^{\prime}$',
+         r'$z^{\prime}$', r'$z^{\prime}$']
 NB_filt = np.array([xx for xx in range(len(filt_ref)) if 'NB' in filt_ref[xx]])
-for arr in ['filt_ref','dNB','lambdac','dBB','epsilon']:
+for arr in ['filt_ref', 'dNB', 'lambdac', 'dBB', 'epsilon']:
     cmd1 = arr + ' = np.array('+arr+')'
     exec(cmd1)
     cmd2 = arr + ' = '+arr+'[NB_filt]'
     exec(cmd2)
 
-#Limiting magnitudes for NB and BB data
+# Limiting magnitudes for NB and BB data
 m_NB  = np.array([26.7134-0.047, 26.0684, 26.9016+0.057, 26.7088-0.109, 25.6917-0.051])
 m_BB1 = np.array([28.0829, 28.0829, 27.7568, 26.8250, 26.8250])
 m_BB2 = np.array([27.7568, 27.7568, 26.8250, 00.0000, 00.0000])
 cont_lim = mag_combine(m_BB1, m_BB2, epsilon)
 
-#Minimum NB excess color for selection
+# Minimum NB excess color for selection
 minthres = [0.15, 0.15, 0.15, 0.2, 0.25]
-
-from astropy import log
 
 if exists('/Users/cly/GoogleDrive'):
     path0 = '/Users/cly/GoogleDrive/Research/NASA_Summer2015/'
@@ -102,12 +101,13 @@ npz_MCnames = ['EW_seed', 'logEW_MC_ref', 'x_MC0_ref', 'BB_MC0_ref',
                'EW_flag_ref', 'flux_ref', 'logM_ref', 'NIIHa_ref',
                'logOH_ref', 'HaFlux_ref', 'HaLum_ref', 'logSFR_ref']
 
-class mlog:
-    '''
+
+class MLog:
+    """
     Main class to log information to stdout and ASCII file
 
     To execute:
-    mylog = mlog(dir0)._get_logger()
+    mylog = MLog(dir0)._get_logger()
 
     Parameters
     ----------
@@ -120,7 +120,7 @@ class mlog:
     Notes
     -----
     Created by Chun Ly, 2 October 2019
-    '''
+    """
 
     def __init__(self,dir0,str_date):
         self.LOG_FILENAME = dir0 + 'completeness_analysis.'+str_date+'.log'
@@ -143,7 +143,7 @@ class mlog:
             log.setLevel(loglevel)
             log.handler_set = True
         return log
-#enddef
+
 
 def stats_log(arr, arr_type, mylog):
     """
@@ -168,11 +168,10 @@ def stats_log(arr, arr_type, mylog):
     str0 = "%s: min=%f max=%f mean=%f median=%f" % (arr_type, min0, max0,
                                                     mean0, med0)
     mylog.info(str0)
-#enddef
 
 
 def get_sigma(x, lim1, sigma=3.0):
-    '''
+    """
     Magnitude errors based on limiting magnitude
 
     Parameters
@@ -190,19 +189,19 @@ def get_sigma(x, lim1, sigma=3.0):
     -------
 
     dmag : array of magnitude errors
-    '''
+    """
 
     SNR = sigma * 10**(-0.4*(x - lim1))
 
     dmag = 2.5*np.log10(1 + 1/SNR)
     return dmag
-#enddef
+
 
 def avg_sig_label(str0, avg, sigma, type=''):
-    '''
+    """
     Generate raw strings that contain proper formatting for average and sigma
     EW and fluxes
-    '''
+    """
 
     if type == 'EW':
         str0 += r'$\langle\log({\rm EW})\rangle$ = %.2f' % avg
@@ -213,19 +212,19 @@ def avg_sig_label(str0, avg, sigma, type=''):
         str0 += '\n' + r'$\sigma[\log(F_{{\rm H}\alpha})]$ = %.2f' % sigma
 
     return str0
-#enddef
+
 
 def N_avg_sig_label(x0, avg, sigma):
-    '''
+    """
     String containing average and sigma for ax.legend() labels
-    '''
+    """
 
     return r'N: %i  $\langle x\rangle$: %.2f  $\sigma$: %.2f' % \
         (x0.size, avg, sigma)
-#enddef
+
 
 def color_cut(x, lim1, lim2, mean=0.0, sigma=3.0):
-    '''
+    """
     NB excess color selection based on limiting magnitudes
 
     Parameters
@@ -246,7 +245,7 @@ def color_cut(x, lim1, lim2, mean=0.0, sigma=3.0):
     -------
 
     val : array of 3-sigma allowed BB - NB excess color
-    '''
+    """
 
     f1 = (sigma/3.0) * 10**(-0.4*(m_AB+lim1))
     f2 = (sigma/3.0) * 10**(-0.4*(m_AB+lim2))
@@ -256,13 +255,13 @@ def color_cut(x, lim1, lim2, mean=0.0, sigma=3.0):
     val = mean -2.5*np.log10(1 - np.sqrt(f1**2+f2**2)/f)
 
     return val
-#enddef
+
 
 def compute_EW(x0, ff):
     y_temp = 10**(-0.4 * x0)
     EW_ref = np.log10(dNB[ff]*(1 - y_temp)/(y_temp - dNB[ff]/dBB[ff]))
     return EW_ref
-#enddef
+
 
 def plot_NB_select(ff, t_ax, NB, ctype, linewidth=1, plot4=True):
     t_ax.axhline(y=minthres[ff], linestyle='dashed', color=ctype)
@@ -278,10 +277,10 @@ def plot_NB_select(ff, t_ax, NB, ctype, linewidth=1, plot4=True):
         t_ax.plot(NB, y4, ctype+':', linewidth=linewidth)
 
     return NB_break
-#enddef
+
 
 def NB_select(ff, NB_mag, x_mag):
-    '''
+    """
     NB excess color selection
 
     ff : integer for filter
@@ -289,7 +288,7 @@ def NB_select(ff, NB_mag, x_mag):
     NB_mag : array of NB magnitudes
 
     x_mag : array of NB excess colors, continuum - NB
-    '''
+    """
 
     sig_limit = color_cut(NB_mag, m_NB[ff], cont_lim[ff])
 
@@ -297,21 +296,21 @@ def NB_select(ff, NB_mag, x_mag):
     NB_nosel = np.where((x_mag <  minthres[ff]) | (x_mag <  sig_limit))
 
     return NB_sel, NB_nosel, sig_limit
-#enddef
+
 
 def correct_NII(log_flux, NIIHa):
-    '''
+    """
     This returns Halpha fluxes from F_NB using NII/Ha flux ratios for
     correction
-    '''
+    """
     return log_flux - np.log10(1+NIIHa)
-#enddef
+
 
 def get_NIIHa_logOH(logM):
-    '''
+    """
     Get [NII]6548,6583/H-alpha flux ratios and oxygen abundance based on
     stellar mass.  Metallicity is from PP04
-    '''
+    """
 
     NIIHa = np.zeros(logM.shape)
 
@@ -332,13 +331,13 @@ def get_NIIHa_logOH(logM):
     logOH = np.reshape(logOH, logM.shape)
 
     return NIIHa, logOH
-#enddef
+
 
 def HaSFR_metal_dep(logOH, orig_lums):
-    '''
+    """
     Determine H-alpha SFR using metallicity and luminosity to follow
     Ly+ 2016 metallicity-dependent SFR conversion
-    '''
+    """
 
     y = logOH + 3.31
     log_SFR_LHa = -41.34 + 0.39 * y + 0.127 * y**2
@@ -346,10 +345,10 @@ def HaSFR_metal_dep(logOH, orig_lums):
     log_SFR = log_SFR_LHa + orig_lums
 
     return log_SFR
-#enddef
+
 
 def get_mag_vs_mass_interp(prefix_ff):
-    '''
+    """
     Define interpolation function between continuum magnitude and stellr mass
 
     Parameters
@@ -358,7 +357,7 @@ def get_mag_vs_mass_interp(prefix_ff):
     prefix_ff : str
       Either 'Ha-NB7', 'Ha-NB816', 'Ha-NB921', or 'Ha-NB973'
 
-    '''
+    """
 
     npz_mass_file = path0 + 'Completeness/mag_vs_mass_'+prefix_ff+'.npz'
     npz_mass = np.load(npz_mass_file, allow_pickle=True)
@@ -379,14 +378,14 @@ def get_mag_vs_mass_interp(prefix_ff):
     std_mass_int = interp1d(x_temp, std0, fill_value=0.3, bounds_error=False,
                             kind='nearest')
     return mass_int, std_mass_int
-#enddef
+
 
 def dict_prop_maker(NB, BB, x, filt_dict, filt_corr, mass_int, lum_dist):
     dict_prop = {'NB':NB, 'BB':BB, 'x':x, 'filt_dict':filt_dict,
                  'filt_corr':filt_corr, 'mass_int':mass_int,
                  'lum_dist':lum_dist}
     return dict_prop
-#enddef
+
 
 def derived_properties(NB, BB, x, filt_dict, filt_corr, mass_int, lum_dist,
                        std_mass_int=None):
@@ -410,20 +409,20 @@ def derived_properties(NB, BB, x, filt_dict, filt_corr, mass_int, lum_dist,
     logSFR  = HaSFR_metal_dep(logOH, Ha_Lum)
 
     return np.log10(EW), NB_flux, logM, NIIHa, logOH, Ha_Flux, Ha_Lum, logSFR
-#enddef
+
 
 def mock_ones(arr0, Nmock):
-    '''
+    """
     Generate (Nmock,Ngal) array using np.ones() to repeat
-    '''
+    """
 
     return np.ones((Nmock,1)) * arr0
-#enddef
+
 
 def random_mags(t_seed, rand_shape, mag_ref, sig_ref):
-    '''
+    """
     Generate randomized array of magnitudes based on ref values and sigma
-    '''
+    """
 
     N_rep = rand_shape[0]
 
@@ -431,15 +430,13 @@ def random_mags(t_seed, rand_shape, mag_ref, sig_ref):
     return mock_ones(mag_ref, N_rep) + np.random.normal(size=rand_shape) * \
         mock_ones(sig_ref, N_rep)
 
-#enddef
-
 
 def avg_sig_plot_init(t_filt, logEW_mean, avg_NB, sig_NB, avg_NB_flux,
                       sig_NB_flux):
-    '''
+    """
     Initialize fig and axes objects for avg_sigma plot and set matplotlib
     aesthetics
-    '''
+    """
 
     xlim  = [min(logEW_mean)-0.05,max(logEW_mean)+0.05]
     ylim1 = [avg_NB-sig_NB-0.05, avg_NB+sig_NB+0.15]
@@ -486,10 +483,10 @@ def avg_sig_plot_init(t_filt, logEW_mean, avg_NB, sig_NB, avg_NB_flux,
     ax3[1][1].set_yscale('log')
 
     return fig3, ax3
-#endef
+
 
 def plot_MACT(ax, x0, y0, w_spec, wo_spec):
-    '''
+    """
     Plot MACT spectroscopic and photometric sample in various sub-panel
 
     ax : matplotlib.axes._subplots.AxesSubplot
@@ -506,16 +503,16 @@ def plot_MACT(ax, x0, y0, w_spec, wo_spec):
 
     wo_spec: numpy.array
        Index array indicating which sources without spectra (i.e., photometric)
-    '''
+    """
 
     ax.scatter(x0[w_spec], y0[w_spec], color='k', edgecolor='none',
                alpha=0.5, s=5)
     ax.scatter(x0[wo_spec], y0[wo_spec], facecolor='none', edgecolor='k',
                alpha=0.5, s=5)
-#enddef
+
 
 def plot_mock(ax, x0, y0, NB_sel, NB_nosel, xlabel, ylabel):
-    '''
+    """
     Plot mocked galaxies in various sub-panel
 
     ax : matplotlib.axes._subplots.AxesSubplot
@@ -538,7 +535,7 @@ def plot_mock(ax, x0, y0, NB_sel, NB_nosel, xlabel, ylabel):
 
     xlabel: str
        String for y-axis.  Set to '' to not show a label
-    '''
+    """
 
     is1, is2 = NB_sel[0], NB_sel[1]
     in1, in2 = NB_nosel[0], NB_nosel[1]
@@ -555,12 +552,12 @@ def plot_mock(ax, x0, y0, NB_sel, NB_nosel, xlabel, ylabel):
 
     if xlabel == '':
         ax.set_xticklabels([])
-#enddef
+
 
 def get_completeness(hist_bins, hist_data):
-    '''
+    """
     Determine 50% completeness for various quantities (sSFR, EW, Flux)
-    '''
+    """
 
     i_hist = interp1d(hist_data, hist_bins)
 
@@ -571,7 +568,6 @@ def get_completeness(hist_bins, hist_data):
         comp_50 = 0.0
 
     return comp_50
-#enddef
 
 
 def plot_completeness(t_ax, arr0, NB_sel0, bins, ref_arr0=None, above_break=None, annotate=True):
@@ -631,13 +627,13 @@ def plot_completeness(t_ax, arr0, NB_sel0, bins, ref_arr0=None, above_break=None
         return comp_50
     else:
         return comp_50, comp_50_ref
-#enddef
+
 
 def ew_flux_hist(type0, mm, ss, t2_ax, x0, avg_x0, sig_x0, x0_bins, logEW_mean,
                  logEW_sig, EW_flag0, x0_arr0, ax3=None):
-    '''
+    """
     Generate histogram plots for EW or flux
-    '''
+    """
 
     if type0 == 'EW':
         x0_lab = EW_lab
@@ -703,10 +699,10 @@ def ew_flux_hist(type0, mm, ss, t2_ax, x0, avg_x0, sig_x0, x0_bins, logEW_mean,
                          elinewidth=1.5, ecolor=avg_sig_ctype[ss], fmt='none')
 
     return No, Ng, binso, wht0
-#enddef
+
 
 def stats_plot(type0, ax2, ax3, ax, s_row, Ng, No, binso, EW_mean, EW_sig, ss):
-    '''
+    """
     Plot statistics (chi^2, model vs data comparison) for each model
 
     type0: str
@@ -732,7 +728,7 @@ def stats_plot(type0, ax2, ax3, ax, s_row, Ng, No, binso, EW_mean, EW_sig, ss):
 
     ss: int
        Integer indicating index for sigma
-    '''
+    """
 
     delta    = (Ng-No)/np.sqrt(Ng + No)
 
@@ -748,7 +744,7 @@ def stats_plot(type0, ax2, ax3, ax, s_row, Ng, No, binso, EW_mean, EW_sig, ss):
         ax2[s_row][pn].scatter(binso[:-1][no_use], delta[no_use], marker='x',
                                color='r', s=20)
 
-    #ax2[s_row][pn].set_ylabel(r'1 - $N_{\rm mock}/N_{\rm data}$')
+    # ax2[s_row][pn].set_ylabel(r'1 - $N_{\rm mock}/N_{\rm data}$')
     if type0 == 'EW':
         ax2[s_row][pn].set_ylabel(r'$(N_{\rm mock} - N_{\rm data})/\sigma$')
 
@@ -777,10 +773,10 @@ def stats_plot(type0, ax2, ax3, ax, s_row, Ng, No, binso, EW_mean, EW_sig, ss):
                             xycoords='axes fraction', va='top')
 
     return fit_chi2
-#enddef
+
 
 def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
-    '''
+    """
     Main function for Monte Carlo realization.  Adopts log-normal
     EW distribution to determine survey sensitivity and impact on
     M*-SFR relation
@@ -795,12 +791,12 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
     redo : boolean
       Re-run mock galaxy generation even if file exists. Default: False
 
-    '''
+    """
 
     today0   = date.today()
     str_date = "%02i%02i" % (today0.month, today0.day)
     if debug: str_date += ".debug"
-    mylog    = mlog(path0+'Completeness/', str_date)._get_logger()
+    mylog    = MLog(path0+'Completeness/', str_date)._get_logger()
 
     t0 = TimerClass()
     t0._start()
@@ -1269,7 +1265,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                     t_ax.set_xlabel(xlabel)
                     t_ax.set_ylim([0.0,1.05])
 
-                #ax410.axvline(x=compute_EW(minthres[ff], ff), color='red')
+                # ax410.axvline(x=compute_EW(minthres[ff], ff), color='red')
 
                 plt.subplots_adjust(left=0.09, right=0.98, bottom=0.065,
                                     top=0.98, wspace=0.20, hspace=0.15)
@@ -1283,8 +1279,6 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 plt.subplots_adjust(left=0.09, right=0.98, bottom=0.1, top=0.98)
                 fig5.set_size_inches(8,8)
                 fig5.savefig(pp4, format='pdf')
-            #endfor
-        #endfor
 
         pp.close()
         pp0.close()
@@ -1342,7 +1336,6 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
         t_ff._stop()
         mylog.info("ew_MC completed for "+filters[ff]+" in : "+t_ff.format)
-    #endfor
 
     if not debug:
         table_outfile0 = path0 + 'Completeness/best_fit_completeness_50.tbl'
@@ -1354,7 +1347,6 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
     t0._stop()
     mylog.info("ew_MC completed in : "+t0.format)
-#enddef
 
 
 '''
