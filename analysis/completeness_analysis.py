@@ -218,26 +218,16 @@ def N_avg_sig_label(x0, avg, sigma):
 
 def color_cut(x, lim1, lim2, mean=0.0, sigma=3.0):
     """
-    NB excess color selection based on limiting magnitudes
+    Purpose:
+      NB excess color selection based on limiting magnitudes
 
-    Parameters
-    ----------
+    :param x: numpy array of NB magnitudes
+    :param lim1: 3-sigma NB limiting magnitude (float)
+    :param lim2: 3-sigma BB limiting magnitude (float)
+    :param mean: mean of excess (float). Default: 0
+    :param sigma: Sigma threshold (float).  Default: 3.0
 
-    x : Array of NB magnitudes
-
-    lim1 : float
-      3-sigma NB limiting magnitude
-
-    lim2 : float
-      3-sigma BB limiting magnitude
-
-    sigma : float
-      Sigma threshold.  Default: 3.0
-
-    Returns
-    -------
-
-    val : array of 3-sigma allowed BB - NB excess color
+    :return val: numpy array of 3-sigma allowed BB-NB excess color
     """
 
     f1 = (sigma/3.0) * 10**(-0.4*(m_AB+lim1))
