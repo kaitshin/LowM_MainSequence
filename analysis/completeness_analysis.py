@@ -351,14 +351,14 @@ def HaSFR_metal_dep(logOH, orig_lum):
 
 def get_mag_vs_mass_interp(prefix_ff):
     """
-    Define interpolation function between continuum magnitude and stellr mass
+    Purpose:
+      Define interpolation function between continuum magnitude and stellar mass
 
-    Parameters
-    ----------
-
-    prefix_ff : str
+    :param prefix_ff: filter prefix (str)
       Either 'Ha-NB7', 'Ha-NB816', 'Ha-NB921', or 'Ha-NB973'
 
+    :return mass_int: interp1d object for logarithm of stellar mass, logM
+    :return std_mass_int: interp1d object for dispersion in logM
     """
 
     npz_mass_file = path0 + 'Completeness/mag_vs_mass_'+prefix_ff+'.npz'
