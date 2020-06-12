@@ -184,8 +184,16 @@ def get_sigma(x, lim1, sigma=3.0):
 
 def avg_sig_label(str0, avg, sigma, panel_type=''):
     """
-    Generate raw strings that contain proper formatting for average and sigma
-    EW and fluxes
+    Purpose:
+        Generate raw strings that contain proper formatting for average and
+        sigma EW and fluxes
+
+    :param str0: Input string variable to append
+    :param avg: Average value (float)
+    :param sigma: Dispersion (float)
+    :param panel_type: String describing panel type . Either 'EW' or 'Flux'
+
+    :return: str0: Revised string
     """
 
     if panel_type == 'EW':
