@@ -32,8 +32,6 @@ from NB_errors import filt_ref, dNB, lambdac, dBB, epsilon
 
 from ..mainseq_corrections import niiha_oh_determine
 
-from PyPDF2 import PdfFileWriter, PdfFileReader
-
 import astropy.units as u
 from astropy.cosmology import FlatLambdaCDM
 cosmo = FlatLambdaCDM(H0 = 70 * u.km / u.s / u.Mpc, Om0=0.3)
