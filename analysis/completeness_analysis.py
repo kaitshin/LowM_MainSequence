@@ -286,9 +286,14 @@ def NB_select(ff, NB_mag, x_mag):
 
 def correct_NII(log_flux, NIIHa):
     """
-    This returns Halpha fluxes from F_NB using NII/Ha flux ratios for
-    correction
+    Purpose:
+      Provide H-alpha fluxes from F_NB using NII/Ha flux ratios for
+      correction
+
+    :param log_flux: array containing logarithm of flux
+    :param NIIHa: array containing NII/Ha flux ratios
     """
+
     return log_flux - np.log10(1+NIIHa)
 
 
