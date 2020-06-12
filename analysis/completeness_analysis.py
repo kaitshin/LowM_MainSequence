@@ -329,16 +329,22 @@ def get_NIIHa_logOH(logM):
     return NIIHa, logOH
 
 
-def HaSFR_metal_dep(logOH, orig_lums):
+def HaSFR_metal_dep(logOH, orig_lum):
     """
-    Determine H-alpha SFR using metallicity and luminosity to follow
-    Ly+ 2016 metallicity-dependent SFR conversion
+    Purpose:
+      Determine H-alpha SFR using metallicity and luminosity to follow
+      Ly+ 2016 metallicity-dependent SFR conversion
+
+    :param logOH: log(O/H) abundance
+    :param orig_lum: logarithm of H-alpha luminosity
     """
 
     y = logOH + 3.31
+
+    # metallicity-dependent SFR conversion
     log_SFR_LHa = -41.34 + 0.39 * y + 0.127 * y**2
 
-    log_SFR = log_SFR_LHa + orig_lums
+    log_SFR = log_SFR_LHa + orig_lum
 
     return log_SFR
 
