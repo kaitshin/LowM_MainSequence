@@ -789,14 +789,13 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
     Parameters
     ----------
-
+    Nsim: Number of modelled galaxies (int)
+    Nmock: Number of mock galaxies for each modelled galaxy (int)
     debug : boolean
-      If enabled, a quicker version is executed for test-driven developement.
+      If enabled, a quicker version is executed for test-driven development.
       Default: False
-
     redo : boolean
       Re-run mock galaxy generation even if file exists. Default: False
-
     """
 
     today0 = date.today()
