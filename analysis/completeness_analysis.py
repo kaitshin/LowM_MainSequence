@@ -894,7 +894,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
         npz_NBfile = npz_path0 + filters[ff] + '_init.npz'
 
-        if not exists(npz_NBfile) or redo == True:
+        if not exists(npz_NBfile) or redo:
             N_mag_mock = npz_slope['N_norm0'][ff] * Nsim * NBbin
             N_interp = interp1d(npz_slope['mag_arr'][ff], N_mag_mock)
             Ndist_mock = np.int_(np.round(N_interp(NB)))
@@ -990,7 +990,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                     fig2, ax2 = plt.subplots(ncols=2, nrows=nrow_stats)
                 s_row = count % nrow_stats  # For statistics plot
 
-                if not exists(npz_MCfile) or redo == True:
+                if not exists(npz_MCfile) or redo:
                     EW_seed = mm * len(ss_range) + ss
                     mylog.info("seed for mm=%i ss=%i : %i" % (mm, ss, EW_seed))
                     np.random.seed(EW_seed)
@@ -1018,7 +1018,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                                                 filt_dict, filt_corr[ff], mass_int,
                                                 lum_dist)
                     _, flux_ref, logM_ref, NIIHa_ref, logOH_ref, HaFlux_ref, \
-                    HaLum_ref, logSFR_ref = derived_properties(**dict_prop)
+                        HaLum_ref, logSFR_ref = derived_properties(**dict_prop)
 
                     if exists(npz_MCfile):
                         mylog.info("Overwriting : " + npz_MCfile)
@@ -1062,8 +1062,8 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 dict_prop['BB'] = BB_MC
                 dict_prop['x'] = x_MC
                 logEW_MC, flux_MC, logM_MC, NIIHa, logOH, HaFlux_MC, HaLum_MC, \
-                logSFR_MC = derived_properties(std_mass_int=std_mass_int,
-                                               **dict_prop)
+                    logSFR_MC = derived_properties(std_mass_int=std_mass_int,
+                                                   **dict_prop)
                 stats_log(logEW_MC, "logEW_MC", mylog)
                 stats_log(flux_MC, "flux_MC", mylog)
                 stats_log(HaFlux_MC, "HaFlux_MC", mylog)
@@ -1141,9 +1141,9 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 ax20.axvline(x=min_EW, color='red')
 
                 No, Ng, binso, \
-                wht0 = ew_flux_hist('EW', mm, ss, ax20, NB_EW, avg_NB,
-                                    sig_NB, EW_bins, logEW_mean, logEW_sig,
-                                    EW_flag0, logEW_MC, ax3=ax3ul)
+                    wht0 = ew_flux_hist('EW', mm, ss, ax20, NB_EW, avg_NB,
+                                        sig_NB, EW_bins, logEW_mean, logEW_sig,
+                                        EW_flag0, logEW_MC, ax3=ax3ul)
                 ax20.set_position([0.085, 0.05, 0.44, 0.265])
 
                 good = np.where(EW_flag0)[0]
@@ -1156,10 +1156,10 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
                 # Panel (2,1) - histogram of H-alpha fluxes
                 No, Ng, binso, \
-                wht0 = ew_flux_hist('Flux', mm, ss, ax21, Ha_Flux,
-                                    avg_NB_flux, sig_NB_flux, Flux_bins,
-                                    logEW_mean, logEW_sig,
-                                    EW_flag0, HaFlux_MC, ax3=ax3ll)
+                    wht0 = ew_flux_hist('Flux', mm, ss, ax21, Ha_Flux,
+                                        avg_NB_flux, sig_NB_flux, Flux_bins,
+                                        logEW_mean, logEW_sig,
+                                        EW_flag0, HaFlux_MC, ax3=ax3ll)
                 ax21.set_position([0.53, 0.05, 0.44, 0.265])
 
                 ax21.legend(loc='upper right', fancybox=True, fontsize=6,
@@ -1240,20 +1240,21 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 above_break = np.where(NB_MC <= NB_break)
 
                 t_comp_sSFR, \
-                t_comp_sSFR_ref = plot_completeness(ax401, logsSFR_MC, NB_sel, sSFR_bins,
-                                                    ref_arr0=logsSFR_ref, above_break=above_break)
+                    t_comp_sSFR_ref = plot_completeness(ax401, logsSFR_MC, NB_sel, sSFR_bins,
+                                                        ref_arr0=logsSFR_ref,
+                                                        above_break=above_break)
 
                 '''t_comp_EW, \
                     t_comp_EW_ref = plot_completeness(ax410, logEW_MC, NB_sel,
                                                       EW_bins, ref_arr0=logEW_MC_ref)
                 '''
                 t_comp_Fl, \
-                t_comp_Fl_ref = plot_completeness(ax410, HaFlux_MC, NB_sel,
-                                                  Flux_bins, ref_arr0=HaFlux_ref)
+                    t_comp_Fl_ref = plot_completeness(ax410, HaFlux_MC, NB_sel,
+                                                      Flux_bins, ref_arr0=HaFlux_ref)
 
                 t_comp_SFR, \
-                t_comp_SFR_ref = plot_completeness(ax411, logSFR_MC, NB_sel,
-                                                   SFR_bins, ref_arr0=logSFR_ref)
+                    t_comp_SFR_ref = plot_completeness(ax411, logSFR_MC, NB_sel,
+                                                       SFR_bins, ref_arr0=logSFR_ref)
                 comp_sSFR[mm, ss] = t_comp_sSFR
                 comp_SFR[mm, ss] = t_comp_SFR
                 comp_flux[mm, ss] = t_comp_Fl
@@ -1315,7 +1316,8 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                              wspace=0.25, hspace=0.01)
 
         out_pdf3_each = path0 + 'Completeness/ew_MC_' + filters[ff] + '.avg_sigma.pdf'
-        if debug: out_pdf3_each = out_pdf3_each.replace('.pdf', '.debug.pdf')
+        if debug:
+            out_pdf3_each = out_pdf3_each.replace('.pdf', '.debug.pdf')
         fig3.savefig(out_pdf3_each, format='pdf')
 
         if not debug:
