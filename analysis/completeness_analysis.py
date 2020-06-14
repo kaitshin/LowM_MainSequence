@@ -34,6 +34,7 @@ import logging
 
 import astropy.units as u
 from astropy.cosmology import FlatLambdaCDM
+
 cosmo = FlatLambdaCDM(H0=70 * u.km / u.s / u.Mpc, Om0=0.3)
 
 formatter = logging.Formatter('%(asctime)s - %(module)12s.%(funcName)20s - %(levelname)s: %(message)s')
@@ -55,7 +56,7 @@ for arr in ['filt_ref', 'dNB', 'lambdac', 'dBB', 'epsilon']:
     exec(cmd2)
 
 # Limiting magnitudes for NB and BB data
-m_NB  = np.array([26.7134-0.047, 26.0684, 26.9016+0.057, 26.7088-0.109, 25.6917-0.051])
+m_NB = np.array([26.7134 - 0.047, 26.0684, 26.9016 + 0.057, 26.7088 - 0.109, 25.6917 - 0.051])
 m_BB1 = np.array([28.0829, 28.0829, 27.7568, 26.8250, 26.8250])
 m_BB2 = np.array([27.7568, 27.7568, 26.8250, 00.0000, 00.0000])
 cont_lim = mag_combine(m_BB1, m_BB2, epsilon)
@@ -75,19 +76,19 @@ if not exists(npz_path0):
 m_AB = 48.6
 
 # Common text for labels
-EW_lab   = r'$\log({\rm EW}/\AA)$'
+EW_lab = r'$\log({\rm EW}/\AA)$'
 Flux_lab = r'$\log(F_{{\rm H}\alpha})$'
-M_lab    = r'$\log(M_{\star}/M_{\odot})$'
-SFR_lab  = r'$\log({\rm SFR}[{\rm H}\alpha]/M_{\odot}\,{\rm yr}^{-1})$'
+M_lab = r'$\log(M_{\star}/M_{\odot})$'
+SFR_lab = r'$\log({\rm SFR}[{\rm H}\alpha]/M_{\odot}\,{\rm yr}^{-1})$'
 
-EW_bins   = np.arange(0.2, 3.0, 0.2)
+EW_bins = np.arange(0.2, 3.0, 0.2)
 Flux_bins = np.arange(-17.75, -14.00, 0.25)
 sSFR_bins = np.arange(-11.0, -6.0, 0.2)
-SFR_bins  = np.arange(-5.0, 2.0, 0.2)
+SFR_bins = np.arange(-5.0, 2.0, 0.2)
 # Colors for each separate points on avg_sigma plots
 avg_sig_ctype = ['m', 'r', 'g', 'b', 'k']
 
-cmap_sel   = plt.cm.Blues
+cmap_sel = plt.cm.Blues
 cmap_nosel = plt.cm.Reds
 
 # Dictionary names
@@ -120,7 +121,7 @@ class MLog:
     """
 
     def __init__(self, dir0, str_date):
-        self.LOG_FILENAME = dir0 + 'completeness_analysis.'+str_date+'.log'
+        self.LOG_FILENAME = dir0 + 'completeness_analysis.' + str_date + '.log'
         self._log = self._get_logger()
 
     def _get_logger(self):
@@ -154,10 +155,10 @@ def stats_log(input_arr, arr_type, mylog):
     :return None. mylog is called
     """
 
-    min0  = np.nanmin(input_arr)
-    max0  = np.nanmax(input_arr)
+    min0 = np.nanmin(input_arr)
+    max0 = np.nanmax(input_arr)
     mean0 = np.nanmean(input_arr)
-    med0  = np.nanmedian(input_arr)
+    med0 = np.nanmedian(input_arr)
 
     str0 = "%s: min=%f max=%f mean=%f median=%f" % (arr_type, min0, max0,
                                                     mean0, med0)
@@ -176,8 +177,8 @@ def get_sigma(x, lim1, sigma=3.0):
     :return dmag: numpy array of magnitude errors
     """
 
-    SNR = sigma * 10**(-0.4*(x - lim1))
-    dmag = 2.5*np.log10(1 + 1/SNR)
+    SNR = sigma * 10 ** (-0.4 * (x - lim1))
+    dmag = 2.5 * np.log10(1 + 1 / SNR)
 
     return dmag
 
@@ -213,7 +214,7 @@ def N_avg_sig_label(x0, avg, sigma):
     """
 
     return r'N: %i  $\langle x\rangle$: %.2f  $\sigma$: %.2f' % \
-        (x0.size, avg, sigma)
+           (x0.size, avg, sigma)
 
 
 def color_cut(x, lim1, lim2, mean=0.0, sigma=3.0):
@@ -230,19 +231,19 @@ def color_cut(x, lim1, lim2, mean=0.0, sigma=3.0):
     :return val: numpy array of 3-sigma allowed BB-NB excess color
     """
 
-    f1 = (sigma/3.0) * 10**(-0.4*(m_AB+lim1))
-    f2 = (sigma/3.0) * 10**(-0.4*(m_AB+lim2))
+    f1 = (sigma / 3.0) * 10 ** (-0.4 * (m_AB + lim1))
+    f2 = (sigma / 3.0) * 10 ** (-0.4 * (m_AB + lim2))
 
-    f = 10**(-0.4*(m_AB+x))
+    f = 10 ** (-0.4 * (m_AB + x))
 
-    val = mean - 2.5*np.log10(1 - np.sqrt(f1**2+f2**2)/f)
+    val = mean - 2.5 * np.log10(1 - np.sqrt(f1 ** 2 + f2 ** 2) / f)
 
     return val
 
 
 def compute_EW(x0, ff):
-    y_temp = 10**(-0.4 * x0)
-    EW_ref = np.log10(dNB[ff]*(1 - y_temp)/(y_temp - dNB[ff]/dBB[ff]))
+    y_temp = 10 ** (-0.4 * x0)
+    EW_ref = np.log10(dNB[ff] * (1 - y_temp) / (y_temp - dNB[ff] / dBB[ff]))
     return EW_ref
 
 
@@ -250,14 +251,14 @@ def plot_NB_select(ff, t_ax, NB, ctype, linewidth=1, plot4=True):
     t_ax.axhline(y=minthres[ff], linestyle='dashed', color=ctype)
 
     y3 = color_cut(NB, m_NB[ff], cont_lim[ff])
-    t_ax.plot(NB, y3, ctype+'--', linewidth=linewidth)
+    t_ax.plot(NB, y3, ctype + '--', linewidth=linewidth)
 
-    y3_int   = interp1d(y3, NB)
+    y3_int = interp1d(y3, NB)
     NB_break = y3_int(minthres[ff])
 
     if plot4:
         y4 = color_cut(NB, m_NB[ff], cont_lim[ff], sigma=4.0)
-        t_ax.plot(NB, y4, ctype+':', linewidth=linewidth)
+        t_ax.plot(NB, y4, ctype + ':', linewidth=linewidth)
 
     return NB_break
 
@@ -278,8 +279,8 @@ def NB_select(ff, NB_mag, x_mag):
 
     sig_limit = color_cut(NB_mag, m_NB[ff], cont_lim[ff])
 
-    NB_sel   = np.where((x_mag >= minthres[ff]) & (x_mag >= sig_limit))
-    NB_nosel = np.where((x_mag <  minthres[ff]) | (x_mag <  sig_limit))
+    NB_sel = np.where((x_mag >= minthres[ff]) & (x_mag >= sig_limit))
+    NB_nosel = np.where((x_mag < minthres[ff]) | (x_mag < sig_limit))
 
     return NB_sel, NB_nosel, sig_limit
 
@@ -294,7 +295,7 @@ def correct_NII(log_flux, NIIHa):
     :param NIIHa: array containing NII/Ha flux ratios
     """
 
-    return log_flux - np.log10(1+NIIHa)
+    return log_flux - np.log10(1 + NIIHa)
 
 
 def get_NIIHa_logOH(logM):
@@ -317,10 +318,10 @@ def get_NIIHa_logOH(logM):
 
     high_mass = np.where(logM > 8.0)
     if len(high_mass[0]) > 0:
-        NIIHa[high_mass] = 0.169429547993*logM[high_mass] - 1.29299670728
+        NIIHa[high_mass] = 0.169429547993 * logM[high_mass] - 1.29299670728
 
     # Compute metallicity
-    NII6583_Ha = NIIHa * 1/(1+1/2.96)
+    NII6583_Ha = NIIHa * 1 / (1 + 1 / 2.96)
 
     NII6583_Ha_resize = np.reshape(NII6583_Ha, NII6583_Ha.size)
     logOH = niiha_oh_determine(np.log10(NII6583_Ha_resize), 'PP04_N2') - 12.0
@@ -342,7 +343,7 @@ def HaSFR_metal_dep(logOH, orig_lum):
     y = logOH + 3.31
 
     # metallicity-dependent SFR conversion
-    log_SFR_LHa = -41.34 + 0.39 * y + 0.127 * y**2
+    log_SFR_LHa = -41.34 + 0.39 * y + 0.127 * y ** 2
 
     log_SFR = log_SFR_LHa + orig_lum
 
@@ -361,13 +362,13 @@ def get_mag_vs_mass_interp(prefix_ff):
     :return std_mass_int: interp1d object for dispersion in logM
     """
 
-    npz_mass_file = path0 + 'Completeness/mag_vs_mass_'+prefix_ff+'.npz'
+    npz_mass_file = path0 + 'Completeness/mag_vs_mass_' + prefix_ff + '.npz'
     npz_mass = np.load(npz_mass_file, allow_pickle=True)
     cont_arr = npz_mass['cont_arr']
-    dmag     = cont_arr[1]-cont_arr[0]
-    mgood    = np.where(npz_mass['N_logM'] != 0)[0]
+    dmag = cont_arr[1] - cont_arr[0]
+    mgood = np.where(npz_mass['N_logM'] != 0)[0]
 
-    x_temp   = cont_arr+dmag/2.0
+    x_temp = cont_arr + dmag / 2.0
     mass_int = interp1d(x_temp[mgood], npz_mass['avg_logM'][mgood],
                         bounds_error=False, fill_value='extrapolate',
                         kind='linear')
@@ -397,7 +398,7 @@ def derived_properties(NB, BB, x, filt_dict, filt_corr, mass_int, lum_dist,
     NB_flux = np.log10(NB_flux * filt_corr)
 
     logM = mass_int(BB)
-    if type(std_mass_int) != type(None):
+    if not isinstance(std_mass_int, type(None)):
         std_ref = std_mass_int(BB)
         np.random.seed(348)
         rtemp = np.random.normal(size=NB.shape)
@@ -406,9 +407,9 @@ def derived_properties(NB, BB, x, filt_dict, filt_corr, mass_int, lum_dist,
     NIIHa, logOH = get_NIIHa_logOH(logM)
 
     Ha_Flux = correct_NII(NB_flux, NIIHa)
-    Ha_Lum  = Ha_Flux + np.log10(4*np.pi) + 2*np.log10(lum_dist)
+    Ha_Lum = Ha_Flux + np.log10(4 * np.pi) + 2 * np.log10(lum_dist)
 
-    logSFR  = HaSFR_metal_dep(logOH, Ha_Lum)
+    logSFR = HaSFR_metal_dep(logOH, Ha_Lum)
 
     return np.log10(EW), NB_flux, logM, NIIHa, logOH, Ha_Flux, Ha_Lum, logSFR
 
@@ -430,7 +431,7 @@ def random_mags(t_seed, rand_shape, mag_ref, sig_ref):
 
     np.random.seed(t_seed)
     return mock_ones(mag_ref, N_rep) + np.random.normal(size=rand_shape) * \
-        mock_ones(sig_ref, N_rep)
+           mock_ones(sig_ref, N_rep)
 
 
 def avg_sig_plot_init(t_filt, logEW_mean, avg_NB, sig_NB, avg_NB_flux,
@@ -440,15 +441,15 @@ def avg_sig_plot_init(t_filt, logEW_mean, avg_NB, sig_NB, avg_NB_flux,
     aesthetics
     """
 
-    xlim  = [min(logEW_mean)-0.05, max(logEW_mean)+0.05]
-    ylim1 = [avg_NB-sig_NB-0.05, avg_NB+sig_NB+0.15]
-    ylim2 = [avg_NB_flux-sig_NB_flux-0.05, avg_NB_flux+sig_NB_flux+0.15]
+    xlim = [min(logEW_mean) - 0.05, max(logEW_mean) + 0.05]
+    ylim1 = [avg_NB - sig_NB - 0.05, avg_NB + sig_NB + 0.15]
+    ylim2 = [avg_NB_flux - sig_NB_flux - 0.05, avg_NB_flux + sig_NB_flux + 0.15]
 
     xticks = np.arange(xlim[0], xlim[1], 0.1)
     fig3, ax3 = plt.subplots(ncols=2, nrows=2)
 
     ax3[0][0].axhline(y=avg_NB, color='black', linestyle='dashed')
-    ax3[0][0].axhspan(avg_NB-sig_NB, avg_NB+sig_NB, alpha=0.5, color='black')
+    ax3[0][0].axhspan(avg_NB - sig_NB, avg_NB + sig_NB, alpha=0.5, color='black')
     ax3[0][0].set_xlim(xlim)
     ax3[0][0].set_xticks(xticks)
     # ax3[0][0].set_ylim(ylim1)
@@ -459,7 +460,7 @@ def avg_sig_plot_init(t_filt, logEW_mean, avg_NB, sig_NB, avg_NB_flux,
                        ha='left', va='top', fontsize=11)
 
     ax3[1][0].axhline(y=avg_NB_flux, color='black', linestyle='dashed')
-    ax3[1][0].axhspan(avg_NB_flux-sig_NB_flux, avg_NB_flux+sig_NB_flux,
+    ax3[1][0].axhspan(avg_NB_flux - sig_NB_flux, avg_NB_flux + sig_NB_flux,
                       alpha=0.5, color='black')
     ax3[1][0].set_xlim(xlim)
     ax3[1][0].set_xticks(xticks)
@@ -574,21 +575,21 @@ def get_completeness(hist_bins, hist_data):
 
 def plot_completeness(t_ax, arr0, NB_sel0, bins, ref_arr0=None, above_break=None, annotate=True):
     finite = np.where(np.isfinite(arr0))
-    if type(above_break) != type(None):
-        finite  = intersect_ndim(above_break, finite, arr0.shape)
+    if not isinstance(above_break, type(None)):
+        finite = intersect_ndim(above_break, finite, arr0.shape)
         NB_sel0 = intersect_ndim(above_break, NB_sel0, arr0.shape)
 
     orig, bins_edges0 = np.histogram(arr0[finite], bins)
 
     NB_sel = intersect_ndim(NB_sel0, finite, arr0.shape)
 
-    sel, bins_edges1  = np.histogram(arr0[NB_sel], bins)
+    sel, bins_edges1 = np.histogram(arr0[NB_sel], bins)
 
     if len(bins_edges0) != len(bins_edges1):
         print("bin_edges0 != bin_edges1")
 
     x0 = bins_edges0[:-1]
-    y0 = sel/np.float_(orig)
+    y0 = sel / np.float_(orig)
     label0 = 'mocked' if annotate else ''
     t_ax.step(x0, y0, 'b--', where='mid', label=label0)
 
@@ -597,23 +598,23 @@ def plot_completeness(t_ax, arr0, NB_sel0, bins, ref_arr0=None, above_break=None
         t_ax.annotate('%.2f' % comp_50, [0.975, 0.025], xycoords='axes fraction',
                       ha='right', va='bottom', fontsize=8, color='blue')
 
-    if type(ref_arr0) != type(None):
+    if not isinstance(ref_arr0, type(None)):
         arr1 = np.ones((arr0.shape[0], 1)) * ref_arr0
         finite = np.where(np.isfinite(arr1))
-        if type(above_break) != type(None):
+        if not isinstance(above_break, type(None)):
             finite = intersect_ndim(above_break, finite, arr0.shape)
 
         orig1, bins_edges01 = np.histogram(arr1[finite], bins)
 
         NB_sel = intersect_ndim(NB_sel0, finite, arr1.shape)
 
-        sel1, bins_edges11  = np.histogram(arr1[NB_sel], bins)
+        sel1, bins_edges11 = np.histogram(arr1[NB_sel], bins)
 
         if len(bins_edges01) != len(bins_edges11):
             print("bin_edges01 != bin_edges11")
 
         x1 = bins_edges01[:-1]
-        y1 = sel1/np.float_(orig1)
+        y1 = sel1 / np.float_(orig1)
         label0 = 'true' if annotate else ''
         t_ax.step(x1, y1, 'k--', where='mid', label=label0)
 
@@ -625,7 +626,7 @@ def plot_completeness(t_ax, arr0, NB_sel0, bins, ref_arr0=None, above_break=None
 
     t_ax.legend(loc='upper left', fancybox=True, fontsize=8, framealpha=0.75)
 
-    if type(ref_arr0) == type(None):
+    if isinstance(ref_arr0, type(None)):
         return comp_50
     else:
         return comp_50, comp_50_ref
@@ -654,9 +655,9 @@ def ew_flux_hist(type0, mm, ss, t2_ax, x0, avg_x0, sig_x0, x0_bins, logEW_mean,
     if len(good[0]) > 0:
         finite = np.where(np.isfinite(x0_arr0))
 
-        norm0 = float(len(x0))/len(good[0])
-        wht0  = np.repeat(norm0, x0_arr0.size)
-        wht0  = np.reshape(wht0, x0_arr0.shape)
+        norm0 = float(len(x0)) / len(good[0])
+        wht0 = np.repeat(norm0, x0_arr0.size)
+        wht0 = np.reshape(wht0, x0_arr0.shape)
 
         avg_MC = np.average(x0_arr0[finite])
         sig_MC = np.std(x0_arr0[finite])
@@ -685,7 +686,7 @@ def ew_flux_hist(type0, mm, ss, t2_ax, x0, avg_x0, sig_x0, x0_bins, logEW_mean,
             t2_ax.set_xlim([0.0, 2.95])
         if type0 == 'Flux':
             t2_ax.set_ylabel('')
-            t2_ax.set_yticklabels(['']*5)
+            t2_ax.set_yticklabels([''] * 5)
             t2_ax.set_xlim([-18.0, -14.0])
             t2_ax.set_xticks(np.arange(-17.5, -13.5, 1.0))
             t2_ax.set_xticks(np.arange(-17.5, -13.5, 1.0))
@@ -694,8 +695,8 @@ def ew_flux_hist(type0, mm, ss, t2_ax, x0, avg_x0, sig_x0, x0_bins, logEW_mean,
         if mm == 0:
             as_label = '%.2f' % logEW_sig[ss]
 
-        if type(ax3) != type(None):
-            temp_x = [logEW_mean[mm]+0.005*(ss-3/2.)]
+        if not isinstance(ax3, type(None)):
+            temp_x = [logEW_mean[mm] + 0.005 * (ss - 3 / 2.)]
             ax3.scatter(temp_x, [avg_gd], marker='o', s=40, edgecolor='none',
                         color=avg_sig_ctype[ss], label=as_label)
             ax3.errorbar(temp_x, [avg_gd], yerr=[sig_gd], capsize=0,
@@ -733,7 +734,7 @@ def stats_plot(type0, ax2, ax3, ax, s_row, Ng, No, binso, EW_mean, EW_sig, ss):
        Integer indicating index for sigma
     """
 
-    delta    = (Ng-No)/np.sqrt(Ng + No)
+    delta = (Ng - No) / np.sqrt(Ng + No)
 
     if type0 == 'EW':
         pn = 0
@@ -753,17 +754,17 @@ def stats_plot(type0, ax2, ax3, ax, s_row, Ng, No, binso, EW_mean, EW_sig, ss):
     if type0 == 'EW':
         ax2[s_row][pn].set_ylabel(r'$(N_{\rm mock} - N_{\rm data})/\sigma$')
 
-        annot_txt  = r'$\langle\log({\rm EW})\rangle = %.2f$  ' % EW_mean
+        annot_txt = r'$\langle\log({\rm EW})\rangle = %.2f$  ' % EW_mean
         annot_txt += r'$\sigma[\log({\rm EW})] = %.2f$' % EW_sig
         ax2[s_row][pn].set_title(annot_txt, fontdict={'fontsize': 10}, loc='left')
 
     # Compute chi^2
     use_bins = np.where((Ng != 0) & (No != 0))[0]
     if len(use_bins) > 2:
-        fit_chi2 = np.sum(delta[use_bins]**2)/(len(use_bins)-2)
+        fit_chi2 = np.sum(delta[use_bins] ** 2) / (len(use_bins) - 2)
         c_txt = r'$\chi^2_{\nu}$ = %.2f' % fit_chi2
 
-        ax3.scatter([EW_mean+0.005*(ss-3/2.)], [fit_chi2],
+        ax3.scatter([EW_mean + 0.005 * (ss - 3 / 2.)], [fit_chi2],
                     marker='o', s=40, color=avg_sig_ctype[ss],
                     edgecolor='none')
     else:
@@ -798,11 +799,11 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
     """
 
-    today0   = date.today()
+    today0 = date.today()
     str_date = "%02i%02i" % (today0.month, today0.day)
     if debug:
         str_date += ".debug"
-    mylog = MLog(path0+'Completeness/', str_date)._get_logger()
+    mylog = MLog(path0 + 'Completeness/', str_date)._get_logger()
 
     t0 = TimerClass()
     t0._start()
@@ -810,17 +811,17 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
     prefixes = ['Ha-NB7', 'Ha-NB7', 'Ha-NB816', 'Ha-NB921', 'Ha-NB973']
 
     # NB statistical filter correction
-    filt_corr = [1.289439104,   1.41022358406, 1.29344789854,
+    filt_corr = [1.289439104, 1.41022358406, 1.29344789854,
                  1.32817034288, 1.29673596942]
 
-    z_NB     = lambdac/6562.8 - 1.0
+    z_NB = lambdac / 6562.8 - 1.0
 
     npz_slope = np.load(path0 + 'Completeness/NB_numbers.npz',
                         allow_pickle=True)
 
     logEW_mean_start = np.array([1.25, 1.25, 1.25, 1.25, 0.90])
-    logEW_sig_start  = np.array([0.15, 0.55, 0.25, 0.35, 0.55])
-    n_mean  = 4
+    logEW_sig_start = np.array([0.15, 0.55, 0.25, 0.35, 0.55])
+    n_mean = 4
     n_sigma = 4
 
     mylog.info('Nsim : ', Nsim)
@@ -841,43 +842,43 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
     for ff in ff_range:  # loop over filter
         t_ff = TimerClass()
         t_ff._start()
-        mylog.info("Working on : "+filters[ff])
+        mylog.info("Working on : " + filters[ff])
 
-        logEW_mean = logEW_mean_start[ff] + 0.1*np.arange(n_mean)
-        logEW_sig  = logEW_sig_start[ff]  + 0.1*np.arange(n_sigma)
+        logEW_mean = logEW_mean_start[ff] + 0.1 * np.arange(n_mean)
+        logEW_sig = logEW_sig_start[ff] + 0.1 * np.arange(n_sigma)
 
-        comp_shape  = (len(mm_range), len(ss_range))
-        comp_sSFR   = np.zeros(comp_shape)
+        comp_shape = (len(mm_range), len(ss_range))
+        comp_sSFR = np.zeros(comp_shape)
         # comp_EW   = np.zeros(comp_shape)
-        comp_SFR    = np.zeros(comp_shape)
-        comp_flux   = np.zeros(comp_shape)
+        comp_SFR = np.zeros(comp_shape)
+        comp_flux = np.zeros(comp_shape)
         comp_EWmean = np.zeros(comp_shape)
-        comp_EWsig  = np.zeros(comp_shape)
+        comp_EWsig = np.zeros(comp_shape)
 
-        out_pdf = path0 + 'Completeness/ew_MC_'+filters[ff]+'.pdf'
+        out_pdf = path0 + 'Completeness/ew_MC_' + filters[ff] + '.pdf'
         if debug:
             out_pdf = out_pdf.replace('.pdf', '.debug.pdf')
         pp = PdfPages(out_pdf)
 
         # This is cropped to fit
-        out_pdf0 = path0 + 'Completeness/ew_MC_'+filters[ff]+'.crop.pdf'
+        out_pdf0 = path0 + 'Completeness/ew_MC_' + filters[ff] + '.crop.pdf'
         if debug:
             out_pdf0 = out_pdf0.replace('.pdf', '.debug.pdf')
         pp0 = PdfPages(out_pdf0)
 
-        out_pdf2 = path0 + 'Completeness/ew_MC_'+filters[ff]+'.stats.pdf'
+        out_pdf2 = path0 + 'Completeness/ew_MC_' + filters[ff] + '.stats.pdf'
         if debug:
             out_pdf2 = out_pdf2.replace('.pdf', '.debug.pdf')
         pp2 = PdfPages(out_pdf2)
 
-        out_pdf4 = path0 + 'Completeness/ew_MC_'+filters[ff]+'.comp.pdf'
+        out_pdf4 = path0 + 'Completeness/ew_MC_' + filters[ff] + '.comp.pdf'
         if debug:
             out_pdf4 = out_pdf4.replace('.pdf', '.debug.pdf')
         pp4 = PdfPages(out_pdf4)
 
         filt_dict = {'dNB': dNB[ff], 'dBB': dBB[ff], 'lambdac': lambdac[ff]}
 
-        x      = np.arange(0.01, 10.00, 0.01)
+        x = np.arange(0.01, 10.00, 0.01)
         EW_ref = compute_EW(x, ff)
 
         good = np.where(np.isfinite(EW_ref))[0]
@@ -887,21 +888,21 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                           fill_value=(-3.0, np.max(EW_ref[good])))
 
         NBmin = 20.0
-        NBmax = m_NB[ff]-0.25
-        NB = np.arange(NBmin, NBmax+NBbin, NBbin)
+        NBmax = m_NB[ff] - 0.25
+        NB = np.arange(NBmin, NBmax + NBbin, NBbin)
         mylog.info('NB (min/max): %f %f ' % (min(NB), max(NB)))
 
-        npz_NBfile = npz_path0 + filters[ff]+'_init.npz'
+        npz_NBfile = npz_path0 + filters[ff] + '_init.npz'
 
         if not exists(npz_NBfile) or redo == True:
             N_mag_mock = npz_slope['N_norm0'][ff] * Nsim * NBbin
-            N_interp   = interp1d(npz_slope['mag_arr'][ff], N_mag_mock)
+            N_interp = interp1d(npz_slope['mag_arr'][ff], N_mag_mock)
             Ndist_mock = np.int_(np.round(N_interp(NB)))
-            NB_ref     = np.repeat(NB, Ndist_mock)
+            NB_ref = np.repeat(NB, Ndist_mock)
 
             Ngal = NB_ref.size  # Number of galaxies
 
-            NB_sig     = get_sigma(NB, m_NB[ff], sigma=3.0)
+            NB_sig = get_sigma(NB, m_NB[ff], sigma=3.0)
             NB_sig_ref = np.repeat(NB_sig, Ndist_mock)
 
             npz_NBdict = {}
@@ -909,9 +910,9 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 npz_NBdict[name] = eval(name)
 
             if exists(npz_NBfile):
-                mylog.info("Overwriting : "+npz_NBfile)
+                mylog.info("Overwriting : " + npz_NBfile)
             else:
-                mylog.info("Writing : "+npz_NBfile)
+                mylog.info("Writing : " + npz_NBfile)
             np.savez(npz_NBfile, **npz_NBdict)
         else:
             if not redo:
@@ -919,8 +920,8 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 npz_NB = np.load(npz_NBfile)
 
                 for key0 in npz_NB.keys():
-                    cmd1 = key0+" = npz_NB['"+key0+"']"
-                    exec(cmd1)
+                    cmd1 = key0 + " = npz_NB['" + key0 + "']"
+                    exec (cmd1)
 
         mock_sz = (Nmock, Ngal)
 
@@ -936,20 +937,20 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
         lum_dist = cosmo.luminosity_distance(z_NB[ff]).to(u.cm).value
 
         # Read in EW and fluxes for H-alpha NB emitter sample
-        npz_NB_file = path0 + 'Completeness/ew_flux_Ha-'+filters[ff]+'.npz'
-        npz_NB      = np.load(npz_NB_file)
-        NB_EW    = npz_NB['NB_EW']
-        Ha_Flux  = npz_NB['Ha_Flux']
+        npz_NB_file = path0 + 'Completeness/ew_flux_Ha-' + filters[ff] + '.npz'
+        npz_NB = np.load(npz_NB_file)
+        NB_EW = npz_NB['NB_EW']
+        Ha_Flux = npz_NB['Ha_Flux']
 
-        NBmag    = npz_NB['NBmag']
-        contmag  = npz_NB['contmag']
+        NBmag = npz_NB['NBmag']
+        contmag = npz_NB['contmag']
         logMstar = npz_NB['logMstar']
-        Ha_SFR   = npz_NB['Ha_SFR']  # metallicity-dependent observed SFR
-        Ha_Lum   = npz_NB['Ha_Lum']  # filter and [NII] corrected
+        Ha_SFR = npz_NB['Ha_SFR']  # metallicity-dependent observed SFR
+        Ha_Lum = npz_NB['Ha_Lum']  # filter and [NII] corrected
 
         spec_flag = npz_NB['spec_flag']
-        w_spec    = np.where(spec_flag)[0]
-        wo_spec   = np.where(spec_flag == 0)[0]
+        w_spec = np.where(spec_flag)[0]
+        wo_spec = np.where(spec_flag == 0)[0]
 
         # Statistics for comparisons
         avg_NB = np.average(NB_EW)
@@ -990,12 +991,12 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 s_row = count % nrow_stats  # For statistics plot
 
                 if not exists(npz_MCfile) or redo == True:
-                    EW_seed = mm*len(ss_range) + ss
+                    EW_seed = mm * len(ss_range) + ss
                     mylog.info("seed for mm=%i ss=%i : %i" % (mm, ss, EW_seed))
                     np.random.seed(EW_seed)
                     rand0 = np.random.normal(0.0, 1.0, size=Ngal)
                     # This is not H-alpha
-                    logEW_MC_ref = logEW_mean[mm] + logEW_sig[ss]*rand0
+                    logEW_MC_ref = logEW_mean[mm] + logEW_sig[ss] * rand0
                     stats_log(logEW_MC_ref, "logEW_MC_ref", mylog)
 
                     x_MC0_ref = EW_int(logEW_MC_ref)  # NB color excess
@@ -1017,12 +1018,12 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                                                 filt_dict, filt_corr[ff], mass_int,
                                                 lum_dist)
                     _, flux_ref, logM_ref, NIIHa_ref, logOH_ref, HaFlux_ref, \
-                        HaLum_ref, logSFR_ref = derived_properties(**dict_prop)
+                    HaLum_ref, logSFR_ref = derived_properties(**dict_prop)
 
                     if exists(npz_MCfile):
-                        mylog.info("Overwriting : "+npz_MCfile)
+                        mylog.info("Overwriting : " + npz_MCfile)
                     else:
-                        mylog.info("Writing : "+npz_MCfile)
+                        mylog.info("Writing : " + npz_MCfile)
 
                     npz_MCdict = {}
                     for name in npz_MCnames:
@@ -1034,8 +1035,8 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                         npz_MC = np.load(npz_MCfile)
 
                         for key0 in npz_MC.keys():
-                            cmd1 = key0+" = npz_MC['"+key0+"']"
-                            exec(cmd1)
+                            cmd1 = key0 + " = npz_MC['" + key0 + "']"
+                            exec (cmd1)
 
                         dict_prop = dict_prop_maker(NB_ref, BB_MC0_ref, x_MC0_ref,
                                                     filt_dict, filt_corr[ff], mass_int,
@@ -1046,7 +1047,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 BB_MC = random_mags(BB_seed, mock_sz, BB_MC0_ref, BB_sig_ref)
                 stats_log(BB_MC, "BB_MC", mylog)
 
-                x_MC  = BB_MC - NB_MC
+                x_MC = BB_MC - NB_MC
                 stats_log(x_MC, "x_MC", mylog)
 
                 NB_sel, NB_nosel, sig_limit = NB_select(ff, NB_MC, x_MC)
@@ -1059,21 +1060,21 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
                 dict_prop['NB'] = NB_MC
                 dict_prop['BB'] = BB_MC
-                dict_prop['x']  = x_MC
+                dict_prop['x'] = x_MC
                 logEW_MC, flux_MC, logM_MC, NIIHa, logOH, HaFlux_MC, HaLum_MC, \
-                    logSFR_MC = derived_properties(std_mass_int=std_mass_int,
-                                                   **dict_prop)
+                logSFR_MC = derived_properties(std_mass_int=std_mass_int,
+                                               **dict_prop)
                 stats_log(logEW_MC, "logEW_MC", mylog)
                 stats_log(flux_MC, "flux_MC", mylog)
                 stats_log(HaFlux_MC, "HaFlux_MC", mylog)
 
                 # Panel (0,0) - NB excess selection plot
 
-                plot_mock(ax00, NB_MC, x_MC, NB_sel, NB_nosel, '', cont0[ff]+' - '+filters[ff])
+                plot_mock(ax00, NB_MC, x_MC, NB_sel, NB_nosel, '', cont0[ff] + ' - ' + filters[ff])
 
                 ax00.axvline(m_NB[ff], linestyle='dashed', color='b')
 
-                temp_x = contmag-NBmag
+                temp_x = contmag - NBmag
                 plot_MACT(ax00, NBmag, temp_x, w_spec, wo_spec)
 
                 NB_break = plot_NB_select(ff, ax00, NB, 'b')
@@ -1089,10 +1090,10 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 plt.subplots_adjust(left=0.1, right=0.98, bottom=0.10,
                                     top=0.98, wspace=0.25, hspace=0.05)
 
-                plot_mock(ax0, NB_MC, x_MC, NB_sel, NB_nosel, filters[ff], cont0[ff]+' - '+filters[ff])
+                plot_mock(ax0, NB_MC, x_MC, NB_sel, NB_nosel, filters[ff], cont0[ff] + ' - ' + filters[ff])
                 ax0.axvline(m_NB[ff], linestyle='dashed', color='b')
 
-                temp_x = contmag-NBmag
+                temp_x = contmag - NBmag
                 plot_MACT(ax0, NBmag, temp_x, w_spec, wo_spec)
 
                 plot_NB_select(ff, ax0, NB, 'b', plot4=False)
@@ -1140,9 +1141,9 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 ax20.axvline(x=min_EW, color='red')
 
                 No, Ng, binso, \
-                    wht0 = ew_flux_hist('EW', mm, ss, ax20, NB_EW, avg_NB,
-                                        sig_NB, EW_bins, logEW_mean, logEW_sig,
-                                        EW_flag0, logEW_MC, ax3=ax3ul)
+                wht0 = ew_flux_hist('EW', mm, ss, ax20, NB_EW, avg_NB,
+                                    sig_NB, EW_bins, logEW_mean, logEW_sig,
+                                    EW_flag0, logEW_MC, ax3=ax3ul)
                 ax20.set_position([0.085, 0.05, 0.44, 0.265])
 
                 good = np.where(EW_flag0)[0]
@@ -1155,14 +1156,14 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
                 # Panel (2,1) - histogram of H-alpha fluxes
                 No, Ng, binso, \
-                    wht0 = ew_flux_hist('Flux', mm, ss, ax21, Ha_Flux,
-                                        avg_NB_flux, sig_NB_flux, Flux_bins,
-                                        logEW_mean, logEW_sig,
-                                        EW_flag0, HaFlux_MC, ax3=ax3ll)
+                wht0 = ew_flux_hist('Flux', mm, ss, ax21, Ha_Flux,
+                                    avg_NB_flux, sig_NB_flux, Flux_bins,
+                                    logEW_mean, logEW_sig,
+                                    EW_flag0, HaFlux_MC, ax3=ax3ll)
                 ax21.set_position([0.53, 0.05, 0.44, 0.265])
 
                 ax21.legend(loc='upper right', fancybox=True, fontsize=6,
-                                framealpha=0.75)
+                            framealpha=0.75)
 
                 # Model comparison plots
                 if len(good) > 0:
@@ -1170,7 +1171,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                                       binso, logEW_mean[mm], logEW_sig[ss], ss)
                     chi2_Fl0[mm, ss] = chi2
 
-                if s_row != nrow_stats-1:
+                if s_row != nrow_stats - 1:
                     ax2[s_row][0].set_xticklabels([])
                     ax2[s_row][1].set_xticklabels([])
                 else:
@@ -1183,7 +1184,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 plt.close(fig)
 
                 # Save figure for each full page completed
-                if s_row == nrow_stats-1 or count == len(mm_range)*len(ss_range)-1:
+                if s_row == nrow_stats - 1 or count == len(mm_range) * len(ss_range) - 1:
                     fig2.subplots_adjust(left=0.1, right=0.97, bottom=0.08,
                                          top=0.97, wspace=0.13)
 
@@ -1194,7 +1195,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
                 # Compute and plot completeness
                 # Combine over modelled galaxies
-                comp_arr = np.sum(EW_flag0, axis=0)/float(Nmock)
+                comp_arr = np.sum(EW_flag0, axis=0) / float(Nmock)
 
                 # Plot Type 1 and 2 errors
                 cticks = np.arange(0, 1.2, 0.2)
@@ -1203,18 +1204,18 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 [[ax400, ax401], [ax410, ax411]] = ax4
 
                 ax4ins0 = inset_axes(ax400, width="40%", height="15%", loc=3,
-                                     bbox_to_anchor=(0.025,0.1,0.95,0.25),
+                                     bbox_to_anchor=(0.025, 0.1, 0.95, 0.25),
                                      bbox_transform=ax400.transAxes)  # LL
                 ax4ins1 = inset_axes(ax400, width="40%", height="15%", loc=4,
-                                     bbox_to_anchor=(0.025,0.1,0.95,0.25),
+                                     bbox_to_anchor=(0.025, 0.1, 0.95, 0.25),
                                      bbox_transform=ax400.transAxes)  # LR
 
                 ax4ins0.xaxis.set_ticks_position("top")
                 ax4ins1.xaxis.set_ticks_position("top")
 
-                idx0  = [NB_sel_ref, NB_nosel_ref]
+                idx0 = [NB_sel_ref, NB_nosel_ref]
                 cmap0 = [cmap_sel, cmap_nosel]
-                lab0  = ['Type 1', 'Type 2']
+                lab0 = ['Type 1', 'Type 2']
                 for idx, cmap, ins, lab in zip(idx0, cmap0, [ax4ins0, ax4ins1], lab0):
                     cs = ax400.scatter(NB_ref[idx], x_MC0_ref[idx], edgecolor='none',
                                        vmin=0, vmax=1.0, s=15, c=comp_arr[idx],
@@ -1228,33 +1229,33 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
                 ax400.set_xlabel(filters[ff])
                 ax400.set_ylim([-0.5, 2.0])
-                ax400.set_ylabel(cont0[ff]+' - '+filters[ff])
+                ax400.set_ylabel(cont0[ff] + ' - ' + filters[ff])
 
                 ax400.annotate(N_annot_txt, [0.025, 0.975], va='top',
                                ha='left', xycoords='axes fraction')
 
                 logsSFR_ref = logSFR_ref - logM_ref
-                logsSFR_MC  = logSFR_MC - logM_MC
+                logsSFR_MC = logSFR_MC - logM_MC
 
                 above_break = np.where(NB_MC <= NB_break)
 
                 t_comp_sSFR, \
-                    t_comp_sSFR_ref = plot_completeness(ax401, logsSFR_MC, NB_sel, sSFR_bins,
-                                                        ref_arr0=logsSFR_ref, above_break=above_break)
+                t_comp_sSFR_ref = plot_completeness(ax401, logsSFR_MC, NB_sel, sSFR_bins,
+                                                    ref_arr0=logsSFR_ref, above_break=above_break)
 
                 '''t_comp_EW, \
                     t_comp_EW_ref = plot_completeness(ax410, logEW_MC, NB_sel,
                                                       EW_bins, ref_arr0=logEW_MC_ref)
                 '''
                 t_comp_Fl, \
-                    t_comp_Fl_ref = plot_completeness(ax410, HaFlux_MC, NB_sel,
-                                                      Flux_bins, ref_arr0=HaFlux_ref)
+                t_comp_Fl_ref = plot_completeness(ax410, HaFlux_MC, NB_sel,
+                                                  Flux_bins, ref_arr0=HaFlux_ref)
 
                 t_comp_SFR, \
-                    t_comp_SFR_ref = plot_completeness(ax411, logSFR_MC, NB_sel,
-                                                       SFR_bins, ref_arr0=logSFR_ref)
+                t_comp_SFR_ref = plot_completeness(ax411, logSFR_MC, NB_sel,
+                                                   SFR_bins, ref_arr0=logSFR_ref)
                 comp_sSFR[mm, ss] = t_comp_sSFR
-                comp_SFR[mm, ss]  = t_comp_SFR
+                comp_SFR[mm, ss] = t_comp_SFR
                 comp_flux[mm, ss] = t_comp_Fl
 
                 fig0, ax0 = plt.subplots()
@@ -1282,7 +1283,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
                 # Plot sSFR vs stellar mass
                 fig5, ax5 = plt.subplots()
-                plot_mock(ax5, logM_MC, logSFR_MC-logM_MC, NB_sel, NB_nosel, M_lab,
+                plot_mock(ax5, logM_MC, logSFR_MC - logM_MC, NB_sel, NB_nosel, M_lab,
                           r'$\log({\rm sSFR})$')
                 plt.subplots_adjust(left=0.09, right=0.98, bottom=0.1, top=0.98)
                 fig5.set_size_inches(8, 8)
@@ -1297,15 +1298,15 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                      fancybox=True, fontsize=8, framealpha=0.75, scatterpoints=1)
 
         # Compute best fit using weighted chi^2
-        chi2_wht = np.sqrt(chi2_EW0**2/2 + chi2_Fl0**2/2)
+        chi2_wht = np.sqrt(chi2_EW0 ** 2 / 2 + chi2_Fl0 ** 2 / 2)
         b_chi2 = np.where(chi2_wht == np.min(chi2_wht))
-        mylog.info("Best chi2 : "+str(b_chi2))
+        mylog.info("Best chi2 : " + str(b_chi2))
         mylog.info("Best chi2 : (%s, %s) " % (logEW_mean[b_chi2[0]][0],
                                               logEW_sig[b_chi2[1]][0]))
-        ax3ur.scatter(logEW_mean[b_chi2[0]]+0.005*(b_chi2[1]-3/2.),
+        ax3ur.scatter(logEW_mean[b_chi2[0]] + 0.005 * (b_chi2[1] - 3 / 2.),
                       chi2_EW0[b_chi2], edgecolor='k', facecolor='none',
                       s=100, linewidth=2)
-        ax3lr.scatter(logEW_mean[b_chi2[0]]+0.005*(b_chi2[1]-3/2.),
+        ax3lr.scatter(logEW_mean[b_chi2[0]] + 0.005 * (b_chi2[1] - 3 / 2.),
                       chi2_Fl0[b_chi2], edgecolor='k', facecolor='none',
                       s=100, linewidth=2)
 
@@ -1313,15 +1314,15 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
         fig3.subplots_adjust(left=0.105, right=0.97, bottom=0.065, top=0.98,
                              wspace=0.25, hspace=0.01)
 
-        out_pdf3_each = path0 + 'Completeness/ew_MC_'+filters[ff]+'.avg_sigma.pdf'
-        if debug: out_pdf3_each = out_pdf3_each.replace('.pdf','.debug.pdf')
+        out_pdf3_each = path0 + 'Completeness/ew_MC_' + filters[ff] + '.avg_sigma.pdf'
+        if debug: out_pdf3_each = out_pdf3_each.replace('.pdf', '.debug.pdf')
         fig3.savefig(out_pdf3_each, format='pdf')
 
         if not debug:
             fig3.savefig(pp3, format='pdf')
         plt.close(fig3)
 
-        table_outfile = path0 + 'Completeness/'+filters[ff]+'_completeness_50.tbl'
+        table_outfile = path0 + 'Completeness/' + filters[ff] + '_completeness_50.tbl'
         c_size = comp_shape[0] * comp_shape[1]
         comp_arr0 = [comp_EWmean.reshape(c_size), comp_EWsig.reshape(c_size),
                      comp_sSFR.reshape(c_size), comp_SFR.reshape(c_size),
@@ -1329,21 +1330,21 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
         c_names = ('log_EWmean', 'log_EWsig', 'comp_50_sSFR', 'comp_50_SFR',
                    'comp_50_flux')
 
-        mylog.info("Writing : "+table_outfile)
+        mylog.info("Writing : " + table_outfile)
         comp_tab = Table(comp_arr0, names=c_names)
         comp_tab.write(table_outfile, format='ascii.fixed_width_two_line',
                        overwrite=True)
 
         # Generate table containing best fit results
         if not debug:
-            best_tab0 = comp_tab[b_chi2[0]*len(ss_range)+b_chi2[1]]
+            best_tab0 = comp_tab[b_chi2[0] * len(ss_range) + b_chi2[1]]
             if ff == 0:
                 comp_tab0 = best_tab0
             else:
                 comp_tab0 = vstack([comp_tab0, best_tab0])
 
         t_ff._stop()
-        mylog.info("ew_MC completed for "+filters[ff]+" in : "+t_ff.format)
+        mylog.info("ew_MC completed for " + filters[ff] + " in : " + t_ff.format)
 
     if not debug:
         table_outfile0 = path0 + 'Completeness/best_fit_completeness_50.tbl'
@@ -1354,7 +1355,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
         pp3.close()
 
     t0._stop()
-    mylog.info("ew_MC completed in : "+t0.format)
+    mylog.info("ew_MC completed in : " + t0.format)
 
 
 '''
