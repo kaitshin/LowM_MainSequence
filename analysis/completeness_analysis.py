@@ -1324,6 +1324,8 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
         plt.close(fig3)
 
         table_outfile = path0 + 'Completeness/' + filters[ff] + '_completeness_50.tbl'
+        if debug:
+            table_outfile = table_outfile.replace('.tbl', '.debug.tbl')
         c_size = comp_shape[0] * comp_shape[1]
         comp_arr0 = [comp_EWmean.reshape(c_size), comp_EWsig.reshape(c_size),
                      comp_sSFR.reshape(c_size), comp_SFR.reshape(c_size),
