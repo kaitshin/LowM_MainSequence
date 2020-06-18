@@ -24,20 +24,17 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 from scipy.interpolate import interp1d
 
-from NB_errors import ew_flux_dual, mag_combine
+from ..NB_errors import ew_flux_dual, mag_combine
 
-from NB_errors import filt_ref, dNB, lambdac, dBB, epsilon
+from ..NB_errors import filt_ref, dNB, lambdac, dBB, epsilon
 
-from ..mainseq_corrections import niiha_oh_determine
-
-import logging
+from ...mainseq_corrections import niiha_oh_determine
+from . import MLog
 
 import astropy.units as u
 from astropy.cosmology import FlatLambdaCDM
 
 cosmo = FlatLambdaCDM(H0=70 * u.km / u.s / u.Mpc, Om0=0.3)
-
-formatter = logging.Formatter('%(asctime)s - %(module)12s.%(funcName)20s - %(levelname)s: %(message)s')
 
 """
 Pass through ew_MC() call
@@ -98,49 +95,6 @@ npz_MCnames = ['EW_seed', 'logEW_MC_ref', 'x_MC0_ref', 'BB_MC0_ref',
                'BB_sig_ref', 'sig_limit_ref', 'NB_sel_ref', 'NB_nosel_ref',
                'EW_flag_ref', 'flux_ref', 'logM_ref', 'NIIHa_ref',
                'logOH_ref', 'HaFlux_ref', 'HaLum_ref', 'logSFR_ref']
-
-
-class MLog:
-    """
-    Main class to log information to stdout and ASCII file
-
-    To execute:
-    mylog = MLog(dir0)._get_logger()
-
-    Parameters
-    ----------
-    dir0 : str
-      Full path for where log files should be placed
-
-    Returns
-    -------
-
-    Notes
-    -----
-    Created by Chun Ly, 2 October 2019
-    """
-
-    def __init__(self, dir0, str_date):
-        self.LOG_FILENAME = dir0 + 'completeness_analysis.' + str_date + '.log'
-        self._log = self._get_logger()
-
-    def _get_logger(self):
-        loglevel = logging.INFO
-        log = logging.getLogger(self.LOG_FILENAME)
-        if not getattr(log, 'handler_set', None):
-            log.setLevel(logging.INFO)
-            sh = logging.StreamHandler()
-            sh.setFormatter(formatter)
-            log.addHandler(sh)
-
-            fh = logging.FileHandler(self.LOG_FILENAME)
-            fh.setLevel(logging.INFO)
-            fh.setFormatter(formatter)
-            log.addHandler(fh)
-
-            log.setLevel(loglevel)
-            log.handler_set = True
-        return log
 
 
 def stats_log(input_arr, arr_type, mylog):
