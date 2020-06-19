@@ -1,5 +1,7 @@
 import logging
 
+avg_sig_ctype = ['m', 'r', 'g', 'b', 'k']
+
 formatter = logging.Formatter('%(asctime)s - %(module)12s.%(funcName)20s - %(levelname)s: %(message)s')
 
 

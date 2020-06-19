@@ -1,5 +1,7 @@
 import numpy as np
 
+from . import avg_sig_ctype
+
 
 def stats_log(input_arr, arr_type, mylog):
     """
@@ -21,24 +23,6 @@ def stats_log(input_arr, arr_type, mylog):
     str0 = "%s: min=%f max=%f mean=%f median=%f" % (arr_type, min0, max0,
                                                     mean0, med0)
     mylog.info(str0)
-
-
-def get_sigma(x, lim1, sigma=3.0):
-    """
-    Purpose:
-      Magnitude errors based on limiting magnitude
-
-    :param x: numpy array of magnitudes
-    :param lim1: 3-sigma limiting magnitude for corresponding x (float)
-    :param sigma: Sigma threshold (float).  Default: 3.0
-
-    :return dmag: numpy array of magnitude errors
-    """
-
-    SNR = sigma * 10 ** (-0.4 * (x - lim1))
-    dmag = 2.5 * np.log10(1 + 1 / SNR)
-
-    return dmag
 
 
 def avg_sig_label(str0, avg, sigma, panel_type=''):

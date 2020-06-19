@@ -29,9 +29,10 @@ from ..NB_errors import ew_flux_dual, mag_combine
 from ..NB_errors import filt_ref, dNB, lambdac, dBB, epsilon
 
 from ...mainseq_corrections import niiha_oh_determine
-from . import MLog
-from .stats import stats_log, get_sigma, avg_sig_label, N_avg_sig_label, stats_plot
-from .monte_carlo import mock_ones, random_mags
+from . import MLog, avg_sig_ctype
+from .stats import stats_log, avg_sig_label, N_avg_sig_label, stats_plot
+from .monte_carlo import random_mags
+from .select import get_sigma, color_cut, NB_select
 
 import astropy.units as u
 from astropy.cosmology import FlatLambdaCDM
@@ -72,7 +73,6 @@ npz_path0 = '/Users/cly/data/SDF/MACT/LowM_MainSequence_npz/'
 if not exists(npz_path0):
     os.mkdir(npz_path0)
 
-m_AB = 48.6
 
 # Common text for labels
 EW_lab = r'$\log({\rm EW}/\AA)$'
@@ -85,7 +85,6 @@ Flux_bins = np.arange(-17.75, -14.00, 0.25)
 sSFR_bins = np.arange(-11.0, -6.0, 0.2)
 SFR_bins = np.arange(-5.0, 2.0, 0.2)
 # Colors for each separate points on avg_sigma plots
-avg_sig_ctype = ['m', 'r', 'g', 'b', 'k']
 
 cmap_sel = plt.cm.Blues
 cmap_nosel = plt.cm.Reds
@@ -97,30 +96,6 @@ npz_MCnames = ['EW_seed', 'logEW_MC_ref', 'x_MC0_ref', 'BB_MC0_ref',
                'BB_sig_ref', 'sig_limit_ref', 'NB_sel_ref', 'NB_nosel_ref',
                'EW_flag_ref', 'flux_ref', 'logM_ref', 'NIIHa_ref',
                'logOH_ref', 'HaFlux_ref', 'HaLum_ref', 'logSFR_ref']
-
-
-def color_cut(x, lim1, lim2, mean=0.0, sigma=3.0):
-    """
-    Purpose:
-      NB excess color selection based on limiting magnitudes
-
-    :param x: numpy array of NB magnitudes
-    :param lim1: 3-sigma NB limiting magnitude (float)
-    :param lim2: 3-sigma BB limiting magnitude (float)
-    :param mean: mean of excess (float). Default: 0
-    :param sigma: Sigma threshold (float).  Default: 3.0
-
-    :return val: numpy array of 3-sigma allowed BB-NB excess color
-    """
-
-    f1 = (sigma / 3.0) * 10 ** (-0.4 * (m_AB + lim1))
-    f2 = (sigma / 3.0) * 10 ** (-0.4 * (m_AB + lim2))
-
-    f = 10 ** (-0.4 * (m_AB + x))
-
-    val = mean - 2.5 * np.log10(1 - np.sqrt(f1 ** 2 + f2 ** 2) / f)
-
-    return val
 
 
 def compute_EW(x0, ff):
@@ -143,28 +118,6 @@ def plot_NB_select(ff, t_ax, NB, ctype, linewidth=1, plot4=True):
         t_ax.plot(NB, y4, ctype + ':', linewidth=linewidth)
 
     return NB_break
-
-
-def NB_select(ff, NB_mag, x_mag):
-    """
-    Purpose:
-      NB excess color selection
-
-    :param ff: integer for filter
-    :param NB_mag: numpy array of NB magnitudes
-    :param x_mag: numpy array of NB excess colors, continuum - NB
-
-    :return NB_sel: numpy index for NB excess selection
-    :return NB_nosel: numpy index for non NB excess selection
-    :return sig_limit: numpy array providing 3-sig limit for NB_mag input
-    """
-
-    sig_limit = color_cut(NB_mag, m_NB[ff], cont_lim[ff])
-
-    NB_sel = np.where((x_mag >= minthres[ff]) & (x_mag >= sig_limit))
-    NB_nosel = np.where((x_mag < minthres[ff]) | (x_mag < sig_limit))
-
-    return NB_sel, NB_nosel, sig_limit
 
 
 def correct_NII(log_flux, NIIHa):
