@@ -9,7 +9,7 @@ def compute_EW(x0, ff):
     y_temp = 10 ** (-0.4 * x0)
     EW_ref = np.log10(dNB[ff] * (1 - y_temp) / (y_temp - dNB[ff] / dBB[ff]))
     return EW_ref
-l
+
 
 def correct_NII(log_flux, NIIHa):
     """
