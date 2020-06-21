@@ -1,7 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+from ..NB_errors import mag_combine, epsilon
+
 import logging
+formatter = logging.Formatter('%(asctime)s - %(module)12s.%(funcName)20s - %(levelname)s: %(message)s')
 
 # Colors for each separate points on avg_sigma plots
 avg_sig_ctype = ['m', 'r', 'g', 'b', 'k']
@@ -21,7 +24,14 @@ SFR_bins = np.arange(-5.0, 2.0, 0.2)
 cmap_sel = plt.cm.Blues
 cmap_nosel = plt.cm.Reds
 
-formatter = logging.Formatter('%(asctime)s - %(module)12s.%(funcName)20s - %(levelname)s: %(message)s')
+# Limiting magnitudes for NB and BB data
+m_NB = np.array([26.7134 - 0.047, 26.0684, 26.9016 + 0.057, 26.7088 - 0.109, 25.6917 - 0.051])
+m_BB1 = np.array([28.0829, 28.0829, 27.7568, 26.8250, 26.8250])
+m_BB2 = np.array([27.7568, 27.7568, 26.8250, 00.0000, 00.0000])
+cont_lim = mag_combine(m_BB1, m_BB2, epsilon)
+
+# Minimum NB excess color for selection
+minthres = [0.15, 0.15, 0.15, 0.2, 0.25]
 
 
 class MLog:

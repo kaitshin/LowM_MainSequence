@@ -24,19 +24,18 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 from scipy.interpolate import interp1d
 
-from ..NB_errors import ew_flux_dual, mag_combine
+from ..NB_errors import filt_ref, dNB, lambdac, dBB
 
-from ..NB_errors import filt_ref, dNB, lambdac, dBB, epsilon
-
-from ...mainseq_corrections import niiha_oh_determine
 from . import MLog, cmap_sel, cmap_nosel
 from . import EW_lab, Flux_lab, M_lab, SFR_lab
 from . import EW_bins, Flux_bins, sSFR_bins, SFR_bins
+from . import m_NB, cont_lim, minthres
 
 from .stats import stats_log, avg_sig_label, stats_plot
 from .monte_carlo import random_mags
 from .select import get_sigma, color_cut, NB_select
 from .plotting import avg_sig_plot_init, plot_MACT, plot_mock, plot_completeness, ew_flux_hist
+from .properties import compute_EW, dict_prop_maker, derived_properties
 
 import astropy.units as u
 from astropy.cosmology import FlatLambdaCDM
@@ -59,15 +58,6 @@ for arr in ['filt_ref', 'dNB', 'lambdac', 'dBB', 'epsilon']:
     cmd2 = arr + ' = '+arr+'[NB_filt]'
     exec(cmd2)
 
-# Limiting magnitudes for NB and BB data
-m_NB = np.array([26.7134 - 0.047, 26.0684, 26.9016 + 0.057, 26.7088 - 0.109, 25.6917 - 0.051])
-m_BB1 = np.array([28.0829, 28.0829, 27.7568, 26.8250, 26.8250])
-m_BB2 = np.array([27.7568, 27.7568, 26.8250, 00.0000, 00.0000])
-cont_lim = mag_combine(m_BB1, m_BB2, epsilon)
-
-# Minimum NB excess color for selection
-minthres = [0.15, 0.15, 0.15, 0.2, 0.25]
-
 if exists('/Users/cly/GoogleDrive'):
     path0 = '/Users/cly/GoogleDrive/Research/NASA_Summer2015/'
 if exists('/Users/cly/Google Drive'):
@@ -86,12 +76,6 @@ npz_MCnames = ['EW_seed', 'logEW_MC_ref', 'x_MC0_ref', 'BB_MC0_ref',
                'logOH_ref', 'HaFlux_ref', 'HaLum_ref', 'logSFR_ref']
 
 
-def compute_EW(x0, ff):
-    y_temp = 10 ** (-0.4 * x0)
-    EW_ref = np.log10(dNB[ff] * (1 - y_temp) / (y_temp - dNB[ff] / dBB[ff]))
-    return EW_ref
-
-
 def plot_NB_select(ff, t_ax, NB, ctype, linewidth=1, plot4=True):
     t_ax.axhline(y=minthres[ff], linestyle='dashed', color=ctype)
 
@@ -106,71 +90,6 @@ def plot_NB_select(ff, t_ax, NB, ctype, linewidth=1, plot4=True):
         t_ax.plot(NB, y4, ctype + ':', linewidth=linewidth)
 
     return NB_break
-
-
-def correct_NII(log_flux, NIIHa):
-    """
-    Purpose:
-      Provide H-alpha fluxes from F_NB using NII/Ha flux ratios for
-      correction
-
-    :param log_flux: array containing logarithm of flux
-    :param NIIHa: array containing NII/Ha flux ratios
-    """
-
-    return log_flux - np.log10(1 + NIIHa)
-
-
-def get_NIIHa_logOH(logM):
-    """
-    Purpose:
-      Get [NII]6548,6583/H-alpha flux ratios and oxygen abundance based on
-      stellar mass.  Metallicity is from PP04
-
-    :param logM: numpy array of logarithm of stellar mass
-
-    :return NIIHa: array of NII/Ha flux ratios
-    :return logOH: log(O/H) abundances from PP04 formula
-    """
-
-    NIIHa = np.zeros(logM.shape)
-
-    low_mass = np.where(logM <= 8.0)
-    if len(low_mass[0]) > 0:
-        NIIHa[low_mass] = 0.0624396766589
-
-    high_mass = np.where(logM > 8.0)
-    if len(high_mass[0]) > 0:
-        NIIHa[high_mass] = 0.169429547993 * logM[high_mass] - 1.29299670728
-
-    # Compute metallicity
-    NII6583_Ha = NIIHa * 1 / (1 + 1 / 2.96)
-
-    NII6583_Ha_resize = np.reshape(NII6583_Ha, NII6583_Ha.size)
-    logOH = niiha_oh_determine(np.log10(NII6583_Ha_resize), 'PP04_N2') - 12.0
-    logOH = np.reshape(logOH, logM.shape)
-
-    return NIIHa, logOH
-
-
-def HaSFR_metal_dep(logOH, orig_lum):
-    """
-    Purpose:
-      Determine H-alpha SFR using metallicity and luminosity to follow
-      Ly+ 2016 metallicity-dependent SFR conversion
-
-    :param logOH: log(O/H) abundance
-    :param orig_lum: logarithm of H-alpha luminosity
-    """
-
-    y = logOH + 3.31
-
-    # metallicity-dependent SFR conversion
-    log_SFR_LHa = -41.34 + 0.39 * y + 0.127 * y ** 2
-
-    log_SFR = log_SFR_LHa + orig_lum
-
-    return log_SFR
 
 
 def get_mag_vs_mass_interp(prefix_ff):
@@ -204,37 +123,6 @@ def get_mag_vs_mass_interp(prefix_ff):
     std_mass_int = interp1d(x_temp, std0, fill_value=0.3, bounds_error=False,
                             kind='nearest')
     return mass_int, std_mass_int
-
-
-def dict_prop_maker(NB, BB, x, filt_dict, filt_corr, mass_int, lum_dist):
-    dict_prop = {'NB': NB, 'BB': BB, 'x': x, 'filt_dict': filt_dict,
-                 'filt_corr': filt_corr, 'mass_int': mass_int,
-                 'lum_dist': lum_dist}
-    return dict_prop
-
-
-def derived_properties(NB, BB, x, filt_dict, filt_corr, mass_int, lum_dist,
-                       std_mass_int=None):
-    EW, NB_flux = ew_flux_dual(NB, BB, x, filt_dict)
-
-    # Apply NB filter correction from beginning
-    NB_flux = np.log10(NB_flux * filt_corr)
-
-    logM = mass_int(BB)
-    if not isinstance(std_mass_int, type(None)):
-        std_ref = std_mass_int(BB)
-        np.random.seed(348)
-        rtemp = np.random.normal(size=NB.shape)
-        logM += std_ref * rtemp
-
-    NIIHa, logOH = get_NIIHa_logOH(logM)
-
-    Ha_Flux = correct_NII(NB_flux, NIIHa)
-    Ha_Lum = Ha_Flux + np.log10(4 * np.pi) + 2 * np.log10(lum_dist)
-
-    logSFR = HaSFR_metal_dep(logOH, Ha_Lum)
-
-    return np.log10(EW), NB_flux, logM, NIIHa, logOH, Ha_Flux, Ha_Lum, logSFR
 
 
 def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
