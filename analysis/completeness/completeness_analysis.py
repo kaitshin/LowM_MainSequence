@@ -24,7 +24,9 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 from scipy.interpolate import interp1d
 
-from ..NB_errors import filt_ref, dNB, lambdac, dBB
+# from ..NB_errors import filt_ref, dNB, lambdac, dBB
+from . import filt_ref, dNB, lambdac, dBB
+from . import filters, cont0
 
 from . import MLog, cmap_sel, cmap_nosel
 from . import EW_lab, Flux_lab, M_lab, SFR_lab
@@ -47,16 +49,6 @@ Pass through ew_MC() call
 Nsim  = 5000. # Number of modelled galaxies
 Nmock = 10    # Number of mocked galaxies
 """
-
-filters = ['NB704', 'NB711', 'NB816', 'NB921', 'NB973']
-cont0 = [r'$R_Ci^{\prime}$', r'$R_Ci^{\prime}$', r'$i^{\prime}z^{\prime}$',
-         r'$z^{\prime}$', r'$z^{\prime}$']
-NB_filt = np.array([xx for xx in range(len(filt_ref)) if 'NB' in filt_ref[xx]])
-for arr in ['filt_ref', 'dNB', 'lambdac', 'dBB', 'epsilon']:
-    cmd1 = arr + ' = np.array('+arr+')'
-    exec(cmd1)
-    cmd2 = arr + ' = '+arr+'[NB_filt]'
-    exec(cmd2)
 
 if exists('/Users/cly/GoogleDrive'):
     path0 = '/Users/cly/GoogleDrive/Research/NASA_Summer2015/'

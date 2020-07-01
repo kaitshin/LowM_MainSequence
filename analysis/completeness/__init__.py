@@ -1,7 +1,18 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from ..NB_errors import mag_combine, epsilon
+from ..NB_errors import mag_combine
+from ..NB_errors import filt_ref, dNB, lambdac, dBB, epsilon
+
+filters = ['NB704', 'NB711', 'NB816', 'NB921', 'NB973']
+cont0 = [r'$R_Ci^{\prime}$', r'$R_Ci^{\prime}$', r'$i^{\prime}z^{\prime}$',
+         r'$z^{\prime}$', r'$z^{\prime}$']
+NB_filt = np.array([xx for xx in range(len(filt_ref)) if 'NB' in filt_ref[xx]])
+for arr in ['filt_ref', 'dNB', 'lambdac', 'dBB', 'epsilon']:
+    cmd1 = arr + ' = np.array('+arr+')'
+    exec(cmd1)
+    cmd2 = arr + ' = '+arr+'[NB_filt]'
+    exec(cmd2)
 
 import logging
 formatter = logging.Formatter('%(asctime)s - %(module)12s.%(funcName)20s - %(levelname)s: %(message)s')
