@@ -1,6 +1,6 @@
 import numpy as np
 
-from ..NB_errors import dBB, dNB
+from . import dBB, dNB
 from ...mainseq_corrections import niiha_oh_determine
 from ..NB_errors import ew_flux_dual
 
