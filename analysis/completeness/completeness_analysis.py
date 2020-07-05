@@ -22,15 +22,21 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 from scipy.interpolate import interp1d
 
-from . import get_date
-from . import filt_ref, dNB, lambdac, dBB
-from . import filters, cont0
+from . import MLog, get_date  # for logging
+from . import filt_ref, dNB, lambdac, dBB  # For EW and flux calculations
 
-from . import MLog, cmap_sel, cmap_nosel
+from .config import filters, cont0  # Filter name and corresponding broad-band for NB color excess plot
+from .config import prefixes, filt_corr, z_NB  # Prefix for mag-to-mass interpolation files
+from .config import logEW_mean_start, logEW_sig_start, n_mean, n_sigma  # Grid definition for log-normal distribution
+from .config import NB_bin  # Bin size for NB magnitude
+
+# Logging class and variable definitions
+from . import cmap_sel, cmap_nosel
 from . import EW_lab, Flux_lab, M_lab, SFR_lab
 from . import EW_bins, Flux_bins, sSFR_bins, SFR_bins
-from . import m_NB, cont_lim, minthres
+from .config import m_NB, cont_lim, minthres
 
+# Import separate functions
 from .stats import stats_log, avg_sig_label, stats_plot
 from .monte_carlo import random_mags
 from .select import get_sigma, color_cut, NB_select
@@ -41,12 +47,6 @@ import astropy.units as u
 from astropy.cosmology import FlatLambdaCDM
 
 cosmo = FlatLambdaCDM(H0=70 * u.km / u.s / u.Mpc, Om0=0.3)
-
-"""
-Pass through ew_MC() call
-Nsim  = 5000. # Number of modelled galaxies
-Nmock = 10    # Number of mocked galaxies
-"""
 
 if exists('/Users/cly/GoogleDrive'):
     path0 = '/Users/cly/GoogleDrive/Research/NASA_Summer2015/'
@@ -138,25 +138,10 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
     t0 = TimerClass()
     t0._start()
 
-    prefixes = ['Ha-NB7', 'Ha-NB7', 'Ha-NB816', 'Ha-NB921', 'Ha-NB973']
-
-    # NB statistical filter correction
-    filt_corr = [1.289439104, 1.41022358406, 1.29344789854,
-                 1.32817034288, 1.29673596942]
-
-    z_NB = lambdac / 6562.8 - 1.0
-
     npz_slope = np.load(path0 + 'Completeness/NB_numbers.npz',
                         allow_pickle=True)
 
-    logEW_mean_start = np.array([1.25, 1.25, 1.25, 1.25, 0.90])
-    logEW_sig_start = np.array([0.15, 0.55, 0.25, 0.35, 0.55])
-    n_mean = 4
-    n_sigma = 4
-
     mylog.info('Nsim : ', Nsim)
-
-    NBbin = 0.25
 
     nrow_stats = 4
 
@@ -219,13 +204,13 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
         NBmin = 20.0
         NBmax = m_NB[ff] - 0.25
-        NB = np.arange(NBmin, NBmax + NBbin, NBbin)
+        NB = np.arange(NBmin, NBmax + NB_bin, NB_bin)
         mylog.info('NB (min/max): %f %f ' % (min(NB), max(NB)))
 
         npz_NBfile = npz_path0 + filters[ff] + '_init.npz'
 
         if not exists(npz_NBfile) or redo:
-            N_mag_mock = npz_slope['N_norm0'][ff] * Nsim * NBbin
+            N_mag_mock = npz_slope['N_norm0'][ff] * Nsim * NB_bin
             N_interp = interp1d(npz_slope['mag_arr'][ff], N_mag_mock)
             Ndist_mock = np.int_(np.round(N_interp(NB)))
             NB_ref = np.repeat(NB, Ndist_mock)

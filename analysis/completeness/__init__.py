@@ -3,12 +3,8 @@ from datetime import date
 import numpy as np
 import matplotlib.pyplot as plt
 
-from ..NB_errors import mag_combine
 from ..NB_errors import filt_ref, dNB, lambdac, dBB, epsilon
 
-filters = ['NB704', 'NB711', 'NB816', 'NB921', 'NB973']
-cont0 = [r'$R_Ci^{\prime}$', r'$R_Ci^{\prime}$', r'$i^{\prime}z^{\prime}$',
-         r'$z^{\prime}$', r'$z^{\prime}$']
 NB_filt = np.array([xx for xx in range(len(filt_ref)) if 'NB' in filt_ref[xx]])
 for arr in ['filt_ref', 'dNB', 'lambdac', 'dBB', 'epsilon']:
     cmd1 = arr + ' = np.array('+arr+')'
@@ -36,15 +32,6 @@ SFR_bins = np.arange(-5.0, 2.0, 0.2)
 
 cmap_sel = plt.cm.Blues
 cmap_nosel = plt.cm.Reds
-
-# Limiting magnitudes for NB and BB data
-m_NB = np.array([26.7134 - 0.047, 26.0684, 26.9016 + 0.057, 26.7088 - 0.109, 25.6917 - 0.051])
-m_BB1 = np.array([28.0829, 28.0829, 27.7568, 26.8250, 26.8250])
-m_BB2 = np.array([27.7568, 27.7568, 26.8250, 00.0000, 00.0000])
-cont_lim = mag_combine(m_BB1, m_BB2, epsilon)
-
-# Minimum NB excess color for selection
-minthres = [0.15, 0.15, 0.15, 0.2, 0.25]
 
 
 class MLog:
