@@ -10,8 +10,6 @@ import os
 
 from chun_codes import TimerClass
 
-from datetime import date
-
 from os.path import exists
 
 from astropy.table import Table, vstack
@@ -24,7 +22,7 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 from scipy.interpolate import interp1d
 
-# from ..NB_errors import filt_ref, dNB, lambdac, dBB
+from . import get_date
 from . import filt_ref, dNB, lambdac, dBB
 from . import filters, cont0
 
@@ -134,10 +132,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
       Re-run mock galaxy generation even if file exists. Default: False
     """
 
-    today0 = date.today()
-    str_date = "%02i%02i" % (today0.month, today0.day)
-    if debug:
-        str_date += ".debug"
+    str_date = get_date(debug=debug)
     mylog = MLog(path0 + 'Completeness/', str_date)._get_logger()
 
     t0 = TimerClass()

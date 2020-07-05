@@ -1,3 +1,5 @@
+from datetime import date
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -86,3 +88,14 @@ class MLog:
             log.setLevel(loglevel)
             log.handler_set = True
         return log
+
+
+def get_date(debug=False):
+    """Return suffix with date stamp (month and date)"""
+
+    today0 = date.today()
+    str_date = "%02i%02i" % (today0.month, today0.day)
+    if debug:
+        str_date += ".debug"
+
+    return str_date
