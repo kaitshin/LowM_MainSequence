@@ -46,6 +46,9 @@ n_sigma = 4
 # Bin size for NB magnitude
 NB_bin = 0.25
 
+# Dictionary names
+npz_NBnames = ['N_mag_mock', 'Ndist_mock', 'Ngal', 'Nmock', 'NB_ref', 'NB_sig_ref']
+
 
 def pdf_filename(ff, debug=False):
     file_prefix = join(path0, 'Completeness/ew_MC_' + filters[ff])

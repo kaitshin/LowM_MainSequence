@@ -44,6 +44,7 @@ from .monte_carlo import random_mags
 from .select import get_sigma, color_cut, NB_select
 from .plotting import avg_sig_plot_init, plot_MACT, plot_mock, plot_completeness, ew_flux_hist
 from .properties import compute_EW, dict_prop_maker, derived_properties
+from .normalization import get_normalization
 
 import astropy.units as u
 from astropy.cosmology import FlatLambdaCDM
@@ -52,9 +53,6 @@ cosmo = FlatLambdaCDM(H0=70 * u.km / u.s / u.Mpc, Om0=0.3)
 
 if not exists(npz_path0):
     os.mkdir(npz_path0)
-
-# Dictionary names
-npz_NBnames = ['N_mag_mock', 'Ndist_mock', 'Ngal', 'Nmock', 'NB_ref', 'NB_sig_ref']
 
 npz_MCnames = ['EW_seed', 'logEW_MC_ref', 'x_MC0_ref', 'BB_MC0_ref',
                'BB_sig_ref', 'sig_limit_ref', 'NB_sel_ref', 'NB_nosel_ref',
@@ -191,43 +189,16 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
         NB = np.arange(NBmin, NBmax + NB_bin, NB_bin)
         mylog.info('NB (min/max): %f %f ' % (min(NB), max(NB)))
 
-        npz_NBfile = npz_path0 + filters[ff] + '_init.npz'
+        # Get number distribution for normalizationß
+        norm_dict = get_normalization(ff, NB, Nsim, NB_bin, mylog, redo=redo)
 
-        if not exists(npz_NBfile) or redo:
-            N_mag_mock = npz_slope['N_norm0'][ff] * Nsim * NB_bin
-            N_interp = interp1d(npz_slope['mag_arr'][ff], N_mag_mock)
-            Ndist_mock = np.int_(np.round(N_interp(NB)))
-            NB_ref = np.repeat(NB, Ndist_mock)
-
-            Ngal = NB_ref.size  # Number of galaxies
-
-            NB_sig = get_sigma(NB, m_NB[ff], sigma=3.0)
-            NB_sig_ref = np.repeat(NB_sig, Ndist_mock)
-
-            npz_NBdict = {}
-            for name in npz_NBnames:
-                npz_NBdict[name] = eval(name)
-
-            if exists(npz_NBfile):
-                mylog.info("Overwriting : " + npz_NBfile)
-            else:
-                mylog.info("Writing : " + npz_NBfile)
-            np.savez(npz_NBfile, **npz_NBdict)
-        else:
-            if not redo:
-                mylog.info("File found : " + npz_NBfile)
-                npz_NB = np.load(npz_NBfile)
-
-                for key0 in npz_NB.keys():
-                    cmd1 = key0 + " = npz_NB['" + key0 + "']"
-                    exec (cmd1)
-
-        mock_sz = (Nmock, Ngal)
+        mock_sz = (Nmock, norm_dict['Ngal'])
 
         # Randomize NB magnitudes. First get relative sigma, then scale by size
         NB_seed = ff
         mylog.info("seed for %s : %i" % (filters[ff], NB_seed))
-        NB_MC = random_mags(NB_seed, mock_sz, NB_ref, NB_sig_ref)
+        NB_MC = random_mags(NB_seed, mock_sz, norm_dict['NB_ref'],
+                            norm_dict['NB_sig_ref'])
         stats_log(NB_MC, "NB_MC", mylog)
 
         # Read in mag vs mass extrapolation
@@ -293,7 +264,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                     EW_seed = mm * len(ss_range) + ss
                     mylog.info("seed for mm=%i ss=%i : %i" % (mm, ss, EW_seed))
                     np.random.seed(EW_seed)
-                    rand0 = np.random.normal(0.0, 1.0, size=Ngal)
+                    rand0 = np.random.normal(0.0, 1.0, size=norm_dict['Ngal'])
                     # This is not H-alpha
                     logEW_MC_ref = logEW_mean[mm] + logEW_sig[ss] * rand0
                     stats_log(logEW_MC_ref, "logEW_MC_ref", mylog)
@@ -305,17 +276,18 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                     stats_log(x_MC0_ref, "x_MC0_ref", mylog)
 
                     # Selection based on 'true' magnitudes
-                    NB_sel_ref, NB_nosel_ref, sig_limit_ref = NB_select(ff, NB_ref, x_MC0_ref)
+                    NB_sel_ref, NB_nosel_ref, \
+                        sig_limit_ref = NB_select(ff, norm_dict['NB_ref'], x_MC0_ref)
 
-                    EW_flag_ref = np.zeros(Ngal)
+                    EW_flag_ref = np.zeros(norm_dict['Ngal'])
                     EW_flag_ref[NB_sel_ref] = 1
 
-                    BB_MC0_ref = NB_ref + x_MC0_ref
+                    BB_MC0_ref = norm_dict['NB_ref'] + x_MC0_ref
                     BB_sig_ref = get_sigma(BB_MC0_ref, cont_lim[ff], sigma=3.0)
 
-                    dict_prop = dict_prop_maker(NB_ref, BB_MC0_ref, x_MC0_ref,
-                                                filt_dict, filt_corr[ff], mass_int,
-                                                lum_dist)
+                    dict_prop = dict_prop_maker(norm_dict['NB_ref'], BB_MC0_ref,
+                                                x_MC0_ref, filt_dict, filt_corr[ff],
+                                                mass_int, lum_dist)
                     _, flux_ref, logM_ref, NIIHa_ref, logOH_ref, HaFlux_ref, \
                         HaLum_ref, logSFR_ref = derived_properties(**dict_prop)
 
@@ -337,9 +309,9 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                             cmd1 = key0 + " = npz_MC['" + key0 + "']"
                             exec (cmd1)
 
-                        dict_prop = dict_prop_maker(NB_ref, BB_MC0_ref, x_MC0_ref,
-                                                    filt_dict, filt_corr[ff], mass_int,
-                                                    lum_dist)
+                        dict_prop = dict_prop_maker(norm_dict['NB_ref'], BB_MC0_ref,
+                                                    x_MC0_ref, filt_dict, filt_corr[ff],
+                                                    mass_int, lum_dist)
 
                 BB_seed = ff + 5
                 mylog.info("seed for broadband, mm=%i ss=%i : %i" % (mm, ss, BB_seed))
@@ -516,9 +488,9 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 cmap0 = [cmap_sel, cmap_nosel]
                 lab0 = ['Type 1', 'Type 2']
                 for idx, cmap, ins, lab in zip(idx0, cmap0, [ax4ins0, ax4ins1], lab0):
-                    cs = ax400.scatter(NB_ref[idx], x_MC0_ref[idx], edgecolor='none',
-                                       vmin=0, vmax=1.0, s=15, c=comp_arr[idx],
-                                       cmap=cmap)
+                    cs = ax400.scatter(norm_dict['NB_ref'][idx], x_MC0_ref[idx],
+                                       edgecolor='none', vmin=0, vmax=1.0, s=15,
+                                       c=comp_arr[idx], cmap=cmap)
                     cb = fig4.colorbar(cs, cax=ins, orientation="horizontal",
                                        ticks=cticks)
                     cb.ax.tick_params(labelsize=8)
