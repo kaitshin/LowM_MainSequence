@@ -132,9 +132,6 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
     t0 = TimerClass()
     t0._start()
 
-    npz_slope = np.load(path0 + 'Completeness/NB_numbers.npz',
-                        allow_pickle=True)
-
     mylog.info('Nsim : ', Nsim)
 
     nrow_stats = 4
@@ -189,7 +186,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
         NB = np.arange(NBmin, NBmax + NB_bin, NB_bin)
         mylog.info('NB (min/max): %f %f ' % (min(NB), max(NB)))
 
-        # Get number distribution for normalizationß
+        # Get number distribution for normalization
         norm_dict = get_normalization(ff, NB, Nsim, NB_bin, mylog, redo=redo)
 
         mock_sz = (Nmock, norm_dict['Ngal'])
