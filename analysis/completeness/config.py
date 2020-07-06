@@ -1,7 +1,17 @@
-from . import lambdac, epsilon
+from os.path import join, exists
 import numpy as np
 
+from . import lambdac, epsilon
+
 from ..NB_errors import mag_combine
+
+# Specify completeness folder
+if exists('/Users/cly/GoogleDrive'):
+    path0 = '/Users/cly/GoogleDrive/Research/NASA_Summer2015/'
+if exists('/Users/cly/Google Drive'):
+    path0 = '/Users/cly/Google Drive/NASA_Summer2015/'
+
+npz_path0 = '/Users/cly/data/SDF/MACT/LowM_MainSequence_npz/'
 
 # Filter name and corresponding broad-band for NB color excess plot
 filters = ['NB704', 'NB711', 'NB816', 'NB921', 'NB973']
@@ -35,3 +45,27 @@ n_sigma = 4
 
 # Bin size for NB magnitude
 NB_bin = 0.25
+
+
+def pdf_filename(ff, debug=False):
+    file_prefix = join(path0, 'Completeness/ew_MC_' + filters[ff])
+
+    pdf_dict = dict()
+
+    # This is the main file
+    pdf_dict['main'] = file_prefix + '.pdf'
+
+    # This is cropped to fit
+    pdf_dict['crop'] = file_prefix + '.crop.pdf'
+
+    # This is stats plot
+    pdf_dict['stats'] = file_prefix + '.stats.pdf'
+
+    # Completeness
+    pdf_dict['comp'] = file_prefix = '.comp.pdf'
+
+    if debug:
+        for key in pdf_dict.keys():
+            pdf_dict[key] = pdf_dict[key].replace('.pdf', '.debug.pdf')
+
+    return pdf_dict

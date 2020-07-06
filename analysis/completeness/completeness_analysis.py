@@ -25,18 +25,20 @@ from scipy.interpolate import interp1d
 from . import MLog, get_date  # for logging
 from . import filt_ref, dNB, lambdac, dBB  # For EW and flux calculations
 
+# Variable definitions
 from .config import filters, cont0  # Filter name and corresponding broad-band for NB color excess plot
 from .config import prefixes, filt_corr, z_NB  # Prefix for mag-to-mass interpolation files
 from .config import logEW_mean_start, logEW_sig_start, n_mean, n_sigma  # Grid definition for log-normal distribution
 from .config import NB_bin  # Bin size for NB magnitude
-
-# Logging class and variable definitions
 from . import cmap_sel, cmap_nosel
 from . import EW_lab, Flux_lab, M_lab, SFR_lab
 from . import EW_bins, Flux_bins, sSFR_bins, SFR_bins
 from .config import m_NB, cont_lim, minthres
+from .config import path0, npz_path0
+
 
 # Import separate functions
+from .config import pdf_filename
 from .stats import stats_log, avg_sig_label, stats_plot
 from .monte_carlo import random_mags
 from .select import get_sigma, color_cut, NB_select
@@ -48,12 +50,6 @@ from astropy.cosmology import FlatLambdaCDM
 
 cosmo = FlatLambdaCDM(H0=70 * u.km / u.s / u.Mpc, Om0=0.3)
 
-if exists('/Users/cly/GoogleDrive'):
-    path0 = '/Users/cly/GoogleDrive/Research/NASA_Summer2015/'
-if exists('/Users/cly/Google Drive'):
-    path0 = '/Users/cly/Google Drive/NASA_Summer2015/'
-
-npz_path0 = '/Users/cly/data/SDF/MACT/LowM_MainSequence_npz/'
 if not exists(npz_path0):
     os.mkdir(npz_path0)
 
@@ -170,26 +166,12 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
         comp_EWmean = np.zeros(comp_shape)
         comp_EWsig = np.zeros(comp_shape)
 
-        out_pdf = path0 + 'Completeness/ew_MC_' + filters[ff] + '.pdf'
-        if debug:
-            out_pdf = out_pdf.replace('.pdf', '.debug.pdf')
-        pp = PdfPages(out_pdf)
+        pdf_dict = pdf_filename(ff, debug=debug)
 
-        # This is cropped to fit
-        out_pdf0 = path0 + 'Completeness/ew_MC_' + filters[ff] + '.crop.pdf'
-        if debug:
-            out_pdf0 = out_pdf0.replace('.pdf', '.debug.pdf')
-        pp0 = PdfPages(out_pdf0)
-
-        out_pdf2 = path0 + 'Completeness/ew_MC_' + filters[ff] + '.stats.pdf'
-        if debug:
-            out_pdf2 = out_pdf2.replace('.pdf', '.debug.pdf')
-        pp2 = PdfPages(out_pdf2)
-
-        out_pdf4 = path0 + 'Completeness/ew_MC_' + filters[ff] + '.comp.pdf'
-        if debug:
-            out_pdf4 = out_pdf4.replace('.pdf', '.debug.pdf')
-        pp4 = PdfPages(out_pdf4)
+        pp = PdfPages(pdf_dict['main'])    # Main plots
+        pp0 = PdfPages(pdf_dict['crop'])   # Contains cropped plots
+        pp2 = PdfPages(pdf_dict['stats'])  # This contains stats plots
+        pp4 = PdfPages(pdf_dict['comp'])   # Completeness plots
 
         filt_dict = {'dNB': dNB[ff], 'dBB': dBB[ff], 'lambdac': lambdac[ff]}
 
