@@ -1,6 +1,6 @@
 import numpy as np
 
-from . import m_NB, cont_lim, minthres
+from .config import m_NB, cont_lim, minthres
 
 m_AB = 48.6
 
