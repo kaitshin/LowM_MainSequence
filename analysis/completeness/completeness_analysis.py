@@ -23,7 +23,7 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from scipy.interpolate import interp1d
 
 from . import MLog, get_date  # for logging
-from . import filt_ref, dNB, lambdac, dBB  # For EW and flux calculations
+from . import filter_dict  # For EW and flux calculations
 
 # Variable definitions
 from .config import filters, cont0  # Filter name and corresponding broad-band for NB color excess plot
@@ -146,7 +146,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
         out_pdf3 = path0 + 'Completeness/ew_MC.avg_sigma.pdf'
         pp3 = PdfPages(out_pdf3)
 
-    ff_range = [0] if debug else range(len(filt_ref))
+    ff_range = [0] if debug else range(len(filter_dict['filt_ref']))
     mm_range = [0] if debug else range(n_mean)
     ss_range = [0] if debug else range(n_sigma)
 
@@ -173,7 +173,9 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
         pp2 = PdfPages(pdf_dict['stats'])  # This contains stats plots
         pp4 = PdfPages(pdf_dict['comp'])   # Completeness plots
 
-        filt_dict = {'dNB': dNB[ff], 'dBB': dBB[ff], 'lambdac': lambdac[ff]}
+        filt_dict = {'dNB': filter_dict['dNB'][ff],
+                     'dBB': filter_dict['dBB'][ff],
+                     'lambdac': filter_dict['lambdac'][ff]}
 
         x = np.arange(0.01, 10.00, 0.01)
         EW_ref = compute_EW(x, ff)

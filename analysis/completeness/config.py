@@ -1,7 +1,7 @@
 from os.path import join, exists
 import numpy as np
 
-from . import lambdac, epsilon
+from . import filter_dict
 
 from ..NB_errors import mag_combine
 
@@ -22,7 +22,7 @@ cont0 = [r'$R_Ci^{\prime}$', r'$R_Ci^{\prime}$', r'$i^{\prime}z^{\prime}$',
 m_NB = np.array([26.7134 - 0.047, 26.0684, 26.9016 + 0.057, 26.7088 - 0.109, 25.6917 - 0.051])
 m_BB1 = np.array([28.0829, 28.0829, 27.7568, 26.8250, 26.8250])
 m_BB2 = np.array([27.7568, 27.7568, 26.8250, 00.0000, 00.0000])
-cont_lim = mag_combine(m_BB1, m_BB2, epsilon)
+cont_lim = mag_combine(m_BB1, m_BB2, filter_dict['epsilon'])
 
 # Minimum NB excess color for selection
 minthres = [0.15, 0.15, 0.15, 0.2, 0.25]
@@ -35,7 +35,7 @@ filt_corr = [1.289439104, 1.41022358406, 1.29344789854,
              1.32817034288, 1.29673596942]
 
 # For H-alpha luminosity calculation
-z_NB = lambdac / 6562.8 - 1.0
+z_NB = filter_dict['lambdac'] / 6562.8 - 1.0
 
 # Grid definitions for log-normal EW distributions
 logEW_mean_start = np.array([1.25, 1.25, 1.25, 1.25, 0.90])
@@ -62,7 +62,7 @@ def pdf_filename(ff, debug=False):
     pdf_dict['stats'] = file_prefix + '.stats.pdf'
 
     # Completeness
-    pdf_dict['comp'] = file_prefix = '.comp.pdf'
+    pdf_dict['comp'] = file_prefix + '.comp.pdf'
 
     if debug:
         for key in pdf_dict.keys():

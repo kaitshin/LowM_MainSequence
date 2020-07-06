@@ -8,13 +8,13 @@ from ..NB_errors import filt_ref, dNB, lambdac, dBB, epsilon
 import logging
 formatter = logging.Formatter('%(asctime)s - %(module)12s.%(funcName)20s - %(levelname)s: %(message)s')
 
+# Strips out IA filters
 NB_filt = np.array([xx for xx in range(len(filt_ref)) if 'NB' in filt_ref[xx]])
-for arr in ['filt_ref', 'dNB', 'lambdac', 'dBB', 'epsilon']:
-    cmd1 = arr + ' = np.array('+arr+')'
-    exec(cmd1)
-    cmd2 = arr + ' = '+arr+'[NB_filt]'
-    exec(cmd2)
-
+filter_vars = [filt_ref, dNB, lambdac, dBB, epsilon]
+filter_vars_name = ['filt_ref', 'dNB', 'lambdac', 'dBB', 'epsilon']
+filter_dict = dict()
+for name, var in zip(filter_vars_name, filter_vars):
+    filter_dict[name] = np.array(var)[NB_filt]
 
 # Colors for each separate points on avg_sigma plots
 avg_sig_ctype = ['m', 'r', 'g', 'b', 'k']
