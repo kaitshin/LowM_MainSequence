@@ -12,10 +12,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from astropy.io import ascii as asc
 
-from completeness_analysis import m_NB, m_BB1, m_BB2
+from .config import m_NB, m_BB1, m_BB2
 
-filters = ['NB704','NB711','NB816','NB921','NB973']
+filters = ['NB704', 'NB711', 'NB816', 'NB921', 'NB973']
 path0 = '/Users/cly/Google Drive/NASA_Summer2015/'
+
 
 def mag_vs_mass(silent=False, verbose=True):
 
