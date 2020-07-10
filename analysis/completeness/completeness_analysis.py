@@ -182,7 +182,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
         mylog.info('NB (min/max): %f %f ' % (min(NB), max(NB)))
 
         # Get number distribution for normalization
-        norm_dict = get_normalization(ff, NB, Nsim, NB_bin, mylog, redo=redo)
+        norm_dict = get_normalization(ff, Nmock, NB, Nsim, NB_bin, mylog, redo=redo)
 
         mock_sz = (Nmock, norm_dict['Ngal'])
 

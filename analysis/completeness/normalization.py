@@ -11,7 +11,7 @@ from .config import m_NB
 npz_slope = np.load(join(path0, 'Completeness/NB_numbers.npz'), allow_pickle=True)
 
 
-def get_normalization(ff, NB, Nsim, NB_bin, mylog, redo=False):
+def get_normalization(ff, Nmock, NB, Nsim, NB_bin, mylog, redo=False):
 
     npz_NBfile = join(npz_path0, filters[ff] + '_init.npz')
 
