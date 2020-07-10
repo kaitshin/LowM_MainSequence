@@ -1,6 +1,9 @@
 import numpy as np
 
 from .config import m_NB, cont_lim, minthres
+from .properties import compute_EW
+
+from scipy.interpolate import interp1d
 
 m_AB = 48.6
 
@@ -67,3 +70,25 @@ def NB_select(ff, NB_mag, x_mag):
     NB_nosel = np.where((x_mag < minthres[ff]) | (x_mag < sig_limit))
 
     return NB_sel, NB_nosel, sig_limit
+
+
+def get_EW(ff, mylog):
+    """
+    Purpose:
+      Retrieve an interpolated grid for EW to NB excess mapping
+
+    :param ff: integer input for filter
+    :param mylog: logger class
+
+    :return EW_int: scipy.interp1d object
+    """
+    x = np.arange(0.01, 10.00, 0.01)
+    EW_ref = compute_EW(x, ff)
+
+    good = np.where(np.isfinite(EW_ref))[0]
+    mylog.info('EW_ref (min/max): %f %f ' % (min(EW_ref[good]),
+                                             max(EW_ref[good])))
+    EW_int = interp1d(EW_ref[good], x[good], bounds_error=False,
+                      fill_value=(-3.0, np.max(EW_ref[good])))
+
+    return EW_int

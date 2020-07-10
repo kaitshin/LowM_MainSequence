@@ -41,7 +41,7 @@ from .config import path0, npz_path0
 from .config import pdf_filename
 from .stats import stats_log, avg_sig_label, stats_plot
 from .monte_carlo import random_mags
-from .select import get_sigma, color_cut, NB_select
+from .select import get_sigma, color_cut, NB_select, get_EW
 from .plotting import avg_sig_plot_init, plot_MACT, plot_mock, plot_completeness, ew_flux_hist
 from .properties import compute_EW, dict_prop_maker, derived_properties
 from .normalization import get_normalization
@@ -172,14 +172,8 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                      'dBB': filter_dict['dBB'][ff],
                      'lambdac': filter_dict['lambdac'][ff]}
 
-        x = np.arange(0.01, 10.00, 0.01)
-        EW_ref = compute_EW(x, ff)
-
-        good = np.where(np.isfinite(EW_ref))[0]
-        mylog.info('EW_ref (min/max): %f %f ' % (min(EW_ref[good]),
-                                                 max(EW_ref[good])))
-        EW_int = interp1d(EW_ref[good], x[good], bounds_error=False,
-                          fill_value=(-3.0, np.max(EW_ref[good])))
+        # Retrieve EW interpolated grid
+        EW_int = get_EW(ff, mylog)
 
         NBmin = 20.0
         NBmax = m_NB[ff] - 0.25
