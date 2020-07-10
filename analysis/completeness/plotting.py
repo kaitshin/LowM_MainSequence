@@ -63,25 +63,30 @@ def avg_sig_plot_init(t_filt, logEW_mean, avg_NB, sig_NB, avg_NB_flux,
     return fig3, ax3
 
 
-def plot_MACT(ax, x0, y0, w_spec, wo_spec):
+def plot_MACT(ax, dict_NB, x0, y0):
     """
     Plot MACT spectroscopic and photometric sample in various sub-panel
 
-    ax : matplotlib.axes._subplots.AxesSubplot
+    :param ax: matplotlib.axes._subplots.AxesSubplot
        sub-Axis to plot
 
-    x0 : list or numpy.array
+    :param dict_NB: dictionary containing NB data
+
+    :param x0: list or numpy.array or string corresponding to dict_NB key
        Array to plot on x-axis
 
-    y0 : list or numpy.array
+    :param y0: list or numpy.array or string corresponding to dict_NB key
        Array to plot on y-axis
-
-    w_spec: numpy.array
-       Index array indicating which sources with spectra
-
-    wo_spec: numpy.array
-       Index array indicating which sources without spectra (i.e., photometric)
     """
+
+    w_spec = dict_NB['w_spec']
+    wo_spec = dict_NB['wo_spec']
+
+    if isinstance(x0, str):
+        x0 = dict_NB[x0]
+
+    if isinstance(y0, str):
+        y0 = dict_NB[y0]
 
     ax.scatter(x0[w_spec], y0[w_spec], color='k', edgecolor='none',
                alpha=0.5, s=5)

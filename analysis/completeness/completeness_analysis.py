@@ -325,8 +325,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 ax00.axvline(m_NB[ff], linestyle='dashed', color='b')
 
                 temp_x = dict_NB['contmag'] - dict_NB['NBmag']
-                plot_MACT(ax00, dict_NB['NBmag'], temp_x, dict_NB['w_spec'],
-                          dict_NB['wo_spec'])
+                plot_MACT(ax00, dict_NB, 'NBmag', temp_x)
 
                 NB_break = plot_NB_select(ff, ax00, NB, 'b')
 
@@ -345,8 +344,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 ax0.axvline(m_NB[ff], linestyle='dashed', color='b')
 
                 temp_x = dict_NB['contmag'] - dict_NB['NBmag']
-                plot_MACT(ax0, dict_NB['NBmag'], temp_x, dict_NB['w_spec'],
-                          dict_NB['wo_spec'])
+                plot_MACT(ax0, dict_NB, 'NBmag', temp_x)
 
                 plot_NB_select(ff, ax0, NB, 'b', plot4=False)
 
@@ -361,22 +359,20 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 plot_mock(ax10, NB_MC, HaFlux_MC, NB_sel, NB_nosel, filters[ff],
                           Flux_lab)
 
-                plot_MACT(ax10, dict_NB['NBmag'], dict_NB['Ha_Flux'],
-                          dict_NB['w_spec'], dict_NB['wo_spec'])
+                plot_MACT(ax10, dict_NB, 'NBmag', 'Ha_Flux')
 
                 # Panel (0,1) - stellar mass vs H-alpha luminosity
 
                 plot_mock(ax01, logM_MC, HaLum_MC, NB_sel, NB_nosel, '',
                           r'$\log(L_{{\rm H}\alpha})$')
 
-                plot_MACT(ax01, dict_NB['logMstar'], dict_NB['Ha_Lum'],
-                          dict_NB['w_spec'], dict_NB['wo_spec'])
+                plot_MACT(ax01, dict_NB, 'logMstar', 'Ha_Lum')
 
                 # Panel (1,1) - stellar mass vs H-alpha SFR
 
                 plot_mock(ax11, logM_MC, logSFR_MC, NB_sel, NB_nosel, M_lab, SFR_lab)
 
-                plot_MACT(ax11, dict_NB['logMstar'], dict_NB['Ha_SFR'], dict_NB['w_spec'], dict_NB['wo_spec'])
+                plot_MACT(ax11, dict_NB, 'logMstar', 'Ha_SFR')
 
                 # Plot cropped version
                 fig0, ax0 = plt.subplots()
@@ -385,7 +381,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
                 plot_mock(ax0, logM_MC, logSFR_MC, NB_sel, NB_nosel, M_lab, SFR_lab)
 
-                plot_MACT(ax0, dict_NB['logMstar'], dict_NB['Ha_SFR'], dict_NB['w_spec'], dict_NB['wo_spec'])
+                plot_MACT(ax0, dict_NB, 'logMstar', 'Ha_SFR')
                 # ax0.set_ylim([-5,-1])
                 fig0.savefig(pp0, format='pdf')
 
