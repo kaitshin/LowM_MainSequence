@@ -42,6 +42,7 @@ from .config import pdf_filename
 from .stats import stats_log, avg_sig_label, stats_plot
 from .monte_carlo import random_mags
 from .select import get_sigma, color_cut, NB_select, get_EW
+from .dataset import get_mact_data
 from .plotting import avg_sig_plot_init, plot_MACT, plot_mock, plot_completeness, ew_flux_hist
 from .properties import compute_EW, dict_prop_maker, derived_properties
 from .normalization import get_normalization
@@ -198,27 +199,14 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
         lum_dist = cosmo.luminosity_distance(z_NB[ff]).to(u.cm).value
 
         # Read in EW and fluxes for H-alpha NB emitter sample
-        npz_NB_file = path0 + 'Completeness/ew_flux_Ha-' + filters[ff] + '.npz'
-        npz_NB = np.load(npz_NB_file)
-        NB_EW = npz_NB['NB_EW']
-        Ha_Flux = npz_NB['Ha_Flux']
-
-        NBmag = npz_NB['NBmag']
-        contmag = npz_NB['contmag']
-        logMstar = npz_NB['logMstar']
-        Ha_SFR = npz_NB['Ha_SFR']  # metallicity-dependent observed SFR
-        Ha_Lum = npz_NB['Ha_Lum']  # filter and [NII] corrected
-
-        spec_flag = npz_NB['spec_flag']
-        w_spec = np.where(spec_flag)[0]
-        wo_spec = np.where(spec_flag == 0)[0]
+        dict_NB = get_mact_data(ff)
 
         # Statistics for comparisons
-        avg_NB = np.average(NB_EW)
-        sig_NB = np.std(NB_EW)
+        avg_NB = np.average(dict_NB['NB_EW'])
+        sig_NB = np.std(dict_NB['NB_EW'])
 
-        avg_NB_flux = np.average(Ha_Flux)
-        sig_NB_flux = np.std(Ha_Flux)
+        avg_NB_flux = np.average(dict_NB['Ha_Flux'])
+        sig_NB_flux = np.std(dict_NB['Ha_Flux'])
 
         # Plot sigma and average
         fig3, ax3 = avg_sig_plot_init(filters[ff], logEW_mean, avg_NB, sig_NB,
@@ -336,8 +324,9 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
                 ax00.axvline(m_NB[ff], linestyle='dashed', color='b')
 
-                temp_x = contmag - NBmag
-                plot_MACT(ax00, NBmag, temp_x, w_spec, wo_spec)
+                temp_x = dict_NB['contmag'] - dict_NB['NBmag']
+                plot_MACT(ax00, dict_NB['NBmag'], temp_x, dict_NB['w_spec'],
+                          dict_NB['wo_spec'])
 
                 NB_break = plot_NB_select(ff, ax00, NB, 'b')
 
@@ -355,8 +344,9 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 plot_mock(ax0, NB_MC, x_MC, NB_sel, NB_nosel, filters[ff], cont0[ff] + ' - ' + filters[ff])
                 ax0.axvline(m_NB[ff], linestyle='dashed', color='b')
 
-                temp_x = contmag - NBmag
-                plot_MACT(ax0, NBmag, temp_x, w_spec, wo_spec)
+                temp_x = dict_NB['contmag'] - dict_NB['NBmag']
+                plot_MACT(ax0, dict_NB['NBmag'], temp_x, dict_NB['w_spec'],
+                          dict_NB['wo_spec'])
 
                 plot_NB_select(ff, ax0, NB, 'b', plot4=False)
 
@@ -371,20 +361,22 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 plot_mock(ax10, NB_MC, HaFlux_MC, NB_sel, NB_nosel, filters[ff],
                           Flux_lab)
 
-                plot_MACT(ax10, NBmag, Ha_Flux, w_spec, wo_spec)
+                plot_MACT(ax10, dict_NB['NBmag'], dict_NB['Ha_Flux'],
+                          dict_NB['w_spec'], dict_NB['wo_spec'])
 
                 # Panel (0,1) - stellar mass vs H-alpha luminosity
 
                 plot_mock(ax01, logM_MC, HaLum_MC, NB_sel, NB_nosel, '',
                           r'$\log(L_{{\rm H}\alpha})$')
 
-                plot_MACT(ax01, logMstar, Ha_Lum, w_spec, wo_spec)
+                plot_MACT(ax01, dict_NB['logMstar'], dict_NB['Ha_Lum'],
+                          dict_NB['w_spec'], dict_NB['wo_spec'])
 
                 # Panel (1,1) - stellar mass vs H-alpha SFR
 
                 plot_mock(ax11, logM_MC, logSFR_MC, NB_sel, NB_nosel, M_lab, SFR_lab)
 
-                plot_MACT(ax11, logMstar, Ha_SFR, w_spec, wo_spec)
+                plot_MACT(ax11, dict_NB['logMstar'], dict_NB['Ha_SFR'], dict_NB['w_spec'], dict_NB['wo_spec'])
 
                 # Plot cropped version
                 fig0, ax0 = plt.subplots()
@@ -393,7 +385,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
                 plot_mock(ax0, logM_MC, logSFR_MC, NB_sel, NB_nosel, M_lab, SFR_lab)
 
-                plot_MACT(ax0, logMstar, Ha_SFR, w_spec, wo_spec)
+                plot_MACT(ax0, dict_NB['logMstar'], dict_NB['Ha_SFR'], dict_NB['w_spec'], dict_NB['wo_spec'])
                 # ax0.set_ylim([-5,-1])
                 fig0.savefig(pp0, format='pdf')
 
@@ -403,7 +395,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 ax20.axvline(x=min_EW, color='red')
 
                 No, Ng, binso, \
-                    wht0 = ew_flux_hist('EW', mm, ss, ax20, NB_EW, avg_NB,
+                    wht0 = ew_flux_hist('EW', mm, ss, ax20, dict_NB['NB_EW'], avg_NB,
                                         sig_NB, EW_bins, logEW_mean, logEW_sig,
                                         EW_flag0, logEW_MC, ax3=ax3ul)
                 ax20.set_position([0.085, 0.05, 0.44, 0.265])
@@ -418,7 +410,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
                 # Panel (2,1) - histogram of H-alpha fluxes
                 No, Ng, binso, \
-                    wht0 = ew_flux_hist('Flux', mm, ss, ax21, Ha_Flux,
+                    wht0 = ew_flux_hist('Flux', mm, ss, ax21, dict_NB['Ha_Flux'],
                                         avg_NB_flux, sig_NB_flux, Flux_bins,
                                         logEW_mean, logEW_sig,
                                         EW_flag0, HaFlux_MC, ax3=ax3ll)
