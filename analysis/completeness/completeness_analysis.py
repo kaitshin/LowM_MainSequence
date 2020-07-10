@@ -628,27 +628,3 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
     t0._stop()
     mylog.info("ew_MC completed in : " + t0.format)
-
-
-'''
-THIS IS CODE THAT WAS NOT USED FOR CROPPING PDF.  DECIDED TO GENERATE NEW PLOTSX
-def crop_pdf(infile, outfile, pp_page):
-    with open(infile, "rb") as in_f:
-        input1 = PdfFileReader(in_f)
-        output = PdfFileWriter()
-
-        numPages = input1.getNumPages()
-        print("document has %s pages." % numPages)
-
-        page = input1.getPage(pp_page)
-        print(page.mediaBox.getUpperRight_x(), page.mediaBox.getUpperRight_y())
-        page.trimBox.lowerLeft = (20, 25)
-        page.trimBox.upperRight = (225, 225)
-        page.cropBox.lowerLeft = (50, 50)
-        page.cropBox.upperRight = (200, 200)
-        output.addPage(page)
-
-    with open(outfile, "wb") as out_f:
-        output.write(out_f)
-#enddef
-'''
