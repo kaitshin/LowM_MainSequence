@@ -1,8 +1,45 @@
+from os.path import join
 import numpy as np
+
+from scipy.interpolate import interp1d
 
 from . import dBB, dNB
 from ...mainseq_corrections import niiha_oh_determine
 from ..NB_errors import ew_flux_dual
+from .config import path0
+
+
+def get_mag_vs_mass_interp(prefix_ff):
+    """
+    Purpose:
+      Define interpolation function between continuum magnitude and stellar mass
+
+    :param prefix_ff: filter prefix (str)
+      Either 'Ha-NB7', 'Ha-NB816', 'Ha-NB921', or 'Ha-NB973'
+
+    :return mass_int: interp1d object for logarithm of stellar mass, logM
+    :return std_mass_int: interp1d object for dispersion in logM
+    """
+
+    npz_mass_file = join(path0, 'Completeness/mag_vs_mass_' + prefix_ff + '.npz')
+    npz_mass = np.load(npz_mass_file, allow_pickle=True)
+    cont_arr = npz_mass['cont_arr']
+    dmag = cont_arr[1] - cont_arr[0]
+    mgood = np.where(npz_mass['N_logM'] != 0)[0]
+
+    x_temp = cont_arr + dmag / 2.0
+    mass_int = interp1d(x_temp[mgood], npz_mass['avg_logM'][mgood],
+                        bounds_error=False, fill_value='extrapolate',
+                        kind='linear')
+
+    m_bad = np.where(npz_mass['N_logM'] <= 1)[0]
+    std0 = npz_mass['std_logM']
+    if len(m_bad) > 0:
+        std0[m_bad] = 0.30
+
+    std_mass_int = interp1d(x_temp, std0, fill_value=0.3, bounds_error=False,
+                            kind='nearest')
+    return mass_int, std_mass_int
 
 
 def compute_EW(x0, ff):

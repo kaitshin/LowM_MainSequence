@@ -44,7 +44,7 @@ from .monte_carlo import random_mags
 from .select import get_sigma, color_cut, NB_select, get_EW
 from .dataset import get_mact_data
 from .plotting import avg_sig_plot_init, plot_MACT, plot_mock, plot_completeness, ew_flux_hist
-from .properties import compute_EW, dict_prop_maker, derived_properties
+from .properties import get_mag_vs_mass_interp, compute_EW, dict_prop_maker, derived_properties
 from .normalization import get_normalization
 
 import astropy.units as u
@@ -75,39 +75,6 @@ def plot_NB_select(ff, t_ax, NB, ctype, linewidth=1, plot4=True):
         t_ax.plot(NB, y4, ctype + ':', linewidth=linewidth)
 
     return NB_break
-
-
-def get_mag_vs_mass_interp(prefix_ff):
-    """
-    Purpose:
-      Define interpolation function between continuum magnitude and stellar mass
-
-    :param prefix_ff: filter prefix (str)
-      Either 'Ha-NB7', 'Ha-NB816', 'Ha-NB921', or 'Ha-NB973'
-
-    :return mass_int: interp1d object for logarithm of stellar mass, logM
-    :return std_mass_int: interp1d object for dispersion in logM
-    """
-
-    npz_mass_file = path0 + 'Completeness/mag_vs_mass_' + prefix_ff + '.npz'
-    npz_mass = np.load(npz_mass_file, allow_pickle=True)
-    cont_arr = npz_mass['cont_arr']
-    dmag = cont_arr[1] - cont_arr[0]
-    mgood = np.where(npz_mass['N_logM'] != 0)[0]
-
-    x_temp = cont_arr + dmag / 2.0
-    mass_int = interp1d(x_temp[mgood], npz_mass['avg_logM'][mgood],
-                        bounds_error=False, fill_value='extrapolate',
-                        kind='linear')
-
-    mbad = np.where(npz_mass['N_logM'] <= 1)[0]
-    std0 = npz_mass['std_logM']
-    if len(mbad) > 0:
-        std0[mbad] = 0.30
-
-    std_mass_int = interp1d(x_temp, std0, fill_value=0.3, bounds_error=False,
-                            kind='nearest')
-    return mass_int, std_mass_int
 
 
 def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
