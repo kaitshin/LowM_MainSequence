@@ -32,34 +32,7 @@ from astropy.table import Table
 
 import config
 import plotting.general_plotting as general_plotting
-from MACT_utils import exclude_AGN
-
-def get_filt_arr(NAME0):
-    '''
-    '''
-    filt_arr = np.array([])
-    for name in NAME0:
-        if name.count('Ha-NB') > 1: 
-            tempname = ''
-            for m in re.finditer('Ha', name):
-                tempname += name[m.start()+3:m.start()+8]
-                tempname += ','
-            filt_arr = np.append(filt_arr, tempname)
-        else:
-            i = name.find('Ha-NB')
-            filt_arr = np.append(filt_arr, name[i+3:i+8])
-
-    return filt_arr
-
-
-def find_nearest_iis(array, value):
-    '''
-    '''
-    idx_closest = (np.abs(array-value)).argmin()
-    if array[idx_closest] > value and idx_closest != 0:
-        return [idx_closest-1, idx_closest]
-    else:
-        return [idx_closest, idx_closest+1]
+from MACT_utils import exclude_AGN, get_filt_arr, get_stlrmassbinZ_arr, get_spectral_cvg_MMT, find_nearest_iis
 
 
 def get_stlrmassbin_arr(stlr_mass, min_mass, max_mass):
@@ -74,77 +47,6 @@ def get_stlrmassbin_arr(stlr_mass, min_mass, max_mass):
     #endfor
 
     return stlrmassbin
-
-
-def get_stlrmassbinZ_arr(filt_arr, stlr_mass, tabfiltarr, min_mass_arr, max_mass_arr, instr):
-    '''
-    '''
-    stlrmassZbin = np.array([])
-    for ff, m in zip(filt_arr, stlr_mass):
-        if instr=='Keck' and ff=='NB816':
-            stlrmassZbin = np.append(stlrmassZbin, 'N/A')
-        elif instr=='MMT' and 'NB7' in ff:
-            assigned_bin = ''
-            good_filt_iis = np.array([x for x in range(len(tabfiltarr)) if tabfiltarr[x]=='NB704+NB711'])
-            min_mass = np.array(min_mass_arr[good_filt_iis])
-            max_mass = np.array(max_mass_arr[good_filt_iis])
-            for ii in range(len(good_filt_iis)):
-                if m >= min_mass[ii] and m <= max_mass[ii]:
-                    assigned_bin += str(ii+1)+'-NB704+NB711'
-            stlrmassZbin = np.append(stlrmassZbin, assigned_bin)
-        else:
-            good_filt_iis = np.array([x for x in range(len(tabfiltarr)) if tabfiltarr[x]==ff])
-            min_mass = np.array(min_mass_arr[good_filt_iis])
-            max_mass = np.array(max_mass_arr[good_filt_iis])
-            for ii in range(len(good_filt_iis)):
-                if m >= min_mass[ii] and m <= max_mass[ii]:
-                    stlrmassZbin = np.append(stlrmassZbin, str(ii+1)+'-'+ff)
-    #endfor
-
-    return stlrmassZbin
-
-
-def get_spectral_cvg_MMT(MMT_LMIN0, MMT_LMAX0, zspec0, grid_ndarr_match_ii, x0):
-    '''
-    '''
-    HG = np.array([])
-    HB = np.array([])
-    HA = np.array([])
-    for lmin0, lmax0, row, z in zip(MMT_LMIN0, MMT_LMAX0, grid_ndarr_match_ii, zspec0):
-        hg_near_iis = find_nearest_iis(x0, config.HG_VAL*(1+z))
-        hb_near_iis = find_nearest_iis(x0, config.HB_VAL*(1+z))
-        ha_near_iis = find_nearest_iis(x0, config.HA_VAL*(1+z))
-
-        if lmin0 < 0:
-            HG = np.append(HG, 'NO')
-            HB = np.append(HB, 'NO')
-            HA = np.append(HA, 'NO')
-        else:
-            if lmin0 <= config.HG_VAL and lmax0 >= config.HG_VAL:
-                if np.average(row[hg_near_iis])==0:
-                    HG = np.append(HG, 'MASK')
-                else:
-                    HG = np.append(HG, 'YES')
-            else:
-                HG = np.append(HG, 'NO')
-            
-            if lmin0 <= config.HB_VAL and lmax0 >= config.HB_VAL:
-                if np.average(row[hb_near_iis])==0:
-                    HB = np.append(HB, 'MASK')
-                else:
-                    HB = np.append(HB, 'YES')
-            else:
-                HB = np.append(HB, 'NO')
-                
-            if lmin0 <= config.HA_VAL and lmax0 >= config.HA_VAL:
-                if np.average(row[ha_near_iis])==0:
-                    HA = np.append(HA, 'MASK')
-                else:
-                    HA = np.append(HA, 'YES')
-            else:
-                HA = np.append(HA, 'NO')
-    #endfor
-    return HG, HB, HA
 
 
 def write_MMT_table(inst_str0, ID, zspec0, NAME0, AP, stlr_mass, filt_arr, 
