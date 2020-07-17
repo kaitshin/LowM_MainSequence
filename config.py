@@ -6,8 +6,8 @@ fileend='.GALEX'
 
 # pre-existing files to read in
 NB_IA_emitters_cat = 'Catalogs/NB_IA_emitters.nodup.colorrev2.fix.fits'
-allcols_cat        = 'Catalogs/NB_IA_emitters.allcols.colorrev.fits' # -> colorrev2.fix.fits
-allcols_errs_cat   = 'Catalogs/NB_IA_emitters.allcols.colorrev.fix.errors.fits'
+allcols_cat        = 'Catalogs/NB_IA_emitters.allcols.colorrev2.fix.fits'
+allcols_errs_cat   = 'Catalogs/NB_IA_emitters.allcols.colorrev2.fix.errors.fits'
 
 emagcorr_cat       = 'Catalogs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast'+fileend+'.cat'  ##
 zspec_cat          = 'Catalogs/nb_ia_zspec.txt'  ##
@@ -37,7 +37,8 @@ inst_dict['Keck'] = ['merged,','Keck,','Keck,Keck,','Keck,FOCAS,',
                      'Keck,FOCAS,FOCAS,','Keck,Keck,FOCAS,','merged,FOCAS,']
 
 centr_filts = {'NB7':((7045.0/HA_VAL - 1) + (7126.0/HA_VAL - 1))/2.0, 
-	'NB816':8152.0/config.HA_VAL - 1, 'NB921':9193.0/HA_VAL - 1, 'NB973':9749.0/HA_VAL - 1,
+	'NB704':7045.0/HA_VAL - 1, 'NB711':7126.0/HA_VAL - 1,
+	'NB816':8152.0/HA_VAL - 1, 'NB921':9193.0/HA_VAL - 1, 'NB973':9749.0/HA_VAL - 1,
     'NEWHA':0.8031674}
 
 # also reads in 'Main_Sequence/Catalogs/{MMT,Keck,merged}/{*}_line_fit.fits'
