@@ -15,7 +15,7 @@ INPUTS:
 
 OUTPUTS:
     config.FULL_PATH+'Plots/main_sequence/mainseq_dispersion.pdf'
-    config.FULL_PATH+'Main_Sequence/dispersion_tbl.txt'
+    config.FULL_PATH+'Tables/4.txt'
 """
 from __future__ import print_function
 
@@ -318,10 +318,7 @@ def main():
     meas_errs = corr_tbl['meas_errs'].data # = delta_sfrs
     tt = create_disp_tbl(stlr_mass, corr_sfrs+FUV_corr_factor,
         corr_sfrs, sfrs_resid, meas_errs)
-    asc.write(tt, config.FULL_PATH+'Tables/4.txt', format='latex', overwrite=True)
-    # asc.write(tt, config.FULL_PATH+'Main_Sequence/dispersion_tbl.txt', 
-    #     format='latex', overwrite=True)
-    # print(asc.write(tt, format='latex'))
+    asc.write(tt, config.FULL_PATH+'Tables/3.txt', format='latex', overwrite=True)
 
 
 if __name__ == '__main__':
