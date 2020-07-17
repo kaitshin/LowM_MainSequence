@@ -226,8 +226,8 @@ def plot_SFR_comparison(log_SFR_HA, log_SFR_UV, corr_tbl):
     # final touches
     ax.set_xlim(xlims)
     ax.set_ylim(ylims)
-    ax.set_xlabel('log SFR[Ha]')
-    ax.set_ylabel('log SFR[FUV]')
+    ax.set_xlabel('log(SFR[Ha])')
+    ax.set_ylabel('log(SFR[FUV])')
     ax.tick_params(axis='both', labelsize='10', which='both',
         direction='in')
     ax.minorticks_on()
@@ -266,7 +266,7 @@ def lee_09(ax, xlims0, lee_fig_num):
         ax.errorbar(jlee_xarr, jlee_logSFR_ratio, fmt='none', ecolor='c', lw=2,
             yerr=jlee_logSFR_ratio_errs, alpha=0.7)
         jlee09_both, = ax.plot(xtmparr_lo, 0.32*xtmparr_lo+0.37, 'c--', alpha=0.7,
-            label='Lee+09: '+r'$0.32 \log\rm SFR[H\alpha]+0.37 \, ; \, -0.13$')
+            label='Lee+09: '+r'$0.32 \log(\rm SFR[H\alpha])+0.37 \, ; \, -0.13$')
         ax.plot(xtmparr_hi, np.array([-0.13]*len(xtmparr_hi)), 'c--', alpha=0.7,
             label='Lee+09: '+r'$-0.13$')
 
@@ -285,7 +285,7 @@ def lee_09(ax, xlims0, lee_fig_num):
             xtmparr0 -= salpeter_to_chabrier
             jlee_xarr -= salpeter_to_chabrier
             jlee09, = ax.plot(xtmparr0, 0.26*xtmparr0+0.3, 'c--', alpha=0.7, 
-                label='Lee+09: '+r'$0.26 \log\rm SFR[H\alpha]+0.30$')
+                label='Lee+09: '+r'$0.26 \log(\rm SFR[H\alpha])+0.30$')
 
         elif lee_fig_num=='2B':  # xarr is M_B (b magnitude)
             jlee_xarr = np.array([-20.5,-19.5,-18.5,-17.5,-16.5,-15.5,-14.5,
@@ -324,7 +324,7 @@ def lee_09(ax, xlims0, lee_fig_num):
             xtmparr1 -= salpeter_to_chabrier
             jlee_xarr -= salpeter_to_chabrier
             jlee09, = ax.plot(xtmparr0, 0.32*xtmparr0+0.37, 'c--', alpha=0.7,
-                label='Lee+09: '+r'$0.32 \log \rm SFR[H\alpha]+0.37$')
+                label='Lee+09: '+r'$0.32 \log(\rm SFR[H\alpha])+0.37$')
             jlee091, = ax.plot(xtmparr1, np.array([-0.13]*len(xtmparr1)), 'c--', alpha=0.7,
                 label='Lee+09: '+r'$-0.13$')
 
@@ -338,7 +338,7 @@ def lee_09(ax, xlims0, lee_fig_num):
 
             xtmparr0 = np.linspace(xlims0[0], xlims0[1], 10)
             jlee09, = ax.plot(xtmparr0, -0.05*xtmparr0-0.99, 'c--', alpha=0.7, 
-                label='Lee+09: '+r'$-0.05 \log \ \rm SFR[H\alpha] -0.99$')
+                label='Lee+09: '+r'$-0.05 \log(\rm SFR[H\alpha]) -0.99$')
 
         else:
             raise ValueError('Invalid fig_num. So far only Lee+09 figs \
@@ -385,7 +385,7 @@ def plot_SFR_ratios_final_touches(f, ax0, ax1, ax2):
     incl. x labels, ticks, sizing, and saving
     '''
     # labels
-    ax0.set_xlabel(r'$\log \rm SFR[H\alpha]$', fontsize=12)
+    ax0.set_xlabel(r'$\log(\rm SFR[H\alpha])$', fontsize=12)
     ax1.set_xlabel(r'$\rm M_B$', fontsize=12)
     ax2.set_xlabel('log(M'+r'$_\bigstar$'+'/M'+r'$_{\odot}$'+')', fontsize=12)
     [ax.set_ylabel(r'$\log(\rm SFR[H\alpha]/SFR[FUV])$',
@@ -421,7 +421,7 @@ def plot_SFR_ratios(log_SFR_HA, log_SFR_UV, corr_tbl):
 
     # plotting data
     ax0 = plot_zz_shapes_filled(ax0, log_SFR_HA, log_SFR_ratio, corr_tbl,
-        color='gray', legend_on=True)
+        color='gray', legend_loc='upper left', legend_on=True)
     ax1 = plot_zz_shapes_filled(ax1, mag_B, log_SFR_ratio, corr_tbl,
         color='gray')
     ax2 = plot_zz_shapes_filled(ax2, stlr_mass, log_SFR_ratio, corr_tbl,
@@ -430,8 +430,9 @@ def plot_SFR_ratios(log_SFR_HA, log_SFR_UV, corr_tbl):
     xlims0 = [min(log_SFR_HA)-0.2, max(log_SFR_HA)+0.2]
     xlims1 = [min(mag_B)-0.2, max(mag_B)+0.2]
     xlims2 = [min(stlr_mass)-0.2, max(stlr_mass)+0.2]
-    ylims = [min(log_SFR_ratio)-0.4, max(log_SFR_ratio)+0.4]
+    ylims = [min(log_SFR_ratio)-1.1, max(log_SFR_ratio)+1.5]
     [ax.axhline(0, color='k') for ax in [ax0,ax1,ax2]]
+    [ax.set_ylim(ylims) for ax in [ax0,ax1,ax2]]
 
     # plotting relation from Lee+09
     ax0, jlee09_2A = lee_09(ax0, xlims0, lee_fig_num='2A')
@@ -470,7 +471,7 @@ def plot_SFR_ratios_final_touches_dustcorr(f, ax):
     incl. x labels, ticks, sizing, and saving
     '''
     # labels
-    ax.set_xlabel(r'$\log \rm SFR[H\alpha]$', fontsize=12)
+    ax.set_xlabel(r'$\log(\rm SFR[H\alpha])$', fontsize=12)
     ax.set_ylabel(r'$\log(\rm SFR[H\alpha]/SFR[FUV])$', fontsize=12)
 
     # ticks
@@ -496,10 +497,11 @@ def plot_SFR_ratios_dustcorr(log_SFR_HA, log_SFR_UV, corr_tbl):
 
     # plotting data
     ax = plot_zz_shapes_filled(ax, log_SFR_HA, log_SFR_ratio, corr_tbl,
-        color='gray', legend_on=True)
+        color='gray', legend_loc='upper left', legend_on=True)
 
     xlims0 = [min(log_SFR_HA)-0.2, max(log_SFR_HA)+0.2]
-    ylims = [min(log_SFR_ratio)-0.4, max(log_SFR_ratio)+0.4]
+    ylims = [min(log_SFR_ratio)-1.1, max(log_SFR_ratio)+1.6]
+    ax.set_ylim(ylims)
     ax.axhline(0, color='k')
 
     # plotting relation from Lee+09
@@ -514,7 +516,7 @@ def plot_SFR_ratios_dustcorr(log_SFR_HA, log_SFR_UV, corr_tbl):
     from MACT_utils import get_FUV_corrs
     m, b, const = get_FUV_corrs(corr_tbl, ret_coeffs_const=True)
     MACT_SFRHA_both, = ax.plot(xtmparr_lo, m*xtmparr_lo + b, 'k--',
-        label=r'$\mathcal{MACT}:$ '+r'$%.2f \log \ \rm SFR[H\alpha] +%.2f \, ; \, %.2f$'%(m,b,const))
+        label=r'$\mathcal{MACT}:$ '+r'$%.2f \log( \rm SFR[H\alpha]) +%.2f \, ; \, %.2f$'%(m,b,const))
     ax.plot(xtmparr_hi, np.array([const]*len(xtmparr_hi)), 'k--',
         label=r'$\mathcal{MACT}:$ '+r'$%.2f$'%(const))
 
@@ -541,7 +543,7 @@ def line_fit(ax, xvals, yvals, xlin_arr, datatype):
 
     if datatype=='SFRHA':
         MACT_SFRHA, = ax.plot(xlin_arr, m*xlin_arr+b, 'k--',
-            label=r'$\mathcal{MACT}:$ '+r'$%.2f \log \rm SFR[H\alpha]+%.2f$'%(m,b))
+            label=r'$\mathcal{MACT}:$ '+r'$%.2f \log(\rm SFR[H\alpha])+%.2f$'%(m,b))
         return ax, MACT_SFRHA
 
     elif datatype=='MAGB':
