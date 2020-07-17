@@ -8,8 +8,7 @@ PURPOSE:
     plotted in a 'de-redshifted' frame.
     Specific to SDF data.
 
-    Depends on combine_spectral_data.py
-    Depends on write_spectral_coverage_table.py for easy MMT Ha-NB921 coverage info
+    Depends on analysis/sdf_stack_data.py
 
 INPUTS:
     'Catalogs/NB_IA_emitters.nodup.colorrev.fix.fits'
@@ -49,6 +48,7 @@ import writing_tables.hb_ha_tables as Keck_twriting
 import writing_tables.general_tables as general_twriting
 from analysis.balmer_fit import get_best_fit3, get_baseline_median
 from MACT_utils import composite_errors, exclude_AGN
+from MACT_utils import get_filt_arr, get_stlrmassbinZ_arr, get_spectral_cvg_MMT
 from analysis.sdf_stack_data import stack_data
 
 MIN_NUM_PER_BIN = 9
@@ -90,7 +90,7 @@ def HG_HB_EBV(hg, hb):
 
 def get_HB_NB921_flux(cvg_ref,
     data_dict, stlr_mass, NAME0, inst_str0, zspec0,
-    gridap, gridz, grid_ndarr, x0, bintype='redshift'):
+    gridap, gridz, grid_ndarr, x0, bintype='StellarMassZ'):
     '''
     instr is always MMT
 
@@ -98,7 +98,9 @@ def get_HB_NB921_flux(cvg_ref,
     This is useful for getting the correct HB/HA ratio used to get the hb/ha-derived E(B-V).
     Returns the flux values for each stack in a particular bin in an array.
     '''
-    import write_spectral_coverage_table
+    tmp_grid = pyfits.open(config.FULL_PATH+'Spectra/spectral_MMT_grid.fits')
+    tmp_grid_ndarr = tmp_grid[0].data
+
     # getting indices relevant to ha
     ha_ii = np.array([x for x in range(len(NAME0))
         if 'Ha-NB' in NAME0[x] and (zspec0[x] < 9.0 and zspec0[x] > 0.0)])
@@ -110,7 +112,7 @@ def get_HB_NB921_flux(cvg_ref,
     AP = data_dict['AP'][ha_ii]
     MMT_LMIN0 = data_dict['MMT_LMIN0'][ha_ii]
     MMT_LMAX0 = data_dict['MMT_LMAX0'][ha_ii]
-    filt_arr = write_spectral_coverage_table.get_filt_arr(NAME0)
+    filt_arr = get_filt_arr(NAME0)
 
     # getting indices relevant to mmt
     mmt_ii = [x for x in range(len(inst_str0)) if 'MMT' in inst_str0[x] or 'merged' in inst_str0[x]]
@@ -126,39 +128,28 @@ def get_HB_NB921_flux(cvg_ref,
     match_ii = np.array([])
     for ii in range(len(AP)):
         match_ii = np.append(match_ii, np.where(gridap == AP[ii])[0])
-    match_ii = np.array(match_ii, dtype=np.int32)    
-
-    HG_cvg, HB_cvg, HA_cvg = write_spectral_coverage_table.get_spectral_cvg_MMT(MMT_LMIN0, MMT_LMAX0, zspec0, grid_ndarr[match_ii], x0)
+    match_ii = np.array(match_ii, dtype=np.int32)
+    HG_cvg, HB_cvg, HA_cvg = get_spectral_cvg_MMT(MMT_LMIN0, MMT_LMAX0, zspec0, tmp_grid_ndarr[match_ii], x0)
 
     nb921 = np.array([x for x in range(len(mmt_ii)) if filt_arr[x]=='NB921' and HB_cvg[x]=='YES'])
-    nb921_ha = np.array([x for x in range(len(nb921)) if HA_cvg[nb921][x] == 'YES'])
+    
+    # `nb921_ha` is wrong rn
+    nb921_ha = np.array([x for x in range(len(nb921)) if HA_cvg[nb921][x] == 'YES']) 
 
-    stlrmassZbin = write_spectral_coverage_table.get_stlrmassbinZ_arr(filt_arr, stlr_mass, cvg_ref['filter'],
+    stlrmassZbin = get_stlrmassbinZ_arr(filt_arr, stlr_mass, cvg_ref['filter'],
         cvg_ref['min_stlrmass'], cvg_ref['max_stlrmass'], 'MMT')
 
-    if bintype=='redshift':
-        flux_arr = np.array([-99.0])
-    else:
-        flux_arr = np.array([-99.0]*5)
+    flux_arr = np.array([-99.0]*5)
 
     for i in range(len(flux_arr)):
         # i0 is the array of indexes (in the gridap ordering) that correspond to the correct relevant AP
         i0 = np.array([])
         # i = index of array (0-indexed)
-        if bintype == 'StellarMassZ':
-            # i+1 = index of bin (1-indexed)
-            bin_i = np.array([x for x in range(len(nb921_ha)) if str(i+1)+'-' in stlrmassZbin[nb921[nb921_ha]][x]])
-            if len(bin_i) < 2:
-                continue
-            i0 = np.array([x for x in range(len(gridap)) if gridap[x] in AP[nb921[nb921_ha[bin_i]]]])
-        elif bintype == 'StlrMass':
-            cvg = asc.read(config.FULL_PATH+'Composite_Spectra/MMT_spectral_coverage.txt')
-            bin_i = np.array([x for x in range(len(nb921_ha)) if i+1==cvg['stlrmassbin'][nb921[nb921_ha]].data[x]])
-            if len(bin_i) < 2:
-                continue
-            i0 = np.array([x for x in range(len(gridap)) if gridap[x] in AP[nb921[nb921_ha[bin_i]]]])
-        else:
-            i0 = np.array([x for x in range(len(gridap)) if gridap[x] in AP[nb921[nb921_ha]]])
+        # i+1 = index of bin (1-indexed)
+        bin_i = np.array([x for x in range(len(nb921_ha)) if str(i+1)+'-' in stlrmassZbin[nb921[nb921_ha]][x]])
+        if len(bin_i) < 2:
+            continue
+        i0 = np.array([x for x in range(len(gridap)) if gridap[x] in AP[nb921[nb921_ha[bin_i]]]])
         
         zs = np.array(gridz[i0])
         good_z2 = np.where((zs >= 0.385) & (zs <= 0.429))[0]
