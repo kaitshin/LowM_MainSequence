@@ -85,13 +85,13 @@ def create_disp_tbl(smass0, sfrs00, sfrs00_nofuv, sfrs_resid, meas_errs):
         if avgsfr < 0:
             sfr_entry += '-%.3f'%avgsfr
         else:
-            sfr_entry += '%.3f'%avgsfr
+            sfr_entry += '+%.3f'%avgsfr
 
         avgsfr_nofuv = np.mean(sfrs00_nofuv[bin_match])
         if avgsfr_nofuv < 0:
             sfr_entry += ' (-%.3f)'%avgsfr_nofuv
         else:
-            sfr_entry += ' (%.3f)'%avgsfr_nofuv
+            sfr_entry += ' (+%.3f)'%avgsfr_nofuv
 
         avg_sfr.append(sfr_entry)
         

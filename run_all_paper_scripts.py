@@ -3,32 +3,32 @@ NAME:
     run_all_paper_scripts.py
 
 PURPOSE:
-    run all the scripts in order to generate figures 1–11, A1, and A2 in the paper
-    as well as tables 2–4, A1, and A2
+    run all the scripts in order to generate figures 1–11, B1, and B2 in the paper
+    as well as tables 2–4, B1, and B2
 
 CODE FLOW (incl. outputs):
     1. stack_spectral_data.py
         - directly calls colorrev2.fix.fits
-        * figs A1, A2
+        * figs B1, B2
             - 'Composite_Spectra/StellarMassZ/MMT_stlrmassZ.pdf'
             - 'Composite_Spectra/StellarMassZ/Keck_stlrmassZ.pdf'
-        * tabs A1, A2
-            - 'Tables/A1.txt'
-            - 'Tables/A2.txt'
+        * tabs B1, B2
+            - 'Tables/B1.txt'
+            - 'Tables/B2.txt'
     2. write_spectral_coverage_table.py
         - directly calls colorrev2.fix.fits
         - depends on file(s) from (1)
     3. mainseq_corrections.py
         - directly calls colorrev2.fix.fits
         - depends on file(s) from (1), (2)
-            - (tabs 2,3 depend on file from (3))
+            - (tabs 2,C1 depend on file from (3))
         - calls plot_NII_Ha_ratios.py (which also depends on file(s) from (1))
         * fig 1
             - 'Plots/main_sequence/NII_Ha_scatter_log.pdf'
-        * tabs 2, 3
+        * tabs 2, C1
             - 'Tables/2.txt'
             - 'Tables/2_footnote.txt'
-            - 'Tables/3.txt'
+            - 'Tables/C1.txt'
     4. plot_mstar_vs_ebv.py
         - depends on file(s) from (1), (2), (3)
         * fig 2
@@ -57,8 +57,8 @@ CODE FLOW (incl. outputs):
         - depends on file(s) from (3)
         * fig 11
             - 'Plots/main_sequence/mainseq_dispersion.pdf'
-        * tab 4
-            - 'Tables/4.txt'
+        * tab 3
+            - 'Tables/3.txt'
 
 INPUTS:
 
@@ -216,7 +216,7 @@ def call_plot_Keck_stlrmass_z(data_dict, NAME0, AP, inst_str0, inst_dict, stlr_m
         gridap, grid_ndarr, gridz, x0, tol)
 
 
-def tab_A1():
+def tab_B1():
     mmtmz = asc.read(config.FULL_PATH+'Composite_Spectra/StellarMassZ/MMT_stlrmassZ_data.txt',
         format='fixed_width_two_line', delimiter=' ')
     g=np.array([x for x in range(len(mmtmz)) if mmtmz['stlrmass_bin'][x] != 'N/A'])
@@ -274,10 +274,10 @@ def tab_A1():
             ebv_hahb_col.append(x+'$_{-'+y+'}^{+'+z+'}$')
 
     tt = Table([stlrmass, mmtmz[g]['num_stack_HG'], mmtmz[g]['num_stack_HB'], mmtmz[g]['num_stack_HA'], flux_hb_col, flux_hg__flux_hb_col, flux_ha__flux_hb_col, ebv_hghb_col, ebv_hahb_col, flux_nii__flux_ha], names=['(1)','(2)','(3)','(4)','(5)','(6)','(7)','(8)','(9)','(10)'])
-    asc.write(tt, config.FULL_PATH+'Tables/A1.txt', format='latex', overwrite=True)
+    asc.write(tt, config.FULL_PATH+'Tables/B1.txt', format='latex', overwrite=True)
 
 
-def tab_A2():
+def tab_B2():
     keckmz = asc.read(config.FULL_PATH+'Composite_Spectra/StellarMassZ/Keck_stlrmassZ_data.txt', format='fixed_width_two_line', delimiter=' ')
     temparr = np.array([x.split('-') for x in keckmz['stlrmass_bin']])
     zz = np.vstack((np.array([x+'0' if len(x)==3 else x for x in temparr[:,0]]),np.array([x+'0' if len(x)==3 else x for x in temparr[:,1]]))).T
@@ -312,7 +312,7 @@ def tab_A2():
         ebv_hahb_col.append(x+'$_{-'+y+'}^{+'+z+'}$')
 
     tt = Table([stlrmass, keckmz['num_stack_HB'], keckmz['num_stack_HA'], flux_hb_col, flux_ha__flux_hb_col, ebv_hahb_col, flux_nii__flux_ha], names=['(1)','(2)','(3)','(4)','(5)','(6)','(7)'])
-    asc.write(tt, config.FULL_PATH+'Tables/A2.txt', format='latex', overwrite=True)
+    asc.write(tt, config.FULL_PATH+'Tables/B2.txt', format='latex', overwrite=True)
 
 
 def tab_2():
@@ -356,7 +356,7 @@ def tab_2():
     ff.close()
 
 
-def tab_3():
+def tab_C1():
     from MACT_utils import get_FUV_corrs
 
     corr_tbl = asc.read(config.FULL_PATH+config.mainseq_corrs_tbl,
@@ -380,7 +380,9 @@ def tab_3():
     for idx, ff in enumerate(['NB7', 'NB816', 'NB921', 'NB973']):
         colN_tmp = np.array(['\\ldots']*len(mbins0))
         colM_tmp = np.array(['\\ldots']*len(mbins0))
-        colSFR_tmp = np.char.decode(np.array(['\\ldots']*len(mbins0), dtype='S20'))
+        # colSFR_tmp = np.char.decode(np.array(['\\ldots']*len(mbins0), dtype='S20'))
+        # colSFR_tmp = colSFR_tmp.astype('S20')
+        colSFR_tmp = np.array(['\\ldots']*len(mbins0), dtype='S20')
 
         filt_match = np.array([x for x in range(len(ffs)) if ff in ffs[x]])
         
@@ -393,27 +395,31 @@ def tab_3():
             bin_match = np.where(bin_ii == i)[0]
 
             colN_tmp[i] = len(bin_match)
-            colM_tmp[i] = f'{np.mean(mass[bin_match]):.2f}'
+            colM_tmp[i] = '%.2f'%(np.mean(mass[bin_match]))
 
             if np.mean(sfrs_with_fuv[bin_match]) < 0:
-                colSFR_tmp[i] = f'-{np.mean(sfrs_with_fuv[bin_match]):.2f}'
+                colSFR_tmp[i] = b'-%.2f'%(np.mean(sfrs_with_fuv[bin_match]))
+                # colSFR_tmp[i] = f'-{np.mean(sfrs_with_fuv[bin_match]):.2f}'
             else:
-                colSFR_tmp[i] = f'{np.mean(sfrs_with_fuv[bin_match]):.2f}'
+                colSFR_tmp[i] = b'+%.2f'%(np.mean(sfrs_with_fuv[bin_match]))
+                # colSFR_tmp[i] = f'{np.mean(sfrs_with_fuv[bin_match]):.2f}'
 
             if np.mean(sfrs[bin_match]) < 0:
-                colSFR_tmp[i] += f' (-{np.mean(sfrs[bin_match]):.2f})'
+                colSFR_tmp[i] += b' (-%.2f)'%(np.mean(sfrs[bin_match]))
+                # colSFR_tmp[i] += f' (-{np.mean(sfrs[bin_match]):.2f})'
             else:
-                colSFR_tmp[i] += f' ({np.mean(sfrs[bin_match]):.2f})'
+                colSFR_tmp[i] += b' (+%.2f)'%(np.mean(sfrs[bin_match]))
+                # colSFR_tmp[i] += f' ({np.mean(sfrs[bin_match]):.2f})'
 
 
         if ff != 'NB973':
-            colSFR_tmp = np.array([x+' &' for x in colSFR_tmp])
+            colSFR_tmp = np.array([x+b' &' for x in colSFR_tmp])
 
         tt.add_columns([Column(data=colN_tmp), 
                         Column(data=colM_tmp), 
                         Column(data=colSFR_tmp)])
 
-    asc.write(tt, config.FULL_PATH+'Tables/3.txt', format='latex', overwrite=True)
+    asc.write(tt, config.FULL_PATH+'Tables/C1.txt', format='latex', overwrite=True)
 
 
 def run_stack_spectral_data(inst_dict, nbiadata, zspec, fout, data_dict):
@@ -435,21 +441,21 @@ def run_stack_spectral_data(inst_dict, nbiadata, zspec, fout, data_dict):
     # generating hb_nb921 reference table
     cvg_ref = generate_ref_tab(NAME0, inst_str0, inst_dict, stlr_mass, zspec0, AP)
 
-    # generates figure A1
-    print('\n generating fig A1...')
+    # generates figure B1
+    print('\n generating fig B1...')
     call_plot_MMT_stlrmass_z(data_dict, NAME0, AP, inst_str0, inst_dict, stlr_mass, zspec0, tol, cvg_ref)
     
-    # generates figure A2
-    print('\n generating fig A2...')
+    # generates figure B2
+    print('\n generating fig B2...')
     call_plot_Keck_stlrmass_z(data_dict, NAME0, AP, inst_str0, inst_dict, stlr_mass, zspec0, tol)
 
-    # generates table A1
-    print('\n generating tab A1...')
-    tab_A1()
+    # generates table B1
+    print('\n generating tab B1...')
+    tab_B1()
 
-    # generates table A2
-    print('\n generating tab A2...')
-    tab_A2()
+    # generates table B2
+    print('\n generating tab B2...')
+    tab_B2()
 
 
 def run_write_spectral_coverage_table():
@@ -468,9 +474,9 @@ def run_mainseq_corrections():
     print('\n generating tab 2...')
     tab_2()
 
-    # generates table 3
-    print('\n generating tab 3...')
-    tab_3()
+    # generates table C1
+    print('\n generating tab C1...')
+    tab_C1()
 
 
 def run_plot_mstar_vs_ebv():
@@ -511,7 +517,7 @@ def run_MC_contours():
 def run_nbia_mainseq_dispersion():
     import nbia_mainseq_dispersion
 
-    print('\n generating fig 11 and tab 4...')
+    print('\n generating fig 11 and tab 3...')
     nbia_mainseq_dispersion.main()
 
 
@@ -527,7 +533,8 @@ def main():
     num_emgal = len(np.array([x for x in range(len(nbiadata['NAME'])) if 'NB' in nbiadata['NAME'][x]]))
     num_ha = len(np.array([x for x in range(len(nbiadata['NAME'])) if 'Ha-NB' in nbiadata['NAME'][x]]))
     print(f"\nFrom the sample of {num_emgal} emission-line galaxies, \n\
-        {num_ha} of them were identified as Ha emitting galaxies in the NB filters.\n")
+        {num_ha} of them were identified as Ha emitting galaxies in the NB filters.")
+    print("(However, 9 of those Ha emitting galaxies have been excluded from the analysis.)\n")
 
 
     # calling stack_spectral_data.py
@@ -539,8 +546,16 @@ def main():
     # calling mainseq_corrections.py
     run_mainseq_corrections() # CHANGES!!!
 
+    # some more number checks
+    corr_tbl = asc.read(config.FULL_PATH+config.mainseq_corrs_tbl,
+        guess=False, Reader=asc.FixedWidthTwoLine)
+    good_sig_iis = np.where((corr_tbl['flux_sigma'] >= config.CUTOFF_SIGMA) 
+        & (corr_tbl['stlr_mass'] >= config.CUTOFF_MASS))[0]
+    print(f"\n\nApplying the flux and mass cutoff, \n\
+        from the sample of {len(corr_tbl)} Ha emitting galaxies, we now have {len(good_sig_iis)} galaxies.\n")
+
     # calling plot_mstar_vs_ebv.py
-    run_plot_mstar_vs_ebv() # CHANGES!!! TODO: but why??
+    run_plot_mstar_vs_ebv() # CHANGES!!!
 
     # calling SED_fits.py
     run_SED_fits()
