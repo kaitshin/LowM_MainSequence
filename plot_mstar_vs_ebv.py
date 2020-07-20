@@ -30,6 +30,7 @@ from __future__ import print_function
 import numpy as np, matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import matplotlib.lines as mlines
+import matplotlib as mpl
 from astropy.io import ascii as asc
 
 import config
@@ -88,13 +89,13 @@ def main():
     EBV_errs_neg = np.concatenate((mmt_mz['E(B-V)_hahb_errs_neg'][aa], keck_mz['E(B-V)_hahb_errs_neg']))
     EBV_errs_pos = np.concatenate((mmt_mz['E(B-V)_hahb_errs_pos'][aa], keck_mz['E(B-V)_hahb_errs_pos']))
 
-    # replacing invalid MMT NB973 EBV_hahb w/ Keck EBV_hahb
+    # replacing invalid MMT NB973 EBV_hahb w/ MMT NB973 EBV_hghb
     h = [x for x in range(len(aa)) if mmt_mz['filter'][aa][x]=='NB973'][0]
-    EBV[h:h+5] = keck_mz['E(B-V)_hahb'][-5:]
-    EBV_errs_neg[h:h+5] = keck_mz['E(B-V)_hahb_errs_neg'][-5:]
-    EBV_errs_pos[h:h+5] = keck_mz['E(B-V)_hahb_errs_pos'][-5:]
+    EBV[h:h+5] = mmt_mz['E(B-V)_hghb'][-5:]
+    EBV_errs_neg[h:h+5] = mmt_mz['E(B-V)_hghb_errs_neg'][-5:]
+    EBV_errs_pos[h:h+5] = mmt_mz['E(B-V)_hghb_errs_pos'][-5:]
 
-    # replacing invalid lowest two m bins MMT NB921 EBV_hahb w/ EBV_hghb
+    # replacing invalid lowest two m bins MMT NB921 EBV_hahb w/ MMT NB921 EBV_hghb
     i = np.where(mmt_mz['filter']=='NB921')[0][0]
     j = [x for x in range(len(aa)) if mmt_mz['filter'][aa][x]=='NB921'][0]
     EBV[j:j+2] = mmt_mz['E(B-V)_hghb'][i:i+2]
@@ -107,7 +108,10 @@ def main():
 
     # plotting individual galaxies w/ reliable Ha measurements
     # looping over filters
-    for ff, cc in zip(['NB704+NB711','NB816','NB921','NB973'], ['blue','green','orange','red']):
+    cwheel = [np.array(mpl.rcParams['axes.prop_cycle'])[x]['color'] for x in range(4)]
+    # cwheel[1], cwheel[2] = cwheel[2], cwheel[1]
+
+    for ff, cc in zip(['NB704+NB711','NB816','NB921','NB973'], cwheel):
         yz_fmatch = np.array([x for x in range(len(corr_tbl)) if corr_tbl['filt'][x] in ff and 
                               corr_tbl['zspec0'][x]>0 and corr_tbl['zspec0'][x]<9])
 
@@ -142,7 +146,7 @@ def main():
                                         fmt='none', mew=0, ecolor=cc, alpha=0.9)
 
     # plotting composites
-    for ff, cc in zip(['NB704+NB711','NB816','NB921','NB973'], ['blue','green','orange','red']):
+    for ff, cc in zip(['NB704+NB711','NB816','NB921','NB973'], cwheel):
         yz_fmatch = np.array([x for x in range(len(filt_arr)) if filt_arr[x] in ff])
         
         for inst, shape, ax_ii, shapesize in zip(['MMT','Keck'], ['o','*'], [0,1], [15,20]):
@@ -168,7 +172,7 @@ def main():
         ax.set_xlabel('log(M'+r'$_\bigstar$'+'/M'+r'$_\odot$'+')', size=14)
 
         ax.plot(x_arr, gb2010/config.k_ha, 'k--', lw=3, label='Garn & Best (2010)')
-        ax.text(9.65, 0.47, 'Garn & Best (2010)', rotation=33, color='k',
+        ax.text(9.65, 0.20, 'Garn & Best (2010)', rotation=33, color='k',
              alpha=1, fontsize=10, fontweight='bold')
 
         if ii==0:
@@ -190,10 +194,10 @@ def main():
 
 
     # creating filter legend
-    b_patch = mpatches.Patch(color='b', label='z~0.07,0.09 (NB704,NB711)')
-    g_patch = mpatches.Patch(color='g', label='z~0.24 (NB816)')
-    o_patch = mpatches.Patch(color='orange', label='z~0.40 (NB921)')
-    r_patch = mpatches.Patch(color='r', label='z~0.49 (NB973)')
+    b_patch = mpatches.Patch(color=cwheel[0], label='z~0.07,0.09 (NB704,NB711)')
+    g_patch = mpatches.Patch(color=cwheel[1], label='z~0.24 (NB816)')
+    o_patch = mpatches.Patch(color=cwheel[2], label='z~0.40 (NB921)')
+    r_patch = mpatches.Patch(color=cwheel[3], label='z~0.49 (NB973)')
 
     # creating instrument legend
     mmt = mlines.Line2D([], [], color='white', mec='k', marker='o', markersize=15, label='MMT')
