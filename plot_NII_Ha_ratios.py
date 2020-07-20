@@ -107,7 +107,6 @@ def main():
     '''
     '''
     # latex backend for mpl
-    # import matplotlib
     # matplotlib.rcParams['text.usetex'] = True
     # matplotlib.rcParams['text.latex.unicode'] = True
 
