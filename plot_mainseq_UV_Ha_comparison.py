@@ -34,6 +34,7 @@ from __future__ import print_function
 
 import numpy as np, astropy.units as u, matplotlib.pyplot as plt, sys
 from scipy import interpolate
+from scipy.optimize import curve_fit
 from astropy import constants
 from astropy.io import fits as pyfits, ascii as asc
 from astropy.cosmology import FlatLambdaCDM
@@ -41,7 +42,7 @@ cosmo = FlatLambdaCDM(H0 = 70 * u.km / u.s / u.Mpc, Om0=0.3)
 
 import config
 from mainseq_corrections import niiha_oh_determine
-from MACT_utils import get_flux_from_FAST, get_tempz, get_UV_SFR
+from MACT_utils import get_flux_from_FAST, get_tempz, get_UV_SFR, get_z_arr, get_FUV_corrs
 
 
 def plot_ff_zz_color_filled(ax, xvals, yvals, corr_tbl,
@@ -53,7 +54,6 @@ def plot_ff_zz_color_filled(ax, xvals, yvals, corr_tbl,
     a scatter plot where the colors depend on the filts, and filled/open shapes
     correspond to yes_spec_z/no_spec_z sources
     '''
-    from MACT_utils import get_z_arr
     z_arr = get_z_arr()
 
     zspec0 = corr_tbl['zspec0'].data
@@ -89,7 +89,6 @@ def plot_zz_shapes_filled(ax, xvals, yvals, corr_tbl, color, legend_on=False,
     if legend_on, then a legend for the corresponding shapes is created in the
     upper right corner of the panel
     '''
-    from MACT_utils import get_z_arr
     z_arr = get_z_arr()
 
     labelarr = np.array([])
@@ -489,7 +488,6 @@ def plot_SFR_ratios_dustcorr(log_SFR_HA, log_SFR_UV, corr_tbl):
     '''
     comparing with Lee+09 fig 5A (with dust correction)
     '''
-    from scipy.optimize import curve_fit
     log_SFR_ratio = log_SFR_HA - log_SFR_UV
     stlr_mass = corr_tbl['stlr_mass'].data
     
@@ -513,7 +511,6 @@ def plot_SFR_ratios_dustcorr(log_SFR_HA, log_SFR_UV, corr_tbl):
     ax = plot_binned_percbins(ax, log_SFR_HA, log_SFR_ratio, corr_tbl)
 
     # plotting line of best fit
-    from MACT_utils import get_FUV_corrs
     m, b, const = get_FUV_corrs(corr_tbl, ret_coeffs_const=True)
     MACT_SFRHA_both, = ax.plot(xtmparr_lo, m*xtmparr_lo + b, 'k--',
         label=r'$\mathcal{MACT}:$ '+r'$%.2f \log( \rm SFR[H\alpha]) +%.2f \, ; \, %.2f$'%(m,b,const))
@@ -534,7 +531,6 @@ def line_fit(ax, xvals, yvals, xlin_arr, datatype):
     fits a y=mx+b line to the xvals, yvals data
     label=r'$\mathcal{MACT}:$ '+r'$\log(\rm SFR(H\alpha)/SFR(FUV)) = %.2f xvals +%.2f$'%(m,b)
     '''
-    from scipy.optimize import curve_fit
     def line(x, m, b):
         return m*x + b
 

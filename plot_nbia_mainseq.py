@@ -33,7 +33,7 @@ from scipy.optimize import curve_fit
 from astropy.io import ascii as asc
 
 import config
-from MACT_utils import get_z_arr, get_mainseq_fit_params, compute_onesig_pdf
+from MACT_utils import get_z_arr, get_mainseq_fit_params, compute_onesig_pdf, combine_mact_newha
 from MACT_utils import get_FUV_corrs, get_filt_index, approximated_zspec0, get_func0_eqn0
 
 mainseq_fig4_only = False
@@ -533,7 +533,6 @@ def make_ssfr_graph_newha(f, ax, corr_sfrs, stlr_mass, filts, zspec0, zspec00,
     redshift and return those parameters as well.
     '''
     # getting MACT+NewHa data
-    from MACT_utils import combine_mact_newha
     (sfrs_with_newha, mass_with_newha, zspec_with_newha,
         zspec_with_newha00, filts_with_newha, mz_data_with_newha,
         no_spectra, yes_spectra, z_arr, cwheel) = combine_mact_newha(corr_tbl)

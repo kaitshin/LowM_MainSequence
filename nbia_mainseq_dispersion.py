@@ -23,17 +23,17 @@ import numpy as np, matplotlib.pyplot as plt
 import scipy.optimize as optimize
 from astropy.io import ascii as asc
 from astropy.table import Table
+from matplotlib.patches import Patch
 
 import config
-from MACT_utils import get_mainseq_fit_params, get_filt_index, get_z_arr, approximated_zspec0, get_func0_eqn0
+from MACT_utils import get_mainseq_fit_params, get_filt_index, get_z_arr
+from MACT_utils import get_FUV_corrs, approximated_zspec0, get_func0_eqn0
 
 
 def add_legends(ax, withnewha):
     '''
     adds two legends to the plot
     '''
-    from matplotlib.patches import Patch
-
     # first legend
     legend1 = ax.legend(loc='upper left', frameon=False)
     ax.add_artist(legend1)
@@ -298,7 +298,6 @@ def main():
     filt_corr_factor = corr_tbl['filt_corr_factor'].data
     nii_ha_corr_factor = corr_tbl['nii_ha_corr_factor'].data
     corr_sfrs = obs_sfr+filt_corr_factor+nii_ha_corr_factor+dust_corr_factor
-    from MACT_utils import get_FUV_corrs
     FUV_corr_factor = get_FUV_corrs(corr_tbl)
 
     zspec00 = approximated_zspec0(zspec0, filts)

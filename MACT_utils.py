@@ -539,6 +539,52 @@ def get_FUV_corrs(corr_tbl, ret_coeffs_const=False, ret_coeffs=False, old=False)
         return FUV_corr_factor
 
 
+def get_good_newha_ii(newhadata):
+    '''
+    returns indices of the newha data that have valid mass, sfrs, lha, and
+    are not agns
+    '''
+    tempm = newhadata['LOGM']
+    tempsfr = newhadata['LOGSFR_HA']
+    templha = newhadata['L_HA']
+    tempagn = newhadata['AGN']
+    good_newha_ii = np.where((tempm > 0) & (tempsfr != 0) & (templha != 0)
+        & (tempagn != 1))[0]
+
+    return good_newha_ii
+
+
+def get_newha_logsfrha(newhadata, newha_sfr_type):
+    '''
+    returns sfrs from the newha dataset depending on newha_sfr_type
+    
+    if the type is 'orig_sfr', then the sfr is returned directly from the tbl
+    
+    if the type is 'met_dep_sfr', then a metallicity-dependent sfr is derived
+    from the luminosity and nii/ha ratios given in the table. this is to be
+    consistent with the way the MACT dataset was analyzed
+    '''
+    if newha_sfr_type == 'orig_sfr':
+        newha_logsfrha = newhadata['LOGSFR_HA']
+    elif newha_sfr_type == 'met_dep_sfr':
+        from mainseq_corrections import niiha_oh_determine
+
+        l_ha = np.log10(newhadata['L_HA']) + 41 # ha luminosity
+        nii_ha_best = newhadata['NII_HALPHA_BEST']
+        nii6583_ha = nii_ha_best * 2.96/(1+2.96)
+
+        # since this code estimates log(O/H)+12
+        logOH = niiha_oh_determine(np.log10(nii6583_ha), 'PP04_N2') - 12
+        y = logOH + 3.31 
+        log_SFR_LHa = -41.34 + 0.39*y + 0.127*y**2 # metallicity-dependent
+
+        newha_logsfrha = log_SFR_LHa + l_ha
+    else:
+        raise ValueError('invalid newha_sfr_type')
+
+    return newha_logsfrha
+
+
 def combine_mact_newha(corr_tbl, FUV_corr=True, errs=False):
     '''
     '''
@@ -560,7 +606,6 @@ def combine_mact_newha(corr_tbl, FUV_corr=True, errs=False):
     
 
     # reading in newha data
-    from plot_mact_with_newha import get_good_newha_ii, get_newha_logsfrha
     from astropy.io import fits as pyfits
     newha = pyfits.open(config.FULL_PATH+'NewHa/NewHa.fits')
     newhadata_tmp = newha[1].data

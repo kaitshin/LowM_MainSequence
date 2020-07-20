@@ -22,7 +22,7 @@ from astropy.convolution import convolve, Box2DKernel
 from astropy.io import ascii as asc
 
 import config
-from MACT_utils import get_tempz, get_mainseq_fit_params, compute_onesig_pdf
+from MACT_utils import get_tempz, get_mainseq_fit_params, compute_onesig_pdf, get_FUV_corrs
 
 num_iters = 10000
 
@@ -258,7 +258,6 @@ def main():
     dust_corr_factor = corr_tbl['dust_corr_factor'].data
     filt_corr_factor = corr_tbl['filt_corr_factor'].data
     nii_ha_corr_factor = corr_tbl['nii_ha_corr_factor'].data
-    from MACT_utils import get_FUV_corrs
     FUV_corr_factor = get_FUV_corrs(corr_tbl)
     sfrs = obs_sfr+filt_corr_factor+nii_ha_corr_factor+dust_corr_factor+FUV_corr_factor
 
