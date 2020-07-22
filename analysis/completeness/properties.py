@@ -121,11 +121,14 @@ def dict_prop_maker(NB, BB, x, filt_dict, filt_corr, mass_int, lum_dist):
 
 
 def derived_properties(NB, BB, x, filt_dict, filt_corr, mass_int, lum_dist,
-                       std_mass_int=None):
+                       std_mass_int=None, suffix=''):
     EW, NB_flux = ew_flux_dual(NB, BB, x, filt_dict)
 
+    der_prop_dict = dict()
+    der_prop_dict['logEW'+suffix] = np.log10(EW)
+
     # Apply NB filter correction from beginning
-    NB_flux = np.log10(NB_flux * filt_corr)
+    der_prop_dict['NB_flux'+suffix] = np.log10(NB_flux * filt_corr)
 
     logM = mass_int(BB)
     if not isinstance(std_mass_int, type(None)):
@@ -133,12 +136,16 @@ def derived_properties(NB, BB, x, filt_dict, filt_corr, mass_int, lum_dist,
         np.random.seed(348)
         rtemp = np.random.normal(size=NB.shape)
         logM += std_ref * rtemp
+    der_prop_dict['logM'+suffix] = logM
 
     NIIHa, logOH = get_NIIHa_logOH(logM)
+    der_prop_dict['NIIHa'+suffix] = NIIHa
+    der_prop_dict['logOH'+suffix] = logOH
 
-    Ha_Flux = correct_NII(NB_flux, NIIHa)
-    Ha_Lum = Ha_Flux + np.log10(4 * np.pi) + 2 * np.log10(lum_dist)
+    der_prop_dict['Ha_Flux'+suffix] = correct_NII(NB_flux, NIIHa)
+    der_prop_dict['Ha_Lum'+suffix] = der_prop_dict['Ha_Flux'+suffix] + \
+                                     np.log10(4 * np.pi) + 2 * np.log10(lum_dist)
 
-    logSFR = HaSFR_metal_dep(logOH, Ha_Lum)
+    der_prop_dict['logSFR'+suffix] = HaSFR_metal_dep(logOH, der_prop_dict['Ha_Lum'+suffix])
 
-    return np.log10(EW), NB_flux, logM, NIIHa, logOH, Ha_Flux, Ha_Lum, logSFR
+    return der_prop_dict
