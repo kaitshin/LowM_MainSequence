@@ -93,8 +93,6 @@ def main(int_dict, npz_MC_file, mock_sz, ss_range, mass_dict, norm_dict,
             npz_MCdict[name] = eval(name)
         npz_MCdict.update(der_prop_dict_ref)  # Add the derived properties dictionary
         np.savez(npz_MC_file, **npz_MCdict)
-
-        der_prop_dict_ref = derived_properties(**dict_prop_ref)
     else:
         if not redo:
             mylog.info("File found : " + npz_MC_file)
@@ -107,6 +105,8 @@ def main(int_dict, npz_MC_file, mock_sz, ss_range, mass_dict, norm_dict,
                                             npz_MCdict['x_MC0_ref'],
                                             filt_dict, filt_corr[ff],
                                             mass_int, lum_dist)
+
+    der_prop_dict_ref = derived_properties(**dict_prop_ref)
 
     BB_seed = ff + 5
     mylog.info("seed for broadband, mm=%i ss=%i : %i" % (mm, ss, BB_seed))
