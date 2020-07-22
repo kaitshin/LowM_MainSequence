@@ -142,10 +142,11 @@ def derived_properties(NB, BB, x, filt_dict, filt_corr, mass_int, lum_dist,
     der_prop_dict['NIIHa'+suffix] = NIIHa
     der_prop_dict['logOH'+suffix] = logOH
 
-    der_prop_dict['Ha_Flux'+suffix] = correct_NII(NB_flux, NIIHa)
+    der_prop_dict['Ha_Flux'+suffix] = correct_NII(der_prop_dict['NB_flux'+suffix], NIIHa)
     der_prop_dict['Ha_Lum'+suffix] = der_prop_dict['Ha_Flux'+suffix] + \
                                      np.log10(4 * np.pi) + 2 * np.log10(lum_dist)
 
-    der_prop_dict['logSFR'+suffix] = HaSFR_metal_dep(logOH, der_prop_dict['Ha_Lum'+suffix])
+    der_prop_dict['logSFR'+suffix] = HaSFR_metal_dep(der_prop_dict['logOH'+suffix],
+                                                     der_prop_dict['Ha_Lum'+suffix])
 
     return der_prop_dict
