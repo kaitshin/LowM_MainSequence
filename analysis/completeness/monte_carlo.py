@@ -147,5 +147,8 @@ def main(int_dict, npz_MC_file, mock_sz, ss_range, mass_dict, norm_dict,
         dict_phot_ref.pop(key)
         dict_phot_MC.pop(key)
 
-    return dict_phot_ref, der_prop_dict_ref, npz_MCdict, dict_phot_MC, \
-        der_prop_dict_MC, EW_flag0, NB_sel, NB_nosel
+    dict_phot_MC['EW_flag0'] = EW_flag0
+    dict_phot_MC['NB_sel'] = NB_sel
+    dict_phot_MC['NB_nosel'] = NB_nosel
+
+    return dict_phot_ref, der_prop_dict_ref, npz_MCdict, dict_phot_MC, der_prop_dict_MC

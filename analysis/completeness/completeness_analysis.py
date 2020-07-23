@@ -56,11 +56,6 @@ cosmo = FlatLambdaCDM(H0=70 * u.km / u.s / u.Mpc, Om0=0.3)
 if not exists(npz_path0):
     os.mkdir(npz_path0)
 
-npz_MCnames = ['EW_seed', 'logEW_MC_ref', 'x_MC0_ref', 'BB_MC0_ref',
-               'BB_sig_ref', 'sig_limit_ref', 'NB_sel_ref', 'NB_nosel_ref',
-               'EW_flag_ref', 'flux_ref', 'logM_ref', 'NIIHa_ref',
-               'logOH_ref', 'HaFlux_ref', 'HaLum_ref', 'logSFR_ref']
-
 
 def plot_NB_select(ff, t_ax, NB, ctype, linewidth=1, plot4=True):
     t_ax.axhline(y=minthres[ff], linestyle='dashed', color=ctype)
@@ -212,13 +207,15 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 EW_dict = {'logEW_mean': logEW_mean, 'logEW_sig': logEW_sig,
                            'EW_int': EW_int}
 
-                dict_phot_ref, der_prop_dict_ref, npz_MCdict, dict_phot_MC, der_prop_dict_MC, EW_flag0, NB_sel, \
-                    NB_nosel = mc_main(int_dict, npz_MCfile, mock_sz, ss_range, mass_dict, norm_dict, filt_dict,
-                                       EW_dict, NB_MC, lum_dist, mylog, redo=redo)
+                dict_phot_ref, der_prop_dict_ref, npz_MCdict, dict_phot_MC, \
+                    der_prop_dict_MC = mc_main(int_dict, npz_MCfile, mock_sz,
+                                               ss_range, mass_dict, norm_dict,
+                                               filt_dict, EW_dict, NB_MC,
+                                               lum_dist, mylog, redo=redo)
 
                 # Panel (0,0) - NB excess selection plot
 
-                plot_mock(ax00, NB_MC, dict_phot_MC['x'], NB_sel, NB_nosel, '',
+                plot_mock(ax00, NB_MC, dict_phot_MC['x'], dict_phot_MC['NB_sel'], dict_phot_MC['NB_nosel'], '',
                           cont0[ff] + ' - ' + filters[ff])
 
                 ax00.axvline(m_NB[ff], linestyle='dashed', color='b')
@@ -239,7 +236,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 plt.subplots_adjust(left=0.1, right=0.98, bottom=0.10,
                                     top=0.98, wspace=0.25, hspace=0.05)
 
-                plot_mock(ax0, NB_MC, dict_phot_MC['x'], NB_sel, NB_nosel,
+                plot_mock(ax0, NB_MC, dict_phot_MC['x'], dict_phot_MC['NB_sel'], dict_phot_MC['NB_nosel'],
                           filters[ff], cont0[ff] + ' - ' + filters[ff])
                 ax0.axvline(m_NB[ff], linestyle='dashed', color='b')
 
@@ -256,22 +253,22 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 fig0.savefig(pp0, format='pdf')
 
                 # Panel (1,0) - NB mag vs H-alpha flux
-                plot_mock(ax10, NB_MC, der_prop_dict_MC['Ha_Flux'], NB_sel,
-                          NB_nosel, filters[ff], Flux_lab)
+                plot_mock(ax10, NB_MC, der_prop_dict_MC['Ha_Flux'], dict_phot_MC['NB_sel'],
+                          dict_phot_MC['NB_nosel'], filters[ff], Flux_lab)
 
                 plot_MACT(ax10, dict_NB, 'NBmag', 'Ha_Flux')
 
                 # Panel (0,1) - stellar mass vs H-alpha luminosity
 
                 plot_mock(ax01, der_prop_dict_MC['logM'], der_prop_dict_MC['Ha_Lum'],
-                          NB_sel, NB_nosel, '', r'$\log(L_{{\rm H}\alpha})$')
+                          dict_phot_MC['NB_sel'], dict_phot_MC['NB_nosel'], '', r'$\log(L_{{\rm H}\alpha})$')
 
                 plot_MACT(ax01, dict_NB, 'logMstar', 'Ha_Lum')
 
                 # Panel (1,1) - stellar mass vs H-alpha SFR
 
                 plot_mock(ax11, der_prop_dict_MC['logM'], der_prop_dict_MC['logSFR'],
-                          NB_sel, NB_nosel, M_lab, SFR_lab)
+                          dict_phot_MC['NB_sel'], dict_phot_MC['NB_nosel'], M_lab, SFR_lab)
 
                 plot_MACT(ax11, dict_NB, 'logMstar', 'Ha_SFR')
 
@@ -281,7 +278,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                                     top=0.98, wspace=0.25, hspace=0.05)
 
                 plot_mock(ax0, der_prop_dict_MC['logM'], der_prop_dict_MC['logSFR'],
-                          NB_sel, NB_nosel, M_lab, SFR_lab)
+                          dict_phot_MC['NB_sel'], dict_phot_MC['NB_nosel'], M_lab, SFR_lab)
 
                 plot_MACT(ax0, dict_NB, 'logMstar', 'Ha_SFR')
                 # ax0.set_ylim([-5,-1])
@@ -295,10 +292,10 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 No, Ng, binso, \
                     wht0 = ew_flux_hist('EW', mm, ss, ax20, dict_NB['NB_EW'], avg_NB,
                                         sig_NB, EW_bins, logEW_mean, logEW_sig,
-                                        EW_flag0, der_prop_dict_MC['logEW'], ax3=ax3ul)
+                                        dict_phot_MC['EW_flag0'], der_prop_dict_MC['logEW'], ax3=ax3ul)
                 ax20.set_position([0.085, 0.05, 0.44, 0.265])
 
-                good = np.where(EW_flag0)[0]
+                good = np.where(dict_phot_MC['EW_flag0'])[0]
 
                 # Model comparison plots
                 if len(good) > 0:
@@ -311,7 +308,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                     wht0 = ew_flux_hist('Flux', mm, ss, ax21, dict_NB['Ha_Flux'],
                                         avg_NB_flux, sig_NB_flux, Flux_bins,
                                         logEW_mean, logEW_sig,
-                                        EW_flag0, der_prop_dict_MC['Ha_Flux'], ax3=ax3ll)
+                                        dict_phot_MC['EW_flag0'], der_prop_dict_MC['Ha_Flux'], ax3=ax3ll)
                 ax21.set_position([0.53, 0.05, 0.44, 0.265])
 
                 ax21.legend(loc='upper right', fancybox=True, fontsize=6,
@@ -347,7 +344,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
                 # Compute and plot completeness
                 # Combine over modelled galaxies
-                comp_arr = np.sum(EW_flag0, axis=0) / float(Nmock)
+                comp_arr = np.sum(dict_phot_MC['EW_flag0'], axis=0) / float(Nmock)
 
                 # Plot Type 1 and 2 errors
                 cticks = np.arange(0, 1.2, 0.2)
@@ -365,7 +362,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 ax4ins0.xaxis.set_ticks_position("top")
                 ax4ins1.xaxis.set_ticks_position("top")
 
-                idx0 = [npz_MCdict['NB_sel_ref'], npz_MCdict['NB_nosel_ref']]
+                idx0 = [npz_MCdict['dict_phot_MC['NB_sel']_ref'], npz_MCdict['NB_nosel_ref']]
                 cmap0 = [cmap_sel, cmap_nosel]
                 lab0 = ['Type 1', 'Type 2']
                 for idx, cmap, ins, lab in zip(idx0, cmap0, [ax4ins0, ax4ins1], lab0):
@@ -392,20 +389,20 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 above_break = np.where(NB_MC <= NB_break)
 
                 t_comp_sSFR, \
-                    t_comp_sSFR_ref = plot_completeness(ax401, logsSFR_MC, NB_sel, sSFR_bins,
+                    t_comp_sSFR_ref = plot_completeness(ax401, logsSFR_MC, dict_phot_MC['NB_sel'], sSFR_bins,
                                                         ref_arr0=logsSFR_ref,
                                                         above_break=above_break)
 
                 '''t_comp_EW, \
-                    t_comp_EW_ref = plot_completeness(ax410, logEW_MC, NB_sel,
+                    t_comp_EW_ref = plot_completeness(ax410, logEW_MC, dict_phot_MC['NB_sel'],
                                                       EW_bins, ref_arr0=logEW_MC_ref)
                 '''
                 t_comp_Fl, \
-                    t_comp_Fl_ref = plot_completeness(ax410, der_prop_dict_MC['Ha_Flux'], NB_sel,
+                    t_comp_Fl_ref = plot_completeness(ax410, der_prop_dict_MC['Ha_Flux'], dict_phot_MC['NB_sel'],
                                                       Flux_bins, ref_arr0=der_prop_dict_ref['Ha_Flux'])
 
                 t_comp_SFR, \
-                    t_comp_SFR_ref = plot_completeness(ax411, der_prop_dict_MC['logSFR'], NB_sel,
+                    t_comp_SFR_ref = plot_completeness(ax411, der_prop_dict_MC['logSFR'], dict_phot_MC['NB_sel'],
                                                        SFR_bins, ref_arr0=der_prop_dict_ref['logSFR'])
                 comp_sSFR[mm, ss] = t_comp_sSFR
                 comp_SFR[mm, ss] = t_comp_SFR
@@ -414,7 +411,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 fig0, ax0 = plt.subplots()
                 plt.subplots_adjust(left=0.1, right=0.97, bottom=0.10,
                                     top=0.98, wspace=0.25, hspace=0.05)
-                t_comp_SFR = plot_completeness(ax0, der_prop_dict_MC['logSFR'], NB_sel, SFR_bins,
+                t_comp_SFR = plot_completeness(ax0, der_prop_dict_MC['logSFR'], dict_phot_MC['NB_sel'], SFR_bins,
                                                ref_arr0=der_prop_dict_ref['logSFR'], annotate=False)
                 ax0.set_ylabel('Completeness')
                 ax0.set_xlabel(SFR_lab)
@@ -438,7 +435,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 fig5, ax5 = plt.subplots()
                 plot_mock(ax5, der_prop_dict_MC['logM'],
                           der_prop_dict_MC['logSFR'] - der_prop_dict_MC['logM'],
-                          NB_sel, NB_nosel, M_lab, r'$\log({\rm sSFR})$')
+                          dict_phot_MC['NB_sel'], dict_phot_MC['NB_nosel'], M_lab, r'$\log({\rm sSFR})$')
                 plt.subplots_adjust(left=0.09, right=0.98, bottom=0.1, top=0.98)
                 fig5.set_size_inches(8, 8)
                 fig5.savefig(pp4, format='pdf')
