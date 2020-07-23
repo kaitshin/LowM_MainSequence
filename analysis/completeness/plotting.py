@@ -94,7 +94,7 @@ def plot_MACT(ax, dict_NB, x0, y0):
                alpha=0.5, s=5)
 
 
-def plot_mock(ax, dict_phot_MC, x0, y0, xlabel, ylabel):
+def plot_mock(ax, dict_phot_MC, x0, y0, xlabel='', ylabel=''):
     """
     Plot mocked galaxies in various sub-panel
 
