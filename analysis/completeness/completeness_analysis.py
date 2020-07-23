@@ -207,16 +207,15 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 EW_dict = {'logEW_mean': logEW_mean, 'logEW_sig': logEW_sig,
                            'EW_int': EW_int}
 
-                dict_phot_ref, der_prop_dict_ref, npz_MCdict, dict_phot_MC, \
-                    der_prop_dict_MC = mc_main(int_dict, npz_MCfile, mock_sz,
-                                               ss_range, mass_dict, norm_dict,
-                                               filt_dict, EW_dict, NB_MC,
-                                               lum_dist, mylog, redo=redo)
+                dict_phot_ref, der_prop_dict_ref, npz_MCdict, \
+                    dict_MC = mc_main(int_dict, npz_MCfile, mock_sz, ss_range,
+                                      mass_dict, norm_dict, filt_dict, EW_dict,
+                                      NB_MC, lum_dist, mylog, redo=redo)
 
                 # Panel (0,0) - NB excess selection plot
 
-                plot_mock(ax00, dict_phot_MC, 'NB', 'x',
-                          '', cont0[ff] + ' - ' + filters[ff])
+                ylabel_excess = cont0[ff] + ' - ' + filters[ff]
+                plot_mock(ax00, dict_MC, 'NB', 'x', '', ylabel_excess)
 
                 ax00.axvline(m_NB[ff], linestyle='dashed', color='b')
 
@@ -236,8 +235,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 plt.subplots_adjust(left=0.1, right=0.98, bottom=0.10,
                                     top=0.98, wspace=0.25, hspace=0.05)
 
-                plot_mock(ax0, dict_phot_MC, 'NB', 'x', filters[ff],
-                          cont0[ff] + ' - ' + filters[ff])
+                plot_mock(ax0, dict_MC, 'NB', 'x', filters[ff], ylabel_excess)
                 ax0.axvline(m_NB[ff], linestyle='dashed', color='b')
 
                 temp_x = dict_NB['contmag'] - dict_NB['NBmag']
@@ -253,22 +251,20 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 fig0.savefig(pp0, format='pdf')
 
                 # Panel (1,0) - NB mag vs H-alpha flux
-                plot_mock(ax10, dict_phot_MC, 'NB', der_prop_dict_MC['Ha_Flux'],
-                          filters[ff], Flux_lab)
+                plot_mock(ax10, dict_MC, 'NB', 'Ha_Flux', filters[ff], Flux_lab)
 
                 plot_MACT(ax10, dict_NB, 'NBmag', 'Ha_Flux')
 
                 # Panel (0,1) - stellar mass vs H-alpha luminosity
 
-                plot_mock(ax01, dict_phot_MC, der_prop_dict_MC['logM'],
-                          der_prop_dict_MC['Ha_Lum'], '', r'$\log(L_{{\rm H}\alpha})$')
+                plot_mock(ax01, dict_MC, 'logM', 'Ha_Lum', '',
+                          r'$\log(L_{{\rm H}\alpha})$')
 
                 plot_MACT(ax01, dict_NB, 'logMstar', 'Ha_Lum')
 
                 # Panel (1,1) - stellar mass vs H-alpha SFR
 
-                plot_mock(ax11, dict_phot_MC, der_prop_dict_MC['logM'],
-                          der_prop_dict_MC['logSFR'], M_lab, SFR_lab)
+                plot_mock(ax11, dict_MC, 'logM', 'logSFR', M_lab, SFR_lab)
 
                 plot_MACT(ax11, dict_NB, 'logMstar', 'Ha_SFR')
 
@@ -277,8 +273,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 plt.subplots_adjust(left=0.1, right=0.98, bottom=0.10,
                                     top=0.98, wspace=0.25, hspace=0.05)
 
-                plot_mock(ax0, dict_phot_MC, der_prop_dict_MC['logM'], der_prop_dict_MC['logSFR'],
-                          M_lab, SFR_lab)
+                plot_mock(ax0, dict_MC, 'logM', 'logSFR', M_lab, SFR_lab)
 
                 plot_MACT(ax0, dict_NB, 'logMstar', 'Ha_SFR')
                 # ax0.set_ylim([-5,-1])
@@ -292,10 +287,10 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 No, Ng, binso, \
                     wht0 = ew_flux_hist('EW', mm, ss, ax20, dict_NB['NB_EW'], avg_NB,
                                         sig_NB, EW_bins, logEW_mean, logEW_sig,
-                                        dict_phot_MC['EW_flag0'], der_prop_dict_MC['logEW'], ax3=ax3ul)
+                                        dict_MC['EW_flag0'], dict_MC['logEW'], ax3=ax3ul)
                 ax20.set_position([0.085, 0.05, 0.44, 0.265])
 
-                good = np.where(dict_phot_MC['EW_flag0'])[0]
+                good = np.where(dict_MC['EW_flag0'])[0]
 
                 # Model comparison plots
                 if len(good) > 0:
@@ -308,7 +303,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                     wht0 = ew_flux_hist('Flux', mm, ss, ax21, dict_NB['Ha_Flux'],
                                         avg_NB_flux, sig_NB_flux, Flux_bins,
                                         logEW_mean, logEW_sig,
-                                        dict_phot_MC['EW_flag0'], der_prop_dict_MC['Ha_Flux'], ax3=ax3ll)
+                                        dict_MC['EW_flag0'], dict_MC['Ha_Flux'], ax3=ax3ll)
                 ax21.set_position([0.53, 0.05, 0.44, 0.265])
 
                 ax21.legend(loc='upper right', fancybox=True, fontsize=6,
@@ -344,7 +339,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
                 # Compute and plot completeness
                 # Combine over modelled galaxies
-                comp_arr = np.sum(dict_phot_MC['EW_flag0'], axis=0) / float(Nmock)
+                comp_arr = np.sum(dict_MC['EW_flag0'], axis=0) / float(Nmock)
 
                 # Plot Type 1 and 2 errors
                 cticks = np.arange(0, 1.2, 0.2)
@@ -384,12 +379,12 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                                ha='left', xycoords='axes fraction')
 
                 logsSFR_ref = der_prop_dict_ref['logSFR'] - der_prop_dict_ref['logM']
-                logsSFR_MC = der_prop_dict_MC['logSFR'] - der_prop_dict_MC['logM']
+                logsSFR_MC = dict_MC['logSFR'] - dict_MC['logM']
 
                 above_break = np.where(NB_MC <= NB_break)
 
                 t_comp_sSFR, \
-                    t_comp_sSFR_ref = plot_completeness(ax401, logsSFR_MC, dict_phot_MC['NB_sel'], sSFR_bins,
+                    t_comp_sSFR_ref = plot_completeness(ax401, logsSFR_MC, dict_MC['NB_sel'], sSFR_bins,
                                                         ref_arr0=logsSFR_ref,
                                                         above_break=above_break)
 
@@ -398,11 +393,11 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                                                       EW_bins, ref_arr0=logEW_MC_ref)
                 '''
                 t_comp_Fl, \
-                    t_comp_Fl_ref = plot_completeness(ax410, der_prop_dict_MC['Ha_Flux'], dict_phot_MC['NB_sel'],
+                    t_comp_Fl_ref = plot_completeness(ax410, dict_MC['Ha_Flux'], dict_MC['NB_sel'],
                                                       Flux_bins, ref_arr0=der_prop_dict_ref['Ha_Flux'])
 
                 t_comp_SFR, \
-                    t_comp_SFR_ref = plot_completeness(ax411, der_prop_dict_MC['logSFR'], dict_phot_MC['NB_sel'],
+                    t_comp_SFR_ref = plot_completeness(ax411, dict_MC['logSFR'], dict_MC['NB_sel'],
                                                        SFR_bins, ref_arr0=der_prop_dict_ref['logSFR'])
                 comp_sSFR[mm, ss] = t_comp_sSFR
                 comp_SFR[mm, ss] = t_comp_SFR
@@ -411,7 +406,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 fig0, ax0 = plt.subplots()
                 plt.subplots_adjust(left=0.1, right=0.97, bottom=0.10,
                                     top=0.98, wspace=0.25, hspace=0.05)
-                t_comp_SFR = plot_completeness(ax0, der_prop_dict_MC['logSFR'], dict_phot_MC['NB_sel'], SFR_bins,
+                t_comp_SFR = plot_completeness(ax0, dict_MC['logSFR'], dict_MC['NB_sel'], SFR_bins,
                                                ref_arr0=der_prop_dict_ref['logSFR'], annotate=False)
                 ax0.set_ylabel('Completeness')
                 ax0.set_xlabel(SFR_lab)
@@ -433,9 +428,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
                 # Plot sSFR vs stellar mass
                 fig5, ax5 = plt.subplots()
-                plot_mock(ax5, dict_phot_MC, der_prop_dict_MC['logM'],
-                          der_prop_dict_MC['logSFR'] - der_prop_dict_MC['logM'],
-                          M_lab, r'$\log({\rm sSFR})$')
+                plot_mock(ax5, dict_MC, 'logM', logsSFR_MC, M_lab, r'$\log({\rm sSFR})$')
                 plt.subplots_adjust(left=0.09, right=0.98, bottom=0.1, top=0.98)
                 fig5.set_size_inches(8, 8)
                 fig5.savefig(pp4, format='pdf')

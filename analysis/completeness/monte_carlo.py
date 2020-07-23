@@ -151,4 +151,7 @@ def main(int_dict, npz_MC_file, mock_sz, ss_range, mass_dict, norm_dict,
     dict_phot_MC['NB_sel'] = NB_sel
     dict_phot_MC['NB_nosel'] = NB_nosel
 
-    return dict_phot_ref, der_prop_dict_ref, npz_MCdict, dict_phot_MC, der_prop_dict_MC
+    dict_MC = dict_phot_MC
+    dict_MC.update(der_prop_dict_MC)
+
+    return dict_phot_ref, der_prop_dict_ref, npz_MCdict, dict_MC
