@@ -41,8 +41,8 @@ from astropy.cosmology import FlatLambdaCDM
 cosmo = FlatLambdaCDM(H0 = 70 * u.km / u.s / u.Mpc, Om0=0.3)
 
 import config
-from mainseq_corrections import niiha_oh_determine
-from MACT_utils import get_flux_from_FAST, get_tempz, get_UV_SFR, get_z_arr, get_FUV_corrs
+from MACT_utils import niiha_oh_determine, get_flux_from_FAST
+from MACT_utils import get_tempz, get_UV_SFR, get_z_arr, get_FUV_corrs
 
 
 def plot_ff_zz_color_filled(ax, xvals, yvals, corr_tbl,
