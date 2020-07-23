@@ -215,8 +215,8 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
                 # Panel (0,0) - NB excess selection plot
 
-                plot_mock(ax00, NB_MC, dict_phot_MC['x'], dict_phot_MC['NB_sel'], dict_phot_MC['NB_nosel'], '',
-                          cont0[ff] + ' - ' + filters[ff])
+                plot_mock(ax00, dict_phot_MC, 'NB', 'x',
+                          '', cont0[ff] + ' - ' + filters[ff])
 
                 ax00.axvline(m_NB[ff], linestyle='dashed', color='b')
 
@@ -236,8 +236,8 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 plt.subplots_adjust(left=0.1, right=0.98, bottom=0.10,
                                     top=0.98, wspace=0.25, hspace=0.05)
 
-                plot_mock(ax0, NB_MC, dict_phot_MC['x'], dict_phot_MC['NB_sel'], dict_phot_MC['NB_nosel'],
-                          filters[ff], cont0[ff] + ' - ' + filters[ff])
+                plot_mock(ax0, dict_phot_MC, 'NB', 'x', filters[ff],
+                          cont0[ff] + ' - ' + filters[ff])
                 ax0.axvline(m_NB[ff], linestyle='dashed', color='b')
 
                 temp_x = dict_NB['contmag'] - dict_NB['NBmag']
@@ -253,22 +253,22 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 fig0.savefig(pp0, format='pdf')
 
                 # Panel (1,0) - NB mag vs H-alpha flux
-                plot_mock(ax10, NB_MC, der_prop_dict_MC['Ha_Flux'], dict_phot_MC['NB_sel'],
-                          dict_phot_MC['NB_nosel'], filters[ff], Flux_lab)
+                plot_mock(ax10, dict_phot_MC, 'NB', der_prop_dict_MC['Ha_Flux'],
+                          filters[ff], Flux_lab)
 
                 plot_MACT(ax10, dict_NB, 'NBmag', 'Ha_Flux')
 
                 # Panel (0,1) - stellar mass vs H-alpha luminosity
 
-                plot_mock(ax01, der_prop_dict_MC['logM'], der_prop_dict_MC['Ha_Lum'],
-                          dict_phot_MC['NB_sel'], dict_phot_MC['NB_nosel'], '', r'$\log(L_{{\rm H}\alpha})$')
+                plot_mock(ax01, dict_phot_MC, der_prop_dict_MC['logM'],
+                          der_prop_dict_MC['Ha_Lum'], '', r'$\log(L_{{\rm H}\alpha})$')
 
                 plot_MACT(ax01, dict_NB, 'logMstar', 'Ha_Lum')
 
                 # Panel (1,1) - stellar mass vs H-alpha SFR
 
-                plot_mock(ax11, der_prop_dict_MC['logM'], der_prop_dict_MC['logSFR'],
-                          dict_phot_MC['NB_sel'], dict_phot_MC['NB_nosel'], M_lab, SFR_lab)
+                plot_mock(ax11, dict_phot_MC, der_prop_dict_MC['logM'],
+                          der_prop_dict_MC['logSFR'], M_lab, SFR_lab)
 
                 plot_MACT(ax11, dict_NB, 'logMstar', 'Ha_SFR')
 
@@ -277,8 +277,8 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 plt.subplots_adjust(left=0.1, right=0.98, bottom=0.10,
                                     top=0.98, wspace=0.25, hspace=0.05)
 
-                plot_mock(ax0, der_prop_dict_MC['logM'], der_prop_dict_MC['logSFR'],
-                          dict_phot_MC['NB_sel'], dict_phot_MC['NB_nosel'], M_lab, SFR_lab)
+                plot_mock(ax0, dict_phot_MC, der_prop_dict_MC['logM'], der_prop_dict_MC['logSFR'],
+                          M_lab, SFR_lab)
 
                 plot_MACT(ax0, dict_NB, 'logMstar', 'Ha_SFR')
                 # ax0.set_ylim([-5,-1])
@@ -362,7 +362,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 ax4ins0.xaxis.set_ticks_position("top")
                 ax4ins1.xaxis.set_ticks_position("top")
 
-                idx0 = [npz_MCdict['dict_phot_MC['NB_sel']_ref'], npz_MCdict['NB_nosel_ref']]
+                idx0 = [npz_MCdict['NB_sel_ref'], npz_MCdict['NB_nosel_ref']]
                 cmap0 = [cmap_sel, cmap_nosel]
                 lab0 = ['Type 1', 'Type 2']
                 for idx, cmap, ins, lab in zip(idx0, cmap0, [ax4ins0, ax4ins1], lab0):
@@ -433,9 +433,9 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
                 # Plot sSFR vs stellar mass
                 fig5, ax5 = plt.subplots()
-                plot_mock(ax5, der_prop_dict_MC['logM'],
+                plot_mock(ax5, dict_phot_MC, der_prop_dict_MC['logM'],
                           der_prop_dict_MC['logSFR'] - der_prop_dict_MC['logM'],
-                          dict_phot_MC['NB_sel'], dict_phot_MC['NB_nosel'], M_lab, r'$\log({\rm sSFR})$')
+                          M_lab, r'$\log({\rm sSFR})$')
                 plt.subplots_adjust(left=0.09, right=0.98, bottom=0.1, top=0.98)
                 fig5.set_size_inches(8, 8)
                 fig5.savefig(pp4, format='pdf')

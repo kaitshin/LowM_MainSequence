@@ -94,12 +94,14 @@ def plot_MACT(ax, dict_NB, x0, y0):
                alpha=0.5, s=5)
 
 
-def plot_mock(ax, x0, y0, NB_sel, NB_nosel, xlabel, ylabel):
+def plot_mock(ax, dict_phot_MC, x0, y0, xlabel, ylabel):
     """
     Plot mocked galaxies in various sub-panel
 
     ax : matplotlib.axes._subplots.AxesSubplot
        sub-Axis to plot
+
+    dict_phot_MC: dictionary containing photometry and NB selection
 
     x0 : list or numpy.array
        Array to plot on x-axis
@@ -107,18 +109,21 @@ def plot_mock(ax, x0, y0, NB_sel, NB_nosel, xlabel, ylabel):
     y0 : list or numpy.array
        Array to plot on y-axis
 
-    NB_sel: numpy.array
-       Index array indicating which sources are NB selected
-
-    wo_spec: numpy.array
-       Index array indicating which sources are not NB selected
-
     xlabel: str
        String for x-axis.  Set to '' to not show a label
 
-    xlabel: str
+    ylabel: str
        String for y-axis.  Set to '' to not show a label
     """
+
+    NB_sel = dict_phot_MC['NB_sel']
+    NB_nosel = dict_phot_MC['NB_nosel']
+
+    if isinstance(x0, str):
+        x0 = dict_phot_MC[x0]
+
+    if isinstance(y0, str):
+        y0 = dict_phot_MC[y0]
 
     is1, is2 = NB_sel[0], NB_sel[1]
     in1, in2 = NB_nosel[0], NB_nosel[1]
@@ -127,9 +132,6 @@ def plot_mock(ax, x0, y0, NB_sel, NB_nosel, xlabel, ylabel):
               linewidth=0.2)
     ax.hexbin(x0[in1, in2], y0[in1, in2], gridsize=100, mincnt=1, cmap=cmap_nosel,
               linewidth=0.2)
-    # ax.scatter(x0[is1,is2], y0[is1,is2], alpha=0.25, s=2, edgecolor='none')
-    # ax.scatter(x0[in1,in2], y0[in1,in2], alpha=0.25, s=2, edgecolor='red',
-    #            linewidth=0.25, facecolor='none')
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
 
