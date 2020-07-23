@@ -113,11 +113,11 @@ def HaSFR_metal_dep(logOH, orig_lum):
     return log_SFR
 
 
-def dict_prop_maker(NB, BB, x, filt_dict, filt_corr, mass_int, lum_dist):
-    dict_prop = {'NB': NB, 'BB': BB, 'x': x, 'filt_dict': filt_dict,
+def dict_phot_maker(NB, BB, x, filt_dict, filt_corr, mass_int, lum_dist):
+    dict_phot = {'NB': NB, 'BB': BB, 'x': x, 'filt_dict': filt_dict,
                  'filt_corr': filt_corr, 'mass_int': mass_int,
                  'lum_dist': lum_dist}
-    return dict_prop
+    return dict_phot
 
 
 def derived_properties(NB, BB, x, filt_dict, filt_corr, mass_int, lum_dist,

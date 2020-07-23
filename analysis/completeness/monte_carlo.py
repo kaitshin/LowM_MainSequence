@@ -5,7 +5,7 @@ import numpy as np
 from .stats import stats_log
 from .config import filt_corr, cont_lim
 from .select import NB_select, get_sigma
-from .properties import dict_prop_maker, derived_properties
+from .properties import dict_phot_maker, derived_properties
 
 
 npz_MCnames = ['EW_seed', 'logEW_MC_ref', 'x_MC0_ref', 'BB_MC0_ref',
@@ -78,10 +78,10 @@ def main(int_dict, npz_MC_file, mock_sz, ss_range, mass_dict, norm_dict,
         BB_sig_ref = get_sigma(BB_MC0_ref, cont_lim[ff], sigma=3.0)
 
         # Combine photometry to get dictionary for derived properties input
-        dict_prop_ref = dict_prop_maker(norm_dict['NB_ref'], BB_MC0_ref,
+        dict_phot_ref = dict_phot_maker(norm_dict['NB_ref'], BB_MC0_ref,
                                         x_MC0_ref, filt_dict, filt_corr[ff],
                                         mass_int, lum_dist)
-        der_prop_dict_ref = derived_properties(suffix='_ref', **dict_prop_ref)
+        der_prop_dict_ref = derived_properties(suffix='_ref', **dict_phot_ref)
 
         if exists(npz_MC_file):
             mylog.info("Overwriting : " + npz_MC_file)
@@ -100,13 +100,13 @@ def main(int_dict, npz_MC_file, mock_sz, ss_range, mass_dict, norm_dict,
 
             npz_MCdict = dict(npz_MC)
 
-            dict_prop_ref = dict_prop_maker(norm_dict['NB_ref'],
+            dict_phot_ref = dict_phot_maker(norm_dict['NB_ref'],
                                             npz_MCdict['BB_MC0_ref'],
                                             npz_MCdict['x_MC0_ref'],
                                             filt_dict, filt_corr[ff],
                                             mass_int, lum_dist)
 
-    der_prop_dict_ref = derived_properties(**dict_prop_ref)
+    der_prop_dict_ref = derived_properties(**dict_phot_ref)
 
     BB_seed = ff + 5
     mylog.info("seed for broadband, mm=%i ss=%i : %i" % (mm, ss, BB_seed))
@@ -131,17 +131,21 @@ def main(int_dict, npz_MC_file, mock_sz, ss_range, mass_dict, norm_dict,
     # logEW_MC = mock_ones(logEW_MC_ref, Nmock)
 
     # Replace NB, BB and x with mocked values
-    dict_prop_MC = dict_prop_ref.copy()
+    dict_phot_MC = dict_phot_ref.copy()
 
-    dict_prop_MC['NB'] = NB_MC
-    dict_prop_MC['BB'] = BB_MC
-    dict_prop_MC['x'] = x_MC
+    dict_phot_MC['NB'] = NB_MC
+    dict_phot_MC['BB'] = BB_MC
+    dict_phot_MC['x'] = x_MC
 
     der_prop_dict_MC = derived_properties(std_mass_int=std_mass_int,
-                                          **dict_prop_MC)
+                                          **dict_phot_MC)
     stats_log(der_prop_dict_MC['logEW'], "logEW_MC", mylog)
     stats_log(der_prop_dict_MC['NB_flux'], "flux_MC", mylog)
     stats_log(der_prop_dict_MC['Ha_Flux'], "HaFlux_MC", mylog)
 
-    return dict_prop_ref, der_prop_dict_ref, npz_MCdict, dict_prop_MC,\
-           der_prop_dict_MC, EW_flag0, NB_sel, NB_nosel
+    for key in ['filt_corr', 'filt_dict', 'mass_int', 'lum_dist']:
+        dict_phot_ref.pop(key)
+        dict_phot_MC.pop(key)
+
+    return dict_phot_ref, der_prop_dict_ref, npz_MCdict, dict_phot_MC, \
+        der_prop_dict_MC, EW_flag0, NB_sel, NB_nosel
