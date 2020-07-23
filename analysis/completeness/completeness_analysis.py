@@ -27,7 +27,7 @@ from . import filter_dict  # For EW and flux calculations
 
 # Variable definitions
 from .config import filters, cont0  # Filter name and corresponding broad-band for NB color excess plot
-from .config import prefixes, filt_corr, z_NB  # Prefix for mag-to-mass interpolation files
+from .config import prefixes, z_NB  # Prefix for mag-to-mass interpolation files
 from .config import logEW_mean_start, logEW_sig_start, n_mean, n_sigma  # Grid definition for log-normal distribution
 from .config import NB_bin  # Bin size for NB magnitude
 from . import cmap_sel, cmap_nosel
@@ -42,10 +42,10 @@ from .config import pdf_filename
 from .stats import stats_log, avg_sig_label, stats_plot
 from .monte_carlo import random_mags
 from .monte_carlo import main as mc_main
-from .select import get_sigma, color_cut, NB_select, get_EW
+from .select import color_cut, get_EW
 from .dataset import get_mact_data
 from .plotting import avg_sig_plot_init, plot_MACT, plot_mock, plot_completeness, ew_flux_hist
-from .properties import get_mag_vs_mass_interp, compute_EW, dict_prop_maker, derived_properties
+from .properties import get_mag_vs_mass_interp, compute_EW
 from .normalization import get_normalization
 
 import astropy.units as u
@@ -212,13 +212,13 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 EW_dict = {'logEW_mean': logEW_mean, 'logEW_sig': logEW_sig,
                            'EW_int': EW_int}
 
-                dict_prop_ref, der_prop_dict_ref, npz_MCdict, dict_prop_MC, der_prop_dict_MC, EW_flag0, NB_sel, \
+                dict_phot_ref, der_prop_dict_ref, npz_MCdict, dict_phot_MC, der_prop_dict_MC, EW_flag0, NB_sel, \
                     NB_nosel = mc_main(int_dict, npz_MCfile, mock_sz, ss_range, mass_dict, norm_dict, filt_dict,
                                        EW_dict, NB_MC, lum_dist, mylog, redo=redo)
 
                 # Panel (0,0) - NB excess selection plot
 
-                plot_mock(ax00, NB_MC, dict_prop_MC['x'], NB_sel, NB_nosel, '',
+                plot_mock(ax00, NB_MC, dict_phot_MC['x'], NB_sel, NB_nosel, '',
                           cont0[ff] + ' - ' + filters[ff])
 
                 ax00.axvline(m_NB[ff], linestyle='dashed', color='b')
@@ -239,7 +239,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 plt.subplots_adjust(left=0.1, right=0.98, bottom=0.10,
                                     top=0.98, wspace=0.25, hspace=0.05)
 
-                plot_mock(ax0, NB_MC, dict_prop_MC['x'], NB_sel, NB_nosel,
+                plot_mock(ax0, NB_MC, dict_phot_MC['x'], NB_sel, NB_nosel,
                           filters[ff], cont0[ff] + ' - ' + filters[ff])
                 ax0.axvline(m_NB[ff], linestyle='dashed', color='b')
 
@@ -256,7 +256,6 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 fig0.savefig(pp0, format='pdf')
 
                 # Panel (1,0) - NB mag vs H-alpha flux
-                print(np.min(der_prop_dict_MC['Ha_Flux']), np.max(der_prop_dict_MC['Ha_Flux']))
                 plot_mock(ax10, NB_MC, der_prop_dict_MC['Ha_Flux'], NB_sel,
                           NB_nosel, filters[ff], Flux_lab)
 
@@ -370,7 +369,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 cmap0 = [cmap_sel, cmap_nosel]
                 lab0 = ['Type 1', 'Type 2']
                 for idx, cmap, ins, lab in zip(idx0, cmap0, [ax4ins0, ax4ins1], lab0):
-                    cs = ax400.scatter(norm_dict['NB_ref'][idx], dict_prop_ref['x'][idx],
+                    cs = ax400.scatter(norm_dict['NB_ref'][idx], dict_phot_ref['x'][idx],
                                        edgecolor='none', vmin=0, vmax=1.0, s=15,
                                        c=comp_arr[idx], cmap=cmap)
                     cb = fig4.colorbar(cs, cax=ins, orientation="horizontal",
