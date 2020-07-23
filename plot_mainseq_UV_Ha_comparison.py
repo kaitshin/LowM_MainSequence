@@ -45,37 +45,6 @@ from MACT_utils import niiha_oh_determine, get_flux_from_FAST
 from MACT_utils import get_tempz, get_UV_SFR, get_z_arr, get_FUV_corrs
 
 
-def plot_ff_zz_color_filled(ax, xvals, yvals, corr_tbl,
-    ff_arr=['NB7', 'NB816', 'NB921', 'NB973'],
-    ll_arr=['NB704,NB711', 'NB816', 'NB921', 'NB973'],
-    color_arr = ['r', 'orange', 'g', 'b']):
-    '''
-    given xvals, yvals, and other information (incl. zspec and filts), creates
-    a scatter plot where the colors depend on the filts, and filled/open shapes
-    correspond to yes_spec_z/no_spec_z sources
-    '''
-    z_arr = get_z_arr()
-
-    zspec0 = corr_tbl['zspec0'].data
-    for (ff, cc, zz, ll) in zip(ff_arr, color_arr, z_arr, ll_arr):
-        filt_index_haii = np.array([x for x in range(len(corr_tbl)) if ff in
-            corr_tbl['filt'].data[x]])
-        
-        zspec = zspec0[filt_index_haii]
-        good_z = np.array([x for x in range(len(zspec)) if zspec[x] > 0. and
-                           zspec[x] < 9.])
-        bad_z  = np.array([x for x in range(len(zspec)) if zspec[x] <= 0. or
-                           zspec[x] >= 9.])
-        
-        ax.scatter(xvals[filt_index_haii][good_z], yvals[filt_index_haii][good_z],
-            facecolor=cc, edgecolor='none', alpha=0.3, s=30,
-            label='z~'+zz+' ('+ll+')')
-        ax.scatter(xvals[filt_index_haii][bad_z], yvals[filt_index_haii][bad_z],
-            facecolor='none', edgecolor=cc, linewidth=0.5, alpha=0.3, s=30)
-
-    return ax
-
-
 def plot_zz_shapes_filled(ax, xvals, yvals, corr_tbl, color, legend_on=False,
     legend_loc = 'upper right',
     ff_arr=['NB7', 'NB816', 'NB921', 'NB973'],
@@ -116,46 +85,6 @@ def plot_zz_shapes_filled(ax, xvals, yvals, corr_tbl, color, legend_on=False,
     if legend_on:
         leg1 = ax.legend(handles=list(labelarr), loc=legend_loc, frameon=False)
         ax.add_artist(leg1)
-
-    return ax
-
-
-def plot_binned_with_yesz(ax, xvals, yvals, plot_bins, zspec0=None):
-    '''
-    plots bins, where the bin edges are passed in as the param `plot_bins`
-
-    if there are less than `min_yesz_per_bin` number of sources with
-    spectroscopic confirmation in that bin, then the binned avg point
-    is plotted with an open shape
-
-    plots mean(x), mean(y), and 1 stddev y-error bars (std(y))
-    '''
-    iis = np.digitize(xvals, bins=plot_bins)
-    range_iis = np.arange(len(plot_bins[:-1])) + 1
-    xvals_binned = np.array([np.mean([plot_bins[ii],plot_bins[ii+1]]) 
-        for ii in range_iis-1])
-
-    yvals_binned = np.array([np.mean(yvals[np.where(iis==ii)])
-        for ii in range_iis])
-    yerrs = np.array([np.std(yvals[np.where(iis==ii)])
-            for ii in range_iis])
-
-    if zspec0 is None:
-        ax.plot(xvals_binned, yvals_binned, 'md')
-    else:
-        min_yesz_per_bin = 10
-        yesz_num = np.array([len(np.where((zspec0[np.where(iis==ii)] >= 0) & 
-            (zspec0[np.where(iis==ii)] < 9))[0]) for ii in range_iis])
-        
-        for yesz, xval, yval in zip(yesz_num, xvals_binned, yvals_binned):
-            if yesz > min_yesz_per_bin:
-                ax.plot(xval, yval, 'md')
-            else:
-                ax.scatter(xval, yval, edgecolors='m', facecolors='none',
-                    marker='d', zorder=10)
-
-    ax.errorbar(xvals_binned, yvals_binned, fmt='none', ecolor='m', lw=1,
-        yerr=yerrs, zorder=11)
 
     return ax
 
@@ -202,37 +131,6 @@ def plot_binned_percbins(ax, xvals, yvals, corr_tbl, yesz=True, num_bins=8):
             xerr=np.array([[xval - min(xarr)],
                 [max(xarr) - xval]]))
     return ax
-
-
-def plot_SFR_comparison(log_SFR_HA, log_SFR_UV, corr_tbl):
-    '''
-    comparing with Lee+09 fig 1 (without dust correction)
-    '''
-    f, ax = plt.subplots()
-
-    # plotting data
-    ax = plot_zz_shapes_filled(ax, log_SFR_HA, log_SFR_UV, corr_tbl,
-        color='blue', legend_on=True, legend_loc='best')
-
-    # plotting 1-1 correspondence
-    xlims = [min(log_SFR_HA)-0.2, max(log_SFR_HA)+0.2]
-    ylims = [min(log_SFR_UV)-0.4, max(log_SFR_UV)+0.4]
-    ax.plot(xlims, xlims, 'k')
-
-    # plotting relation from Lee+09
-    ax = lee_09(ax, xlims, lee_fig_num='1')
-
-    # final touches
-    ax.set_xlim(xlims)
-    ax.set_ylim(ylims)
-    ax.set_xlabel('log(SFR[Ha])')
-    ax.set_ylabel('log(SFR[FUV])')
-    ax.tick_params(axis='both', labelsize='10', which='both',
-        direction='in')
-    ax.minorticks_on()
-    f.set_size_inches(6,6)
-    # ax.legend(frameon=False, loc='best')
-    # plt.savefig(config.FULL_PATH+'Plots/main_sequence_UV_Ha/SFR_UV_vs_HA.pdf')
 
 
 def lee_09(ax, xlims0, lee_fig_num):
@@ -599,7 +497,6 @@ def main():
     log_SFR_UV_dustcorr = log_SFR_UV + 0.4*A_UV
 
     # plotting
-    # plot_SFR_comparison(log_SFR_HA, log_SFR_UV, corr_tbl)
     plot_SFR_ratios(log_SFR_HA, log_SFR_UV, corr_tbl)
     plot_SFR_ratios_dustcorr(log_SFR_HA_dustcorr, log_SFR_UV_dustcorr, corr_tbl)
 
