@@ -42,6 +42,8 @@ CODE FLOW (incl. outputs):
         * figs 4, 5
             - 'Plots/main_sequence/UV_Ha/SFR_ratio.pdf'
             - 'Plots/main_sequence/UV_Ha/SFR_ratio_dustcorr.pdf'
+        * tab 3
+            - 'Tables/3.txt'
     7. plot_nbia_mainseq.py
         - depends on file(s) from (3)
         * figs 6, 7, 10
@@ -57,8 +59,8 @@ CODE FLOW (incl. outputs):
         - depends on file(s) from (3)
         * fig 11
             - 'Plots/main_sequence/mainseq_dispersion.pdf'
-        * tab 3
-            - 'Tables/3.txt'
+        * tab 4
+            - 'Tables/4.txt'
 
 INPUTS:
 
@@ -496,7 +498,7 @@ def run_SED_fits():
 def run_plot_mainseq_UV_Ha_comparison():
     import plot_mainseq_UV_Ha_comparison
 
-    print('\n generating figs 4 and 5...')
+    print('\n generating figs 4 and 5 and tab 3...')
     plot_mainseq_UV_Ha_comparison.main()
 
 
@@ -517,7 +519,7 @@ def run_MC_contours():
 def run_nbia_mainseq_dispersion():
     import nbia_mainseq_dispersion
 
-    print('\n generating fig 11 and tab 3...')
+    print('\n generating fig 11 and tab 4...')
     nbia_mainseq_dispersion.main()
 
 
