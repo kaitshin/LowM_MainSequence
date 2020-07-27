@@ -37,6 +37,7 @@ from scipy import interpolate
 from scipy.optimize import curve_fit
 from astropy import constants
 from astropy.io import fits as pyfits, ascii as asc
+from astropy.table import Table
 from astropy.cosmology import FlatLambdaCDM
 cosmo = FlatLambdaCDM(H0 = 70 * u.km / u.s / u.Mpc, Om0=0.3)
 
@@ -89,7 +90,7 @@ def plot_zz_shapes_filled(ax, xvals, yvals, corr_tbl, color, legend_on=False,
     return ax
 
 
-def plot_binned_percbins(ax, xvals, yvals, corr_tbl, yesz=True, num_bins=8):
+def plot_binned_percbins(ax, xvals, yvals, corr_tbl, yesz=True, num_bins=8, figtype='NONE'):
     '''
     if yesz (default=True), then only sources with spectroscopic confirmation
     are considered in the binning
@@ -117,6 +118,9 @@ def plot_binned_percbins(ax, xvals, yvals, corr_tbl, yesz=True, num_bins=8):
         for NUM in bin_edges[1:]])
     # edge case: add in 0th percentile value which isn't accounted for above
     xvals_perc_ii[0] = np.insert(xvals_perc_ii[0], 0, np.argmin(xvals))
+
+    if figtype!='NONE':
+        tab_SFR_ratios_both(xvals, yvals, xvals_perc_ii, num_bins, figtype)
 
     for i in range(xvals_perc_ii.shape[0]):
         xarr = xvals[xvals_perc_ii[i]]
@@ -303,6 +307,41 @@ def plot_SFR_ratios_final_touches(f, ax0, ax1, ax2):
     plt.savefig(config.FULL_PATH+'Plots/main_sequence_UV_Ha/SFR_ratio.pdf')
 
 
+def tab_SFR_ratios_both(xvals, yvals, xvals_perc_ii, num_bins, figtype):
+    '''
+    writes a table for the (observed)
+        (1) mean+range of logSFR[Ha] values/bin
+        (2) N_spec in the logSFR[Ha] bin
+        (3) corresponding ratio w/ yval errors
+    '''
+    col1_arr = np.zeros(num_bins, dtype='object')
+    col2_arr = np.zeros(num_bins, dtype='object')
+    col3_arr = np.zeros(num_bins, dtype='object')
+
+    for i in range(xvals_perc_ii.shape[0]):
+        # log(SFR[Ha])
+        xarr = xvals[xvals_perc_ii[i]]
+        xval = np.mean(xarr)
+        if xval < 0:
+            col1_arr[i] = f'-{xval:.2f}$_{{+{xval - min(xarr):.2f}}}^{{-{max(xarr) - xval:.2f}}}$'
+        else:
+            col1_arr[i] = f'+{xval:.2f}$_{{+{xval - min(xarr):.2f}}}^{{-{max(xarr) - xval:.2f}}}$'
+
+        # Nspec
+        col2_arr[i] = len(xarr)
+
+        # log(SFR[Ha]/SFR[FUV])
+        yarr = yvals[xvals_perc_ii[i]]
+        yval = np.mean(yarr)
+        if yval < 0:
+            col3_arr[i] = f'-{yval:.2f}$_{{+{yval - min(yarr):.2f}}}^{{-{max(yarr) - yval:.2f}}}$'
+        else:
+            col3_arr[i] = f'+{yval:.2f}$_{{+{yval - min(yarr):.2f}}}^{{-{max(yarr) - yval:.2f}}}$'
+        
+    tt = Table([col1_arr, col2_arr, col3_arr], names=['(1)','(2)','(3)'])
+    asc.write(tt, config.FULL_PATH+'Tables/3.'+figtype+'.txt', format='latex', overwrite=True)
+
+
 def plot_SFR_ratios(log_SFR_HA, log_SFR_UV, corr_tbl):
     '''
     comparing with Lee+09 fig 2 (without dust correction)
@@ -337,7 +376,7 @@ def plot_SFR_ratios(log_SFR_HA, log_SFR_UV, corr_tbl):
 
     # plotting our own avgs
     plot_bins = np.array([-4.0, -3.0, -2.5, -2.0, -1.5, -1.0, -0.5, 0.0, 0.5])
-    ax0 = plot_binned_percbins(ax0, log_SFR_HA, log_SFR_ratio, corr_tbl)
+    ax0 = plot_binned_percbins(ax0, log_SFR_HA, log_SFR_ratio, corr_tbl, figtype='obs')
     ax1 = plot_binned_percbins(ax1, mag_B, log_SFR_ratio, corr_tbl)
     ax2 = plot_binned_percbins(ax2, stlr_mass, log_SFR_ratio, corr_tbl)
 
@@ -406,7 +445,7 @@ def plot_SFR_ratios_dustcorr(log_SFR_HA, log_SFR_UV, corr_tbl):
 
     # plotting our own avgs
     plot_bins = np.array([-4.0, -3.0, -2.5, -2.0, -1.5, -1.0, -0.5, 0.0, 0.5])
-    ax = plot_binned_percbins(ax, log_SFR_HA, log_SFR_ratio, corr_tbl)
+    ax = plot_binned_percbins(ax, log_SFR_HA, log_SFR_ratio, corr_tbl, figtype='dustcorr')
 
     # plotting line of best fit
     m, b, const = get_FUV_corrs(corr_tbl, ret_coeffs_const=True)

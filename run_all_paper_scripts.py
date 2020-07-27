@@ -539,40 +539,40 @@ def main():
     print("(However, 9 of those Ha emitting galaxies have been excluded from the analysis.)\n")
 
 
-    # calling stack_spectral_data.py
-    run_stack_spectral_data(config.inst_dict, nbiadata, zspec, fout, config.data_dict) #TODO: check tables
+    # # calling stack_spectral_data.py
+    # run_stack_spectral_data(config.inst_dict, nbiadata, zspec, fout, config.data_dict)
 
-    # calling write_spectral_coverage_table.py
-    run_write_spectral_coverage_table() #TODO: check tables
+    # # calling write_spectral_coverage_table.py
+    # run_write_spectral_coverage_table()
 
-    # calling mainseq_corrections.py
-    run_mainseq_corrections() # CHANGES!!!
+    # # calling mainseq_corrections.py
+    # run_mainseq_corrections()
 
-    # some more number checks
-    corr_tbl = asc.read(config.FULL_PATH+config.mainseq_corrs_tbl,
-        guess=False, Reader=asc.FixedWidthTwoLine)
-    good_sig_iis = np.where((corr_tbl['flux_sigma'] >= config.CUTOFF_SIGMA) 
-        & (corr_tbl['stlr_mass'] >= config.CUTOFF_MASS))[0]
-    print(f"\n\nApplying the flux and mass cutoff, \n\
-        from the sample of {len(corr_tbl)} Ha emitting galaxies, we now have {len(good_sig_iis)} galaxies.\n")
+    # # some more number checks
+    # corr_tbl = asc.read(config.FULL_PATH+config.mainseq_corrs_tbl,
+    #     guess=False, Reader=asc.FixedWidthTwoLine)
+    # good_sig_iis = np.where((corr_tbl['flux_sigma'] >= config.CUTOFF_SIGMA) 
+    #     & (corr_tbl['stlr_mass'] >= config.CUTOFF_MASS))[0]
+    # print(f"\n\nApplying the flux and mass cutoff, \n\
+    #     from the sample of {len(corr_tbl)} Ha emitting galaxies, we now have {len(good_sig_iis)} galaxies.\n")
 
-    # calling plot_mstar_vs_ebv.py
-    run_plot_mstar_vs_ebv() # CHANGES!!!
+    # # calling plot_mstar_vs_ebv.py
+    # run_plot_mstar_vs_ebv()
 
-    # calling SED_fits.py
-    run_SED_fits()
+    # # calling SED_fits.py
+    # run_SED_fits()
 
     # calling plot_mainseq_UV_Ha_comparison.py
-    run_plot_mainseq_UV_Ha_comparison() # CHANGES!!!
+    run_plot_mainseq_UV_Ha_comparison()
 
-    # calling plot_nbia_mainseq.py
-    run_plot_nbia_mainseq() # CHANGES!!!
+    # # calling plot_nbia_mainseq.py
+    # run_plot_nbia_mainseq()
 
-    # calling MC_contours.py
-    run_MC_contours() # CHANGES!!!
+    # # calling MC_contours.py
+    # run_MC_contours()
 
-    # calling nbia_mainseq_dispersion.py
-    run_nbia_mainseq_dispersion() # CHANGES!!!
+    # # calling nbia_mainseq_dispersion.py
+    # run_nbia_mainseq_dispersion()
 
     print('\ndone!\n')
 
