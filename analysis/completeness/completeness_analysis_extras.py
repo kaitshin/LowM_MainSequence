@@ -213,13 +213,12 @@ def get_EW_Flux_distribution():
 
 
 def NB_numbers():
-    '''
+    """
     Uses SExtractor catalog to look at number of NB galaxies vs magnitude
-    '''
+    """
 
     NB_path = '/Users/cly/data/SDF/NBcat/'
-    NB_phot_files = [NB_path+filt+'/sdf_pub2_'+filt+'.cat.mask' for \
-                     filt in filters]
+    NB_phot_files = [NB_path+filt+'/sdf_pub2_'+filt+'.cat.mask' for filt in filters]
 
     out_pdf = path0 + 'Completeness/NB_numbers.pdf'
     fig, ax_arr = plt.subplots(nrows=3, ncols=2)
@@ -228,14 +227,14 @@ def NB_numbers():
     out_pdf0 = path0 + 'Completeness/NB_numbers_all.pdf'
 
     bin_size = 0.25
-    bins = np.arange(17.0,28,bin_size)
+    bins = np.arange(17.0, 28, bin_size)
 
     NB_slope0 = np.zeros(len(filters))
 
     N_norm0 = []
     mag_arr = []
 
-    ctype = ['blue','green','black','red','magenta']
+    ctype = ['blue', 'green', 'black', 'red', 'magenta']
     for ff in range(len(filters)):
         print('Reading : '+NB_phot_files[ff])
         phot_tab = asc.read(NB_phot_files[ff])
@@ -268,11 +267,11 @@ def NB_numbers():
 
         ax.axvline(m_NB[ff], linestyle='dashed', linewidth=1.5)
         ax.legend(loc='lower right', fancybox=True, fontsize=8, framealpha=0.75)
-        ax.annotate(filters[ff], [0.025,0.975], xycoords='axes fraction',
+        ax.annotate(filters[ff], [0.025, 0.975], xycoords='axes fraction',
                     ha='left', va='top', fontsize=10)
         ax.set_yscale('log')
-        ax.set_ylim([1,5e4])
-        ax.set_xlim([16.5,28.0])
+        ax.set_ylim([1, 5e4])
+        ax.set_xlim([16.5, 28.0])
 
         if col == 0:
             ax.set_ylabel(r'$N$')
@@ -284,7 +283,6 @@ def NB_numbers():
             ax.xaxis.set_ticklabels([])
         else:
             ax.set_xlabel('NB [mag]')
-    #endfor
 
     ax_arr[2][1].axis('off')
 
@@ -294,8 +292,8 @@ def NB_numbers():
 
     ax0.legend(loc='upper left', fancybox=True, fontsize=8, framealpha=0.75)
     ax0.set_yscale('log')
-    ax0.set_ylim([1,5e4])
-    ax0.set_xlim([16.5,28.0])
+    ax0.set_ylim([1, 5e4])
+    ax0.set_xlim([16.5, 28.0])
     ax0.set_xlabel('NB [mag]')
     ax0.set_ylabel(r'$N$')
 
@@ -306,5 +304,3 @@ def NB_numbers():
     out_npz = out_pdf.replace('.pdf', '.npz')
     np.savez(out_npz, filters=filters, bin_size=bin_size, NB_slope0=NB_slope0,
              mag_arr=mag_arr, N_norm0=N_norm0)
-
-#enddef
