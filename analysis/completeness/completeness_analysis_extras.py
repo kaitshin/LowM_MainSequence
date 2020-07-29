@@ -8,14 +8,18 @@ They are not executed within completeness_analysis.ew_MC(), but are needed
 in advance
 """
 
+from os.path import exists
+from chun_codes import systime
+
 import numpy as np
 import matplotlib.pyplot as plt
 from astropy.io import ascii as asc
+from astropy.io import fits
 
 from .config import m_NB, m_BB1, m_BB2
 
-filters = ['NB704', 'NB711', 'NB816', 'NB921', 'NB973']
-path0 = '/Users/cly/Google Drive/NASA_Summer2015/'
+from .config import path0, filters
+from . import MLog
 
 
 def mag_vs_mass(silent=False, verbose=True):
@@ -40,10 +44,12 @@ def mag_vs_mass(silent=False, verbose=True):
     Created by Chun Ly, 1 May 2019
     '''
 
+    log = MLog(path0 + 'Completeness/', '', prefix='mag_vs_mass')._get_logger()
+
     if silent == False: log.info('### Begin mag_vs_mass : '+systime())
 
     # NB Ha emitter sample for ID
-    NB_file = path0 + 'Main_Sequence/mainseq_corrections_tbl (1).txt'
+    NB_file = path0 + 'Main_Sequence/mainseq_corrections_tbl.txt'
     if not exists(NB_file):
         NB_file = NB_file.replace(' (1)','')
 
@@ -142,8 +148,10 @@ def get_EW_Flux_distribution():
     Retrieve NB excess emission-line EW and fluxes from existing tables
     '''
 
+    log = MLog(path0 + 'Completeness/', '', prefix='get_EW_Flux_distribution')._get_logger()
+
     # NB Ha emitter sample for ID
-    NB_file = path0 + 'Main_Sequence/mainseq_corrections_tbl (1).txt'
+    NB_file = path0 + 'Main_Sequence/mainseq_corrections_tbl.txt'
     log.info("Reading : "+NB_file)
     NB_tab      = asc.read(NB_file)
     NB_HA_Name  = NB_tab['NAME0'].data
