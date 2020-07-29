@@ -142,24 +142,24 @@ def mag_vs_mass(silent=False):  # verbose=True):
 
 
 def get_EW_Flux_distribution():
-    '''
+    """
     Retrieve NB excess emission-line EW and fluxes from existing tables
-    '''
+    """
 
     log = MLog(path0 + 'Completeness/', '', prefix='get_EW_Flux_distribution')._get_logger()
 
     # NB Ha emitter sample for ID
-    NB_file = path0 + 'Main_Sequence/mainseq_corrections_tbl.txt'
-    log.info("Reading : "+NB_file)
+    NB_file = path0 + 'Main_Sequence/mainseq_corrections_tbl (1).txt'
+    log.info("Reading : " + NB_file)
     NB_tab      = asc.read(NB_file)
     NB_HA_Name  = NB_tab['NAME0'].data
-    NB_Ha_ID    = NB_tab['ID'].data - 1 # Relative to 0 --> indexing
-    NII_Ha_corr = NB_tab['nii_ha_corr_factor'].data # This is log(1+NII/Ha)
-    filt_corr   = NB_tab['filt_corr_factor'].data # This is log(f_filt)
+    NB_Ha_ID    = NB_tab['ID'].data - 1  # Relative to 0 --> indexing
+    NII_Ha_corr = NB_tab['nii_ha_corr_factor'].data  # This is log(1+NII/Ha)
+    filt_corr   = NB_tab['filt_corr_factor'].data  # This is log(f_filt)
     zspec0      = NB_tab['zspec0'].data
 
     NB_catfile = path0 + 'Catalogs/NB_IA_emitters.allcols.colorrev.fix.errors.fits'
-    log.info("Reading : "+NB_catfile)
+    log.info("Reading : " + NB_catfile)
     NB_catdata = fits.getdata(NB_catfile)
     NB_catdata = NB_catdata[NB_Ha_ID]
 
@@ -180,14 +180,14 @@ def get_EW_Flux_distribution():
     spec_flag = np.zeros(len(NB_catdata))
 
     for filt in filters:
-        log.info('### Working on : '+filt)
-        NB_idx = np.array([ii for ii in range(len(NB_tab)) if 'Ha-'+filt in \
+        log.info('### Working on : ' + filt)
+        NB_idx = np.array([ii for ii in range(len(NB_tab)) if 'Ha-'+filt in
                            NB_HA_Name[ii]])
         print(" Size : ", len(NB_idx))
         NB_EW[NB_idx]   = np.log10(NB_catdata[filt+'_EW'][NB_idx])
         NB_Flux[NB_idx] = NB_catdata[filt+'_FLUX'][NB_idx]
 
-        Ha_EW[NB_idx]   = (NB_EW   + NII_Ha_corr + filt_corr)[NB_idx]
+        Ha_EW[NB_idx]   = (NB_EW + NII_Ha_corr + filt_corr)[NB_idx]
         Ha_Flux[NB_idx] = (NB_Flux + NII_Ha_corr + filt_corr)[NB_idx]
 
         NBmag[NB_idx]   = NB_catdata[filt+'_MAG'][NB_idx]
@@ -196,7 +196,7 @@ def get_EW_Flux_distribution():
         logMstar[NB_idx] = NB_tab['stlr_mass'][NB_idx]
         Ha_SFR[NB_idx]   = NB_tab['met_dep_sfr'][NB_idx]
         Ha_Lum[NB_idx]   = NB_tab['obs_lumin'][NB_idx] + \
-                           (NII_Ha_corr + filt_corr)[NB_idx]
+            (NII_Ha_corr + filt_corr)[NB_idx]
 
         with_spec = np.where((zspec0[NB_idx] > 0) & (zspec0[NB_idx] < 9))[0]
         with_spec = NB_idx[with_spec]
@@ -210,9 +210,6 @@ def get_EW_Flux_distribution():
                  contmag=contmag[NB_idx], spec_flag=spec_flag[NB_idx],
                  logMstar=logMstar[NB_idx], Ha_SFR=Ha_SFR[NB_idx],
                  Ha_Lum=Ha_Lum[NB_idx])
-    #endfor
-
-#enddef
 
 
 def NB_numbers():
