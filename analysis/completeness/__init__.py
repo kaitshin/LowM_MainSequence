@@ -55,8 +55,8 @@ class MLog:
     Created by Chun Ly, 2 October 2019
     """
 
-    def __init__(self, dir0, str_date):
-        self.LOG_FILENAME = dir0 + 'completeness_analysis.' + str_date + '.log'
+    def __init__(self, dir0, str_date, prefix='completeness_analysis.'):
+        self.LOG_FILENAME = dir0 + prefix + str_date + '.log'
         self._log = self._get_logger()
 
     def _get_logger(self):
