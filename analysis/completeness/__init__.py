@@ -1,3 +1,4 @@
+from os.path import join
 from datetime import date
 
 import numpy as np
@@ -56,7 +57,7 @@ class MLog:
     """
 
     def __init__(self, dir0, str_date, prefix='completeness_analysis.'):
-        self.LOG_FILENAME = dir0 + prefix + str_date + '.log'
+        self.LOG_FILENAME = join(dir0, prefix + str_date + '.log')
         self._log = self._get_logger()
 
     def _get_logger(self):
