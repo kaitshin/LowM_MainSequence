@@ -8,7 +8,7 @@ They are not executed within completeness_analysis.ew_MC(), but are needed
 in advance
 """
 
-from os.path import exists
+from os.path import exists, join
 from chun_codes import systime
 
 import numpy as np
@@ -40,24 +40,25 @@ def mag_vs_mass(silent=False):  # verbose=True):
     Created by Chun Ly, 1 May 2019
     """
 
-    log = MLog(path0 + 'Completeness/', '', prefix='mag_vs_mass')._get_logger()
+    path_prefix = join(path0, 'Completeness')
+    log = MLog(path_prefix, '', prefix='mag_vs_mass')._get_logger()
 
     if not silent:
         log.info('### Begin mag_vs_mass : '+systime())
 
     # NB Ha emitter sample for ID
-    NB_file = path0 + 'Main_Sequence/mainseq_corrections_tbl (1).txt'
+    NB_file = join(path0, 'Main_Sequence', 'mainseq_corrections_tbl (1).txt')
     if not exists(NB_file):
         NB_file = NB_file.replace(' (1)', '')
 
-    log.info("Reading : "+NB_file)
+    log.info("Reading : " + NB_file)
     NB_tab     = asc.read(NB_file)
     NB_HA_Name = NB_tab['NAME0'].data
     NB_Ha_ID   = NB_tab['ID'].data - 1  # Relative to 0 --> indexing
 
     # Read in stellar mass results table
-    FAST_file = path0 + \
-        'FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast.GALEX.fout'
+    FAST_file = join(path0, 'FAST/outputs',
+                     'NB_IA_emitters_allphot.emagcorr.ACpsf_fast.GALEX.fout')
     log.info("Reading : " + FAST_file)
     FAST_tab = asc.read(FAST_file)
 
@@ -65,8 +66,8 @@ def mag_vs_mass(silent=False):  # verbose=True):
 
     logM_NB_Ha = logM[NB_Ha_ID]
 
-    NB_catfile = path0 + 'Catalogs/NB_IA_emitters.allcols.colorrev.fix.errors.fits'
-    log.info("Reading : "+NB_catfile)
+    NB_catfile = join(path0, 'Catalogs', 'NB_IA_emitters.allcols.colorrev.fix.errors.fits')
+    log.info("Reading : " + NB_catfile)
     NB_catdata = fits.getdata(NB_catfile)
     NB_catdata = NB_catdata[NB_Ha_ID]
 
@@ -75,7 +76,7 @@ def mag_vs_mass(silent=False):  # verbose=True):
     fig, ax = plt.subplots(ncols=2, nrows=2)
 
     for filt in filters:
-        log.info('### Working on : '+filt)
+        log.info('### Working on : ' + filt)
         NB_idx = [ii for ii in range(len(NB_tab)) if 'Ha-'+filt in
                   NB_HA_Name[ii]]
         print(" Size : ", len(NB_idx))
@@ -135,7 +136,7 @@ def mag_vs_mass(silent=False):  # verbose=True):
     plt.subplots_adjust(left=0.07, right=0.97, bottom=0.08, top=0.97,
                         wspace=0.01)
 
-    out_pdf = path0 + 'Completeness/mag_vs_mass.pdf'
+    out_pdf = join(path0, 'Completeness', 'mag_vs_mass.pdf')
     fig.savefig(out_pdf, bbox_inches='tight')
     if not silent:
         log.info('### End mag_vs_mass : '+systime())
@@ -146,10 +147,11 @@ def get_EW_Flux_distribution():
     Retrieve NB excess emission-line EW and fluxes from existing tables
     """
 
-    log = MLog(path0 + 'Completeness/', '', prefix='get_EW_Flux_distribution')._get_logger()
+    path_prefix = join(path0, 'Completeness')
+    log = MLog(path_prefix, '', prefix='get_EW_Flux_distribution')._get_logger()
 
     # NB Ha emitter sample for ID
-    NB_file = path0 + 'Main_Sequence/mainseq_corrections_tbl (1).txt'
+    NB_file = join(path0, 'Main_Sequence', 'mainseq_corrections_tbl (1).txt')
     log.info("Reading : " + NB_file)
     NB_tab      = asc.read(NB_file)
     NB_HA_Name  = NB_tab['NAME0'].data
@@ -158,7 +160,7 @@ def get_EW_Flux_distribution():
     filt_corr   = NB_tab['filt_corr_factor'].data  # This is log(f_filt)
     zspec0      = NB_tab['zspec0'].data
 
-    NB_catfile = path0 + 'Catalogs/NB_IA_emitters.allcols.colorrev.fix.errors.fits'
+    NB_catfile = join(path0, 'Catalogs', 'NB_IA_emitters.allcols.colorrev.fix.errors.fits')
     log.info("Reading : " + NB_catfile)
     NB_catdata = fits.getdata(NB_catfile)
     NB_catdata = NB_catdata[NB_Ha_ID]
@@ -202,7 +204,7 @@ def get_EW_Flux_distribution():
         with_spec = NB_idx[with_spec]
         spec_flag[with_spec] = 1
 
-        out_npz = path0 + 'Completeness/ew_flux_Ha-'+filt+'.npz'
+        out_npz = join(path0, 'Completeness', 'ew_flux_Ha-'+filt+'.npz')
         log.info("Writing : "+out_npz)
         np.savez(out_npz, NB_ID=NB_catdata['ID'][NB_idx], NB_EW=NB_EW[NB_idx],
                  NB_Flux=NB_Flux[NB_idx], Ha_EW=Ha_EW[NB_idx],
@@ -218,13 +220,13 @@ def NB_numbers():
     """
 
     NB_path = '/Users/cly/data/SDF/NBcat/'
-    NB_phot_files = [NB_path+filt+'/sdf_pub2_'+filt+'.cat.mask' for filt in filters]
+    NB_phot_files = [join(NB_path, filt, '/sdf_pub2_'+filt+'.cat.mask') for filt in filters]
 
-    out_pdf = path0 + 'Completeness/NB_numbers.pdf'
+    out_pdf = join(path0, 'Completeness/NB_numbers.pdf')
     fig, ax_arr = plt.subplots(nrows=3, ncols=2)
 
     fig0, ax0 = plt.subplots()
-    out_pdf0 = path0 + 'Completeness/NB_numbers_all.pdf'
+    out_pdf0 = join(path0, 'Completeness/NB_numbers_all.pdf')
 
     bin_size = 0.25
     bins = np.arange(17.0, 28, bin_size)
