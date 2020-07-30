@@ -424,6 +424,43 @@ def tab_C1():
     asc.write(tt, config.FULL_PATH+'Tables/C1.txt', format='latex', overwrite=True)
 
 
+def section_3_2_numbers(corr_tbl):
+    mmt_cvg = asc.read(config.FULL_PATH+'Composite_Spectra/MMT_spectral_coverage.txt')
+    keck_cvg = asc.read(config.FULL_PATH+'Composite_Spectra/Keck_spectral_coverage.txt')
+
+    print('\n\nThere are...')
+    len_nonb816 = len(keck_cvg) - len(np.where(keck_cvg['filter']=='NB816')[0])
+    len_joint = len([x for x in keck_cvg['NAME'].data if x in mmt_cvg['NAME'].data and 'Ha-NB816' not in x])
+    print(f'\t{len(mmt_cvg)} MMT galaxies with spec_z')
+    print(f'\t{len_nonb816} Keck galaxies with spec_z (no NB816 included)')
+    print(f'\t{len_joint} joint galaxies')
+
+    print('\t---')
+
+    len_mmt_yeshg = len([x for x in range(len(mmt_cvg)) if mmt_cvg['HG_cvg'][x]=='YES'])
+    len_keck_yeshb = len([x for x in range(len(keck_cvg)) if keck_cvg['HB_cvg'][x]=='YES' and 'NB816' not in keck_cvg['NAME'][x]])
+    overlap_mmt_check = len([x for x in range(len(mmt_cvg)) if ((mmt_cvg['NAME'][x] in keck_cvg['NAME'].data)
+        and ('Ha-NB816' not in mmt_cvg['NAME'][x]) and (mmt_cvg['HG_cvg'][x]=='YES'))])
+    overlap_keck_check = len([x for x in range(len(keck_cvg)) if ((keck_cvg['NAME'][x] in mmt_cvg['NAME'].data)
+        and ('Ha-NB816' not in keck_cvg['NAME'][x]) and (keck_cvg['HB_cvg'][x]=='YES'))])
+    print(f'\t{len_mmt_yeshg} MMT galaxies w/ Hg cvg')
+    print(f'\t{len_keck_yeshb} Keck galaxies w/ Hb cvg')
+    print(f'\t{min(overlap_keck_check, overlap_mmt_check)} joint galaxies w/ good cvg')
+
+    ha_ii = np.array(corr_tbl['ID'])-1
+    zspec0 = corr_tbl['zspec0'].data
+    yes_spectra = np.where((zspec0 >= 0) & (zspec0 < 9))[0]
+
+    data_dict = config.data_dict
+    HA_FLUX   = data_dict['HA_FLUX'][ha_ii]
+    HB_FLUX   = data_dict['HB_FLUX'][ha_ii]
+    HA_SNR    = data_dict['HA_SNR'][ha_ii]
+    HB_SNR    = data_dict['HB_SNR'][ha_ii]
+    # getting indices where the valid-redshift (yes_spectra) data has appropriate HB SNR as well as valid HA_FLUX
+    gooddata_iis = np.where((HB_SNR[yes_spectra] >= 5) & (HA_SNR[yes_spectra] > 0) & (HA_FLUX[yes_spectra] > 1e-20) & (HA_FLUX[yes_spectra] < 99))[0]
+    print(f'\n{len(gooddata_iis)} out of {len(corr_tbl)} Ha emitting galaxies have reliable enough emission line measurements.')
+
+
 def run_stack_spectral_data(inst_dict, nbiadata, zspec, fout, data_dict):
     '''
     calls functions from stack_spectral_data.py
@@ -539,40 +576,41 @@ def main():
     print("(However, 9 of those Ha emitting galaxies have been excluded from the analysis.)\n")
 
 
-    # # calling stack_spectral_data.py
-    # run_stack_spectral_data(config.inst_dict, nbiadata, zspec, fout, config.data_dict)
+    # calling stack_spectral_data.py
+    run_stack_spectral_data(config.inst_dict, nbiadata, zspec, fout, config.data_dict)
 
-    # # calling write_spectral_coverage_table.py
-    # run_write_spectral_coverage_table()
+    # calling write_spectral_coverage_table.py
+    run_write_spectral_coverage_table()
 
-    # # calling mainseq_corrections.py
-    # run_mainseq_corrections()
+    # calling mainseq_corrections.py
+    run_mainseq_corrections()
 
-    # # some more number checks
-    # corr_tbl = asc.read(config.FULL_PATH+config.mainseq_corrs_tbl,
-    #     guess=False, Reader=asc.FixedWidthTwoLine)
-    # good_sig_iis = np.where((corr_tbl['flux_sigma'] >= config.CUTOFF_SIGMA) 
-    #     & (corr_tbl['stlr_mass'] >= config.CUTOFF_MASS))[0]
-    # print(f"\n\nApplying the flux and mass cutoff, \n\
-    #     from the sample of {len(corr_tbl)} Ha emitting galaxies, we now have {len(good_sig_iis)} galaxies.\n")
+    ## some more number checks
+    corr_tbl = asc.read(config.FULL_PATH+config.mainseq_corrs_tbl,
+        guess=False, Reader=asc.FixedWidthTwoLine)
+    section_3_2_numbers(corr_tbl)
+    good_sig_iis = np.where((corr_tbl['flux_sigma'] >= config.CUTOFF_SIGMA)
+        & (corr_tbl['stlr_mass'] >= config.CUTOFF_MASS))[0]
+    print(f"\nApplying the flux and mass cutoff, \n\
+        from the sample of {len(corr_tbl)} Ha emitting galaxies, we now have {len(good_sig_iis)} galaxies.\n")
 
-    # # calling plot_mstar_vs_ebv.py
-    # run_plot_mstar_vs_ebv()
+    # calling plot_mstar_vs_ebv.py
+    run_plot_mstar_vs_ebv()
 
-    # # calling SED_fits.py
-    # run_SED_fits()
+    # calling SED_fits.py
+    run_SED_fits()
 
     # calling plot_mainseq_UV_Ha_comparison.py
     run_plot_mainseq_UV_Ha_comparison()
 
-    # # calling plot_nbia_mainseq.py
-    # run_plot_nbia_mainseq()
+    # calling plot_nbia_mainseq.py
+    run_plot_nbia_mainseq()
 
-    # # calling MC_contours.py
-    # run_MC_contours()
+    # calling MC_contours.py
+    run_MC_contours()
 
-    # # calling nbia_mainseq_dispersion.py
-    # run_nbia_mainseq_dispersion()
+    # calling nbia_mainseq_dispersion.py
+    run_nbia_mainseq_dispersion()
 
     print('\ndone!\n')
 
