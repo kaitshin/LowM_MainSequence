@@ -323,9 +323,9 @@ def tab_SFR_ratios_both(xvals, yvals, xvals_perc_ii, num_bins, figtype):
         xarr = xvals[xvals_perc_ii[i]]
         xval = np.mean(xarr)
         if xval < 0:
-            col1_arr[i] = f'-{xval:.2f}$_{{+{xval - min(xarr):.2f}}}^{{-{max(xarr) - xval:.2f}}}$'
+            col1_arr[i] = f'-{xval:.2f}$_{{-{xval - min(xarr):.2f}}}^{{+{max(xarr) - xval:.2f}}}$'
         else:
-            col1_arr[i] = f'+{xval:.2f}$_{{+{xval - min(xarr):.2f}}}^{{-{max(xarr) - xval:.2f}}}$'
+            col1_arr[i] = f'+{xval:.2f}$_{{-{xval - min(xarr):.2f}}}^{{+{max(xarr) - xval:.2f}}}$'
 
         # Nspec
         col2_arr[i] = len(xarr)
@@ -334,9 +334,9 @@ def tab_SFR_ratios_both(xvals, yvals, xvals_perc_ii, num_bins, figtype):
         yarr = yvals[xvals_perc_ii[i]]
         yval = np.mean(yarr)
         if yval < 0:
-            col3_arr[i] = f'-{yval:.2f}$_{{+{yval - min(yarr):.2f}}}^{{-{max(yarr) - yval:.2f}}}$'
+            col3_arr[i] = f'-{yval:.2f}$_{{-{yval - min(yarr):.2f}}}^{{+{max(yarr) - yval:.2f}}}$'
         else:
-            col3_arr[i] = f'+{yval:.2f}$_{{+{yval - min(yarr):.2f}}}^{{-{max(yarr) - yval:.2f}}}$'
+            col3_arr[i] = f'+{yval:.2f}$_{{-{yval - min(yarr):.2f}}}^{{+{max(yarr) - yval:.2f}}}$'
         
     tt = Table([col1_arr, col2_arr, col3_arr], names=['(1)','(2)','(3)'])
     asc.write(tt, config.FULL_PATH+'Tables/3.'+figtype+'.txt', format='latex', overwrite=True)
