@@ -461,6 +461,15 @@ def section_3_2_numbers(corr_tbl):
     print(f'\n{len(gooddata_iis)} out of {len(corr_tbl)} Ha emitting galaxies have reliable enough emission line measurements.')
 
 
+def section_4_1_1_numbers(corr_tbl):
+    filt_arr = ['NB704', 'NB711', 'NB816', 'NB921', 'NB973']
+    print('\nAverage (median) NB filter corrections:')
+    for ff in filt_arr:
+        fm_ii = np.where((corr_tbl['filt'].data == ff) & (corr_tbl['zspec0'] > 0) & (corr_tbl['zspec0'] < 9))[0]
+        print(f"\t{ff}: {(10**np.mean(corr_tbl['filt_corr_factor'][fm_ii].data)):.2f} ({(10**np.median(corr_tbl['filt_corr_factor'][fm_ii].data)):.2f})") 
+    print()
+
+
 def run_stack_spectral_data(inst_dict, nbiadata, zspec, fout, data_dict):
     '''
     calls functions from stack_spectral_data.py
@@ -589,6 +598,7 @@ def main():
     corr_tbl = asc.read(config.FULL_PATH+config.mainseq_corrs_tbl,
         guess=False, Reader=asc.FixedWidthTwoLine)
     section_3_2_numbers(corr_tbl)
+    section_4_1_1_numbers(corr_tbl)
     good_sig_iis = np.where((corr_tbl['flux_sigma'] >= config.CUTOFF_SIGMA)
         & (corr_tbl['stlr_mass'] >= config.CUTOFF_MASS))[0]
     print(f"\nApplying the flux and mass cutoff, \n\
