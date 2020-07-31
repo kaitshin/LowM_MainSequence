@@ -128,9 +128,9 @@ def plot_mock(ax, dict_phot_MC, x0, y0, xlabel='', ylabel=''):
     is1, is2 = NB_sel[0], NB_sel[1]
     in1, in2 = NB_nosel[0], NB_nosel[1]
 
-    ax.hexbin(x0[is1, is2], y0[is1, is2], gridsize=100, mincnt=1, cmap=cmap_sel,
-              linewidth=0.2)
     ax.hexbin(x0[in1, in2], y0[in1, in2], gridsize=100, mincnt=1, cmap=cmap_nosel,
+              linewidth=0.2)
+    ax.hexbin(x0[is1, is2], y0[is1, is2], gridsize=100, mincnt=1, cmap=cmap_sel,
               linewidth=0.2)
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
