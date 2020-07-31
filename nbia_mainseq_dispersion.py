@@ -58,14 +58,17 @@ def add_legends(ax, withnewha):
 
 def create_disp_tbl(smass0, sfrs00, sfrs00_nofuv, sfrs_resid, meas_errs):
     '''
-    creates & returns a dispersion table with (1) stlrmass bins,
-    (2) avg sfr (avg sfr w/o FUV corr),
-    (3) observed dispersion (per bin), (4) systematic dispersion, and
+    creates & returns a dispersion table with
+    (1) stlrmass bins
+    (2) avg sfr (avg sfr w/o FUV corr)
+    (3) observed dispersion (per bin)
+    (4) systematic dispersion
     (5) the intrinsic dispersion (obtained by subtracting (4) from (3)
-    in quadrature)
+        in quadrature)
     '''
     stlrmass_bins = []
     avg_sfr = []
+    num_gals = []
     observed_disp = []
     systematic_disp = []
     intrinsic_disp = []
@@ -79,19 +82,20 @@ def create_disp_tbl(smass0, sfrs00, sfrs00_nofuv, sfrs_resid, meas_errs):
         
         mass_str = str(mbins0[i]-0.25)+'--'+str(mbins0[i]+0.25)
         stlrmass_bins.append(mass_str)
+        num_gals.append(len(bin_match))
         
         avgsfr = np.mean(sfrs00[bin_match])
         sfr_entry = ''
         if avgsfr < 0:
-            sfr_entry += '-%.3f'%avgsfr
+            sfr_entry += '-%.2f'%avgsfr
         else:
-            sfr_entry += '+%.3f'%avgsfr
+            sfr_entry += '+%.2f'%avgsfr
 
         avgsfr_nofuv = np.mean(sfrs00_nofuv[bin_match])
         if avgsfr_nofuv < 0:
-            sfr_entry += ' (-%.3f)'%avgsfr_nofuv
+            sfr_entry += ' (-%.2f)'%avgsfr_nofuv
         else:
-            sfr_entry += ' (+%.3f)'%avgsfr_nofuv
+            sfr_entry += ' (+%.2f)'%avgsfr_nofuv
 
         avg_sfr.append(sfr_entry)
         
@@ -107,8 +111,8 @@ def create_disp_tbl(smass0, sfrs00, sfrs00_nofuv, sfrs_resid, meas_errs):
         else:
             intrinsic_disp.append('%.3f'%intr_disp)
 
-    tt = Table([stlrmass_bins, avg_sfr, observed_disp, systematic_disp,
-        intrinsic_disp], names=['(1)','(2)','(3)','(4)','(5)'])
+    tt = Table([stlrmass_bins, avg_sfr, num_gals, observed_disp, systematic_disp,
+        intrinsic_disp], names=['(1)','(2)','(3)','(4)','(5)','(6)'])
     
     return tt
 
