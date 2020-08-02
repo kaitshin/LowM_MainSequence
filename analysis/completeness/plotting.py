@@ -96,14 +96,14 @@ def plot_MACT(ax, dict_NB, x0, y0, size=5):
                alpha=0.5, s=size)
 
 
-def plot_mock(ax, dict_phot_MC, x0, y0, xlabel='', ylabel=''):
+def plot_mock(ax, dict_MC, x0, y0, xlabel='', ylabel=''):
     """
     Plot mocked galaxies in various sub-panel
 
     ax : matplotlib.axes._subplots.AxesSubplot
        sub-Axis to plot
 
-    dict_phot_MC: dictionary containing photometry and NB selection
+    dict_MC: dictionary containing photometry and NB selection
 
     x0 : list or numpy.array
        Array to plot on x-axis
@@ -118,14 +118,14 @@ def plot_mock(ax, dict_phot_MC, x0, y0, xlabel='', ylabel=''):
        String for y-axis.  Set to '' to not show a label
     """
 
-    NB_sel = dict_phot_MC['NB_sel']
-    NB_nosel = dict_phot_MC['NB_nosel']
+    NB_sel = dict_MC['NB_sel']
+    NB_nosel = dict_MC['NB_nosel']
 
     if isinstance(x0, str):
-        x0 = dict_phot_MC[x0]
+        x0 = dict_MC[x0]
 
     if isinstance(y0, str):
-        y0 = dict_phot_MC[y0]
+        y0 = dict_MC[y0]
 
     is1, is2 = NB_sel[0], NB_sel[1]
     in1, in2 = NB_nosel[0], NB_nosel[1]
@@ -141,16 +141,16 @@ def plot_mock(ax, dict_phot_MC, x0, y0, xlabel='', ylabel=''):
         ax.set_xticklabels([])
 
 
-def overlay_mock_average_dispersion(ax, dict_phot_MC, x0, y0):
+def overlay_mock_average_dispersion(ax, dict_MC, x0, y0):
 
-    NB_sel = dict_phot_MC['NB_sel']
-    NB_nosel = dict_phot_MC['NB_nosel']
+    NB_sel = dict_MC['NB_sel']
+    NB_nosel = dict_MC['NB_nosel']
 
     if isinstance(x0, str):
-        x0 = dict_phot_MC[x0]
+        x0 = dict_MC[x0]
 
     if isinstance(y0, str):
-        y0 = dict_phot_MC[y0]
+        y0 = dict_MC[y0]
 
     is1, is2 = NB_sel[0], NB_sel[1]
     in1, in2 = NB_nosel[0], NB_nosel[1]
