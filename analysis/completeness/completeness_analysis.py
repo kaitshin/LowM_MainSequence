@@ -433,6 +433,10 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 # Plot sSFR vs stellar mass
                 fig5, ax5 = plt.subplots()
                 plot_mock(ax5, dict_MC, 'logM', logsSFR_MC, M_lab, r'$\log({\rm sSFR})$')
+
+                logsSFR = dict_NB['Ha_SFR'] - dict_NB['logMstar']
+                plot_MACT(ax5, dict_NB, 'logMstar', logsSFR, size=15)
+
                 plt.subplots_adjust(left=0.09, right=0.98, bottom=0.1, top=0.98)
                 fig5.set_size_inches(8, 8)
                 fig5.savefig(pp4, format='pdf')

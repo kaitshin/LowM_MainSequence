@@ -63,7 +63,7 @@ def avg_sig_plot_init(t_filt, logEW_mean, avg_NB, sig_NB, avg_NB_flux,
     return fig3, ax3
 
 
-def plot_MACT(ax, dict_NB, x0, y0):
+def plot_MACT(ax, dict_NB, x0, y0, size=5):
     """
     Plot MACT spectroscopic and photometric sample in various sub-panel
 
@@ -77,6 +77,8 @@ def plot_MACT(ax, dict_NB, x0, y0):
 
     :param y0: list or numpy.array or string corresponding to dict_NB key
        Array to plot on y-axis
+
+    :param size: integer for matplotlib size. Default: 5
     """
 
     w_spec = dict_NB['w_spec']
@@ -89,9 +91,9 @@ def plot_MACT(ax, dict_NB, x0, y0):
         y0 = dict_NB[y0]
 
     ax.scatter(x0[w_spec], y0[w_spec], color='k', edgecolor='none',
-               alpha=0.5, s=5)
+               alpha=0.5, s=size)
     ax.scatter(x0[wo_spec], y0[wo_spec], facecolor='none', edgecolor='k',
-               alpha=0.5, s=5)
+               alpha=0.5, s=size)
 
 
 def plot_mock(ax, dict_phot_MC, x0, y0, xlabel='', ylabel=''):
