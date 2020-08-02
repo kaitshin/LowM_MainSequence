@@ -190,6 +190,17 @@ def overlay_mock_average_dispersion(ax, dict_MC, x0, y0):
                 yerr=y_std_sel[nonzero_sel], marker='s', fmt='s', color='m',
                 markeredgecolor='none', alpha=0.5)
 
+    bin_MC = dict()
+    bin_MC['x_bins'] = x_bins
+    bin_MC['y_avg_full'] = y_avg_full
+    bin_MC['y_std_full'] = y_std_full
+    bin_MC['y_avg_full'] = y_avg_full
+    bin_MC['y_std_full'] = y_std_full
+    bin_MC['nonzero_full'] = nonzero_full
+    bin_MC['nonzero_sel'] = nonzero_sel
+
+    return bin_MC
+
 
 def get_completeness(hist_bins, hist_data):
     """
