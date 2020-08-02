@@ -141,6 +141,45 @@ def plot_mock(ax, dict_phot_MC, x0, y0, xlabel='', ylabel=''):
         ax.set_xticklabels([])
 
 
+def overlay_mock_average_dispersion(ax, dict_phot_MC, x0, y0):
+
+    NB_sel = dict_phot_MC['NB_sel']
+    NB_nosel = dict_phot_MC['NB_nosel']
+
+    if isinstance(x0, str):
+        x0 = dict_phot_MC[x0]
+
+    if isinstance(y0, str):
+        y0 = dict_phot_MC[y0]
+
+    is1, is2 = NB_sel[0], NB_sel[1]
+    in1, in2 = NB_nosel[0], NB_nosel[1]
+
+    bin_size = 0.5
+    x_bins = np.arange(4.0, 10.5, bin_size)
+    y_avg_full = np.zeros(x_bins.shape)
+    y_std_full = np.zeros(x_bins.shape)
+    y_avg_sel = np.zeros(x_bins.shape)
+    y_std_sel = np.zeros(x_bins.shape)
+    for ii in range(x_bins.shape[0]):
+        idx = np.where((x0 >= x_bins[ii]) & (x0 < x_bins[ii]+bin_size))
+        if len(idx) > 0:
+            y_avg_full[ii] = np.nanmean(y0[idx[0], idx[1]])
+            y_std_full[ii] = np.nanstd(y0[idx[0], idx[1]])
+
+        # NB_sel0 = intersect_ndim(idx, NB_sel, y0.shape)
+        #
+        #if len(NB_sel0) > 0:
+        #    y_avg_sel[ii] = np.nanmean(y0[NB_sel0])
+        #    y_std_sel[ii] = np.nanstd(y0[NB_sel0])
+
+    ax.errorbar(x_bins + bin_size/2.0, y_avg_full, yerr=y_std_full,
+                marker='s', fmt='s', color='k', alpha=0.5)
+
+    # ax.errorbar(x_bins + bin_size/2.0, y_avg_sel, yerr=y_std_sel,
+    #             marker='s', fmt='s', color='b', alpha=0.5)
+
+
 def get_completeness(hist_bins, hist_data):
     """
     Determine 50% completeness for various quantities (sSFR, EW, Flux)
