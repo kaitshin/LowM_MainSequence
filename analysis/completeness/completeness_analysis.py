@@ -389,20 +389,16 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 above_break = np.where(NB_MC <= NB_break)
 
                 t_comp_sSFR, \
-                    t_comp_sSFR_ref = plot_completeness(ax401, logsSFR_MC, dict_MC['NB_sel'], sSFR_bins,
-                                                        ref_arr0=logsSFR_ref,
+                    t_comp_sSFR_ref = plot_completeness(ax401, dict_MC, logsSFR_MC,
+                                                        sSFR_bins, ref_arr0=logsSFR_ref,
                                                         above_break=above_break)
 
-                '''t_comp_EW, \
-                    t_comp_EW_ref = plot_completeness(ax410, logEW_MC, dict_phot_MC['NB_sel'],
-                                                      EW_bins, ref_arr0=logEW_MC_ref)
-                '''
                 t_comp_Fl, \
-                    t_comp_Fl_ref = plot_completeness(ax410, dict_MC['Ha_Flux'], dict_MC['NB_sel'],
+                    t_comp_Fl_ref = plot_completeness(ax410, dict_MC, 'Ha_Flux',
                                                       Flux_bins, ref_arr0=der_prop_dict_ref['Ha_Flux'])
 
                 t_comp_SFR, \
-                    t_comp_SFR_ref = plot_completeness(ax411, dict_MC['logSFR'], dict_MC['NB_sel'],
+                    t_comp_SFR_ref = plot_completeness(ax411, dict_MC, 'logSFR',
                                                        SFR_bins, ref_arr0=der_prop_dict_ref['logSFR'])
                 comp_sSFR[mm, ss] = t_comp_sSFR
                 comp_SFR[mm, ss] = t_comp_SFR
@@ -411,8 +407,9 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 fig0, ax0 = plt.subplots()
                 plt.subplots_adjust(left=0.1, right=0.97, bottom=0.10,
                                     top=0.98, wspace=0.25, hspace=0.05)
-                t_comp_SFR = plot_completeness(ax0, dict_MC['logSFR'], dict_MC['NB_sel'], SFR_bins,
-                                               ref_arr0=der_prop_dict_ref['logSFR'], annotate=False)
+                t_comp_SFR = plot_completeness(ax0, dict_MC, 'logSFR', SFR_bins,
+                                               ref_arr0=der_prop_dict_ref['logSFR'],
+                                               annotate=False)
                 ax0.set_ylabel('Completeness')
                 ax0.set_xlabel(SFR_lab)
                 ax0.set_ylim([0.0, 1.05])

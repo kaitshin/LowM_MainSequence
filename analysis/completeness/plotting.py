@@ -196,7 +196,13 @@ def get_completeness(hist_bins, hist_data):
     return comp_50
 
 
-def plot_completeness(t_ax, arr0, NB_sel0, bins, ref_arr0=None, above_break=None, annotate=True):
+def plot_completeness(t_ax, dict_MC, arr0, bins, ref_arr0=None, above_break=None, annotate=True):
+
+    if isinstance(arr0, str):
+        arr0 = dict_MC[arr0]
+
+    NB_sel0 = dict_MC['NB_sel']
+
     finite = np.where(np.isfinite(arr0))
     if not isinstance(above_break, type(None)):
         finite = intersect_ndim(above_break, finite, arr0.shape)
