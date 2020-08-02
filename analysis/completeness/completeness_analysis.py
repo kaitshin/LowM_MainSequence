@@ -45,7 +45,7 @@ from .monte_carlo import main as mc_main
 from .select import color_cut, get_EW
 from .dataset import get_mact_data
 from .plotting import avg_sig_plot_init, plot_MACT, plot_mock, plot_completeness
-from .plotting import overlay_mock_average_dispersion, ew_flux_hist
+from .plotting import overlay_mock_average_dispersion, plot_dispersion, ew_flux_hist
 from .properties import get_mag_vs_mass_interp, compute_EW
 from .normalization import get_normalization
 
@@ -439,11 +439,17 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
                 plot_MACT(ax5[0][0], dict_NB, 'logMstar', 'Ha_SFR', size=15)
 
+                # Dispersion: SFR vs stellar mass
+                plot_dispersion(ax5[1][0], SFR_bin_MC)
+
                 # sSFR vs stellar mass
                 plot_mock(ax5[0][1], dict_MC, 'logM', logsSFR_MC, M_lab, r'$\log({\rm sSFR})$')
 
                 sSFR_bin_MC = overlay_mock_average_dispersion(ax5[0][1], dict_MC,
                                                               'logM', logsSFR_MC)
+
+                # Dispersion: sSFR vs stellar mass
+                plot_dispersion(ax5[1][1], sSFR_bin_MC)
 
                 logsSFR = dict_NB['Ha_SFR'] - dict_NB['logMstar']
                 plot_MACT(ax5[0][1], dict_NB, 'logMstar', logsSFR, size=15)
