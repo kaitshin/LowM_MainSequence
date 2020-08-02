@@ -174,7 +174,8 @@ def overlay_mock_average_dispersion(ax, dict_phot_MC, x0, y0):
         #    y_std_sel[ii] = np.nanstd(y0[NB_sel0])
 
     ax.errorbar(x_bins + bin_size/2.0, y_avg_full, yerr=y_std_full,
-                marker='s', fmt='s', color='k', alpha=0.5)
+                marker='s', fmt='s', color='k', markeredgecolor='none',
+                alpha=0.75)
 
     # ax.errorbar(x_bins + bin_size/2.0, y_avg_sel, yerr=y_std_sel,
     #             marker='s', fmt='s', color='b', alpha=0.5)
