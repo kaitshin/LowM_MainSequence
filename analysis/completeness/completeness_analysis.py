@@ -430,12 +430,19 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 fig4.set_size_inches(8, 8)
                 fig4.savefig(pp4, format='pdf')
 
-                # Plot sSFR vs stellar mass
-                fig5, ax5 = plt.subplots()
-                plot_mock(ax5, dict_MC, 'logM', logsSFR_MC, M_lab, r'$\log({\rm sSFR})$')
+                # Plot SFR/sSFR vs stellar mass and dispersion
+                fig5, ax5 = plt.subplots(nrows=2, ncols=2)
+
+                # SFR vs stellar mass
+                plot_mock(ax5[0][0], dict_MC, 'logM', 'logSFR', M_lab, SFR_lab)
+
+                plot_MACT(ax5[0][0], dict_NB, 'logMstar', 'Ha_SFR', size=15)
+
+                # sSFR vs stellar mass
+                plot_mock(ax5[0][1], dict_MC, 'logM', logsSFR_MC, M_lab, r'$\log({\rm sSFR})$')
 
                 logsSFR = dict_NB['Ha_SFR'] - dict_NB['logMstar']
-                plot_MACT(ax5, dict_NB, 'logMstar', logsSFR, size=15)
+                plot_MACT(ax5[0][1], dict_NB, 'logMstar', logsSFR, size=15)
 
                 plt.subplots_adjust(left=0.09, right=0.98, bottom=0.1, top=0.98)
                 fig5.set_size_inches(8, 8)
