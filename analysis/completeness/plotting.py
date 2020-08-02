@@ -157,28 +157,38 @@ def overlay_mock_average_dispersion(ax, dict_MC, x0, y0):
 
     bin_size = 0.5
     x_bins = np.arange(4.0, 10.5, bin_size)
+
+    N_full = np.zeros(x_bins.shape)
+    N_sel = np.zeros(x_bins.shape)
     y_avg_full = np.zeros(x_bins.shape)
     y_std_full = np.zeros(x_bins.shape)
     y_avg_sel = np.zeros(x_bins.shape)
     y_std_sel = np.zeros(x_bins.shape)
+
     for ii in range(x_bins.shape[0]):
         idx = np.where((x0 >= x_bins[ii]) & (x0 < x_bins[ii]+bin_size))
-        if len(idx) > 0:
+        N_full[ii] = len(idx[0])
+
+        if N_full[ii] > 0:
             y_avg_full[ii] = np.nanmean(y0[idx[0], idx[1]])
             y_std_full[ii] = np.nanstd(y0[idx[0], idx[1]])
 
-        # NB_sel0 = intersect_ndim(idx, NB_sel, y0.shape)
-        #
-        #if len(NB_sel0) > 0:
-        #    y_avg_sel[ii] = np.nanmean(y0[NB_sel0])
-        #    y_std_sel[ii] = np.nanstd(y0[NB_sel0])
+            NB_sel0 = intersect_ndim(idx, NB_sel, y0.shape)
+            N_sel[ii] = len(NB_sel0[0])
 
-    ax.errorbar(x_bins + bin_size/2.0, y_avg_full, yerr=y_std_full,
-                marker='s', fmt='s', color='k', markeredgecolor='none',
-                alpha=0.75)
+            if N_full[ii] > 0:
+                y_avg_sel[ii] = np.nanmean(y0[NB_sel0])
+                y_std_sel[ii] = np.nanstd(y0[NB_sel0])
 
-    # ax.errorbar(x_bins + bin_size/2.0, y_avg_sel, yerr=y_std_sel,
-    #             marker='s', fmt='s', color='b', alpha=0.5)
+    nonzero_full = np.where(N_full > 0)
+    ax.errorbar(x_bins[nonzero_full] + bin_size/2.0, y_avg_full[nonzero_full],
+                yerr=y_std_full[nonzero_full], marker='s', fmt='s', color='k',
+                markeredgecolor='none', alpha=0.75)
+
+    nonzero_sel = np.where(N_sel > 0)
+    ax.errorbar(x_bins[nonzero_sel] + bin_size/2.0, y_avg_sel[nonzero_sel],
+                yerr=y_std_sel[nonzero_sel], marker='s', fmt='s', color='m',
+                markeredgecolor='none', alpha=0.5)
 
 
 def get_completeness(hist_bins, hist_data):
