@@ -354,6 +354,8 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
                 plt.subplots_adjust(left=0.09, right=0.98, bottom=0.065,
                                     top=0.98, wspace=0.20, hspace=0.15)
+                for t_ax in [ax400, ax401, ax410, ax411]:
+                    t_ax.tick_params(axis='both', direction='in')
 
                 ax4ins0 = inset_axes(ax400, width="40%", height="15%", loc=3,
                                      bbox_to_anchor=(0.025, 0.1, 0.95, 0.25),
@@ -410,9 +412,9 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 fig0, ax0 = plt.subplots()
                 plt.subplots_adjust(left=0.1, right=0.97, bottom=0.10,
                                     top=0.98, wspace=0.25, hspace=0.05)
-                t_comp_SFR = plot_completeness(ax0, dict_MC, 'logSFR', SFR_bins,
-                                               ref_arr0=der_prop_dict_ref['logSFR'],
-                                               annotate=False)
+                plot_completeness(ax0, dict_MC, 'logSFR', SFR_bins, annotate=False,
+                                  ref_arr0=der_prop_dict_ref['logSFR'])
+
                 ax0.set_ylabel('Completeness')
                 ax0.set_xlabel(SFR_lab)
                 ax0.set_ylim([0.0, 1.05])
