@@ -179,15 +179,17 @@ def overlay_mock_average_dispersion(ax, dict_MC, x0, y0):
                 y_avg_sel[ii] = np.nanmean(y0[NB_sel0])
                 y_std_sel[ii] = np.nanstd(y0[NB_sel0])
 
-    nonzero_full = np.where(N_full > 0)
-    ax.errorbar(x_bins[nonzero_full] + bin_size/2.0, y_avg_full[nonzero_full],
-                yerr=y_std_full[nonzero_full], marker='s', fmt='s', color='k',
-                markeredgecolor='none', alpha=0.75)
-
     nonzero_sel = np.where(N_sel > 0)
     ax.errorbar(x_bins[nonzero_sel] + bin_size/2.0, y_avg_sel[nonzero_sel],
                 yerr=y_std_sel[nonzero_sel], marker='s', fmt='s', color='m',
-                markeredgecolor='none', alpha=0.5)
+                markeredgecolor='none', alpha=0.5, label='NB-selected mock sample')
+
+    nonzero_full = np.where(N_full > 0)
+    ax.errorbar(x_bins[nonzero_full] + bin_size/2.0, y_avg_full[nonzero_full],
+                yerr=y_std_full[nonzero_full], marker='s', fmt='s', color='k',
+                markeredgecolor='none', alpha=0.75, label='Full mock sample')
+
+    ax.legend(loc='lower left', frameon=False, fontsize=10)
 
     ax.set_xlim(M_xlimit)
 
