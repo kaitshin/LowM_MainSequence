@@ -448,12 +448,11 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 sSFR_bin_MC = overlay_mock_average_dispersion(ax5[0][1], dict_MC,
                                                               'logM', logsSFR_MC)
 
-                # Dispersion: sSFR vs stellar mass
-                plot_dispersion(ax5[1][1], sSFR_bin_MC)
-
                 logsSFR = dict_NB['Ha_SFR'] - dict_NB['logMstar']
                 plot_MACT(ax5[0][1], dict_NB, 'logMstar', logsSFR, size=15)
 
+                # Dispersion: sSFR vs stellar mass
+                plot_dispersion(ax5[1][1], sSFR_bin_MC)
 
                 plt.subplots_adjust(left=0.09, right=0.98, bottom=0.1, top=0.98)
                 fig5.set_size_inches(8, 8)
