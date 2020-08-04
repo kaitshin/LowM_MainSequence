@@ -352,6 +352,9 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 fig4, ax4 = plt.subplots(nrows=2, ncols=2)
                 [[ax400, ax401], [ax410, ax411]] = ax4
 
+                plt.subplots_adjust(left=0.09, right=0.98, bottom=0.065,
+                                    top=0.98, wspace=0.20, hspace=0.15)
+
                 ax4ins0 = inset_axes(ax400, width="40%", height="15%", loc=3,
                                      bbox_to_anchor=(0.025, 0.1, 0.95, 0.25),
                                      bbox_transform=ax400.transAxes)  # LL
@@ -423,8 +426,6 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
                 # ax410.axvline(x=compute_EW(minthres[ff], ff), color='red')
 
-                plt.subplots_adjust(left=0.09, right=0.98, bottom=0.065,
-                                    top=0.98, wspace=0.20, hspace=0.15)
                 fig4.set_size_inches(8, 8)
                 fig4.savefig(pp4, format='pdf')
 
