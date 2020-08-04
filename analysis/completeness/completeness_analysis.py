@@ -432,7 +432,9 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 fig5, ax5 = plt.subplots(nrows=2, ncols=2)
 
                 # SFR vs stellar mass
-                plot_mock(ax5[0][0], dict_MC, 'logM', 'logSFR', M_lab, SFR_lab)
+                plot_mock(ax5[0][0], dict_MC, 'logM', 'logSFR', ylabel=SFR_lab)
+                ax5[0][0].set_xticklabels([])
+                ax5[0][0].tick_params(axis='both', direction='in')
 
                 SFR_bin_MC = overlay_mock_average_dispersion(ax5[0][0], dict_MC,
                                                              'logM', 'logSFR')
@@ -441,9 +443,12 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
                 # Dispersion: SFR vs stellar mass
                 plot_dispersion(ax5[1][0], SFR_bin_MC)
+                ax5[1][0].tick_params(axis='both', direction='in')
 
                 # sSFR vs stellar mass
-                plot_mock(ax5[0][1], dict_MC, 'logM', logsSFR_MC, M_lab, r'$\log({\rm sSFR})$')
+                plot_mock(ax5[0][1], dict_MC, 'logM', logsSFR_MC, ylabel=r'$\log({\rm sSFR})$')
+                ax5[0][1].set_xticklabels([])
+                ax5[0][1].tick_params(axis='both', direction='in')
 
                 sSFR_bin_MC = overlay_mock_average_dispersion(ax5[0][1], dict_MC,
                                                               'logM', logsSFR_MC)
@@ -453,8 +458,10 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
                 # Dispersion: sSFR vs stellar mass
                 plot_dispersion(ax5[1][1], sSFR_bin_MC)
+                ax5[1][1].tick_params(axis='both', direction='in')
 
-                plt.subplots_adjust(left=0.09, right=0.98, bottom=0.1, top=0.98)
+                plt.subplots_adjust(left=0.07, right=0.98, bottom=0.05, top=0.98,
+                                    hspace=0.025)
                 fig5.set_size_inches(8, 8)
                 fig5.savefig(pp4, format='pdf')
 

@@ -9,6 +9,7 @@ from . import cmap_sel, cmap_nosel
 from .stats import avg_sig_label, N_avg_sig_label
 
 M_xlimit = (4.0, 10.0)
+disp_limit = (-0.05, 1.0)
 
 
 def avg_sig_plot_init(t_filt, logEW_mean, avg_NB, sig_NB, avg_NB_flux,
@@ -217,6 +218,7 @@ def plot_dispersion(ax, bin_MC, xlabel=M_lab):
                marker='s', color='m', alpha=0.75)
 
     ax.set_xlim(M_xlimit)
+    ax.set_ylim(disp_limit)
     ax.set_xlabel(xlabel)
 
     ax.set_ylabel(r'$\sigma$ [dex]')
