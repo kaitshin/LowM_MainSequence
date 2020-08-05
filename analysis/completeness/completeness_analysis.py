@@ -441,6 +441,9 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
                 SFR_bin_MC = overlay_mock_average_dispersion(ax5[0][0], dict_MC,
                                                              'logM', 'logSFR')
+                SFR_bin_MCfile = npz_MCfile.replace(filters[ff], filters[ff]+'_SFR_bin')
+                mylog.info("Writing : " + SFR_bin_MCfile)
+                np.savez(SFR_bin_MCfile, **SFR_bin_MC)
 
                 plot_MACT(ax5[0][0], dict_NB, 'logMstar', 'Ha_SFR', size=15)
 
@@ -455,6 +458,9 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
                 sSFR_bin_MC = overlay_mock_average_dispersion(ax5[0][1], dict_MC,
                                                               'logM', logsSFR_MC)
+                sSFR_bin_MCfile = npz_MCfile.replace(filters[ff], filters[ff]+'_sSFR_bin')
+                mylog.info("Writing : " + sSFR_bin_MCfile)
+                np.savez(sSFR_bin_MCfile, **sSFR_bin_MC)
 
                 logsSFR = dict_NB['Ha_SFR'] - dict_NB['logMstar']
                 plot_MACT(ax5[0][1], dict_NB, 'logMstar', logsSFR, size=15)
