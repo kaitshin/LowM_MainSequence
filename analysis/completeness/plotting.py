@@ -190,7 +190,7 @@ def overlay_mock_average_dispersion(ax, dict_MC, x0, y0):
     # Draw best fit for selection
     nonzero_masscut_sel = np.where((N_sel > 0) & (x_cen >= 6.0))
     sel_fit = fit_sequence(x_cen, y_avg_sel, nonzero_masscut_sel)
-    draw_linear_fit(ax, x_cen[nonzero_masscut_sel], sel_fit, color='m')
+    draw_linear_fit(ax, x_cen[nonzero_masscut_sel], sel_fit, 0.30, color='m')
 
     nonzero_full = np.where(N_full > 0)
     ax.errorbar(x_cen[nonzero_full], y_avg_full[nonzero_full],
@@ -200,7 +200,7 @@ def overlay_mock_average_dispersion(ax, dict_MC, x0, y0):
     # Draw best fit for full mock sample
     nonzero_masscut_full = np.where((N_full > 0) & (x_cen >= 6.0))
     full_fit = fit_sequence(x_cen, y_avg_full, nonzero_masscut_full)
-    draw_linear_fit(ax, x_cen[nonzero_masscut_full], full_fit, color='k')
+    draw_linear_fit(ax, x_cen[nonzero_masscut_full], full_fit, 0.25, color='k')
 
     ax.legend(loc='lower left', frameon=False, fontsize=10)
 
