@@ -7,6 +7,7 @@ from chun_codes import intersect_ndim
 from . import EW_lab, Flux_lab, avg_sig_ctype, M_lab
 from . import cmap_sel, cmap_nosel
 from .stats import avg_sig_label, N_avg_sig_label
+from .fitting import fit_sequence, draw_linear_fit
 
 M_xlimit = (4.0, 10.0)
 disp_limit = (-0.05, 1.0)
@@ -156,6 +157,7 @@ def overlay_mock_average_dispersion(ax, dict_MC, x0, y0):
 
     bin_size = 0.5
     x_bins = np.arange(4.0, 10.5, bin_size)
+    x_cen = x_bins + bin_size/2.0
 
     N_full = np.zeros(x_bins.shape)
     N_sel = np.zeros(x_bins.shape)
@@ -180,14 +182,25 @@ def overlay_mock_average_dispersion(ax, dict_MC, x0, y0):
                 y_std_sel[ii] = np.nanstd(y0[NB_sel0])
 
     nonzero_sel = np.where(N_sel > 0)
-    ax.errorbar(x_bins[nonzero_sel] + bin_size/2.0, y_avg_sel[nonzero_sel],
+
+    ax.errorbar(x_cen[nonzero_sel], y_avg_sel[nonzero_sel],
                 yerr=y_std_sel[nonzero_sel], marker='s', fmt='s', color='m',
                 markeredgecolor='none', alpha=0.5, label='NB-selected mock sample')
 
+    # Draw best fit for selection
+    nonzero_masscut_sel = np.where((N_sel > 0) & (x_cen >= 6.0))
+    sel_fit = fit_sequence(x_cen, y_avg_sel, nonzero_masscut_sel)
+    draw_linear_fit(ax, x_cen[nonzero_masscut_sel], sel_fit, color='m')
+
     nonzero_full = np.where(N_full > 0)
-    ax.errorbar(x_bins[nonzero_full] + bin_size/2.0, y_avg_full[nonzero_full],
+    ax.errorbar(x_cen[nonzero_full], y_avg_full[nonzero_full],
                 yerr=y_std_full[nonzero_full], marker='s', fmt='s', color='k',
                 markeredgecolor='none', alpha=0.75, label='Full mock sample')
+
+    # Draw best fit for full mock sample
+    nonzero_masscut_full = np.where((N_full > 0) & (x_cen >= 6.0))
+    full_fit = fit_sequence(x_cen, y_avg_full, nonzero_masscut_full)
+    draw_linear_fit(ax, x_cen[nonzero_masscut_full], full_fit, color='k')
 
     ax.legend(loc='lower left', frameon=False, fontsize=10)
 
