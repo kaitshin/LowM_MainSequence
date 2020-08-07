@@ -217,6 +217,8 @@ def overlay_mock_average_dispersion(ax, dict_MC, x0, y0):
     bin_MC['y_std_sel'] = y_std_sel
     bin_MC['nonzero_full'] = nonzero_full
     bin_MC['nonzero_sel'] = nonzero_sel
+    bin_MC['sel_fit'] = sel_fit
+    bin_MC['full_fit'] = full_fit
 
     return bin_MC
 
