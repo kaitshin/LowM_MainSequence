@@ -100,7 +100,8 @@ def plot_MACT(ax, dict_NB, x0, y0, size=5):
                alpha=0.5, s=size)
 
 
-def plot_mock(ax, dict_MC, x0, y0, xlabel='', ylabel=''):
+def plot_mock(ax, dict_MC, x0, y0, x_limit=None, y_limit=None,
+              xlabel='', ylabel=''):
     """
     Plot mocked galaxies in various sub-panel
 
@@ -134,10 +135,24 @@ def plot_mock(ax, dict_MC, x0, y0, xlabel='', ylabel=''):
     is1, is2 = NB_sel[0], NB_sel[1]
     in1, in2 = NB_nosel[0], NB_nosel[1]
 
-    ax.hexbin(x0[in1, in2], y0[in1, in2], gridsize=100, mincnt=1, cmap=cmap_nosel,
-              linewidth=0.2)
-    ax.hexbin(x0[is1, is2], y0[is1, is2], gridsize=100, mincnt=1, cmap=cmap_sel,
-              linewidth=0.2)
+    if not isinstance(x_limit, type(None)):
+        ax.set_xlim(x_limit)
+    else:
+        ax.set_xlim(np.nanmin(x0), np.nanmax(x0))
+
+    if not isinstance(y_limit, type(None)):
+        ax.set_ylim(y_limit)
+    else:
+        ax.set_ylim(np.nanmin(y0), np.nanmax(y0))
+
+    x_lim = ax.get_xlim()
+    y_lim = ax.get_ylim()
+
+    extent = (x_lim[0], x_lim[1], y_lim[0], y_lim[1])
+    ax.hexbin(x0[in1, in2], y0[in1, in2], gridsize=100, mincnt=1,
+              extent=extent, cmap=cmap_nosel, linewidth=0.2)
+    ax.hexbin(x0[is1, is2], y0[is1, is2], gridsize=100, mincnt=1,
+              extent=extent, cmap=cmap_sel, linewidth=0.2)
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
 

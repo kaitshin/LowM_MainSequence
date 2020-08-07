@@ -214,9 +214,11 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                                       NB_MC, lum_dist, mylog, redo=redo)
 
                 # Panel (0,0) - NB excess selection plot
+                NB_limit = [20.0, max(NB)+1]
 
                 ylabel_excess = cont0[ff] + ' - ' + filters[ff]
-                plot_mock(ax00, dict_MC, 'NB', 'x', ylabel=ylabel_excess)
+                plot_mock(ax00, dict_MC, 'NB', 'x', x_limit=NB_limit,
+                          ylabel=ylabel_excess)
 
                 ax00.axvline(m_NB[ff], linestyle='dashed', color='b')
 
@@ -236,8 +238,8 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 plt.subplots_adjust(left=0.1, right=0.98, bottom=0.10,
                                     top=0.98, wspace=0.25, hspace=0.05)
 
-                plot_mock(ax0, dict_MC, 'NB', 'x', xlabel=filters[ff],
-                          ylabel=ylabel_excess)
+                plot_mock(ax0, dict_MC, 'NB', 'x', x_limit=NB_limit,
+                          xlabel=filters[ff], ylabel=ylabel_excess)
                 ax0.axvline(m_NB[ff], linestyle='dashed', color='b')
 
                 temp_x = dict_NB['contmag'] - dict_NB['NBmag']
@@ -253,8 +255,8 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 fig0.savefig(pp0, format='pdf')
 
                 # Panel (1,0) - NB mag vs H-alpha flux
-                plot_mock(ax10, dict_MC, 'NB', 'Ha_Flux', xlabel=filters[ff],
-                          ylabel=Flux_lab)
+                plot_mock(ax10, dict_MC, 'NB', 'Ha_Flux', x_limit=NB_limit,
+                          xlabel=filters[ff], ylabel=Flux_lab)
 
                 plot_MACT(ax10, dict_NB, 'NBmag', 'Ha_Flux')
 
