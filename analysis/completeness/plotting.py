@@ -175,11 +175,14 @@ def overlay_mock_average_dispersion(ax, dict_MC, x0, y0):
             y_std_full[ii] = np.nanstd(y0[idx[0], idx[1]])
 
             NB_sel0 = intersect_ndim(idx, NB_sel, y0.shape)
-            N_sel[ii] = len(NB_sel0[0])
+            if type(NB_sel0) == tuple:
+                N_sel[ii] = len(NB_sel0[0])
 
-            if N_full[ii] > 0:
-                y_avg_sel[ii] = np.nanmean(y0[NB_sel0])
-                y_std_sel[ii] = np.nanstd(y0[NB_sel0])
+                if N_full[ii] > 0:
+                    y_avg_sel[ii] = np.nanmean(y0[NB_sel0])
+                    y_std_sel[ii] = np.nanstd(y0[NB_sel0])
+            else:
+                print("Empty idx or NB_sel")
 
     nonzero_sel = np.where(N_sel > 0)
 
