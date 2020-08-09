@@ -277,6 +277,11 @@ def get_completeness(hist_bins, hist_data):
 
 def plot_completeness(t_ax, dict_MC, arr0, bins, ref_arr0=None, above_break=None, annotate=True):
 
+    if isinstance(ref_arr0, dict):
+        ref0 = ref_arr0[arr0]
+    else:
+        ref0 = ref_arr0
+
     if isinstance(arr0, str):
         arr0 = dict_MC[arr0]
 
@@ -307,7 +312,7 @@ def plot_completeness(t_ax, dict_MC, arr0, bins, ref_arr0=None, above_break=None
                       ha='right', va='bottom', fontsize=8, color='blue')
 
     if not isinstance(ref_arr0, type(None)):
-        arr1 = np.ones((arr0.shape[0], 1)) * ref_arr0
+        arr1 = np.ones((arr0.shape[0], 1)) * ref0
         finite = np.where(np.isfinite(arr1))
         if not isinstance(above_break, type(None)):
             finite = intersect_ndim(above_break, finite, arr0.shape)

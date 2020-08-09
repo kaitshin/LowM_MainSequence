@@ -402,11 +402,11 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
                 t_comp_Fl, \
                     t_comp_Fl_ref = plot_completeness(ax410, dict_MC, 'Ha_Flux',
-                                                      Flux_bins, ref_arr0=der_prop_dict_ref['Ha_Flux'])
+                                                      Flux_bins, ref_arr0=der_prop_dict_ref)
 
                 t_comp_SFR, \
                     t_comp_SFR_ref = plot_completeness(ax411, dict_MC, 'logSFR',
-                                                       SFR_bins, ref_arr0=der_prop_dict_ref['logSFR'])
+                                                       SFR_bins, ref_arr0=der_prop_dict_ref)
                 comp_sSFR[mm, ss] = t_comp_sSFR
                 comp_SFR[mm, ss] = t_comp_SFR
                 comp_flux[mm, ss] = t_comp_Fl
@@ -415,7 +415,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 plt.subplots_adjust(left=0.1, right=0.97, bottom=0.10,
                                     top=0.98, wspace=0.25, hspace=0.05)
                 plot_completeness(ax0, dict_MC, 'logSFR', SFR_bins, annotate=False,
-                                  ref_arr0=der_prop_dict_ref['logSFR'])
+                                  ref_arr0=der_prop_dict_ref)
 
                 ax0.set_ylabel('Completeness')
                 ax0.set_xlabel(SFR_lab)
