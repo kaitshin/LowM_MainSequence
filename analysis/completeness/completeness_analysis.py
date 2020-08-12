@@ -39,7 +39,7 @@ from .config import path0, npz_path0
 
 # Import separate functions
 from .config import pdf_filename
-from .stats import stats_log, avg_sig_label, stats_plot
+from .stats import stats_log, avg_sig_label, stats_plot, compute_weighted_dispersion
 from .monte_carlo import random_mags
 from .monte_carlo import main as mc_main
 from .select import color_cut, get_EW
@@ -543,6 +543,11 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
     if not debug:
         pp3.close()
+
+    # Compute weighted intrinsic dispersion
+    if not debug:
+        compute_weighted_dispersion(table_outfile)
+
 
     t0._stop()
     mylog.info("ew_MC completed in : " + t0.format)

@@ -1,6 +1,11 @@
+from os.path import join
 import numpy as np
+import matplotlib.pyplot as plt
 
-from . import avg_sig_ctype
+from astropy.io import ascii as asc
+
+from . import avg_sig_ctype, M_lab
+from .config import npz_path0, filters, path0
 
 
 def stats_log(input_arr, arr_type, mylog):
@@ -133,3 +138,48 @@ def stats_plot(type0, ax2, ax3, ax, s_row, Ng, No, binso, EW_mean, EW_sig, ss):
                             xycoords='axes fraction', va='top')
 
     return fit_chi2
+
+
+def compute_weighted_dispersion(best_fit_file):
+    """
+    Purpose:
+      Computes a weighted dispersion of the main sequence vs stellar mass.
+      Here the best fit for each MC set for each filter is used, and weighting
+      is determined based on the MACT sample size in each stellar mass bin
+
+    :return:
+    """
+
+    fig, ax = plt.subplots()
+
+    print("Reading: "+best_fit_file)
+    comp_tab0 = asc.read(best_fit_file)
+
+    best_EWmean = comp_tab0['log_EWmean'].data
+    best_EWsig  = comp_tab0['log_EWsig'].data
+
+    ctype = ['b', 'b', 'orange', 'g', 'r']
+    for filt, ii in zip(filters, range(len(filters))):
+        infile = join(npz_path0,
+                      '%s_SFR_bin_%.2f_%0.2f.npz' % (filt, best_EWmean[ii], best_EWsig[ii]))
+        npz0 = np.load(infile)
+
+        x_bins = npz0['x_bins']
+        std_full = npz0['y_std_full']
+        std_sel = npz0['y_std_sel']
+
+        ax.plot(x_bins, std_full, color=ctype[ii], linestyle='dotted', label=filt)
+        ax.plot(x_bins, std_sel, color=ctype[ii], linestyle='dashed')
+
+    ax.legend(loc='upper left')
+
+    ax.set_xlabel(M_lab)
+    ax.set_ylabel(r'$\sigma$ [dex]')
+
+    ax.set_xlim([6.0, 9.95])
+
+    ax.tick_params(axis='both', direction='in')
+
+    plt.subplots_adjust(left=0.08, right=0.99, bottom=0.09, top=0.99)
+    out_pdf = join(path0, 'Completeness/compute_weighted_dispersion.pdf')
+    fig.savefig(out_pdf, format='pdf')
