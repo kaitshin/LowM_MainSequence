@@ -6,6 +6,7 @@ from astropy.io import ascii as asc
 
 from . import avg_sig_ctype, M_lab
 from .config import npz_path0, filters, path0
+from .dataset import get_mact_data
 
 
 def stats_log(input_arr, arr_type, mylog):
@@ -140,6 +141,21 @@ def stats_plot(type0, ax2, ax3, ax, s_row, Ng, No, binso, EW_mean, EW_sig, ss):
     return fit_chi2
 
 
+def bin_MACT(x_bins, dict_NB):
+
+    bin_size = x_bins[1] - x_bins[0]
+
+    N_bins = np.zeros(x_bins.shape)
+    logMstar = dict_NB['logMstar']
+
+    for bb in range(len(N_bins)):
+        idx = np.where((logMstar >= x_bins[bb]-bin_size/2.0) &
+                       (logMstar < x_bins[bb]+bin_size/2.0))[0]
+        N_bins[bb] = len(idx)
+
+    return N_bins
+
+
 def compute_weighted_dispersion(best_fit_file):
     """
     Purpose:
@@ -159,17 +175,43 @@ def compute_weighted_dispersion(best_fit_file):
     best_EWsig  = comp_tab0['log_EWsig'].data
 
     ctype = ['b', 'b', 'orange', 'g', 'r']
-    for filt, ii in zip(filters, range(len(filters))):
+    for filt, ff in zip(filters, range(len(filters))):
+        # Read in MACT sample
+        dict_NB = get_mact_data(ff)
+
+        # Read in dispersion
         infile = join(npz_path0,
-                      '%s_SFR_bin_%.2f_%0.2f.npz' % (filt, best_EWmean[ii], best_EWsig[ii]))
+                      '%s_SFR_bin_%.2f_%0.2f.npz' % (filt, best_EWmean[ff], best_EWsig[ff]))
         npz0 = np.load(infile)
 
         x_bins = npz0['x_bins']
         std_full = npz0['y_std_full']
         std_sel = npz0['y_std_sel']
 
-        ax.plot(x_bins, std_full, color=ctype[ii], linestyle='dotted', label=filt)
-        ax.plot(x_bins, std_sel, color=ctype[ii], linestyle='dashed')
+        N_bins = bin_MACT(x_bins, dict_NB)
+
+        if ff == 0:
+            set_shape = (len(filt), len(x_bins))
+            wht_sig_full = np.zeros(set_shape)
+            wht_sig_sel = np.zeros(set_shape)
+            N_bins_filt = np.zeros(set_shape)
+
+        wht_sig_full[ff] = std_full
+        wht_sig_sel[ff] = std_sel
+        N_bins_filt[ff] = N_bins
+        print(N_bins_filt[ff])
+
+        # ax.plot(x_bins, std_full, color=ctype[ff], linestyle='dotted', label=filt)
+        # ax.plot(x_bins, std_sel, color=ctype[ff], linestyle='dashed')
+
+    sig_full_sq = wht_sig_full**2 * N_bins_filt
+    sig_full = np.sqrt(np.sum(sig_full_sq, axis=0) / np.sum(N_bins_filt, axis=0))
+
+    sig_sel_sq = wht_sig_sel**2 * N_bins_filt
+    sig_sel = np.sqrt(np.sum(sig_sel_sq, axis=0) / np.sum(N_bins_filt, axis=0))
+
+    ax.plot(x_bins, sig_full, linestyle='dotted', label='Weighted (full)')
+    ax.plot(x_bins, sig_sel, linestyle='dashed', label='Weighted (selected)')
 
     ax.legend(loc='upper left')
 
