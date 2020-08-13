@@ -225,7 +225,7 @@ def overlay_mock_average_dispersion(ax, dict_MC, x0, y0):
     ax.set_xlim(M_xlimit)
 
     bin_MC = dict()
-    bin_MC['x_bins'] = x_bins + bin_size/2.0
+    bin_MC['x_bins'] = x_cen
     bin_MC['y_avg_full'] = y_avg_full
     bin_MC['y_std_full'] = y_std_full
     bin_MC['y_avg_sel'] = y_avg_sel
