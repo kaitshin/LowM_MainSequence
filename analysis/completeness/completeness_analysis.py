@@ -39,7 +39,7 @@ from .config import path0, npz_path0
 
 # Import separate functions
 from .config import pdf_filename
-from .stats import stats_log, avg_sig_label, stats_plot, compute_weighted_dispersion
+from .stats import stats_log, avg_sig_label, stats_plot, compute_weighted_dispersion, lowM_cutoff_sigma
 from .monte_carlo import random_mags
 from .monte_carlo import main as mc_main
 from .select import color_cut, get_EW
@@ -179,6 +179,10 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
         ax3ll = ax3[1][0]
         ax3ur = ax3[0][1]
         ax3lr = ax3[1][1]
+
+        # Compute low-mass cutoff for each filter
+        lowM_cutoff = lowM_cutoff_sigma(dict_NB['logMstar'])
+        mylog.info("lowM_cutoff: %.2f" % lowM_cutoff)
 
         chi2_EW0 = np.zeros((n_mean, n_sigma))
         chi2_Fl0 = np.zeros((n_mean, n_sigma))
@@ -442,7 +446,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 ax5[0][0].tick_params(axis='both', direction='in')
 
                 SFR_bin_MC = overlay_mock_average_dispersion(ax5[0][0], dict_MC,
-                                                             'logM', 'logSFR')
+                                                             'logM', 'logSFR', lowM_cutoff)
                 SFR_bin_MCfile = npz_MCfile.replace(filters[ff], filters[ff]+'_SFR_bin')
                 mylog.info("Writing : " + SFR_bin_MCfile)
                 np.savez(SFR_bin_MCfile, **SFR_bin_MC)
@@ -459,7 +463,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
                 ax5[0][1].tick_params(axis='both', direction='in')
 
                 sSFR_bin_MC = overlay_mock_average_dispersion(ax5[0][1], dict_MC,
-                                                              'logM', logsSFR_MC)
+                                                              'logM', logsSFR_MC, lowM_cutoff)
                 sSFR_bin_MCfile = npz_MCfile.replace(filters[ff], filters[ff]+'_sSFR_bin')
                 mylog.info("Writing : " + sSFR_bin_MCfile)
                 np.savez(sSFR_bin_MCfile, **sSFR_bin_MC)

@@ -160,7 +160,7 @@ def plot_mock(ax, dict_MC, x0, y0, x_limit=None, y_limit=None,
         ax.set_xticklabels([])
 
 
-def overlay_mock_average_dispersion(ax, dict_MC, x0, y0):
+def overlay_mock_average_dispersion(ax, dict_MC, x0, y0, lowM_cutoff):
 
     NB_sel = dict_MC['NB_sel']
 
@@ -215,8 +215,11 @@ def overlay_mock_average_dispersion(ax, dict_MC, x0, y0):
                 yerr=y_std_full[nonzero_full], marker='s', fmt='s', color='k',
                 markeredgecolor='none', alpha=0.75, label='Full mock sample')
 
+    # Draw line for lowM_cutoff
+    ax.axvline(x=lowM_cutoff, color='r', linestyle='dashed', linewidth=1.5)
+
     # Draw best fit for full mock sample
-    nonzero_masscut_full = np.where((N_full > 0) & (x_cen >= 6.0))
+    nonzero_masscut_full = np.where((N_full > 0) & (x_cen >= lowM_cutoff))
     full_fit = fit_sequence(x_cen, y_avg_full, nonzero_masscut_full)
     draw_linear_fit(ax, x_cen[nonzero_masscut_full], full_fit, 0.25, color='k')
 

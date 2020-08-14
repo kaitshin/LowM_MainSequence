@@ -156,6 +156,18 @@ def bin_MACT(x_bins, dict_NB):
     return N_bins
 
 
+def lowM_cutoff_sigma(logMstar):
+    "Return low-mass cutoff.  If lower than 6.0 return 6.0"
+    avg0 = np.average(logMstar)
+    sig0 = np.std(logMstar)
+
+    lowM_cutoff = avg0 - 2.0 * sig0
+    if lowM_cutoff < 6.0:
+        lowM_cutoff = 6.0
+
+    return lowM_cutoff
+
+
 def compute_weighted_dispersion(best_fit_file):
     """
     Purpose:
@@ -174,7 +186,7 @@ def compute_weighted_dispersion(best_fit_file):
     best_EWmean = comp_tab0['log_EWmean'].data
     best_EWsig  = comp_tab0['log_EWsig'].data
 
-    ctype = ['b', 'b', 'orange', 'g', 'r']
+    # ctype = ['b', 'b', 'orange', 'g', 'r']
     for filt, ff in zip(filters, range(len(filters))):
         # Read in MACT sample
         dict_NB = get_mact_data(ff)
