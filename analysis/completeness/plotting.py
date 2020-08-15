@@ -228,7 +228,8 @@ def overlay_mock_average_dispersion(ax, dict_MC, x0, y0, lowM_cutoff):
     ax.set_xlim(M_xlimit)
 
     bin_MC = dict()
-    bin_MC['x_bins'] = x_cen
+    bin_MC['x_bins'] = x_bins
+    bin_MC['x_cen'] = x_cen
     bin_MC['y_avg_full'] = y_avg_full
     bin_MC['y_std_full'] = y_std_full
     bin_MC['y_avg_sel'] = y_avg_sel
@@ -243,16 +244,16 @@ def overlay_mock_average_dispersion(ax, dict_MC, x0, y0, lowM_cutoff):
 
 def plot_dispersion(ax, bin_MC, xlabel=M_lab):
 
-    x_bins = bin_MC['x_bins']
+    x_cen = bin_MC['x_cen']
     nonzero_full = bin_MC['nonzero_full']
     nonzero_sel = bin_MC['nonzero_sel']
 
     # Plot full set
-    ax.scatter(x_bins[nonzero_full], bin_MC['y_std_full'][nonzero_full],
+    ax.scatter(x_cen[nonzero_full], bin_MC['y_std_full'][nonzero_full],
                marker='s', color='k', alpha=0.75)
 
     # Plot selected set
-    ax.scatter(x_bins[nonzero_sel], bin_MC['y_std_sel'][nonzero_sel],
+    ax.scatter(x_cen[nonzero_sel], bin_MC['y_std_sel'][nonzero_sel],
                marker='s', color='m', alpha=0.75)
 
     ax.set_xlim(M_xlimit)

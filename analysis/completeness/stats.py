@@ -141,16 +141,16 @@ def stats_plot(type0, ax2, ax3, ax, s_row, Ng, No, binso, EW_mean, EW_sig, ss):
     return fit_chi2
 
 
-def bin_MACT(x_bins, dict_NB):
+def bin_MACT(x_cen, dict_NB):
 
-    bin_size = x_bins[1] - x_bins[0]
+    bin_size = x_cen[1] - x_cen[0]
 
-    N_bins = np.zeros(x_bins.shape)
+    N_bins = np.zeros(x_cen.shape)
     logMstar = dict_NB['logMstar']
 
     for bb in range(len(N_bins)):
-        idx = np.where((logMstar >= x_bins[bb]-bin_size/2.0) &
-                       (logMstar < x_bins[bb]+bin_size/2.0))[0]
+        idx = np.where((logMstar >= x_cen[bb]-bin_size/2.0) &
+                       (logMstar < x_cen[bb]+bin_size/2.0))[0]
         N_bins[bb] = len(idx)
 
     return N_bins
@@ -196,14 +196,14 @@ def compute_weighted_dispersion(best_fit_file):
                       '%s_SFR_bin_%.2f_%0.2f.npz' % (filt, best_EWmean[ff], best_EWsig[ff]))
         npz0 = np.load(infile)
 
-        x_bins = npz0['x_bins']
+        x_cen = npz0['x_cen']
         std_full = npz0['y_std_full']
         std_sel = npz0['y_std_sel']
 
-        N_bins = bin_MACT(x_bins, dict_NB)
+        N_bins = bin_MACT(x_cen, dict_NB)
 
         if ff == 0:
-            set_shape = (len(filt), len(x_bins))
+            set_shape = (len(filt), len(x_cen))
             wht_sig_full = np.zeros(set_shape)
             wht_sig_sel = np.zeros(set_shape)
             N_bins_filt = np.zeros(set_shape)
@@ -213,8 +213,8 @@ def compute_weighted_dispersion(best_fit_file):
         N_bins_filt[ff] = N_bins
         print(N_bins_filt[ff])
 
-        # ax.plot(x_bins, std_full, color=ctype[ff], linestyle='dotted', label=filt)
-        # ax.plot(x_bins, std_sel, color=ctype[ff], linestyle='dashed')
+        # ax.plot(x_cen, std_full, color=ctype[ff], linestyle='dotted', label=filt)
+        # ax.plot(x_cen, std_sel, color=ctype[ff], linestyle='dashed')
 
     sig_full_sq = wht_sig_full**2 * N_bins_filt
     sig_full = np.sqrt(np.sum(sig_full_sq, axis=0) / np.sum(N_bins_filt, axis=0))
@@ -222,8 +222,8 @@ def compute_weighted_dispersion(best_fit_file):
     sig_sel_sq = wht_sig_sel**2 * N_bins_filt
     sig_sel = np.sqrt(np.sum(sig_sel_sq, axis=0) / np.sum(N_bins_filt, axis=0))
 
-    ax.plot(x_bins, sig_full, linestyle='dotted', label='Weighted (full)')
-    ax.plot(x_bins, sig_sel, linestyle='dashed', label='Weighted (selected)')
+    ax.plot(x_cen, sig_full, linestyle='dotted', label='Weighted (full)')
+    ax.plot(x_cen, sig_sel, linestyle='dashed', label='Weighted (selected)')
 
     ax.legend(loc='upper left')
 
