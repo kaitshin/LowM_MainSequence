@@ -550,7 +550,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
 
     # Compute weighted intrinsic dispersion
     if not debug:
-        compute_weighted_dispersion(table_outfile)
+        compute_weighted_dispersion(table_outfile0)
 
 
     t0._stop()
