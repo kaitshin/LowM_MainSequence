@@ -168,7 +168,7 @@ def lowM_cutoff_sigma(logMstar):
     return lowM_cutoff
 
 
-def compute_weighted_dispersion(best_fit_file):
+def compute_weighted_dispersion(best_fit_file, mylog):
     """
     Purpose:
       Computes a weighted dispersion of the main sequence vs stellar mass.
@@ -180,7 +180,7 @@ def compute_weighted_dispersion(best_fit_file):
 
     fig, ax = plt.subplots()
 
-    print("Reading: "+best_fit_file)
+    mylog.info("Reading: "+best_fit_file)
     comp_tab0 = asc.read(best_fit_file)
 
     best_EWmean = comp_tab0['log_EWmean'].data
@@ -211,7 +211,6 @@ def compute_weighted_dispersion(best_fit_file):
         wht_sig_full[ff] = std_full
         wht_sig_sel[ff] = std_sel
         N_bins_filt[ff] = N_bins
-        print(N_bins_filt[ff])
 
         # ax.plot(x_cen, std_full, color=ctype[ff], linestyle='dotted', label=filt)
         # ax.plot(x_cen, std_sel, color=ctype[ff], linestyle='dashed')
@@ -236,4 +235,5 @@ def compute_weighted_dispersion(best_fit_file):
 
     plt.subplots_adjust(left=0.08, right=0.99, bottom=0.09, top=0.99)
     out_pdf = join(path0, 'Completeness/compute_weighted_dispersion.pdf')
+    mylog.info("Writing : "+out_pdf)
     fig.savefig(out_pdf, format='pdf')
