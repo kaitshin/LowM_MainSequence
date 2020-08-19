@@ -77,8 +77,9 @@ def mag_vs_mass(silent=False):  # verbose=True):
 
     for filt in filters:
         log.info('### Working on : ' + filt)
-        NB_idx = [ii for ii in range(len(NB_tab)) if 'Ha-'+filt in
-                  NB_HA_Name[ii]]
+        NB_idx = np.array([ii for ii in range(len(NB_tab)) if
+                           (('Ha-'+filt in NB_HA_Name[ii]) and (NB_tab['filt'][ii] == filt))])
+
         print(" Size : ", len(NB_idx))
         cont_mag[NB_idx] = NB_catdata[filt+'_CONT_MAG'][NB_idx]
 
@@ -183,8 +184,9 @@ def get_EW_Flux_distribution():
 
     for filt in filters:
         log.info('### Working on : ' + filt)
-        NB_idx = np.array([ii for ii in range(len(NB_tab)) if 'Ha-'+filt in
-                           NB_HA_Name[ii]])
+        NB_idx = np.array([ii for ii in range(len(NB_tab)) if
+                           (('Ha-'+filt in NB_HA_Name[ii]) and (NB_tab['filt'][ii] == filt))])
+
         print(" Size : ", len(NB_idx))
         NB_EW[NB_idx]   = np.log10(NB_catdata[filt+'_EW'][NB_idx])
         NB_Flux[NB_idx] = NB_catdata[filt+'_FLUX'][NB_idx]
