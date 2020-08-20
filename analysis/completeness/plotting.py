@@ -311,6 +311,7 @@ def plot_completeness(t_ax, dict_MC, arr0, bins, ref_arr0=None, above_break=None
     t_ax.step(x0, y0, 'b--', where='mid', label=label0)
 
     comp_50 = get_completeness(x0, y0)
+    t_ax.axvline(comp_50, linestyle='dashed', color='blue', linewidth=1.5)
     if annotate:
         t_ax.annotate('%.2f' % comp_50, [0.975, 0.025], xycoords='axes fraction',
                       ha='right', va='bottom', fontsize=8, color='blue')
@@ -336,6 +337,7 @@ def plot_completeness(t_ax, dict_MC, arr0, bins, ref_arr0=None, above_break=None
         t_ax.step(x1, y1, 'k--', where='mid', label=label0)
 
         comp_50_ref = get_completeness(x1, y1)
+        t_ax.axvline(comp_50_ref, linestyle='dashed', color='black', linewidth=1.5)
         if annotate:
             t_ax.annotate('%.2f' % comp_50_ref, [0.975, 0.06], fontsize=8,
                           xycoords='axes fraction', ha='right', va='bottom',
