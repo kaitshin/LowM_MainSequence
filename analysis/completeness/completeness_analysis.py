@@ -48,6 +48,7 @@ from .plotting import avg_sig_plot_init, plot_MACT, plot_mock, plot_completeness
 from .plotting import overlay_mock_average_dispersion, plot_dispersion, ew_flux_hist
 from .properties import get_mag_vs_mass_interp, compute_EW
 from .normalization import get_normalization
+from .pdf_plot_merge import run_merge_final_plots
 
 import astropy.units as u
 from astropy.cosmology import FlatLambdaCDM
@@ -541,17 +542,19 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
         mylog.info("ew_MC completed for " + filters[ff] + " in : " + t_ff.format)
 
     if not debug:
+        # Save one file for all avg and sigma comparisons
+        pp3.close()
+
+        # Write best-fit completeness table
         table_outfile0 = path0 + 'Completeness/best_fit_completeness_50.tbl'
         comp_tab0.write(table_outfile0, format='ascii.fixed_width_two_line',
                         overwrite=True)
 
-    if not debug:
-        pp3.close()
-
-    # Compute weighted intrinsic dispersion
-    if not debug:
+        # Compute weighted intrinsic dispersion
         compute_weighted_dispersion(table_outfile0, mylog)
 
+        # Merge best-fit plots for each filter
+        run_merge_final_plots(path0 + 'Completeness/')
 
     t0._stop()
     mylog.info("ew_MC completed in : " + t0.format)
