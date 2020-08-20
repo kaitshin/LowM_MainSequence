@@ -161,7 +161,7 @@ def lowM_cutoff_sigma(logMstar):
     avg0 = np.average(logMstar)
     sig0 = np.std(logMstar)
 
-    lowM_cutoff = avg0 - 2.0 * sig0
+    lowM_cutoff = avg0 - 1.5 * sig0
     if lowM_cutoff < 6.0:
         lowM_cutoff = 6.0
 
