@@ -106,9 +106,11 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False, run_filt=''):
     nrow_stats = 4
 
     # One file written for all avg and sigma comparisons
-    if not debug:
+    if not debug and not run_filt:
         out_pdf3 = path0 + 'Completeness/ew_MC.avg_sigma.pdf'
         pp3 = PdfPages(out_pdf3)
+    else:
+        mylog.info("Will not write consolidated avg_sigma plots")
 
     # Set filters to run simulations
     if not run_filt:
@@ -119,7 +121,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False, run_filt=''):
             mylog.info('Running: all simulations')
     else:
         mylog.info('Running: '+run_filt+' simulations')
-        ff_range = [xx for xx in range(filters) if filters[xx] == run_filt]
+        ff_range = [xx for xx in range(len(filters)) if filters[xx] == run_filt]
 
     mm_range = [0] if debug else range(n_mean)
     ss_range = [0] if debug else range(n_sigma)
@@ -524,7 +526,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False, run_filt=''):
             out_pdf3_each = out_pdf3_each.replace('.pdf', '.debug.pdf')
         fig3.savefig(out_pdf3_each, format='pdf')
 
-        if not debug:
+        if not debug and not run_filt:
             fig3.savefig(pp3, format='pdf')
         plt.close(fig3)
 
@@ -554,20 +556,21 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False, run_filt=''):
         t_ff._stop()
         mylog.info("ew_MC completed for " + filters[ff] + " in : " + t_ff.format)
 
-    if not debug:
+    if not debug and not run_filt:
         # Save one file for all avg and sigma comparisons
         pp3.close()
 
-        # Write best-fit completeness table
-        table_outfile0 = path0 + 'Completeness/best_fit_completeness_50.tbl'
-        comp_tab0.write(table_outfile0, format='ascii.fixed_width_two_line',
-                        overwrite=True)
+        if not run_filt:
+            # Write best-fit completeness table
+            table_outfile0 = path0 + 'Completeness/best_fit_completeness_50.tbl'
+            comp_tab0.write(table_outfile0, format='ascii.fixed_width_two_line',
+                            overwrite=True)
 
-        # Compute weighted intrinsic dispersion
-        compute_weighted_dispersion(table_outfile0, mylog)
+            # Compute weighted intrinsic dispersion
+            compute_weighted_dispersion(table_outfile0, mylog)
 
-        # Merge best-fit plots for each filter
-        run_merge_final_plots(path0 + 'Completeness/')
+            # Merge best-fit plots for each filter
+            run_merge_final_plots(path0 + 'Completeness/')
 
     t0._stop()
     mylog.info("ew_MC completed in : " + t0.format)
