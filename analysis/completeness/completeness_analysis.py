@@ -75,7 +75,7 @@ def plot_NB_select(ff, t_ax, NB, ctype, linewidth=1, plot4=True):
     return NB_break
 
 
-def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
+def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False, run_filt=''):
     """
     Main function for Monte Carlo realization.  Adopts log-normal
     EW distribution to determine survey sensitivity and impact on
@@ -90,6 +90,9 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
       Default: False
     redo : boolean
       Re-run mock galaxy generation even if file exists. Default: False
+    run_filt : str
+      Run specific simulations for a selected filter. Default: run alls
+      Options: 'NB704', 'NB711', 'NB816', 'NB921', 'NB973'
     """
 
     str_date = get_date(debug=debug)
@@ -107,7 +110,17 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False):
         out_pdf3 = path0 + 'Completeness/ew_MC.avg_sigma.pdf'
         pp3 = PdfPages(out_pdf3)
 
-    ff_range = [0] if debug else range(len(filter_dict['filt_ref']))
+    # Set filters to run simulations
+    if not run_filt:
+        ff_range = [0] if debug else range(filters)
+        if debug:
+            mylog.info('Running: debug simulation')
+        else:
+            mylog.info('Running: all simulations')
+    else:
+        mylog.info('Running: '+run_filt+' simulations')
+        ff_range = [xx for xx in range(filters) if filters[xx] == run_filt]
+
     mm_range = [0] if debug else range(n_mean)
     ss_range = [0] if debug else range(n_sigma)
 
