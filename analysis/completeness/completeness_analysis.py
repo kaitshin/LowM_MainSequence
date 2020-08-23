@@ -200,8 +200,8 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False, run_filt=''):
         lowM_cutoff = lowM_cutoff_sigma(dict_NB['logMstar'])
         mylog.info("lowM_cutoff: %.2f" % lowM_cutoff)
 
-        chi2_EW0 = np.zeros((n_mean, n_sigma))
-        chi2_Fl0 = np.zeros((n_mean, n_sigma))
+        chi2_EW0 = np.zeros(comp_shape)
+        chi2_Fl0 = np.zeros(comp_shape)
 
         count = 0
         for mm in mm_range:  # loop over median of EW dist
@@ -535,9 +535,11 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False, run_filt=''):
             table_outfile = table_outfile.replace('.tbl', '.debug.tbl')
         c_size = comp_shape[0] * comp_shape[1]
         comp_arr0 = [comp_EWmean.reshape(c_size), comp_EWsig.reshape(c_size),
-                     comp_sSFR.reshape(c_size), comp_SFR.reshape(c_size),
-                     comp_flux.reshape(c_size)]
-        c_names = ('log_EWmean', 'log_EWsig', 'comp_50_sSFR', 'comp_50_SFR',
+                     chi2_EW0.reshape(c_size), chi2_Fl0.reshape(c_size),
+                     chi2_wht.reshape(c_size), comp_sSFR.reshape(c_size),
+                     comp_SFR.reshape(c_size), comp_flux.reshape(c_size)]
+        c_names = ('log_EWmean', 'log_EWsig', 'chi2_EW', 'chi2_Flux',
+                   'chi2_wht', 'comp_50_sSFR', 'comp_50_SFR',
                    'comp_50_flux')
 
         mylog.info("Writing : " + table_outfile)
