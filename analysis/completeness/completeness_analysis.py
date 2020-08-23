@@ -550,10 +550,13 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False, run_filt=''):
         # Generate table containing best fit results
         if not debug:
             best_tab0 = comp_tab[b_chi2[0] * len(ss_range) + b_chi2[1]]
-            if ff == 0:
-                comp_tab0 = best_tab0
+            if not run_filt:
+                if ff == 0:
+                    comp_tab0 = best_tab0
+                else:
+                    comp_tab0 = vstack([comp_tab0, best_tab0])
             else:
-                comp_tab0 = vstack([comp_tab0, best_tab0])
+                comp_tab0 = best_tab0
 
         t_ff._stop()
         mylog.info("ew_MC completed for " + filters[ff] + " in : " + t_ff.format)
