@@ -48,7 +48,7 @@ from .plotting import avg_sig_plot_init, plot_MACT, plot_mock, plot_completeness
 from .plotting import overlay_mock_average_dispersion, plot_dispersion, ew_flux_hist
 from .properties import get_mag_vs_mass_interp, compute_EW
 from .normalization import get_normalization
-from .pdf_plot_merge import run_merge_final_plots
+from .pdf_plot_merge import run_merge_final_plots, merge_final_plots
 
 import astropy.units as u
 from astropy.cosmology import FlatLambdaCDM
@@ -576,6 +576,10 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False, run_filt=''):
 
             # Merge best-fit plots for each filter
             run_merge_final_plots(path0 + 'Completeness/')
+
+    if run_filt:
+        # Merge best-fit plots for specified filter
+        merge_final_plots(path0 + 'Completeness/', run_filt, best_filt_tab=comp_tab0)
 
     t0._stop()
     mylog.info("ew_MC completed in : " + t0.format)
