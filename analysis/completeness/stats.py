@@ -175,7 +175,8 @@ def compute_weighted_dispersion(best_fit_file, mylog):
       Here the best fit for each MC set for each filter is used, and weighting
       is determined based on the MACT sample size in each stellar mass bin
 
-    :return:
+    :param best_fit_file: filename of best-fit
+    :param mylog: logging object
     """
 
     fig, ax = plt.subplots()
