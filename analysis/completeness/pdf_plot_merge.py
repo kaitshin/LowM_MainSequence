@@ -13,42 +13,49 @@ from PyPDF2 import PdfFileWriter, PdfFileReader
 
 best_file_filename = 'best_fit_completeness_50.tbl'
 
-def merge_final_plots(dir0, filt, best_tab=None):
+
+def merge_final_plots(dir0, filt, best_tab=None, best_filt_tab=None):
     """
     Purpose:
       Extract best fit results for each filter
 
     :param dir0: relative/absolute path for parent directobry of plots
-    :param best_tab: astropy table containing best-fit
     :param filt: str. e.g., 'NB704', 'NB711', 'NB816', 'NB921', 'NB973'
-
+    :param best_tab: astropy table containing best fits
+    :param best_filt_tab: astropy table containing the best fit for filt case
+             Needs to be only the best fit (i.e., one row)
     """
 
     # Get filter index
     filt_ii = [ff for ff in range(len(filters)) if filters[ff] == filt][0]
 
-    # Read in best-fit file if not provided
-    if isinstance(best_tab, type(None)):
-        best_fit_file = join(dir0, best_file_filename)
-        if not exists(best_fit_file):
-            raise IOError("WARNING - File not found: " + best_fit_file)
+    logEW_mean = logEW_mean_start[filt_ii] + 0.1 * np.arange(n_mean)
+    logEW_sig = logEW_sig_start[filt_ii] + 0.1 * np.arange(n_sigma)
 
-        print("Reading : " + best_fit_file)
-        best_tab = asc.read(best_fit_file)
+    if isinstance(best_filt_tab, type(None)):
+        # Read in best-fit file if not provided
+        if isinstance(best_tab, type(None)):
+            best_fit_file = join(dir0, best_file_filename)
+            if not exists(best_fit_file):
+                raise IOError("WARNING - File not found: " + best_fit_file)
 
-    best_log_EWmean = best_tab['log_EWmean'][filt_ii]
-    best_log_EWsig  = best_tab['log_EWsig'][filt_ii]
+            print("Reading : " + best_fit_file)
+            best_tab = asc.read(best_fit_file)
+
+        best_log_EWmean = best_tab['log_EWmean'][filt_ii]
+        best_log_EWsig  = best_tab['log_EWsig'][filt_ii]
+    else:
+        # Use single-value provided best-fit for [filt]
+        best_log_EWmean = best_filt_tab['log_EWmean'][0]
+        best_log_EWsig  = best_filt_tab['log_EWsig'][0]
+
+    mean_idx = np.where(np.absolute(logEW_mean - best_log_EWmean) < 0.01)[0][0]
+    sig_idx  = np.where(np.absolute(logEW_sig - best_log_EWsig) < 0.01)[0][0]
 
     suffix = ['', '.comp', '.stats', '.crop']
     n_pages = [1, 2, 1, 3]  # Number of pages for each set to get best fit
 
     pdf_files = [join(dir0, 'ew_MC_'+filt+s+'.pdf') for s in suffix]
-
-    logEW_mean = logEW_mean_start[filt_ii] + 0.1 * np.arange(n_mean)
-    logEW_sig = logEW_sig_start[filt_ii] + 0.1 * np.arange(n_sigma)
-
-    mean_idx = np.where(np.absolute(logEW_mean - best_log_EWmean) < 0.01)[0][0]
-    sig_idx  = np.where(np.absolute(logEW_sig - best_log_EWsig) < 0.01)[0][0]
 
     # This is the best-fit reference index. (counts from zero)
     # It's the starting point depending on the number of pages for each fit.
