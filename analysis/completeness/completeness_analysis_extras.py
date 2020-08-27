@@ -160,7 +160,7 @@ def get_EW_Flux_distribution():
     NB_tab      = asc.read(NB_file)
     NB_HA_Name  = NB_tab['NAME0'].data
     NB_Ha_ID    = NB_tab['ID'].data - 1  # Relative to 0 --> indexing
-    NII_Ha_corr = NB_tab['nii_ha_corr_factor'].data  # This is log(1+NII/Ha)
+    NII_Ha_corr = NB_tab['nii_ha_corr_factor'].data  # This is -1*log(1+NII/Ha)
     filt_corr   = NB_tab['filt_corr_factor'].data  # This is log(f_filt)
     zspec0      = NB_tab['zspec0'].data
 
