@@ -181,6 +181,15 @@ def compute_weighted_dispersion(best_fit_file, mylog):
 
     fig, ax = plt.subplots()
 
+    # Plot MACT dispersion dataset
+    mact_dispersion_file = join(path0, 'Tables/4_ascii.txt')
+    mact_dispersion_tab = asc.read(mact_dispersion_file, format='fixed_width_two_line')
+    mass_range = mact_dispersion_tab['mass_range'].data
+    logM_bins = [np.average(np.float_(mass_range[xx].split('--'))) for
+                 xx in range(len(mass_range))]
+    ax.scatter(logM_bins, mact_dispersion_tab['obs'].data,
+               marker='o', color='b', s=100, alpha=0.5)
+
     mylog.info("Reading: "+best_fit_file)
     comp_tab0 = asc.read(best_fit_file)
 
