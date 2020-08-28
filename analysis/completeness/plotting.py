@@ -242,7 +242,7 @@ def overlay_mock_average_dispersion(ax, dict_MC, x0, y0, lowM_cutoff):
     # Add stellar mass and SFRs for random selection
     bin_MC['logM_MC']   = x0[NB_sel0]
     bin_MC['logSFR_MC'] = y0[NB_sel0]
-    bin_MC['offset_MC'] = y0[NB_sel0] - linear(x0[NB_sel], *bin_MC['sel_fit'])  # This is offset from best fit
+    bin_MC['offset_MC'] = y0[NB_sel0] - linear(x0[NB_sel0], *sel_fit)  # This is offset from best fit
 
     return bin_MC
 
