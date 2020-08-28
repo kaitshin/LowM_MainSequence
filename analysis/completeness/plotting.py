@@ -7,7 +7,7 @@ from chun_codes import intersect_ndim
 from . import EW_lab, Flux_lab, avg_sig_ctype, M_lab
 from . import cmap_sel, cmap_nosel
 from .stats import avg_sig_label, N_avg_sig_label
-from .fitting import fit_sequence, draw_linear_fit
+from .fitting import fit_sequence, draw_linear_fit, linear
 
 M_xlimit = (4.0, 10.0)
 disp_limit = (-0.05, 1.0)
@@ -238,6 +238,11 @@ def overlay_mock_average_dispersion(ax, dict_MC, x0, y0, lowM_cutoff):
     bin_MC['nonzero_sel'] = nonzero_sel
     bin_MC['sel_fit'] = sel_fit
     bin_MC['full_fit'] = full_fit
+
+    # Add stellar mass and SFRs for random selection
+    bin_MC['logM_MC']   = x0[NB_sel0]
+    bin_MC['logSFR_MC'] = y0[NB_sel0]
+    bin_MC['offset_MC'] = y0[NB_sel0] - linear(x0[NB_sel], *bin_MC['sel_fit'])  # This is offset from best fit
 
     return bin_MC
 
