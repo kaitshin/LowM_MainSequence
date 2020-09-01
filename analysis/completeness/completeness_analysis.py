@@ -114,7 +114,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False, run_filt=''):
 
     # Set filters to run simulations
     if not run_filt:
-        ff_range = [0] if debug else range(filters)
+        ff_range = [0] if debug else range(len(filters))
         if debug:
             mylog.info('Running: debug simulation')
         else:
