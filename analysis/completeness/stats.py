@@ -157,7 +157,8 @@ def bin_MACT(x_cen, dict_NB):
 
 
 def lowM_cutoff_sigma(logMstar):
-    "Return low-mass cutoff.  If lower than 6.0 return 6.0"
+    """Return low-mass cutoff.  If lower than 6.0 return 6.0"""
+
     avg0 = np.average(logMstar)
     sig0 = np.std(logMstar)
 
@@ -168,7 +169,7 @@ def lowM_cutoff_sigma(logMstar):
     return lowM_cutoff
 
 
-def compute_weighted_dispersion(best_fit_file, mylog):
+def compute_weighted_dispersion(best_fit_file, mylog, monte_carlo=False):
     """
     Purpose:
       Computes a weighted dispersion of the main sequence vs stellar mass.
@@ -177,7 +178,10 @@ def compute_weighted_dispersion(best_fit_file, mylog):
 
     :param best_fit_file: filename of best-fit
     :param mylog: logging object
+    :param monte_carlo: Bool to do randomization to compute observational dispersion
     """
+
+    MC_Nsim = 1000
 
     fig, ax = plt.subplots()
 
@@ -188,8 +192,10 @@ def compute_weighted_dispersion(best_fit_file, mylog):
     logM_bins = [np.average(np.float_(mass_range[xx].split('--'))) for
                  xx in range(len(mass_range))]
     ax.scatter(logM_bins, mact_dispersion_tab['obs'].data,
-               marker='o', color='b', s=100, alpha=0.5)
+               marker='o', color='b', s=100, alpha=0.5,
+               label=r'$\mathcal{MACT}$')
 
+    # Plot full simulation results
     mylog.info("Reading: "+best_fit_file)
     comp_tab0 = asc.read(best_fit_file)
 
@@ -204,13 +210,14 @@ def compute_weighted_dispersion(best_fit_file, mylog):
         # Read in dispersion
         infile = join(npz_path0,
                       '%s_SFR_bin_%.2f_%0.2f.npz' % (filt, best_EWmean[ff], best_EWsig[ff]))
+        mylog.info("Reading : " + infile)
         npz0 = np.load(infile)
 
         x_cen = npz0['x_cen']
         std_full = npz0['y_std_full']
         std_sel = npz0['y_std_sel']
 
-        N_bins = bin_MACT(x_cen, dict_NB)
+        N_bins = np.int_(bin_MACT(x_cen, dict_NB))
 
         if ff == 0:
             set_shape = (len(filt), len(x_cen))
@@ -222,8 +229,39 @@ def compute_weighted_dispersion(best_fit_file, mylog):
         wht_sig_sel[ff] = std_sel
         N_bins_filt[ff] = N_bins
 
-        # ax.plot(x_cen, std_full, color=ctype[ff], linestyle='dotted', label=filt)
-        # ax.plot(x_cen, std_sel, color=ctype[ff], linestyle='dashed')
+        # Construct arrays of randomization to compute SFR dispersion
+        if monte_carlo:
+            rand_shape  = (len(x_cen), max(N_bins), MC_Nsim)
+            rand_logM   = np.zeros(rand_shape)
+            rand_logSFR = np.zeros(rand_shape)
+            rand_offset = np.zeros(rand_shape)
+            rand_mask   = np.zeros(rand_shape)
+
+            for bb in range(len(x_cen)):
+                # Get index within stellar mass range for MC sample
+                idx = np.where((npz0['logM_MC'] >= x_cen[bb] - 0.5 / 2.0) &
+                               (npz0['logM_MC']  < x_cen[bb] + 0.5 / 2.0))[0]
+                np.random.seed = bb
+                if N_bins[bb] > 0:
+                    # Random choice selection of N_bins * MC_Nsim
+                    # This reproduces sample selection for each bin for each filter
+                    temp = np.random.choice(idx, size=(int(N_bins[bb]), MC_Nsim))
+
+                    # Populate content
+                    rand_logM[bb, 0:N_bins[bb], :] = npz0['logM_MC'][temp]
+                    rand_logSFR[bb, 0:N_bins[bb], :] = npz0['logSFR_MC'][temp]
+                    rand_offset[bb, 0:N_bins[bb], :] = npz0['offset_MC'][temp]
+                    if N_bins[bb] < max(N_bins):  # Mask un-used elements
+                        rand_mask[bb, N_bins[bb]:max(N_bins), :] = 1
+
+            # y_rand_offset = np.std(np.ma.MaskedArray(rand_offset, mask=rand_mask), axis=1)
+            # ax.scatter(np.repeat(x_cen, MC_Nsim), y_rand_offset, s=1)
+
+            random_file = join(npz_path0,
+                               '%s_rand_SFR_%.2f_%0.2f.npz' % (filt, best_EWmean[ff], best_EWsig[ff]))
+            mylog.info("Writing : " + random_file)
+            np.savez(random_file, rand_logM=rand_logM, rand_logSFR=rand_logSFR,
+                     rand_offset=rand_offset, rand_mask=rand_mask)
 
     sig_full_sq = wht_sig_full**2 * N_bins_filt
     sig_full = np.sqrt(np.sum(sig_full_sq, axis=0) / np.sum(N_bins_filt, axis=0))
