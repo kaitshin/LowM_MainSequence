@@ -572,7 +572,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False, run_filt=''):
                             overwrite=True)
 
             # Compute weighted intrinsic dispersion
-            compute_weighted_dispersion(table_outfile0, mylog)
+            compute_weighted_dispersion(table_outfile0, mylog, monte_carlo=True)
 
             # Merge best-fit plots for each filter
             run_merge_final_plots(path0 + 'Completeness/')
