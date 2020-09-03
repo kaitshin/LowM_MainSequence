@@ -322,6 +322,7 @@ def main():
     tt = create_disp_tbl(stlr_mass, corr_sfrs+FUV_corr_factor,
         corr_sfrs, sfrs_resid, meas_errs)
     asc.write(tt, config.FULL_PATH+'Tables/4.txt', format='latex', overwrite=True)
+    asc.write(tt, config.FULL_PATH+'Tables/4_ascii.txt', format='fixed_width_two_line', overwrite=True)
 
 
 if __name__ == '__main__':
