@@ -27,7 +27,6 @@ OUTPUTS:
 from __future__ import print_function
 
 import numpy as np, matplotlib.pyplot as plt
-import scipy.optimize as optimize
 import matplotlib as mpl
 from scipy.optimize import curve_fit
 from astropy.io import ascii as asc
@@ -225,15 +224,6 @@ def plot_avg_sfrs(ax, stlr_mass, sfrs, newha=False, openz=False,
     for i in range(len(mbins0)):
         bin_match = np.where(bin_ii == i)[0]
         sfrs_matched = sfrs[bin_match]
-        # if openz:
-        #     # ax.plot(mbins0[i], np.mean(sfrs_matched), 'o', 
-        #     #     markerfacecolor='none', markeredgecolor='k',
-        #     #     alpha=0.8, ms=8)
-        #     ax.plot(mbins0[i], np.mean(sfrs_matched), 'o', color=cc,
-        #         alpha=aa, ms=8, zorder=1)
-        # else:
-        #     ax.plot(mbins0[i], np.mean(sfrs_matched), 'ko',
-        #         alpha=0.8, ms=8, zorder=4)
 
         ax.plot(mbins0[i], np.mean(sfrs_matched), 'o', color=cc,
                 alpha=aa, ms=8, zorder=zz)
@@ -415,7 +405,7 @@ def make_redshift_graph(f, ax, z_arr, corr_sfrs, delta_sfrs, stlr_mass, zspec0, 
     modify_redshift_graph(f, ax, fittype, eqn0, params, ytype, withnewha)
 
 
-def bestfit_zssfr(ax, filtbins_1z, filtbins_ssfr, delta_sfrs):
+def bestfit_zssfr(ax, filtbins_1z, filtbins_ssfr, delta_sfrs, eqnlbl):
     '''
     plots and returns the parameters for the best-fit linear relation to
     the sSFR as a function of redshift.
@@ -458,7 +448,7 @@ def bestfit_zssfr(ax, filtbins_1z, filtbins_ssfr, delta_sfrs):
         errs_arr.append(compute_onesig_pdf(arr.reshape(len(arr),1).T,
             [np.mean(arr)])[0][0])
 
-    print('sSFR a*log(1+z)+b params:', params)
+    print('sSFR', eqnlbl, 'params:', params)
     print('+/-', [errs_arr[0][0], errs_arr[0][1]])
 
     stp = 0.02
@@ -466,7 +456,7 @@ def bestfit_zssfr(ax, filtbins_1z, filtbins_ssfr, delta_sfrs):
     ax.plot(xrange_tmp, line(xrange_tmp, *params), 'k--')
 
 
-def make_ssfr_graph_old(f, axes, sfrs00, delta_sfrs, smass0, filts00, zspec00, cwheel, z_arr,
+def make_ssfr_graph_old(f, axes, sfrs00, delta_sfrs, smass0, filts0, zspec0, cwheel, z_arr,
     ffarr=['NB7', 'NB816', 'NB921', 'NB973'],
     llarr=['NB704,NB711', 'NB816', 'NB921', 'NB973']):
     '''
@@ -477,43 +467,53 @@ def make_ssfr_graph_old(f, axes, sfrs00, delta_sfrs, smass0, filts00, zspec00, c
     calls bestfit_zssfr() to plot the best-fit line of sSFR as a function of
     redshift and return those parameters as well.
     '''
-    ssfr = sfrs00-smass0
-    filtbins_1z, filtbins_ssfr = [], []
+    test_sig_iis = np.where((smass0 >= 7.5) & (smass0 <= 8.5))[0]
+    ssfr = sfrs00[test_sig_iis]-smass0[test_sig_iis]
+    zspec00 = zspec0[test_sig_iis]
+    filts00 = filts0[test_sig_iis]
+
     for i, ax in enumerate(axes):
+        filtbins_1z, filtbins_ssfr = [], []
+        eqnlbl=''
         for ff,cc,ll,zz in zip(ffarr, cwheel, llarr, z_arr):
-            filt_match = np.array([x for x in range(len(filts00)) if
-                ff in filts00[x]])
-            
+            filt_match = np.array([x for x in range(len(test_sig_iis)) if ff in filts00[x]])
+            filtbins_ssfr.append(ssfr[filt_match])
+
             if i==0:
-                ax.scatter(smass0[filt_match], ssfr[filt_match],
+                # ax.scatter(smass0[filt_match], ssfr[filt_match],
+                #     facecolors='none', edgecolors=cc, linewidth=0.5,
+                #     label='z~'+zz+' ('+ll+')')
+                # ax.set_xlabel('log(M'+r'$_\bigstar$'+'/M'+r'$_{\odot}$'+')',
+                #     size=14)                
+                ax.scatter(zspec00[filt_match], ssfr[filt_match],
                     facecolors='none', edgecolors=cc, linewidth=0.5,
                     label='z~'+zz+' ('+ll+')')
-                ax.set_xlabel('log(M'+r'$_\bigstar$'+'/M'+r'$_{\odot}$'+')',
-                    size=14)
-                ax.set_ylabel('log(sSFR[H'+r'$\alpha$'+']'+' yr'+
-                    r'$^{-1}$'+')', size=14)
+                filtbins_1z.append(zspec00[filt_match])
+
+                ax.plot(np.mean(zspec00[filt_match]), 
+                    np.mean(ssfr[filt_match]),'ko', ms=10)
+
+                ax.set_ylabel('log(sSFR[H'+r'$\alpha$'+']'+' yr'+ r'$^{-1}$'+')', size=14)
+                ax.set_xlabel(r'$z$', size=14)
+                eqnlbl='a*z+b'
+
             else: #i==1
-                filtbins_ssfr.append(ssfr[filt_match])
                 ax.scatter(np.log10(1+zspec00[filt_match]), ssfr[filt_match],
                            facecolors='none', edgecolors=cc, linewidth=0.5)
                 filtbins_1z.append(np.log10(1+zspec00[filt_match]))
 
                 ax.plot(np.mean(np.log10(1+zspec00[filt_match])), 
                     np.mean(ssfr[filt_match]),'ko', ms=10)
-                ax.set_xlabel(r'$\log(1+z)$', size=14)
-
-                # ax.scatter(zspec00[filt_match], ssfr[filt_match],
-                #            facecolors='none', edgecolors=cc, linewidth=0.5)
-                # filtbins_1z.append(zspec00[filt_match])
                 
-                # ax.plot(np.mean(zspec00[filt_match]), 
-                #     np.mean(ssfr[filt_match]),'ko', ms=10)
-                # ax.set_xlabel(r'$z$', size=14)
+                ax.set_xlabel(r'$\log(1+z)$', size=14)
+                eqnlbl='a*log(1+z)+b'
+        
+        bestfit_zssfr(ax, filtbins_1z, filtbins_ssfr, delta_sfrs[test_sig_iis], eqnlbl)
 
     axes[0].legend(loc='upper left', fontsize=12, frameon=False)
-    axes[0].set_ylim(ymax=-6.9)
+    # axes[0].set_ylim(ymax=-6.9)
     
-    bestfit_zssfr(axes[1], filtbins_1z, filtbins_ssfr, delta_sfrs)
+    # bestfit_zssfr(axes[1], filtbins_1z, filtbins_ssfr, delta_sfrs)
     f.subplots_adjust(wspace=0.01)
     [a.tick_params(axis='both', labelsize='10', which='both', direction='in')
         for a in f.axes[:]]
@@ -528,9 +528,6 @@ def make_ssfr_graph_newha(f, ax, corr_sfrs, stlr_mass, filts, zspec0, zspec00,
     plots a two-panel plot of sSFR as a function of mass (LHS) and redshift
     (RHS). colors differ depending on the associated filter of the source.
         note: currently plots log(1+z) rather than z for the RHS panel
-
-    calls bestfit_zssfr() to plot the best-fit line of sSFR as a function of
-    redshift and return those parameters as well.
     '''
     # getting MACT+NewHa data
     (sfrs_with_newha, mass_with_newha, zspec_with_newha,
@@ -706,13 +703,14 @@ def main():
         plt.subplots_adjust(right=0.98, top=0.98, left=0.08, bottom=0.08)
         plt.savefig(config.FULL_PATH+'Plots/main_sequence/mainseq_sSFRs_FUV_corrs.pdf')
 
-    # print('making old sSFR plot now')
-    # lowm_ii = np.arange(len(corr_sfrs))
-    # f, axes = plt.subplots(1,2, sharey=True)
-    # make_ssfr_graph_old(f, axes, corr_sfrs[lowm_ii]+FUV_corr_factor[lowm_ii],
-    #     delta_sfrs[lowm_ii], stlr_mass[lowm_ii], filts[lowm_ii], zspec00[lowm_ii], cwheel, z_arr)
-    # plt.subplots_adjust(right=0.99, top=0.98, left=0.05, bottom=0.09)
-    # plt.savefig(config.FULL_PATH+'Plots/main_sequence/mainseq_sSFRs_fuvz_tmp.pdf')
+    print('making old sSFR plot now')
+    lowm_ii = np.arange(len(corr_sfrs))
+    f, axes = plt.subplots(1,2, sharey=True)
+    make_ssfr_graph_old(f, axes, corr_sfrs[lowm_ii]+FUV_corr_factor[lowm_ii],
+        delta_sfrs[lowm_ii], stlr_mass[lowm_ii], filts[lowm_ii], zspec00[lowm_ii], cwheel, z_arr)
+    plt.subplots_adjust(right=0.99, top=0.98, left=0.05, bottom=0.09)
+    plt.savefig(config.FULL_PATH+'Plots/main_sequence/mainseq_sSFRs_fuvz_tmp.pdf')
+    plt.close()
 
 
 if __name__ == '__main__':
