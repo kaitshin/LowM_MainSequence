@@ -504,7 +504,7 @@ def get_FUV_corrs(corr_tbl, ret_coeffs_const=False, ret_coeffs=False, old=False)
 
     # fitting piecewise fn
     low_SFRHA_yesz_ii = np.where(log_SFR_HA_dustcorr[yesz_ii] <= turnover)[0]
-    high_SFRHA_yesz_ii = np.where(log_SFR_HA_dustcorr[yesz_ii] >= turnover)[0]    
+    high_SFRHA_yesz_ii = np.where(log_SFR_HA_dustcorr[yesz_ii] >= turnover)[0]
     const = np.mean(log_SFR_ratio_dustcorr[yesz_ii][high_SFRHA_yesz_ii])
     def line(x, m):
         return m*(x-turnover)+const
