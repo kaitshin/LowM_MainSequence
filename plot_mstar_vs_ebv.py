@@ -149,7 +149,7 @@ def main():
     for ff, cc in zip(['NB704+NB711','NB816','NB921','NB973'], cwheel):
         yz_fmatch = np.array([x for x in range(len(filt_arr)) if filt_arr[x] in ff])
         
-        for inst, shape, ax_ii, shapesize in zip(['MMT','Keck'], ['o','*'], [0,1], [15,20]):
+        for inst, shape, ax_ii, shapesize in zip(['MMT','Keck'], ['o','*'], [0,1], [25,30]):
             inst_match = np.array([x for x in range(len(yz_fmatch)) if inst_arr[yz_fmatch][x]==inst])
             
             if len(inst_match) > 0:
