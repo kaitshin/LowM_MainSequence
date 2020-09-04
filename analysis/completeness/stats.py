@@ -2,6 +2,8 @@ from os.path import join
 import numpy as np
 import matplotlib.pyplot as plt
 
+from chun_codes import compute_onesig_pdf
+
 from astropy.io import ascii as asc
 
 from . import avg_sig_ctype, M_lab
@@ -218,6 +220,7 @@ def compute_weighted_dispersion(best_fit_file, mylog, monte_carlo=False):
         std_sel = npz0['y_std_sel']
 
         N_bins = np.int_(bin_MACT(x_cen, dict_NB))
+        mylog.info("N_bins : ", filt, N_bins)
 
         if ff == 0:
             set_shape = (len(filt), len(x_cen))
@@ -253,6 +256,8 @@ def compute_weighted_dispersion(best_fit_file, mylog, monte_carlo=False):
                     rand_offset[bb, 0:N_bins[bb], :] = npz0['offset_MC'][temp]
                     if N_bins[bb] < max(N_bins):  # Mask un-used elements
                         rand_mask[bb, N_bins[bb]:max(N_bins), :] = 1
+                else:
+                    rand_mask[bb, :, :] = 1
 
             # y_rand_offset = np.std(np.ma.MaskedArray(rand_offset, mask=rand_mask), axis=1)
             # ax.scatter(np.repeat(x_cen, MC_Nsim), y_rand_offset, s=1)
@@ -271,6 +276,40 @@ def compute_weighted_dispersion(best_fit_file, mylog, monte_carlo=False):
 
     ax.plot(x_cen, sig_full, linestyle='dotted', label='Weighted (full)')
     ax.plot(x_cen, sig_sel, linestyle='dashed', label='Weighted (selected)')
+
+    # Plot distribution of randomized stddev
+    N_gal = np.zeros(len(x_cen))
+    offset_arr0 = np.empty((len(x_cen), MC_Nsim), dtype=np.object)
+    offset_std_arr0 = np.zeros((len(x_cen), MC_Nsim))
+
+    for filt, ff in zip(filters, range(len(filters))):
+        # random_file = glob(filt + "_rand_SFR_*npz")[0]
+        random_file = join(npz_path0,
+                           '%s_rand_SFR_%.2f_%0.2f.npz' % (filt, best_EWmean[ff], best_EWsig[ff]))
+        r_npz0 = np.load(random_file)
+        t_offset = np.ma.array(r_npz0['rand_offset'], mask=r_npz0['rand_mask'])
+        for bb in range(len(x_cen)):
+            for mm in range(MC_Nsim):
+                if ff == 0:
+                    offset_arr0[bb, mm] = np.array([])
+
+                unmask = t_offset[bb, :, mm].compressed()
+                if mm == 0:
+                    N_gal[bb] += len(unmask)
+                offset_arr0[bb, mm] = np.append(offset_arr0[bb, mm], unmask)
+
+                if ff == len(filters)-1:
+                    offset_std_arr0[bb, mm] = np.std(offset_arr0[bb, mm])
+            # if ff == len(filters)-1:
+            #     ax.scatter(np.repeat(x_cen[bb], MC_Nsim), offset_std_arr0[bb], s=5, color='black')
+
+    err, xpeak = compute_onesig_pdf(offset_std_arr0, sig_sel, usepeak=True, silent=True)
+    y1 = xpeak-err[:, 0]
+    y2 = xpeak+err[:, 0]
+    ax.plot(x_cen, y1, linestyle='dashed')
+    ax.plot(x_cen, y2, linestyle='dashed')
+    # ax.fill_between(x_cen, y1, y2, where=y1 > y1, facecolor='black', alpha=0.5)
+
 
     ax.legend(loc='upper left')
 
