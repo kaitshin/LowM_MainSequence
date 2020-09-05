@@ -195,7 +195,7 @@ def compute_weighted_dispersion(best_fit_file, mylog, monte_carlo=False):
                  xx in range(len(mass_range))]
     ax.scatter(logM_bins, mact_dispersion_tab['obs'].data,
                marker='o', color='b', s=100, alpha=0.5,
-               label=r'$\mathcal{MACT}$')
+               label=r'$\mathcal{MACT}$', zorder=2)
 
     # Plot full simulation results
     mylog.info("Reading: "+best_fit_file)
@@ -220,7 +220,7 @@ def compute_weighted_dispersion(best_fit_file, mylog, monte_carlo=False):
         std_sel = npz0['y_std_sel']
 
         N_bins = np.int_(bin_MACT(x_cen, dict_NB))
-        mylog.info("N_bins : ", filt, N_bins)
+        mylog.info("N_bins : {0} {1}".format(filt, N_bins))
 
         if ff == 0:
             set_shape = (len(filt), len(x_cen))
@@ -275,7 +275,9 @@ def compute_weighted_dispersion(best_fit_file, mylog, monte_carlo=False):
     sig_sel = np.sqrt(np.sum(sig_sel_sq, axis=0) / np.sum(N_bins_filt, axis=0))
 
     ax.plot(x_cen, sig_full, linestyle='dotted', label='Weighted (full)')
-    ax.plot(x_cen, sig_sel, linestyle='dashed', label='Weighted (selected)')
+
+    # Fit from randomization below
+    # ax.plot(x_cen, sig_sel, linestyle='dashed', label='Weighted (selected)')
 
     # Plot distribution of randomized stddev
     N_gal = np.zeros(len(x_cen))
@@ -306,9 +308,9 @@ def compute_weighted_dispersion(best_fit_file, mylog, monte_carlo=False):
     err, xpeak = compute_onesig_pdf(offset_std_arr0, sig_sel, usepeak=True, silent=True)
     y1 = xpeak-err[:, 0]
     y2 = xpeak+err[:, 0]
-    ax.plot(x_cen, y1, linestyle='dashed')
-    ax.plot(x_cen, y2, linestyle='dashed')
-    # ax.fill_between(x_cen, y1, y2, where=y1 > y1, facecolor='black', alpha=0.5)
+    ax.plot(x_cen, xpeak, linestyle='dashed', color='orange')
+    ax.fill_between(x_cen, y1, y2, facecolor='orange', alpha=0.5,
+                    zorder=1, label=r'$\mathcal{MACT}$ sample randomization')
 
 
     ax.legend(loc='upper left')
