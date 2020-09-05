@@ -38,8 +38,8 @@ filt_corr = [1.289439104, 1.41022358406, 1.29344789854,
 z_NB = filter_dict['lambdac'] / 6562.8 - 1.0
 
 # Grid definitions for log-normal EW distributions
-logEW_mean_start = np.array([1.25, 1.25, 1.25, 1.25, 0.90])
-logEW_sig_start = np.array([0.15, 0.55, 0.25, 0.35, 0.55])
+logEW_mean_start = np.array([1.25, 1.05, 1.25, 1.25, 0.95])
+logEW_sig_start = np.array([0.35, 0.55, 0.25, 0.55, 0.55])
 n_mean = 4
 n_sigma = 4
 
