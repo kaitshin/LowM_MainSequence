@@ -134,6 +134,9 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False, run_filt=''):
         logEW_mean = logEW_mean_start[ff] + 0.1 * np.arange(n_mean)
         logEW_sig = logEW_sig_start[ff] + 0.1 * np.arange(n_sigma)
 
+        mylog.info("logEW_mean : {0}".format(logEW_mean))
+        mylog.info("logEW_sig : {0}".format(logEW_sig))
+
         comp_shape = (len(mm_range), len(ss_range))
         comp_sSFR = np.zeros(comp_shape)
         # comp_EW   = np.zeros(comp_shape)
@@ -208,6 +211,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False, run_filt=''):
             comp_EWmean[mm] = logEW_mean[mm]
             for ss in ss_range:  # loop over sigma of EW dist
                 comp_EWsig[mm, ss] = logEW_sig[ss]
+                mylog.info("EW model: {0} {1}".format(logEW_mean[mm], logEW_sig[ss]))
 
                 npz_MCfile = npz_path0 + filters[ff] + ('_%.2f_%.2f.npz') % (logEW_mean[mm],
                                                                              logEW_sig[ss])
