@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from ..NB_errors import filt_ref, dNB, lambdac, dBB, epsilon
 
 import logging
-formatter = logging.Formatter('%(asctime)s - %(module)12s.%(funcName)20s - %(levelname)s: %(message)s')
+formatter = logging.Formatter('%(asctime)s - %(module)23s.%(funcName)20s - %(levelname)s: %(message)s')
 
 # Strips out IA filters
 NB_filt = np.array([xx for xx in range(len(filt_ref)) if 'NB' in filt_ref[xx]])
