@@ -3,7 +3,7 @@ import numpy as np
 
 from scipy.interpolate import interp1d
 
-from . import dBB, dNB
+from . import filter_dict  # dBB, dNB
 from ...mainseq_corrections import niiha_oh_determine
 from ..NB_errors import ew_flux_dual
 from .config import path0
@@ -44,7 +44,7 @@ def get_mag_vs_mass_interp(prefix_ff):
 
 def compute_EW(x0, ff):
     y_temp = 10 ** (-0.4 * x0)
-    EW_ref = np.log10(dNB[ff] * (1 - y_temp) / (y_temp - dNB[ff] / dBB[ff]))
+    EW_ref = np.log10(filter_dict['dNB'][ff] * (1 - y_temp) / (y_temp - filter_dict['dNB'][ff] / filter_dict['dBB'][ff]))
     return EW_ref
 
 
