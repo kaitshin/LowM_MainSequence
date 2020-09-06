@@ -348,7 +348,7 @@ def plot_completeness(t_ax, dict_MC, arr0, bins, ref_arr0=None, above_break=None
                           xycoords='axes fraction', ha='right', va='bottom',
                           color='black')
 
-    t_ax.legend(loc='upper left', fancybox=True, fontsize=8, framealpha=0.75)
+            t_ax.legend(loc='upper left', fancybox=True, fontsize=8, framealpha=0.75)
 
     if isinstance(ref_arr0, type(None)):
         return comp_50
