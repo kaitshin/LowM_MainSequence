@@ -49,6 +49,7 @@ from .plotting import overlay_mock_average_dispersion, plot_dispersion, ew_flux_
 from .properties import get_mag_vs_mass_interp, compute_EW
 from .normalization import get_normalization
 from .pdf_plot_merge import run_merge_final_plots, merge_final_plots
+from .paper_plots_tables import make_table as make_completeness_table
 
 import astropy.units as u
 from astropy.cosmology import FlatLambdaCDM
@@ -580,6 +581,9 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False, run_filt=''):
 
             # Merge best-fit plots for each filter
             run_merge_final_plots(path0 + 'Completeness/')
+
+        # Write completeness table (Table 5 in paper)
+        make_completeness_table(mylog)
 
     if run_filt:
         # Merge best-fit plots for specified filter
