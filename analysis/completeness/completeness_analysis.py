@@ -436,17 +436,6 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False, run_filt=''):
                 comp_SFR[mm, ss] = t_comp_SFR
                 comp_flux[mm, ss] = t_comp_Fl
 
-                fig0, ax0 = plt.subplots()
-                plt.subplots_adjust(left=0.1, right=0.97, bottom=0.10,
-                                    top=0.98, wspace=0.25, hspace=0.05)
-                plot_completeness(ax0, dict_MC, 'logSFR', SFR_bins, annotate=False,
-                                  ref_arr0=der_prop_dict_ref)
-
-                ax0.set_ylabel('Completeness')
-                ax0.set_xlabel(SFR_lab)
-                ax0.set_ylim([0.0, 1.05])
-                fig0.savefig(pp0, format='pdf')
-
                 xlabels = [r'$\log({\rm sSFR})$', Flux_lab, SFR_lab]
                 for t_ax, xlabel in zip([ax401, ax410, ax411], xlabels):
                     t_ax.set_ylabel('Completeness')
@@ -457,6 +446,18 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False, run_filt=''):
 
                 fig4.set_size_inches(8, 8)
                 fig4.savefig(pp4, format='pdf')
+
+                # Plot SFR completeness in crop plots set
+                fig0, ax0 = plt.subplots()
+                plt.subplots_adjust(left=0.1, right=0.97, bottom=0.10,
+                                    top=0.98, wspace=0.25, hspace=0.05)
+                plot_completeness(ax0, dict_MC, 'logSFR', SFR_bins, annotate=False,
+                                  ref_arr0=der_prop_dict_ref)
+
+                ax0.set_ylabel('Completeness')
+                ax0.set_xlabel(SFR_lab)
+                ax0.set_ylim([0.0, 1.05])
+                fig0.savefig(pp0, format='pdf')
 
                 # Plot SFR/sSFR vs stellar mass and dispersion
                 fig5, ax5 = plt.subplots(nrows=2, ncols=2)
