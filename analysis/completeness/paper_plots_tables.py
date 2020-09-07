@@ -5,7 +5,7 @@ from os.path import join
 from astropy.io import ascii as asc
 from astropy.table import Table
 
-import pdfmerge
+from PyPDF2 import PdfFileWriter, PdfFileReader
 
 from .config import filters, minthres, z_NB, m_NB, filter_dict, cont_lim
 from .properties import compute_EW
@@ -60,3 +60,40 @@ def make_table(mylog, comp_tab=None):
     mylog.info("Writing : " + out_table_file)
     asc.write(tab0, out_table_file, format='latex', overwrite=True,
               formats=dict(zip(keys, tab_format)))
+
+
+def make_plots(dir0, mylog):
+    """
+    Purpose:
+      Generate plots for paper. These are the two panels in Figure 12
+      for NB921 best fit
+
+    :param dir0: Parent directory path
+    :param mylog: MLog logging class
+
+    """
+
+    pdf_writer1 = PdfFileWriter()
+    pdf_writer2 = PdfFileWriter()
+
+    pdf_file = join(dir0, 'NB921_best_fit_plots.pdf')
+    mylog.info("Reading : " + pdf_file)
+    pdf = PdfFileReader(pdf_file)
+
+    # Color excess plot
+    pdf_writer1.addPage(pdf.getPage(4))
+
+    outfile1 = join(dir0, 'comp_select.pdf')
+    mylog.info("Writing : " + outfile1)
+    pdf_output1 = open(outfile1, 'wb')
+    pdf_writer1.write(pdf_output1)
+    pdf_output1.close()
+
+    # SFR completeness plot
+    pdf_writer2.addPage(pdf.getPage(6))
+
+    outfile2 = join(dir0, 'comp_SFR.pdf')
+    mylog.info("Writing : " + outfile2)
+    pdf_output2 = open(outfile2, 'wb')
+    pdf_writer2.write(pdf_output2)
+    pdf_output2.close()
