@@ -284,7 +284,8 @@ def get_completeness(hist_bins, hist_data):
     return comp_50
 
 
-def plot_completeness(t_ax, dict_MC, arr0, bins, ref_arr0=None, above_break=None, annotate=True):
+def plot_completeness(t_ax, dict_MC, arr0, bins, ref_arr0=None,
+                      above_break=None, annotate=True):
 
     if isinstance(ref_arr0, dict):
         ref0 = ref_arr0[arr0]
@@ -296,6 +297,7 @@ def plot_completeness(t_ax, dict_MC, arr0, bins, ref_arr0=None, above_break=None
 
     NB_sel0 = dict_MC['NB_sel']
 
+    # Plot mocked set
     finite = np.where(np.isfinite(arr0))
     if not isinstance(above_break, type(None)):
         finite = intersect_ndim(above_break, finite, arr0.shape)
@@ -316,11 +318,12 @@ def plot_completeness(t_ax, dict_MC, arr0, bins, ref_arr0=None, above_break=None
     t_ax.step(x0, y0, 'b--', where='mid', label=label0)
 
     comp_50 = get_completeness(x0, y0)
-    t_ax.axvline(comp_50, linestyle='dashed', color='blue', linewidth=1.5)
     if annotate:
+        t_ax.axvline(comp_50, linestyle='dashed', color='blue', linewidth=1.5)
         t_ax.annotate('%.2f' % comp_50, [0.975, 0.025], xycoords='axes fraction',
                       ha='right', va='bottom', fontsize=8, color='blue')
 
+    # Plot modeled/"true" set
     if not isinstance(ref_arr0, type(None)):
         arr1 = np.ones((arr0.shape[0], 1)) * ref0
         finite = np.where(np.isfinite(arr1))
@@ -342,13 +345,14 @@ def plot_completeness(t_ax, dict_MC, arr0, bins, ref_arr0=None, above_break=None
         t_ax.step(x1, y1, 'k--', where='mid', label=label0)
 
         comp_50_ref = get_completeness(x1, y1)
-        t_ax.axvline(comp_50_ref, linestyle='dashed', color='black', linewidth=1.5)
         if annotate:
+            t_ax.axvline(comp_50_ref, linestyle='dashed', color='black', linewidth=1.5)
             t_ax.annotate('%.2f' % comp_50_ref, [0.975, 0.06], fontsize=8,
                           xycoords='axes fraction', ha='right', va='bottom',
                           color='black')
 
-            t_ax.legend(loc='upper left', fancybox=True, fontsize=8, framealpha=0.75)
+    if annotate:
+        t_ax.legend(loc='upper left', fancybox=True, fontsize=8, framealpha=0.75)
 
     if isinstance(ref_arr0, type(None)):
         return comp_50
