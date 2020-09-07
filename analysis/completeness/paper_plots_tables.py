@@ -16,7 +16,7 @@ from .select import color_cut
 delta_NB = 0.01
 
 
-def make_table(mylog):
+def make_table(mylog, comp_tab=None):
 
     EW_min = np.zeros(len(filters))
     Flux_limit = np.zeros(len(filters))
@@ -39,11 +39,24 @@ def make_table(mylog):
     keys   = ['filters', 'minthres', 'EW_min', 'rest_EW_min', 'Flux_limit']
     values = [filters, minthres, EW_min, EW_min/(1+z_NB), Flux_limit]
     tab_format = ['%5s', '%4.2f', '%3.1f', '%3.1f', '%4.2f']
+
+    # Add in best-fit completeness numbers
+    if isinstance(comp_tab, type(None)):
+        completeness_file = join(path0, 'Completeness/best_fit_completeness_50.tbl')
+        mylog.info("Reading : " + completeness_file)
+        comp_tab = asc.read(completeness_file)
+        keys += ['log_EWmean', 'log_EWsig', 'comp_50_sSFR', 'comp_50_SFR']
+        values += [comp_tab['log_EWmean'].data,
+                   comp_tab['log_EWsig'].data,
+                   comp_tab['comp_50_sSFR'].data,
+                   comp_tab['comp_50_SFR'].data]
+        tab_format += ['%4.2f', '%4.2f', '%.2f', '%.2f']
+
     table_dict = OrderedDict(zip(keys, values))
 
     tab0 = Table(table_dict)
 
     out_table_file = join(path0, 'Completeness/completeness_table.tex')
-    mylog.info("Writing : ", out_table_file)
+    mylog.info("Writing : " + out_table_file)
     asc.write(tab0, out_table_file, format='latex', overwrite=True,
               formats=dict(zip(keys, tab_format)))
