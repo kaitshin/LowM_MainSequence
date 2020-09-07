@@ -590,7 +590,8 @@ def ew_MC(date_folder='', Nsim=5000., Nmock=10, debug=False, redo=False, run_fil
         run_merge_final_plots(MC_folder_path)
 
         # Write completeness table (Table 5 in paper)
-        make_completeness_table(mylog, comp_tab=comp_tab0)
+        make_completeness_table(mylog, comp_tab=comp_tab0,
+                                date_folder=date_folder)
 
         make_plots(mylog, date_folder=date_folder)
 
