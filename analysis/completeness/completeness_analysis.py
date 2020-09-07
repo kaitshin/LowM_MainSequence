@@ -592,9 +592,14 @@ def ew_MC(date_folder='', Nsim=5000., Nmock=10, debug=False, redo=False, run_fil
         # Write completeness table (Table 5 in paper)
         make_completeness_table(mylog, comp_tab=comp_tab0)
 
+        make_plots(mylog, date_folder=date_folder)
+
     if run_filt:
         # Merge best-fit plots for specified filter
         merge_final_plots(MC_folder_path, run_filt, best_filt_tab=comp_tab0)
+
+        if run_filt == 'NB921':
+            make_plots(mylog, date_folder=date_folder)
 
     t0._stop()
     mylog.info("ew_MC completed in : " + t0.format)
