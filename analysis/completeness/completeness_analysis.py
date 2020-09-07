@@ -570,17 +570,16 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False, run_filt=''):
         # Save one file for all avg and sigma comparisons
         pp3.close()
 
-        if not run_filt:
-            # Write best-fit completeness table
-            table_outfile0 = path0 + 'Completeness/best_fit_completeness_50.tbl'
-            comp_tab0.write(table_outfile0, format='ascii.fixed_width_two_line',
-                            overwrite=True)
+        # Write best-fit completeness table
+        table_outfile0 = path0 + 'Completeness/best_fit_completeness_50.tbl'
+        comp_tab0.write(table_outfile0, format='ascii.fixed_width_two_line',
+                        overwrite=True)
 
-            # Compute weighted intrinsic dispersion
-            compute_weighted_dispersion(table_outfile0, mylog, monte_carlo=True)
+        # Compute weighted intrinsic dispersion
+        compute_weighted_dispersion(table_outfile0, mylog, monte_carlo=True)
 
-            # Merge best-fit plots for each filter
-            run_merge_final_plots(path0 + 'Completeness/')
+        # Merge best-fit plots for each filter
+        run_merge_final_plots(path0 + 'Completeness/')
 
         # Write completeness table (Table 5 in paper)
         make_completeness_table(mylog)
