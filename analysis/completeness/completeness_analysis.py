@@ -6,11 +6,11 @@ A set of Python 2.7 codes for completeness analysis of NB-selected galaxies
 in the M*-SFR plot
 """
 
-import os
+from os import mkdir
 
 from chun_codes import TimerClass
 
-from os.path import exists
+from os.path import exists, join
 
 from astropy.table import Table, vstack
 
@@ -50,6 +50,7 @@ from .properties import get_mag_vs_mass_interp, compute_EW
 from .normalization import get_normalization
 from .pdf_plot_merge import run_merge_final_plots, merge_final_plots
 from .paper_plots_tables import make_table as make_completeness_table
+from .paper_plots_tables import make_plots
 
 import astropy.units as u
 from astropy.cosmology import FlatLambdaCDM
@@ -57,7 +58,7 @@ from astropy.cosmology import FlatLambdaCDM
 cosmo = FlatLambdaCDM(H0=70 * u.km / u.s / u.Mpc, Om0=0.3)
 
 if not exists(npz_path0):
-    os.mkdir(npz_path0)
+    mkdir(npz_path0)
 
 
 def plot_NB_select(ff, t_ax, NB, ctype, linewidth=1, plot4=True):
@@ -76,7 +77,7 @@ def plot_NB_select(ff, t_ax, NB, ctype, linewidth=1, plot4=True):
     return NB_break
 
 
-def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False, run_filt=''):
+def ew_MC(date_folder='', Nsim=5000., Nmock=10, debug=False, redo=False, run_filt=''):
     """
     Main function for Monte Carlo realization.  Adopts log-normal
     EW distribution to determine survey sensitivity and impact on
@@ -84,6 +85,8 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False, run_filt=''):
 
     Parameters
     ----------
+    date_folder : relative sub-folder in "Completeness"
+      Recommended format: 3-char month and two-digit date. e.g., "sep15"
     Nsim: Number of modelled galaxies (int)
     Nmock: Number of mock galaxies for each modelled galaxy (int)
     debug : boolean
@@ -96,8 +99,12 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False, run_filt=''):
       Options: 'NB704', 'NB711', 'NB816', 'NB921', 'NB973'
     """
 
+    MC_folder_path = join(path0, "Completeness", date_folder)
+    if not exists(MC_folder_path):
+        mkdir(MC_folder_path)
+
     str_date = get_date(debug=debug)
-    mylog = MLog(path0 + 'Completeness/', str_date)._get_logger()
+    mylog = MLog(MC_folder_path, str_date)._get_logger()
 
     t0 = TimerClass()
     t0._start()
@@ -108,7 +115,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False, run_filt=''):
 
     # One file written for all avg and sigma comparisons
     if not debug and not run_filt:
-        out_pdf3 = path0 + 'Completeness/ew_MC.avg_sigma.pdf'
+        out_pdf3 = join(MC_folder_path, 'ew_MC.avg_sigma.pdf')
         pp3 = PdfPages(out_pdf3)
     else:
         mylog.info("Will not write consolidated avg_sigma plots")
@@ -146,7 +153,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False, run_filt=''):
         comp_EWmean = np.zeros(comp_shape)
         comp_EWsig = np.zeros(comp_shape)
 
-        pdf_dict = pdf_filename(ff, debug=debug)
+        pdf_dict = pdf_filename(ff, date_folder=date_folder, debug=debug)
 
         pp = PdfPages(pdf_dict['main'])    # Main plots
         pp0 = PdfPages(pdf_dict['crop'])   # Contains cropped plots
@@ -527,7 +534,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False, run_filt=''):
         fig3.subplots_adjust(left=0.105, right=0.97, bottom=0.065, top=0.98,
                              wspace=0.25, hspace=0.01)
 
-        out_pdf3_each = path0 + 'Completeness/ew_MC_' + filters[ff] + '.avg_sigma.pdf'
+        out_pdf3_each = join(MC_folder_path, 'ew_MC_' + filters[ff] + '.avg_sigma.pdf')
         if debug:
             out_pdf3_each = out_pdf3_each.replace('.pdf', '.debug.pdf')
         fig3.savefig(out_pdf3_each, format='pdf')
@@ -536,7 +543,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False, run_filt=''):
             fig3.savefig(pp3, format='pdf')
         plt.close(fig3)
 
-        table_outfile = path0 + 'Completeness/' + filters[ff] + '_completeness_50.tbl'
+        table_outfile = join(MC_folder_path, filters[ff] + '_completeness_50.tbl')
         if debug:
             table_outfile = table_outfile.replace('.tbl', '.debug.tbl')
         c_size = comp_shape[0] * comp_shape[1]
@@ -572,7 +579,7 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False, run_filt=''):
         pp3.close()
 
         # Write best-fit completeness table
-        table_outfile0 = path0 + 'Completeness/best_fit_completeness_50.tbl'
+        table_outfile0 = join(MC_folder_path, 'best_fit_completeness_50.tbl')
         comp_tab0.write(table_outfile0, format='ascii.fixed_width_two_line',
                         overwrite=True)
 
@@ -580,14 +587,14 @@ def ew_MC(Nsim=5000., Nmock=10, debug=False, redo=False, run_filt=''):
         compute_weighted_dispersion(table_outfile0, mylog, monte_carlo=True)
 
         # Merge best-fit plots for each filter
-        run_merge_final_plots(path0 + 'Completeness/')
+        run_merge_final_plots(MC_folder_path)
 
         # Write completeness table (Table 5 in paper)
-        make_completeness_table(mylog)
+        make_completeness_table(mylog, comp_tab=comp_tab0)
 
     if run_filt:
         # Merge best-fit plots for specified filter
-        merge_final_plots(path0 + 'Completeness/', run_filt, best_filt_tab=comp_tab0)
+        merge_final_plots(MC_folder_path, run_filt, best_filt_tab=comp_tab0)
 
     t0._stop()
     mylog.info("ew_MC completed in : " + t0.format)
