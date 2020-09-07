@@ -11,7 +11,7 @@ from .config import filters
 from PyPDF2 import PdfFileWriter, PdfFileReader
 
 
-best_file_filename = 'best_fit_completeness_50.tbl'
+best_fit_filename = 'best_fit_completeness_50.tbl'
 
 
 def merge_final_plots(dir0, filt, best_tab=None, best_filt_tab=None):
@@ -35,7 +35,7 @@ def merge_final_plots(dir0, filt, best_tab=None, best_filt_tab=None):
     if isinstance(best_filt_tab, type(None)):
         # Read in best-fit file if not provided
         if isinstance(best_tab, type(None)):
-            best_fit_file = join(dir0, best_file_filename)
+            best_fit_file = join(dir0, best_fit_filename)
             if not exists(best_fit_file):
                 raise IOError("WARNING - File not found: " + best_fit_file)
 
@@ -88,7 +88,7 @@ def run_merge_final_plots(dir0):
     """
 
     # Read in best-fit file
-    best_fit_file = join(dir0, best_file_filename)
+    best_fit_file = join(dir0, best_fit_filename)
     if not exists(best_fit_file):
         raise IOError("WARNING - File not found: " + best_fit_file)
 
