@@ -56,12 +56,13 @@ def make_table(mylog, date_folder='', comp_tab=None):
         completeness_file = join(MC_folder_path, 'best_fit_completeness_50.tbl')
         mylog.info("Reading : " + completeness_file)
         comp_tab = asc.read(completeness_file)
-        keys += ['log_EWmean', 'log_EWsig', 'comp_50_sSFR', 'comp_50_SFR']
-        values += [comp_tab['log_EWmean'].data,
-                   comp_tab['log_EWsig'].data,
-                   comp_tab['comp_50_sSFR'].data,
-                   comp_tab['comp_50_SFR'].data]
-        tab_format += ['%4.2f', '%4.2f', '%.2f', '%.2f']
+
+    keys += ['log_EWmean', 'log_EWsig', 'comp_50_sSFR', 'comp_50_SFR']
+    values += [comp_tab['log_EWmean'].data,
+               comp_tab['log_EWsig'].data,
+               comp_tab['comp_50_sSFR'].data,
+               comp_tab['comp_50_SFR'].data]
+    tab_format += ['%4.2f', '%4.2f', '%.2f', '%.2f']
 
     table_dict = OrderedDict(zip(keys, values))
 
