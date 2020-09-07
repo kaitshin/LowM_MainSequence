@@ -16,7 +16,18 @@ from .select import color_cut
 delta_NB = 0.01
 
 
-def make_table(mylog, comp_tab=None):
+def make_table(mylog, date_folder='', comp_tab=None):
+    """
+    Purpose:
+      Generate table for paper. This is specifically Table 5
+
+    :param mylog: MLog logging class
+    :param date_folder: relative sub-folder.
+      Recommended format: 3-char month and two-digit date. e.g., "sep15"
+    :param comp_tab: Astropy table containing best fits
+    """
+
+    MC_folder_path = join(path0, "Completeness", date_folder)
 
     EW_min = np.zeros(len(filters))
     Flux_limit = np.zeros(len(filters))
@@ -42,7 +53,7 @@ def make_table(mylog, comp_tab=None):
 
     # Add in best-fit completeness numbers
     if isinstance(comp_tab, type(None)):
-        completeness_file = join(path0, 'Completeness/best_fit_completeness_50.tbl')
+        completeness_file = join(MC_folder_path, 'best_fit_completeness_50.tbl')
         mylog.info("Reading : " + completeness_file)
         comp_tab = asc.read(completeness_file)
         keys += ['log_EWmean', 'log_EWsig', 'comp_50_sSFR', 'comp_50_SFR']
@@ -56,34 +67,36 @@ def make_table(mylog, comp_tab=None):
 
     tab0 = Table(table_dict)
 
-    out_table_file = join(path0, 'Completeness/completeness_table.tex')
+    out_table_file = join(MC_folder_path, 'completeness_table.tex')
     mylog.info("Writing : " + out_table_file)
     asc.write(tab0, out_table_file, format='latex', overwrite=True,
               formats=dict(zip(keys, tab_format)))
 
 
-def make_plots(dir0, mylog):
+def make_plots(mylog, date_folder=''):
     """
     Purpose:
       Generate plots for paper. These are the two panels in Figure 12
       for NB921 best fit
 
-    :param dir0: Parent directory path
     :param mylog: MLog logging class
-
+    :param date_folder: relative sub-folder.
+      Recommended format: 3-char month and two-digit date. e.g., "sep15"
     """
+
+    MC_folder_path = join(path0, "Completeness", date_folder)
 
     pdf_writer1 = PdfFileWriter()
     pdf_writer2 = PdfFileWriter()
 
-    pdf_file = join(dir0, 'NB921_best_fit_plots.pdf')
+    pdf_file = join(MC_folder_path, 'NB921_best_fit_plots.pdf')
     mylog.info("Reading : " + pdf_file)
     pdf = PdfFileReader(pdf_file)
 
     # Color excess plot
     pdf_writer1.addPage(pdf.getPage(4))
 
-    outfile1 = join(dir0, 'comp_select.pdf')
+    outfile1 = join(MC_folder_path, 'comp_select.pdf')
     mylog.info("Writing : " + outfile1)
     pdf_output1 = open(outfile1, 'wb')
     pdf_writer1.write(pdf_output1)
@@ -92,7 +105,7 @@ def make_plots(dir0, mylog):
     # SFR completeness plot
     pdf_writer2.addPage(pdf.getPage(6))
 
-    outfile2 = join(dir0, 'comp_SFR.pdf')
+    outfile2 = join(MC_folder_path, 'comp_SFR.pdf')
     mylog.info("Writing : " + outfile2)
     pdf_output2 = open(outfile2, 'wb')
     pdf_writer2.write(pdf_output2)
