@@ -1,4 +1,4 @@
-from os.path import join
+from os.path import join, dirname
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -323,6 +323,6 @@ def compute_weighted_dispersion(best_fit_file, mylog, monte_carlo=False):
     ax.tick_params(axis='both', direction='in')
 
     plt.subplots_adjust(left=0.08, right=0.99, bottom=0.09, top=0.99)
-    out_pdf = join(path0, 'Completeness/compute_weighted_dispersion.pdf')
+    out_pdf = join(dirname(best_fit_file), 'compute_weighted_dispersion.pdf')
     mylog.info("Writing : "+out_pdf)
     fig.savefig(out_pdf, format='pdf')
