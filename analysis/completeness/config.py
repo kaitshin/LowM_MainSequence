@@ -50,8 +50,8 @@ NB_bin = 0.25
 npz_NBnames = ['N_mag_mock', 'Ndist_mock', 'Ngal', 'Nmock', 'NB_ref', 'NB_sig_ref']
 
 
-def pdf_filename(ff, debug=False):
-    file_prefix = join(path0, 'Completeness/ew_MC_' + filters[ff])
+def pdf_filename(ff, date_folder='', debug=False):
+    file_prefix = join(path0, 'Completeness', date_folder, 'ew_MC_' + filters[ff])
 
     pdf_dict = dict()
 
