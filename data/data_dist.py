@@ -21,7 +21,7 @@ def main():
 
     # Get catalog-level H-alpha fluxes and uncertainties, and SFRs
     infile = join(root_path, catalog_file)
-    print("Reading : %s ".format(infile))
+    print("Reading : " + infile)
     main_tab = asc.read(infile)
 
     # Rename columns, key pair set
@@ -41,20 +41,27 @@ def main():
                       'NII_Ha_ratio': 'NII/Ha',  # NII/Ha flux ratio (not logarithmic)
                       'ratio_vs_line': 'NII_source',  # Either 'ratio' (from spectra) or 'line' (from best fit)
                       'EBV': 'EBV_gas',  # Assumes Cardelli+ 1989
-                      'EBV_errs': 'EBV_gas_err',
+                      'EBV_errs': 'EBV_gas_err',  # Assumes Case B: 2.86 and uses Cardelli+ 1989
                       'dust_errs': 'dust_corr_factor_err',  # dust_corr_factor = 0.4*A(Ha)
-                      'NBIA_errs': 'L(F[obs_NB]_err'}
+                      'NBIA_errs': 'log(F[obs]_NB)_err'}
 
     for col_key in rename_columns.keys():
         main_tab[col_key].name = rename_columns[col_key]
 
-    # Remove unused/unnecessary columns
+    # Remove unused/unnecessary columns and re-order
+    out_columns = ['NB_ID', 'NB_Name', 'Ha_filt', 'zspec', 'log(Mstar)_FAST',
+                   'NB_excess_flux_sigma', 'log(F[obs]_NB)', 'log(F[obs]_NB)_err',
+                   'log(L[obs]_NB)', 'log(SFR[obs]_NB)', 'log(SFR[obs]_metal)',
+                   'log(NB_filt_corr)', 'NII/Ha', 'NII_source', 'log(NII_corr)',
+                   'EBV_gas', 'EBV_gas_err', 'A(Ha)', 'dust_corr_factor',
+                   'dust_corr_factor_err', 'meas_errs']
+    main_tab = main_tab[out_columns]
 
     # Write file
-    main_tab.write(join(root_path, catalog_outfile), overwrite=True,
-                   format='ascii.fixed_width_two_line')
+    outfile = join(root_path, catalog_outfile)
+    print("Writing : " + outfile)
+    main_tab.write(outfile, overwrite=True, format='ascii.fixed_width_two_line')
 
     # Get photometric data
 
     # Get spectroscopic H-beta fluxes and uncertainties where available
-
