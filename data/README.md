@@ -28,11 +28,11 @@ There are three separate files provided with this data distribution:
 
 ### Primary Catalog Data
 
-The primary catalog data (PCD) include galaxy identification information, NB
-excess flux measurements, and properties (e.g., luminosity, SFRs) derived from
-these observables. It includes spectroscopic information, dust attenuation
-corrections based on spectroscopic measurements, and any corrections used
-to derive H-alpha measurements from NB measurements.
+The primary catalog data (PCD) include galaxy identification information,
+narrow-band (NB) excess flux measurements, and properties (e.g., luminosity,
+SFRs) derived from these observables. It includes spectroscopic information,
+dust attenuation corrections based on spectroscopic measurements, and any
+corrections used to derive H-alpha measurements from NB measurements.
 
 The PCD is provided as an [Astropy](https://astropy.org) ASCII table
 (`fixed_width_two_line` format).
@@ -63,6 +63,11 @@ The PCD table has 953 entries (galaxies) and contains 21 columns:
 | 20  | `dust_corr_factor_err` | Error on No. 19 |
 | 21  | `meas_errs`            | ... |
 
+To determine luminosities and SFRs, `zspec` values were used where available.
+For instances without spectroscopic redshifts, the central redshift for the NB
+filters were used. They are: 7045 (NB704), 7126 (NB711), 8152 (NB816), 9193 (NB921),
+and 9749 Angstroms (NB973). These correspond to H-alpha redshift of 0.073 (NB704),
+0.086 (NB711), 0.242 (NB816), 0.401 (NB921), and 0.485 (NB973).
 
 ### Photometric data
 
