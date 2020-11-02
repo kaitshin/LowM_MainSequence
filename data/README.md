@@ -71,5 +71,15 @@ and 9749 Angstroms (NB973). These correspond to H-alpha redshift of 0.073 (NB704
 
 ### Photometric data
 
-The photometry for the sample is described in Shin et al. (2020) and consists
-of Subaru Deep Field broad-band imaging data from Subaru/Suprime-Cam, XX
+The photometry for the sample is described in Shin et al. (2020) and a number
+of papers, including [Ly et al. (2011)](https://doi.org/10.1088/0004-637X/735/2/91),
+[Ly et al. (2014)](https://doi.org/10.1088/0004-637X/780/2/122), and
+[Ly et al. (2016)](https://doi.org/10.3847/0067-0049/226/1/5).
+
+It consists of Subaru Deep Field broad-band (_BVRi'z'_) and intermediate-band
+(IA598, IA679, _zb_, _zr_) optical imaging data from Subaru/Suprime-Cam,
+_U_-band imaging from KPNO/MOSAIC, near-infrared imaging from UKIRT/WFCAM
+(_K_) and KPNO/NEWFIRM (_J_, _H_), and _GALEX_ imaging in FUV and NUV bands.
+
+The photometric data consist of 15 bands and fluxes and uncertainties are
+reported as micro-Janskies (10^{-29} erg/s/cm2/Hz).
