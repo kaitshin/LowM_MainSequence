@@ -40,7 +40,7 @@ def main():
                       'nii_ha_corr_factor': 'log(NII_corr)',  # log(1/(1+NII/Ha). Neg. values means subtract
                       'NII_Ha_ratio': 'NII/Ha',  # NII/Ha flux ratio (not logarithmic)
                       'ratio_vs_line': 'NII_source',  # Either 'ratio' (from spectra) or 'line' (from best fit)
-                      'EBV': 'EBV_gas',  # Assumes Cardelli+ 1989
+                      'EBV': 'EBV_gas',  # Case B: 2.86 and uses Cardelli+ 1989
                       'EBV_errs': 'EBV_gas_err',  # Assumes Case B: 2.86 and uses Cardelli+ 1989
                       'dust_errs': 'dust_corr_factor_err',  # dust_corr_factor = 0.4*A(Ha)
                       'NBIA_errs': 'log(F[obs]_NB)_err'}
