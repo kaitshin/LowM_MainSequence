@@ -1,16 +1,19 @@
 from os.path import join
 
-from astropy.io import fits
 from astropy.io import ascii as asc
+
+from chun_codes import match_nosort
 
 # local paths. These may require changes
 root_path = '/Users/cly/GoogleDrive/Research/NASA_Summer2015'
 
 # Main catalog containing NB information
 catalog_file = 'Main_Sequence/mainseq_corrections_tbl.txt'
+phot_file = 'Catalogs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast.GALEX.cat'
 
 # This is the output catalog from catalog_infile
 catalog_outfile = 'Distribution/Shin2020_catalog_primary.tbl'
+phot_outfile = 'Distribution/Shin2020_catalog_photometry.tbl'
 
 
 def main():
@@ -63,6 +66,22 @@ def main():
     main_tab.write(outfile, overwrite=True, format='ascii.fixed_width_two_line')
 
     # Get photometric data
+    infile2 = join(root_path, phot_file)
+    print("Reading : " + infile2)
+    phot_tab = asc.read(infile2)
+
+    # Match against H-alpha sample and reduce
+    samp_idx, samp_idx2 = match_nosort(main_tab['NB_ID'].data,
+                                       phot_tab['id'].data, uniq=True)
+    phot_tab = phot_tab[samp_idx2]
+
+    # Rename zspec column - uses NB redshift
+    phot_tab['z_spec'].name = 'redshift'
+
+    # Write photometric file
+    outfile2 = join(root_path, phot_outfile)
+    print("Writing : " + outfile2)
+    phot_tab.write(outfile2, overwrite=True, format='ascii.fixed_width_two_line')
 
     # Get spectroscopic H-beta fluxes and uncertainties where available
 
