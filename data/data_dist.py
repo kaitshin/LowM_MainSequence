@@ -65,3 +65,7 @@ def main():
     # Get photometric data
 
     # Get spectroscopic H-beta fluxes and uncertainties where available
+
+
+if __name__ == '__main__':
+    main()
