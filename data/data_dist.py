@@ -7,12 +7,22 @@ from chun_codes import match_nosort
 # local paths. These may require changes
 root_path = '/Users/cly/GoogleDrive/Research/NASA_Summer2015'
 
+###############
+# INPUT FILES #
+###############
 # Main catalog containing NB information
-catalog_file = 'Main_Sequence/mainseq_corrections_tbl.txt'
-phot_file = 'Catalogs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast.GALEX.cat'
+catalog_infile = 'Main_Sequence/mainseq_corrections_tbl.txt'
 
+# Catalog containing fluxes and uncertainties for all NBIA sample
+phot_infile = 'Catalogs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast.GALEX.cat'
+
+################
+# OUTPUT FILES #
+################
 # This is the output catalog from catalog_infile
 catalog_outfile = 'Distribution/Shin2020_catalog_primary.tbl'
+
+# This is the output catalog from phot_infile
 phot_outfile = 'Distribution/Shin2020_catalog_photometry.tbl'
 
 
@@ -23,7 +33,7 @@ def main():
     """
 
     # Get catalog-level H-alpha fluxes and uncertainties, and SFRs
-    infile = join(root_path, catalog_file)
+    infile = join(root_path, catalog_infile)
     print("Reading : " + infile)
     main_tab = asc.read(infile)
 
@@ -66,7 +76,7 @@ def main():
     main_tab.write(outfile, overwrite=True, format='ascii.fixed_width_two_line')
 
     # Get photometric data
-    infile2 = join(root_path, phot_file)
+    infile2 = join(root_path, phot_infile)
     print("Reading : " + infile2)
     phot_tab = asc.read(infile2)
 
