@@ -83,3 +83,33 @@ _U_-band imaging from KPNO/MOSAIC, near-infrared imaging from UKIRT/WFCAM
 
 The photometric data consist of 15 bands and fluxes and uncertainties are
 reported as micro-Janskies (10^{-29} erg/s/cm2/Hz).
+
+Flux columns are preceded with the "f_" prefix and their associated uncertainties
+have a "e_" prefix.
+
+For instances without photometric data, the `f_` and `e_` values are -99.0.
+For instances where the galaxy is not detected at 3-sigma, we use the 1.5-sigma
+flux limit for both the flux and uncertainty.
+
+The `redshift` column indicate what redshift is used in the FAST SED fitting.
+It uses spectroscopic redshift where available and the NB-based redshift otherwise.
+
+| No.    | Column Name            | Description  |
+|-------:|:-----------------------|:-------------|
+|      1 | `NB_ID`                | NB numerical identifier based on [Ly et al. (2014)](https://iopscience.iop.org/article/10.1088/0004-637X/780/2/122) sample of 9,264 emission-line galaxies |
+|  2,  3 | `f_U`, `e_U`           | _U_-band fluxes and uncertainties from KPNO 4-m Mayall MOSAIC imaging |
+|  4,  5 | `f_B`, `e_B`           | _B_-band fluxes and uncertainties from Subaru/Suprime-Cam imaging |
+|  6,  7 | `f_V`, `e_V`           | _V_-band fluxes and uncertainties from Subaru/Suprime-Cam imaging |
+|  8,  9 | `f_R`, `e_R`           | _R_c_-band fluxes and uncertainties from Subaru/Suprime-Cam imaging |
+| 10, 11 | `f_I`, `e_I`           | SDSS _i'_-band fluxes and uncertainties from Subaru/Suprime-Cam imaging |
+| 12, 13 | `f_Z`, `e_Z`           | SDSS _z'_-band fluxes and uncertainties from Subaru/Suprime-Cam imaging |
+| 14, 15 | `f_IA598`, `e_IA598`   | IA598-band fluxes and uncertainties from Subaru/Suprime-Cam imaging |
+| 16, 17 | `f_IA679`, `e_IA679`   | IA679-band fluxes and uncertainties from Subaru/Suprime-Cam imaging |
+| 18, 19 | `f_K`, `e_K`           | _K_-band fluxes and uncertainties from UKIRT/WFCAM imaging |
+| 20, 21 | `f_ZB`, `e_ZR`         | _zb_-band fluxes and uncertainties from Subaru/Suprime-Cam imaging |
+| 22, 23 | `f_ZR`, `e_ZR`         | _zr_-band fluxes and uncertainties from Subaru/Suprime-Cam imaging |
+| 24, 25 | `f_J`, `e_J`           | _J_-band fluxes and uncertainties from XXX imaging |
+| 26, 27 | `f_H`, `e_H`           | _H_-band fluxes and uncertainties from KPNO 4-m Mayall NEWFIRM imaging |
+| 28, 29 | `f_NUV`, `e_NUV`       | _NUV_-band fluxes and uncertainties from _GALEX_ imaging |
+| 30, 31 | `f_FUV`, `e_FUV`       | _FUV_-band fluxes and uncertainties from _GALEX_ imaging |
+|     32 | redshift               | Redshift used in FAST SED fitting. Either spectra or NB-based redshift |
