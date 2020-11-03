@@ -21,23 +21,23 @@ Shin, K.; Ly, C.; Malkan, M. A.; Malhotra, S.; de los Reyes; Mithi; Rhoads, J. E
 ## Overview of Data
 
 There are three separate files provided with this data distribution:
- 1. Primary catalog data, `Shin2020_catalog_primary.tbl`
- 2. Broad-band photometric data, `Shin2020_catalog_photometry.tbl`
- 3. Ancillary spectroscopic data, `Shin2020_catalog_spec.tbl`
+ 1. Primary catalog data: `Shin2020_catalog_primary.tbl`
+ 2. Photometric data: `Shin2020_catalog_photometry.tbl`
+ 3. Ancillary spectroscopic data: `Shin2020_catalog_spec.tbl`
 
 
 ### Primary Catalog Data
 
-The primary catalog data (PCD) include galaxy identification information,
+The primary catalog data include galaxy identification information,
 narrow-band (NB) excess flux measurements, and properties (e.g., luminosity,
 SFRs) derived from these observables. It includes spectroscopic information,
 dust attenuation corrections based on spectroscopic measurements, and any
 corrections used to derive H-alpha measurements from NB measurements.
 
-The PCD is provided as an [Astropy](https://astropy.org) ASCII table
+The primary catalog is provided as an [Astropy](https://astropy.org) ASCII table
 (`fixed_width_two_line` format).
 
-The PCD table has 953 entries (galaxies) and contains 21 columns:
+This table has 953 entries (galaxies) and contains 21 columns:
 
 | No. | Column Name            | Description  |
 |----:|:-----------------------|:-------------|
@@ -71,28 +71,32 @@ and 9749 Angstroms (NB973). These correspond to H-alpha redshift of 0.073 (NB704
 
 ### Photometric data
 
-The photometry for the sample is described in Shin et al. (2020) and a number
-of papers, including [Ly et al. (2011)](https://doi.org/10.1088/0004-637X/735/2/91),
+The photometry for the sample, is described in Shin et al. (2020)
+and a number of papers, including [Ly et al. (2011)](https://doi.org/10.1088/0004-637X/735/2/91),
 [Ly et al. (2014)](https://doi.org/10.1088/0004-637X/780/2/122), and
 [Ly et al. (2016)](https://doi.org/10.3847/0067-0049/226/1/5).
 
-It consists of Subaru Deep Field broad-band (_BVRi'z'_) and intermediate-band
-(IA598, IA679, _zb_, _zr_) optical imaging data from Subaru/Suprime-Cam,
-_U_-band imaging from KPNO/MOSAIC, near-infrared imaging from UKIRT/WFCAM
-(_K_) and KPNO/NEWFIRM (_J_, _H_), and _GALEX_ imaging in FUV and NUV bands.
+The photometric data consist of 15 bands. This includes Subaru Deep Field
+broad-band (_BVRi'z'_) and intermediate-band (IA598, IA679, _zb_, _zr_)
+optical imaging data from Subaru/Suprime-Cam, _U_-band imaging from
+KPNO/MOSAIC, near-infrared imaging from UKIRT/WFCAM(_JK_) and KPNO/NEWFIRM
+(_H_), and _GALEX_ imaging in FUV and NUV bands.
 
-The photometric data consist of 15 bands and fluxes and uncertainties are
-reported as micro-Janskies (10^{-29} erg/s/cm2/Hz).
-
-Flux columns are preceded with the "f_" prefix and their associated uncertainties
-have a "e_" prefix.
+Flux columns are preceded with the `f_` prefix and their associated uncertainties
+have a `e_` prefix, and reported as micro-Janskies (10^{-29} erg/s/cm2/Hz).
 
 For instances without photometric data, the `f_` and `e_` values are -99.0.
 For instances where the galaxy is not detected at 3-sigma for a given band,
 we use the 1.5-sigma flux limit for both the flux and its uncertainty.
 
-The `redshift` column indicate what redshift is used in the FAST SED fitting.
-It uses spectroscopic redshift where available and the NB-based redshift otherwise.
+The `redshift` column indicates the redshift used in the FAST SED fitting.
+We use spectroscopic redshift where available (see primary catalog data)
+and the NB-based redshift otherwise.
+
+The photometric data catalog is provided as an [Astropy](https://astropy.org)
+ASCII table (`fixed_width_two_line` format).
+
+This table has 953 entries (galaxies) and contains 32 columns:
 
 | No.    | Column Name            | Description  |
 |-------:|:-----------------------|:-------------|
@@ -112,4 +116,4 @@ It uses spectroscopic redshift where available and the NB-based redshift otherwi
 | 26, 27 | `f_H`, `e_H`           | _H_-band fluxes and uncertainties from KPNO 4-m Mayall NEWFIRM imaging |
 | 28, 29 | `f_NUV`, `e_NUV`       | _NUV_-band fluxes and uncertainties from _GALEX_ imaging |
 | 30, 31 | `f_FUV`, `e_FUV`       | _FUV_-band fluxes and uncertainties from _GALEX_ imaging |
-|     32 | redshift               | Redshift used in FAST SED fitting. Either spectra or NB-based redshift |
+|     32 | `redshift`             | Redshift used in FAST SED fitting. Either spectra or NB-based redshift |
