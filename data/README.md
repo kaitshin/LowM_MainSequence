@@ -88,8 +88,8 @@ Flux columns are preceded with the "f_" prefix and their associated uncertaintie
 have a "e_" prefix.
 
 For instances without photometric data, the `f_` and `e_` values are -99.0.
-For instances where the galaxy is not detected at 3-sigma, we use the 1.5-sigma
-flux limit for both the flux and uncertainty.
+For instances where the galaxy is not detected at 3-sigma for a given band,
+we use the 1.5-sigma flux limit for both the flux and its uncertainty.
 
 The `redshift` column indicate what redshift is used in the FAST SED fitting.
 It uses spectroscopic redshift where available and the NB-based redshift otherwise.
@@ -108,7 +108,7 @@ It uses spectroscopic redshift where available and the NB-based redshift otherwi
 | 18, 19 | `f_K`, `e_K`           | _K_-band fluxes and uncertainties from UKIRT/WFCAM imaging |
 | 20, 21 | `f_ZB`, `e_ZR`         | _zb_-band fluxes and uncertainties from Subaru/Suprime-Cam imaging |
 | 22, 23 | `f_ZR`, `e_ZR`         | _zr_-band fluxes and uncertainties from Subaru/Suprime-Cam imaging |
-| 24, 25 | `f_J`, `e_J`           | _J_-band fluxes and uncertainties from XXX imaging |
+| 24, 25 | `f_J`, `e_J`           | _J_-band fluxes and uncertainties from UKIRT/WFCAM imaging |
 | 26, 27 | `f_H`, `e_H`           | _H_-band fluxes and uncertainties from KPNO 4-m Mayall NEWFIRM imaging |
 | 28, 29 | `f_NUV`, `e_NUV`       | _NUV_-band fluxes and uncertainties from _GALEX_ imaging |
 | 30, 31 | `f_FUV`, `e_FUV`       | _FUV_-band fluxes and uncertainties from _GALEX_ imaging |
