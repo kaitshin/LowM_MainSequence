@@ -82,8 +82,11 @@ def main():
 
     # Match against H-alpha sample and reduce
     samp_idx, samp_idx2 = match_nosort(main_tab['NB_ID'].data,
-                                       phot_tab['id'].data, uniq=True)
+                                       phot_tab['id'].data, unique=True)
     phot_tab = phot_tab[samp_idx2]
+
+    # Rename 'id' column
+    phot_tab['id'].name = rename_columns['ID']
 
     # Rename zspec column - uses NB redshift
     phot_tab['z_spec'].name = 'redshift'
