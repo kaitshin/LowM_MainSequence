@@ -66,8 +66,15 @@ This table has 953 entries (galaxies) and contains 21 columns:
 To determine luminosities and SFRs, `zspec` values were used where available.
 For instances without spectroscopic redshifts, the central redshift for the NB
 filters were used. They are: 7045 (NB704), 7126 (NB711), 8152 (NB816), 9193 (NB921),
-and 9749 Angstroms (NB973). These correspond to H-alpha redshift of 0.073 (NB704),
-0.086 (NB711), 0.242 (NB816), 0.401 (NB921), and 0.485 (NB973).
+and 9749 Angstroms (NB973). These wavelengths correspond to H-alpha redshift
+of 0.073 (NB704), 0.086 (NB711), 0.242 (NB816), 0.401 (NB921), and 0.485 (NB973).
+
+The final dust-corrected H-alpha SFRs (without systematic correction for
+FUV/H-alpha SFR systematics) are derived as follow:
+
+```
+logSFR = log(SFR[obs]_metal) + log(NB_filt_corr) + log(NII_corr) + dust_corr_factor
+```
 
 ### Photometric data
 
