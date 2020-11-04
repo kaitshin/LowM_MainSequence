@@ -124,7 +124,7 @@ This table has 953 entries (galaxies) and contains 32 columns:
 |  2,  3 | `f_U`, `e_U`           | _U_-band fluxes and uncertainties from KPNO 4-m Mayall MOSAIC imaging |
 |  4,  5 | `f_B`, `e_B`           | _B_-band fluxes and uncertainties from Subaru/Suprime-Cam imaging |
 |  6,  7 | `f_V`, `e_V`           | _V_-band fluxes and uncertainties from Subaru/Suprime-Cam imaging |
-|  8,  9 | `f_R`, `e_R`           | _R_c_-band fluxes and uncertainties from Subaru/Suprime-Cam imaging |
+|  8,  9 | `f_R`, `e_R`           | _Rc_-band fluxes and uncertainties from Subaru/Suprime-Cam imaging |
 | 10, 11 | `f_I`, `e_I`           | SDSS _i'_-band fluxes and uncertainties from Subaru/Suprime-Cam imaging |
 | 12, 13 | `f_Z`, `e_Z`           | SDSS _z'_-band fluxes and uncertainties from Subaru/Suprime-Cam imaging |
 | 14, 15 | `f_IA598`, `e_IA598`   | IA598-band fluxes and uncertainties from Subaru/Suprime-Cam imaging |
