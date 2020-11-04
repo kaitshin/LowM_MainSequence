@@ -1,11 +1,23 @@
 ---
 # README Documentation for Distributed Data
 
+Table of Contents:
+- [Overview](#overview)
+- [Citation](#citation)
+- [Overview of Data](#overview-of-data)
+  - [Primary Catalog Data](#primary-catalog-data)
+  - [Photometric Data](#photometric-data)
+
+
+---
+## Overview
+
 Distribution of data for "Metal Abundances across Cosmic Time (MACT) Survey.
 III. The Relationship between Stellar Mass and Star Formation Rate in
 Extremely Low-Mass Galaxies", is provided by direct requests to either the
 first (Shin) or second author (Ly). This README.md provides metadata and other
 information that describes and document the data in this distribution.
+
 
 ---
 ## Citation
@@ -15,7 +27,8 @@ Use of any data in this distribution *requires* the citation of the following:
 Shin, K.; Ly, C.; Malkan, M. A.; Malhotra, S.; de los Reyes; Mithi; Rhoads, J. E.;
 ["The Metal Abundance across Cosmic Time (MACT) Survey. III. The Relationship between Stellar Mass and Star Formation Rate in Extremely Low-Mass Galaxies"](https://doi.org/10.1093/mnras/staa3307),
 2020, _Monthly Notices of the Royal Astronomical Society_, in press, 
-[arXiv](https://arxiv.org/abs/1910.10735)
+[arXiv:1910.10735](https://arxiv.org/abs/1910.10735)
+
 
 ---
 ## Overview of Data
