@@ -54,14 +54,14 @@ This table has 953 entries (galaxies) and contains 21 columns:
 | 11  | `log(SFR[obs]_metal)`  | Logarithm of observed SFR derived using Chabrier (2003) IMF and metallicity-dependent conversion (Eq. 13, Shin+ 2020) |
 | 12  | `log(NB_filt_corr)`    | Logarithm of NB non-tophat filter correction, Positive values mean addition |
 | 13  | `NII/Ha`               | Logarithm of [NII]/H-alpha flux ratio |
-| 14  | `NII_source`           | source of No. 13. 'ratio' = spectra, 'line' = best fit line |
+| 14  | `NII_source`           | Source of No. 13. 'ratio' = spectra, 'line' = best fit line (Eq. 7, Shin+ (2020) |
 | 15  | `log(NII_corr)`        | Logarithm of 1/(1+[NII]/H-alpha). Negative values means subtraction |
 | 16  | `EBV_gas`              | Nebular gas color excess reddening assuming Case B (2.86) and Cardelli+ (1989) reddening curve |
 | 17  | `EBV_gas_err`          | Error on No. 16 |
 | 18  | `A(Ha)`                | Nebular gas attenuation at H-alpha in magnitude|
 | 19  | `dust_corr_factor`     | 0.4 * A(Ha) |
 | 20  | `dust_corr_factor_err` | Error on No. 19 |
-| 21  | `meas_errs`            | ... |
+| 21  | `log(SFR[dust])_err`   | Error on dust-corrected SFRs from NB and dust correction uncertainties, `log(F[obs]_NB)_err` and `dust_corr_factor_err` (added in quadrature) |
 
 To determine luminosities and SFRs, `zspec` values were used where available.
 For instances without spectroscopic redshifts, the central redshift for the NB
