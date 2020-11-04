@@ -56,7 +56,8 @@ def main():
                       'EBV': 'EBV_gas',  # Case B: 2.86 and uses Cardelli+ 1989
                       'EBV_errs': 'EBV_gas_err',  # Assumes Case B: 2.86 and uses Cardelli+ 1989
                       'dust_errs': 'dust_corr_factor_err',  # dust_corr_factor = 0.4*A(Ha)
-                      'NBIA_errs': 'log(F[obs]_NB)_err'}
+                      'NBIA_errs': 'log(F[obs]_NB)_err',
+                      'meas_errs': 'log(SFR[dust])_err'}
 
     for col_key in rename_columns.keys():
         main_tab[col_key].name = rename_columns[col_key]
@@ -67,7 +68,7 @@ def main():
                    'log(L[obs]_NB)', 'log(SFR[obs]_NB)', 'log(SFR[obs]_metal)',
                    'log(NB_filt_corr)', 'NII/Ha', 'NII_source', 'log(NII_corr)',
                    'EBV_gas', 'EBV_gas_err', 'A(Ha)', 'dust_corr_factor',
-                   'dust_corr_factor_err', 'meas_errs']
+                   'dust_corr_factor_err', 'log(SFR[dust])_err']
     main_tab = main_tab[out_columns]
 
     # Write file
