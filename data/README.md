@@ -1,5 +1,5 @@
 ---
-# README Documentation for Distributed Data
+# Distributed Data Documentation
 
 Table of Contents:
 - [Overview](#overview)
@@ -15,9 +15,11 @@ Table of Contents:
 Distribution of data for "Metal Abundances across Cosmic Time (MACT) Survey.
 III. The Relationship between Stellar Mass and Star Formation Rate in
 Extremely Low-Mass Galaxies", is provided by direct requests to either the
-first (Shin) or second author (Ly). This README.md provides metadata and other
-information that describes and document the data in this distribution.
+first (Kaitlyn Shin) or second author (Chun Ly). This README.md provides
+metadata and other information that describes and document the data in this
+distribution.
 
+The content of this data distribution was prepared by Chun Ly.
 
 ---
 ## Citation
