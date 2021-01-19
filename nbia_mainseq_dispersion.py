@@ -5,42 +5,35 @@ NAME:
 PURPOSE:
     Generates main sequence dispersion plots for the MACT dataset.
 
-    Depends on mainseq_corrections.py and calls functions from
-    plot_nbia_mainseq.py.
+    Depends on mainseq_corrections.py.
 
     Contains functions that are called by plot_mact_with_newha.py.
 
 INPUTS:
-    FULL_PATH+'Main_Sequence/mainseq_corrections_tbl.txt'
-    FULL_PATH+'Main_Sequence/Noeske07_fig1_z1.txt'
+    config.FULL_PATH+'Main_Sequence/mainseq_corrections_tbl.txt'
+    config.FULL_PATH+'Main_Sequence/Noeske07_fig1_z1.txt'
 
 OUTPUTS:
-    FULL_PATH+'Plots/main_sequence/mainseq_dispersion.pdf'
-    FULL_PATH+'Main_Sequence/dispersion_tbl.txt'
+    config.FULL_PATH+'Plots/main_sequence/mainseq_dispersion.pdf'
+    config.FULL_PATH+'Tables/4.txt'
 """
 from __future__ import print_function
 
 import numpy as np, matplotlib.pyplot as plt
 import scipy.optimize as optimize
-import plot_nbia_mainseq
 from astropy.io import ascii as asc
 from astropy.table import Table
-from MACT_utils import get_mainseq_fit_params
+from matplotlib.patches import Patch
 
-# emission line wavelengths (air)
-HA = 6562.80
-
-FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
-CUTOFF_SIGMA = 4.0
-CUTOFF_MASS = 6.0
+import config
+from MACT_utils import get_mainseq_fit_params, get_filt_index, get_z_arr
+from MACT_utils import get_FUV_corrs, approximated_zspec0, get_func0_eqn0
 
 
 def add_legends(ax, withnewha):
     '''
     adds two legends to the plot
     '''
-    from matplotlib.patches import Patch
-
     # first legend
     legend1 = ax.legend(loc='upper left', frameon=False)
     ax.add_artist(legend1)
@@ -65,14 +58,17 @@ def add_legends(ax, withnewha):
 
 def create_disp_tbl(smass0, sfrs00, sfrs00_nofuv, sfrs_resid, meas_errs):
     '''
-    creates & returns a dispersion table with (1) stlrmass bins,
-    (2) avg sfr (avg sfr w/o FUV corr),
-    (3) observed dispersion (per bin), (4) systematic dispersion, and
+    creates & returns a dispersion table with
+    (1) stlrmass bins
+    (2) avg sfr (avg sfr w/o FUV corr)
+    (3) observed dispersion (per bin)
+    (4) systematic dispersion
     (5) the intrinsic dispersion (obtained by subtracting (4) from (3)
-    in quadrature)
+        in quadrature)
     '''
     stlrmass_bins = []
     avg_sfr = []
+    num_gals = []
     observed_disp = []
     systematic_disp = []
     intrinsic_disp = []
@@ -86,19 +82,20 @@ def create_disp_tbl(smass0, sfrs00, sfrs00_nofuv, sfrs_resid, meas_errs):
         
         mass_str = str(mbins0[i]-0.25)+'--'+str(mbins0[i]+0.25)
         stlrmass_bins.append(mass_str)
+        num_gals.append(len(bin_match))
         
         avgsfr = np.mean(sfrs00[bin_match])
         sfr_entry = ''
         if avgsfr < 0:
-            sfr_entry += '-%.3f'%avgsfr
+            sfr_entry += '-%.2f'%avgsfr
         else:
-            sfr_entry += '%.3f'%avgsfr
+            sfr_entry += '+%.2f'%avgsfr
 
         avgsfr_nofuv = np.mean(sfrs00_nofuv[bin_match])
         if avgsfr_nofuv < 0:
-            sfr_entry += ' (-%.3f)'%avgsfr_nofuv
+            sfr_entry += ' (-%.2f)'%avgsfr_nofuv
         else:
-            sfr_entry += ' (%.3f)'%avgsfr_nofuv
+            sfr_entry += ' (+%.2f)'%avgsfr_nofuv
 
         avg_sfr.append(sfr_entry)
         
@@ -114,8 +111,8 @@ def create_disp_tbl(smass0, sfrs00, sfrs00_nofuv, sfrs_resid, meas_errs):
         else:
             intrinsic_disp.append('%.3f'%intr_disp)
 
-    tt = Table([stlrmass_bins, avg_sfr, observed_disp, systematic_disp,
-        intrinsic_disp], names=['(1)','(2)','(3)','(4)','(5)'])
+    tt = Table([stlrmass_bins, avg_sfr, num_gals, observed_disp, systematic_disp,
+        intrinsic_disp], names=['(1)','(2)','(3)','(4)','(5)','(6)'])
     
     return tt
 
@@ -145,7 +142,7 @@ def noeske_2007(ax):
     def line(mass, a, b):
         return a*mass + b
 
-    noeske = asc.read(FULL_PATH+'Main_Sequence/Noeske07_fig1_z1.txt',
+    noeske = asc.read(config.FULL_PATH+'Main_Sequence/Noeske07_fig1_z1.txt',
         guess=False, Reader=asc.NoHeader)
     logM   = np.array(noeske['col1'])
     logSFR = np.array(noeske['col2'])
@@ -191,10 +188,8 @@ def plot_resids(ax, markarr, sizearr, z_arr, no_spectra, yes_spectra, smass0,
     '''
     check_nums = []
     for ff,mm,ll,size,avg_z in zip(ffarr, markarr, llarr, sizearr, z_arr):
-        filt_index_n = plot_nbia_mainseq.get_filt_index(no_spectra, ff,
-            filts00)
-        filt_index_y = plot_nbia_mainseq.get_filt_index(yes_spectra, ff,
-            filts00)
+        filt_index_n = get_filt_index(no_spectra, ff, filts00)
+        filt_index_y = get_filt_index(yes_spectra, ff, filts00)
 
         check_nums.append(len(filt_index_y)+len(filt_index_n))
 
@@ -239,7 +234,7 @@ def plot_all_dispersion(f, ax, data00, corr_sfrs, delta_sfrs, stlr_mass, filts,
     MACT dataset, then the residuals are returned as well so that they could
     be used in create_disp_tbl().
     '''
-    func0, eqn0 = plot_nbia_mainseq.get_func0_eqn0(fittype)
+    func0, eqn0 = get_func0_eqn0(fittype)
 
     params_arr = get_mainseq_fit_params(corr_sfrs, delta_sfrs, data00, num_params=3)
     params = [np.mean(params_arr[i]) for i in range(len(params_arr))]
@@ -258,7 +253,7 @@ def plot_all_dispersion(f, ax, data00, corr_sfrs, delta_sfrs, stlr_mass, filts,
     # final touches
     add_legends(ax, withnewha)
     ax.set_xlabel('log(M'+r'$_\bigstar$'+'/M'+r'$_{\odot}$'+')', size=14)
-    ax.set_ylabel(r'$\Delta$'+ytype+' [dex]', size=14)
+    ax.set_ylabel(r'$\Delta$'+ytype+' (dex)', size=14)
 
     [a.tick_params(axis='both', labelsize='10', which='both', direction='in')
         for a in f.axes[:]]
@@ -286,12 +281,12 @@ def main():
     either written or printed (for ease of copy+paste into the paper).
     '''
     # reading in data generated by EBV_corrections.py
-    corr_tbl = asc.read(FULL_PATH+'Main_Sequence/mainseq_corrections_tbl.txt',
+    corr_tbl = asc.read(config.FULL_PATH+'Main_Sequence/mainseq_corrections_tbl.txt',
         guess=False, Reader=asc.FixedWidthTwoLine)
 
-    # defining a flux sigma and mass cutoff
-    good_sig_iis = np.where((corr_tbl['flux_sigma'] >= CUTOFF_SIGMA) & 
-        (corr_tbl['stlr_mass'] >= CUTOFF_MASS))[0]
+    # defining a flux sigma and mass config.CUTOFF
+    good_sig_iis = np.where((corr_tbl['flux_sigma'] >= config.CUTOFF_SIGMA) & 
+        (corr_tbl['stlr_mass'] >= config.CUTOFF_MASS))[0]
     corr_tbl = corr_tbl[good_sig_iis]
 
     # getting/storing useful data
@@ -307,29 +302,27 @@ def main():
     filt_corr_factor = corr_tbl['filt_corr_factor'].data
     nii_ha_corr_factor = corr_tbl['nii_ha_corr_factor'].data
     corr_sfrs = obs_sfr+filt_corr_factor+nii_ha_corr_factor+dust_corr_factor
-    from MACT_utils import get_FUV_corrs
     FUV_corr_factor = get_FUV_corrs(corr_tbl)
 
-    zspec00 = plot_nbia_mainseq.approximated_zspec0(zspec0, filts)
+    zspec00 = approximated_zspec0(zspec0, filts)
     data00 = np.vstack([stlr_mass, zspec00]).T
 
-    z_arr = plot_nbia_mainseq.get_z_arr() # for visualization
+    z_arr = get_z_arr() # for visualization
 
     # plotting
     f, ax = plt.subplots()
     sfrs_resid = plot_all_dispersion(f, ax, data00, corr_sfrs+FUV_corr_factor,
         delta_sfrs, stlr_mass,
         filts, no_spectra, yes_spectra, z_arr)
-    plt.savefig(FULL_PATH+'Plots/main_sequence/mainseq_dispersion.pdf')
+    plt.savefig(config.FULL_PATH+'Plots/main_sequence/mainseq_dispersion.pdf')
     plt.close()
 
     # creating a dispersion table
     meas_errs = corr_tbl['meas_errs'].data # = delta_sfrs
     tt = create_disp_tbl(stlr_mass, corr_sfrs+FUV_corr_factor,
         corr_sfrs, sfrs_resid, meas_errs)
-    # asc.write(tt, FULL_PATH+'Main_Sequence/dispersion_tbl.txt', 
-    #     format='latex', overwrite=True)
-    print(asc.write(tt, format='latex'))
+    asc.write(tt, config.FULL_PATH+'Tables/4.txt', format='latex', overwrite=True)
+    asc.write(tt, config.FULL_PATH+'Tables/4_ascii.txt', format='fixed_width_two_line', overwrite=True)
 
 
 if __name__ == '__main__':

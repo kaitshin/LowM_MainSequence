@@ -15,7 +15,7 @@ OUTPUTS:
 from __future__ import print_function
 
 import numpy as np
-from stack_data import stack
+from analysis.stack_data import stack
 
 # emission line wavelengths (air)
 HG = 4340.46

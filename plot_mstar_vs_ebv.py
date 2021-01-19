@@ -7,12 +7,12 @@ PURPOSE:
     depends on mainseq_corrections.py, 
 
 INPUTS:
-    FULL_PATH+'Main_Sequence/mainseq_corrections_tbl.txt'
-    FULL_PATH+'Composite_Spectra/StellarMassZ/MMT_stlrmassZ_data.txt'
-    FULL_PATH+'Composite_Spectra/StellarMassZ/Keck_stlrmassZ_data.txt'
+    config.FULL_PATH+'Main_Sequence/mainseq_corrections_tbl.txt'
+    config.FULL_PATH+'Composite_Spectra/StellarMassZ/MMT_stlrmassZ_data.txt'
+    config.FULL_PATH+'Composite_Spectra/StellarMassZ/Keck_stlrmassZ_data.txt'
 
 OUTPUTS:
-    FULL_PATH+'Plots/main_sequence/mstar_vs_ebv.pdf'
+    config.FULL_PATH+'Plots/main_sequence/mstar_vs_ebv.pdf'
 
 NOTES:
     for the garn & best scaling, the following was done.
@@ -30,33 +30,27 @@ from __future__ import print_function
 import numpy as np, matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import matplotlib.lines as mlines
-
-from analysis.cardelli import *
-from MACT_utils import composite_errors
+import matplotlib as mpl
 from astropy.io import ascii as asc
-from create_ordered_AP_arrays import create_ordered_AP_arrays
 
-# emission line wavelengths (air)
-HA = 6562.80
+import config
+from MACT_utils import composite_errors
 
-FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
 SEED_ORIG = 276389
 
 ### starting here
 def main():
     # reading in data
-    k_ha = cardelli(HA * u.Angstrom)
+    mmt_cvg = asc.read(config.FULL_PATH+'Composite_Spectra/MMT_spectral_coverage.txt')
+    keck_cvg = asc.read(config.FULL_PATH+'Composite_Spectra/Keck_spectral_coverage.txt')
 
-    mmt_cvg = asc.read(FULL_PATH+'Composite_Spectra/MMT_spectral_coverage.txt')
-    keck_cvg = asc.read(FULL_PATH+'Composite_Spectra/Keck_spectral_coverage.txt')
-
-    corr_tbl = asc.read(FULL_PATH+'Main_Sequence/mainseq_corrections_tbl.txt',guess=False,
+    corr_tbl = asc.read(config.FULL_PATH+'Main_Sequence/mainseq_corrections_tbl.txt',guess=False,
         Reader=asc.FixedWidthTwoLine)
     ha_ii = np.array(corr_tbl['ID'])-1
     zspec0 = corr_tbl['zspec0'].data
     yes_spectra = np.where((zspec0 >= 0) & (zspec0 < 9))[0]
 
-    data_dict = create_ordered_AP_arrays()
+    data_dict = config.data_dict
     HA_FLUX   = data_dict['HA_FLUX'][ha_ii]
     HB_FLUX   = data_dict['HB_FLUX'][ha_ii]
     HA_SNR    = data_dict['HA_SNR'][ha_ii]
@@ -75,9 +69,9 @@ def main():
 
 
     # reading in more data
-    mmt_mz  = asc.read(FULL_PATH+'Composite_Spectra/StellarMassZ/MMT_stlrmassZ_data.txt',
+    mmt_mz  = asc.read(config.FULL_PATH+'Composite_Spectra/StellarMassZ/MMT_stlrmassZ_data.txt',
         guess=False, format='fixed_width_two_line', delimiter=' ')
-    keck_mz = asc.read(FULL_PATH+'Composite_Spectra/StellarMassZ/Keck_stlrmassZ_data.txt',
+    keck_mz = asc.read(config.FULL_PATH+'Composite_Spectra/StellarMassZ/Keck_stlrmassZ_data.txt',
         guess=False, format='fixed_width_two_line', delimiter=' ')
     # using only valid mmt_mz m bins
     aa = np.array([x for x in range(len(mmt_mz)) if mmt_mz['stlrmass_bin'][x] != 'N/A'])
@@ -95,13 +89,13 @@ def main():
     EBV_errs_neg = np.concatenate((mmt_mz['E(B-V)_hahb_errs_neg'][aa], keck_mz['E(B-V)_hahb_errs_neg']))
     EBV_errs_pos = np.concatenate((mmt_mz['E(B-V)_hahb_errs_pos'][aa], keck_mz['E(B-V)_hahb_errs_pos']))
 
-    # replacing invalid MMT NB973 EBV_hahb w/ Keck EBV_hahb
+    # replacing invalid MMT NB973 EBV_hahb w/ MMT NB973 EBV_hghb
     h = [x for x in range(len(aa)) if mmt_mz['filter'][aa][x]=='NB973'][0]
-    EBV[h:h+5] = keck_mz['E(B-V)_hahb'][-5:]
-    EBV_errs_neg[h:h+5] = keck_mz['E(B-V)_hahb_errs_neg'][-5:]
-    EBV_errs_pos[h:h+5] = keck_mz['E(B-V)_hahb_errs_pos'][-5:]
+    EBV[h:h+5] = mmt_mz['E(B-V)_hghb'][-5:]
+    EBV_errs_neg[h:h+5] = mmt_mz['E(B-V)_hghb_errs_neg'][-5:]
+    EBV_errs_pos[h:h+5] = mmt_mz['E(B-V)_hghb_errs_pos'][-5:]
 
-    # replacing invalid lowest two m bins MMT NB921 EBV_hahb w/ EBV_hghb
+    # replacing invalid lowest two m bins MMT NB921 EBV_hahb w/ MMT NB921 EBV_hghb
     i = np.where(mmt_mz['filter']=='NB921')[0][0]
     j = [x for x in range(len(aa)) if mmt_mz['filter'][aa][x]=='NB921'][0]
     EBV[j:j+2] = mmt_mz['E(B-V)_hghb'][i:i+2]
@@ -114,7 +108,10 @@ def main():
 
     # plotting individual galaxies w/ reliable Ha measurements
     # looping over filters
-    for ff, cc in zip(['NB704+NB711','NB816','NB921','NB973'], ['blue','green','orange','red']):
+    cwheel = [np.array(mpl.rcParams['axes.prop_cycle'])[x]['color'] for x in range(4)]
+    # cwheel[1], cwheel[2] = cwheel[2], cwheel[1]
+
+    for ff, cc in zip(['NB704+NB711','NB816','NB921','NB973'], cwheel):
         yz_fmatch = np.array([x for x in range(len(corr_tbl)) if corr_tbl['filt'][x] in ff and 
                               corr_tbl['zspec0'][x]>0 and corr_tbl['zspec0'][x]<9])
 
@@ -149,10 +146,10 @@ def main():
                                         fmt='none', mew=0, ecolor=cc, alpha=0.9)
 
     # plotting composites
-    for ff, cc in zip(['NB704+NB711','NB816','NB921','NB973'], ['blue','green','orange','red']):
+    for ff, cc in zip(['NB704+NB711','NB816','NB921','NB973'], cwheel):
         yz_fmatch = np.array([x for x in range(len(filt_arr)) if filt_arr[x] in ff])
         
-        for inst, shape, ax_ii, shapesize in zip(['MMT','Keck'], ['o','*'], [0,1], [15,20]):
+        for inst, shape, ax_ii, shapesize in zip(['MMT','Keck'], ['o','*'], [0,1], [25,30]):
             inst_match = np.array([x for x in range(len(yz_fmatch)) if inst_arr[yz_fmatch][x]==inst])
             
             if len(inst_match) > 0:
@@ -174,8 +171,8 @@ def main():
     for ax, ii in zip(axarr, range(2)):
         ax.set_xlabel('log(M'+r'$_\bigstar$'+'/M'+r'$_\odot$'+')', size=14)
 
-        ax.plot(x_arr, gb2010/k_ha, 'k--', lw=3, label='Garn & Best (2010)')
-        ax.text(9.65, 0.47, 'Garn & Best (2010)', rotation=33, color='k',
+        ax.plot(x_arr, gb2010/config.k_ha, 'k--', lw=3, label='Garn & Best (2010)')
+        ax.text(9.65, 0.20, 'Garn & Best (2010)', rotation=33, color='k',
              alpha=1, fontsize=10, fontweight='bold')
 
         if ii==0:
@@ -191,16 +188,16 @@ def main():
     ax2.set_ylabel(r'A(H$\alpha$)', size=14)
     ax2.tick_params(axis='y', which='both', direction='in')
     ax2.set_yticks(axarr[0].get_yticks())
-    ax2.set_yticklabels(np.round(k_ha*axarr[0].get_yticks(),2))
+    ax2.set_yticklabels(np.round(config.k_ha*axarr[0].get_yticks(),2))
     ax2.set_xticks([])
     axarr[0].set_ylim(-0.1, 1.45)
 
 
     # creating filter legend
-    b_patch = mpatches.Patch(color='b', label='z~0.07,0.09 (NB704,NB711)')
-    g_patch = mpatches.Patch(color='g', label='z~0.24 (NB816)')
-    o_patch = mpatches.Patch(color='orange', label='z~0.40 (NB921)')
-    r_patch = mpatches.Patch(color='r', label='z~0.49 (NB973)')
+    b_patch = mpatches.Patch(color=cwheel[0], label='z~0.07,0.09 (NB704,NB711)')
+    g_patch = mpatches.Patch(color=cwheel[1], label='z~0.24 (NB816)')
+    o_patch = mpatches.Patch(color=cwheel[2], label='z~0.40 (NB921)')
+    r_patch = mpatches.Patch(color=cwheel[3], label='z~0.49 (NB973)')
 
     # creating instrument legend
     mmt = mlines.Line2D([], [], color='white', mec='k', marker='o', markersize=15, label='MMT')
@@ -222,7 +219,7 @@ def main():
     f.set_size_inches(15,6)
     f.subplots_adjust(wspace=0, left=0.04, right=0.95, top=0.86, bottom=0.09)
 
-    plt.savefig(FULL_PATH+'Plots/main_sequence/mstar_vs_ebv.pdf')
+    plt.savefig(config.FULL_PATH+'Plots/main_sequence/mstar_vs_ebv.pdf')
 
 
 if __name__ == '__main__':

@@ -9,7 +9,6 @@ PURPOSE:
 INPUTS:
     FULL_PATH+'Composite_Spectra/StellarMassZ/MMT_stlrmassZ_data.txt'
     FULL_PATH+'Composite_Spectra/StellarMassZ/Keck_stlrmassZ_data.txt'
-    FULL_PATH+'Main_Sequence/mainseq_corrections_tbl_ref.txt'
 
 OUTPUTS:
     FULL_PATH+'Plots/main_sequence/NII_Ha_scatter.pdf'
@@ -17,12 +16,12 @@ OUTPUTS:
 """
 from __future__ import print_function
 
-from MACT_utils import composite_errors
-from astropy.io import fits as pyfits, ascii as asc
-from create_ordered_AP_arrays import create_ordered_AP_arrays
-from scipy.optimize import curve_fit
 import numpy as np, matplotlib.pyplot as plt
-FULL_PATH = '/Users/kaitlynshin/GoogleDrive/NASA_Summer2015/'
+from astropy.io import fits as pyfits, ascii as asc
+from scipy.optimize import curve_fit
+
+import config
+from MACT_utils import composite_errors, exclude_bad_sources
 
 
 def niiha_oh_determine(x0, type, index=None, silent=None, linear=None):
@@ -73,27 +72,52 @@ def niiha_oh_determine(x0, type, index=None, silent=None, linear=None):
     return OH_gas
 
 
+def get_ref_arrs():
+    # read in stuff
+    nbia = pyfits.open(config.FULL_PATH+config.NB_IA_emitters_cat)
+    nbiadata = nbia[1].data
+    fout  = asc.read(config.FULL_PATH+'FAST/outputs/NB_IA_emitters_allphot.emagcorr.ACpsf_fast.GALEX.fout',
+                     guess=False,Reader=asc.NoHeader)
+    zspec = asc.read(config.FULL_PATH+'Catalogs/nb_ia_zspec.txt',guess=False,
+                     Reader=asc.CommentedHeader)
+
+    
+    NAME0 = np.array(nbiadata['NAME'])
+    ID0   = np.array(nbiadata['ID'])
+    stlr_mass = np.array(fout['col7'])
+    inst_str0 = zspec['inst_str0'].data
+    
+    # limit all data to Halpha emitters only
+    ha_ii = np.array([x for x in range(len(NAME0)) if 'Ha-NB' in NAME0[x]])
+    NAME0       = NAME0[ha_ii]
+
+    # getting rid of unreliable galaxies:
+    ha_ii, NAME0 = exclude_bad_sources(ha_ii, NAME0)
+    ID0         = ID0[ha_ii]
+    stlr_mass   = stlr_mass[ha_ii]
+    inst_str0   = inst_str0[ha_ii]
+
+    ret_ha_ii = ID0 - 1
+    assert(np.all(ha_ii ==ret_ha_ii))
+
+    return ha_ii, stlr_mass, inst_str0
+
+
 def main():
     '''
     '''
     # latex backend for mpl
-    # import matplotlib
     # matplotlib.rcParams['text.usetex'] = True
     # matplotlib.rcParams['text.latex.unicode'] = True
 
     # reading data in
-    mmt_mz  = asc.read(FULL_PATH+'Composite_Spectra/StellarMassZ/MMT_stlrmassZ_data.txt',
+    mmt_mz  = asc.read(config.FULL_PATH+'Composite_Spectra/StellarMassZ/MMT_stlrmassZ_data.txt',
         guess=False, format='fixed_width_two_line', delimiter=' ')
-    keck_mz = asc.read(FULL_PATH+'Composite_Spectra/StellarMassZ/Keck_stlrmassZ_data.txt',
+    keck_mz = asc.read(config.FULL_PATH+'Composite_Spectra/StellarMassZ/Keck_stlrmassZ_data.txt',
         guess=False, format='fixed_width_two_line', delimiter=' ')
-    mainseq_corrs = asc.read(FULL_PATH+'Main_Sequence/mainseq_corrections_tbl_ref.txt',
-        guess=False, format='fixed_width_two_line', delimiter=' ')
+    ha_ii, stlr_mass, inst_str0 = get_ref_arrs()
 
-    stlr_mass = np.array(mainseq_corrs['stlr_mass'])
-    inst_str0 = np.array(mainseq_corrs['inst_str0'])
-    ha_ii = np.array(mainseq_corrs['ID'])-1
-
-    data_dict = create_ordered_AP_arrays()
+    data_dict = config.data_dict
     HA_FLUX   = data_dict['HA_FLUX'][ha_ii]
     HA_SNR    = data_dict['HA_SNR'][ha_ii]
     NIIB_FLUX = data_dict['NIIB_FLUX'][ha_ii]
@@ -237,7 +261,7 @@ def main():
     
 
     plt.tight_layout()
-    plt.savefig(FULL_PATH+'Plots/main_sequence/NII_Ha_scatter.pdf')
+    plt.savefig(config.FULL_PATH+'Plots/main_sequence/NII_Ha_scatter.pdf')
     plt.close()
 
 
@@ -316,7 +340,7 @@ def main():
     # saving plot
     plt.tight_layout()
     plt.gcf().set_size_inches(10,8)
-    plt.savefig(FULL_PATH+'Plots/main_sequence/NII_Ha_scatter_log.pdf')
+    plt.savefig(config.FULL_PATH+'Plots/main_sequence/NII_Ha_scatter_log.pdf')
     plt.close()
 
 
