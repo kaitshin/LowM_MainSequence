@@ -35,10 +35,9 @@ Shin, K.; Ly, C.; Malkan, M. A.; Malhotra, S.; de los Reyes; Mithi; Rhoads, J. E
 ---
 ## Overview of Data
 
-There are three separate files provided with this data distribution:
+There are two separate files provided with this data distribution:
  1. Primary catalog data: `Shin2020_catalog_primary.tbl`
  2. Photometric data: `Shin2020_catalog_photometry.tbl`
- 3. Ancillary spectroscopic data: `Shin2020_catalog_spec.tbl`
 
 
 ### Primary Catalog Data
